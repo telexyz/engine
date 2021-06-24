@@ -9,10 +9,14 @@ const unicode = std.unicode;
 //\n\tđĐàáãâăèéêìíĩòóõôơýùúũưủụọỏịỉỳỵỷỹạảẹẻẽẦẤẬẨẪẰẮẶẲẴỀẾỆỂỄỒỐỘỔỖỜỚỢỞỠỪỨỰỬỮầấậẩẫằắặẳẵềếệểễồốộổỗờớợởỡừứựửữ";
 
 // var str = "▁ÀÁÂÁẦẤẪẨẦẤẰẮẴẲẰẮẬẶẢǍẠẬÀÁÈÉÊà";
-
 // var str = "qrtpdghklxcvbnm";
+// var str = "weyuio";
 
-var str = "weyuio";
+// var str = "qsdklxvb"; // chỉ có thể đứng ở đầu âm tiết
+// var str = "wfjz"; // Ko có trong âm tiết utf8
+// var str = "cmnpthg"; // Đứng cuối ko là nguyên âm chỉ có thể là
+
+var str = "qwertyuiopasdfghjklzxcvbnm";
 
 pub fn main() !void {
     print("\n{s}\n\n", .{str});
@@ -20,34 +24,14 @@ pub fn main() !void {
     var index: usize = undefined;
     var next_index: usize = 0;
 
-    while (next_index < str.len) {
-        index = next_index;
-        const byte: u8 = str[index];
-        const char_bytes_length = unicode.utf8ByteSequenceLength(byte) catch 0;
-        next_index = next_index + char_bytes_length;
-        print("{d}", .{char_bytes_length});
-    }
-
     print("\n\n", .{});
     next_index = 0;
     while (next_index < str.len) {
         index = next_index;
         const byte: u8 = str[index];
-        const char_bytes_length = unicode.utf8ByteSequenceLength(byte) catch 0;
+        const char_bytes_length = try unicode.utf8ByteSequenceLength(byte);
         next_index = next_index + char_bytes_length;
-        if (char_bytes_length < 2) continue;
-        const char = unicode.utf8Decode(str[index..next_index]);
-        print(" '{s}'{d}", .{ str[index..next_index], char });
-    }
-
-    print("\n\n", .{});
-    next_index = 0;
-    while (next_index < str.len) {
-        index = next_index;
-        const byte: u8 = str[index];
-        const char_bytes_length = unicode.utf8ByteSequenceLength(byte) catch 0;
-        next_index = next_index + char_bytes_length;
-        // if (char_bytes_length < 2) continue;
+        // if (byte & 0b1100010 != 0b1100010) continue;
         print("'{s}'", .{str[index..next_index]});
         var i: usize = 0;
         while (i < char_bytes_length) {
@@ -56,4 +40,25 @@ pub fn main() !void {
         }
         print(" \n", .{});
     }
+
+    // while (next_index < str.len) {
+    //     index = next_index;
+    //     const byte: u8 = str[index];
+    //     const char_bytes_length = unicode.utf8ByteSequenceLength(byte) catch 0;
+    //     next_index = next_index + char_bytes_length;
+    //     print("{d}", .{char_bytes_length});
+    // }
+
+    // print("\n\n", .{});
+    // next_index = 0;
+    // while (next_index < str.len) {
+    //     index = next_index;
+    //     const byte: u8 = str[index];
+    //     const char_bytes_length = unicode.utf8ByteSequenceLength(byte) catch 0;
+    //     next_index = next_index + char_bytes_length;
+    //     if (char_bytes_length < 2) continue;
+    //     const char = unicode.utf8Decode(str[index..next_index]);
+    //     print(" '{s}'{d}", .{ str[index..next_index], char });
+    // }
+
 }
