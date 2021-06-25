@@ -5,7 +5,7 @@
 'w':10111
 'z':11010
 
-&= 1100010 != 1100010
+&=  00010 != 00010
 =>
 'b':00010
 'c':00011
@@ -45,7 +45,7 @@
 'u':10101
 'y':11001
 
-Rút gọn còn 4 ops: 1 phép shift right + 3 phép so sánh
+Rút gọn còn 4 ops: 1 phép shift + 3 phép so sánh
 
 x0101 => e,u
 x1001 => i,y

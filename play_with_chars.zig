@@ -3,8 +3,9 @@ const print = std.debug.print;
 const unicode = std.unicode;
 
 // https://www.windmill.co.uk/ascii-control-codes.html
-// 8 backspace, 9 \t, 10 \n, \x0b\x0c\x0d
-// var str = "|\x00\x01\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0f|";
+// Avoid: 0 null, 8 backspace, 9 \t, 10 \n, \x0a \x0b \x0c \x0d \x1b
+// Dùng được 24 invisible ascii chars, 1-7, 15-26 ...
+var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1f|";
 
 //\n\tđĐàáãâăèéêìíĩòóõôơýùúũưủụọỏịỉỳỵỷỹạảẹẻẽẦẤẬẨẪẰẮẶẲẴỀẾỆỂỄỒỐỘỔỖỜỚỢỞỠỪỨỰỬỮầấậẩẫằắặẳẵềếệểễồốộổỗờớợởỡừứựửữ";
 
@@ -16,15 +17,19 @@ const unicode = std.unicode;
 // var str = "wfjz"; // Ko có trong âm tiết utf8
 // var str = "cmnpthg"; // Đứng cuối ko là nguyên âm chỉ có thể là
 
-var str = "qwertyuiopasdfghjklzxcvbnm";
+// var str = "qwertyuiopasdfghjklzxcvbnm";
 
 pub fn main() !void {
-    print("\n{s}\n\n", .{str});
+    var file = try std.fs.cwd().createFile("_output/play_with_chars.txt", .{});
+    defer file.close();
+    _ = try file.writer().write(str);
+
+    print("\n{s}\n", .{str});
 
     var index: usize = undefined;
     var next_index: usize = 0;
 
-    print("\n\n", .{});
+    print("\nlen: {d}\n\n", .{str.len});
     next_index = 0;
     while (next_index < str.len) {
         index = next_index;
@@ -35,7 +40,8 @@ pub fn main() !void {
         print("'{s}'", .{str[index..next_index]});
         var i: usize = 0;
         while (i < char_bytes_length) {
-            print(":{b}", .{str[index + i]});
+            const b = str[index + i];
+            print(":{x}:{d}", .{ b, b });
             i += 1;
         }
         print(" \n", .{});
