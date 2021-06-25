@@ -366,21 +366,21 @@ const TextFileTokenizer = struct {
         _ = try output_file.writer().write(self.text.transformed_bytes[0..n]);
     }
 
-    fn write_token_types_to_file(self: TextFileTokenizer, types_count: std.StringHashMap(u32), output_filename: []const u8) !void {
+    fn write_token_types_to_file(self: TextFileTokenizer, types: std.StringHashMap(Text.TypeInfo), output_filename: []const u8) !void {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
-        const max_token_len = 100;
+        const max_token_len = 30;
         var buffer: [max_token_len + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
-        var it = types_count.iterator();
+        var it = types.iterator();
         while (it.next()) |kv| {
             if (max_token_len < kv.key_ptr.*.len) {
                 print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
-            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.*, kv.key_ptr.* });
+            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.*.count, kv.key_ptr.* });
             _ = try output_file.writer().write(result);
         }
     }
@@ -426,8 +426,8 @@ pub fn main() anyerror!void {
     print("\nDeinit Start! Duration {} ms => {d:.2} mins\n", .{ deinit_ms, deinit_mins });
 
     try tp.write_spacious_tokens_to_file("_output/01_spacious-tokens.txt");
-    try tp.write_token_types_to_file(tp.text.alphabet_types_count, "_output/02_alphabet-types.txt");
-    try tp.write_token_types_to_file(tp.text.delimiter_types_count, "_output/03_delimiter-types.txt");
+    try tp.write_token_types_to_file(tp.text.alphabet_types, "_output/02_alphabet-types.txt");
+    try tp.write_token_types_to_file(tp.text.delimiter_types, "_output/03_delimiter-types.txt");
     // try tp.write_output_file("_output/??_telexified_1000.txt", 1000);
     // try tp.write_output_file(output_filename, 0);
 
@@ -441,7 +441,7 @@ pub fn main() anyerror!void {
 test "Telexify" {
     var tp: TextFileTokenizer = .{
         .init_allocator = std.testing.allocator,
-        .max_lines_count = 100, // process maximum 100 lines only
+        .max_lines_count = 100, // For testing process maximum 100 lines only
     };
     try tp.init("_input/corpus/corpus-title-sample.txt");
     defer tp.deinit();

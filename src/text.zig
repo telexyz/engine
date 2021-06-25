@@ -51,8 +51,8 @@ pub const Text = struct {
 
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
-    alphabet_types_count: std.StringHashMap(u32) = undefined,
-    delimiter_types_count: std.StringHashMap(u32) = undefined,
+    alphabet_types: std.StringHashMap(TypeInfo) = undefined,
+    delimiter_types: std.StringHashMap(TypeInfo) = undefined,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
@@ -61,6 +61,13 @@ pub const Text = struct {
 
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
+
+    const MAX_TELEXIFIED_SIZE = 12 * 1024 * 1024; // 12mb
+
+    pub const TypeInfo = struct {
+        count: u32 = 0,
+        transform: ?[]const u8 = null,
+    };
 
     // A token can have multiple atributes:
     // Each attribute is re-presented by an enum
@@ -108,15 +115,15 @@ pub const Text = struct {
         self.tokens_attrs = try self.allocator.alloc(TokenAttributes, est_token_num.*);
 
         // Init types count
-        self.alphabet_types_count = std.StringHashMap(u32).init(self.allocator);
-        self.delimiter_types_count = std.StringHashMap(u32).init(self.allocator);
+        self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.delimiter_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
         // Init transforms list
         self.transforms = try self.allocator.alloc([]const u8, est_token_num.*);
 
         // Init transformed_bytes, each token may have an additional byte at the begining
         // to present it's attribute so we need more memory than input_bytes
-        self.transformed_bytes_size = input_bytes_size / 3;
+        self.transformed_bytes_size = MAX_TELEXIFIED_SIZE;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Start empty token list and empty transfomed bytes
@@ -136,11 +143,11 @@ pub const Text = struct {
         self.tokens_number += 1;
 
         const gop = if (token_attrs.category == .alphabet)
-            try self.alphabet_types_count.getOrPutValue(token, 0)
+            try self.alphabet_types.getOrPutValue(token, TypeInfo{})
         else
-            try self.delimiter_types_count.getOrPutValue(token, 0);
+            try self.delimiter_types.getOrPutValue(token, TypeInfo{});
 
-        gop.value_ptr.* += 1;
+        gop.value_ptr.*.count += 1;
     }
 
     pub inline fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream, tkn_idx: usize) []const u8 {
@@ -198,12 +205,30 @@ pub const Text = struct {
         self.transformed_bytes[self.transformed_bytes_len] = b;
     }
 
-    pub fn telexifyAlphabetTokens(self: Text) void {
+    pub fn telexifyAlphabetTokens(self: *Text) void {
+        // @setRuntimeSafety(false);
         var i: usize = 0;
         while (i < self.tokens_number) : (i += 1) {
             const token = self.tokens[i];
-            var syllable = parsers.parseAmTietToGetSyllable(printNothing, token);
-            std.debug.print("| {d}:{s} |\n", .{ i, syllable.toStr() });
+            const type_info = self.alphabet_types.get(token);
+
+            if (type_info == null) continue;
+            if (type_info.?.transform != null) continue;
+
+            var syllable = parsers.parseAmTietToGetSyllable(true, printNothing, token);
+            const begin = self.transformed_bytes_len;
+
+            if (!syllable.can_be_vietnamese) continue;
+
+            for (syllable.toStr()) |b| {
+                self.transformed_bytes[self.transformed_bytes_len] = b;
+                self.transformed_bytes_len += 1;
+            }
+
+            self.tokens_attrs[i].category = .syllable;
+            self.transforms[i] = self.transformed_bytes[begin..self.transformed_bytes_len];
+
+            std.debug.print("| {d}:{s} |\n", .{ i, self.transforms[i] });
         }
     }
 };
@@ -234,7 +259,7 @@ test "Text" {
     try text.countToken(it.next().?, token_attrs);
     try text.countToken(it.next().?, token_attrs);
 
-    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, text);
+    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
     thread.wait();
 
     while (it.next()) |tkn| {
@@ -243,8 +268,8 @@ test "Text" {
 
     try std.testing.expect(text.tokens_number == 9);
     try std.testing.expectEqualStrings(text.tokens[7], "nhà");
-    try std.testing.expect(text.alphabet_types_count.get("nhà").? == 2);
-    try std.testing.expect(text.alphabet_types_count.get("xxx") == null);
-    try std.testing.expect(text.alphabet_types_count.count() == 8);
-    try std.testing.expect(text.delimiter_types_count.count() == 0);
+    try std.testing.expect(text.alphabet_types.get("nhà").?.count == 2);
+    try std.testing.expect(text.alphabet_types.get("xxx") == null);
+    try std.testing.expect(text.alphabet_types.count() == 8);
+    try std.testing.expect(text.delimiter_types.count() == 0);
 }
