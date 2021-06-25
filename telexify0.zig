@@ -175,6 +175,7 @@ const TextProcessor = struct {
                         lines_count += 1;
                         print("line: {d}\n", .{lines_count});
                         if (lines_count >= self.max_lines_count) {
+                            self.output_index = output_index;
                             return;
                         }
                     }

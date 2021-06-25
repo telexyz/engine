@@ -80,9 +80,9 @@ pub const Text = struct {
     };
 
     pub const TokenCategory = enum(u6) {
-        others = 1, // + 2-bits => 4,5,6,7
-        alphabet = 4, // + 2-bits => 16,17,18,19
-        syllable = 5, // + 2-bits => 20,21,22,23
+        syllable = 1, // + 2-bits => 04,05,06,07 
+        alphabet = 4, // + 2-bits => 16,17,18,19 
+        others = 5, //   + 2-bits => 20,21,22,23 
     };
 
     pub const TokenSurroundedBySpaces = enum(u2) {
@@ -145,6 +145,8 @@ pub const Text = struct {
         // const token = self.input_bytes[token_start..token_end];
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = token_attrs;
+        // Default, transform to itself :)
+        self.transforms[self.tokens_number] = token;
         self.tokens_number += 1;
 
         const gop = if (token_attrs.category == .alphabet)
@@ -155,7 +157,7 @@ pub const Text = struct {
         gop.value_ptr.*.count += 1;
     }
 
-    pub fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream) []const u8 {
+    pub fn saveAndReturnTransform(self: *Text, char_stream: U2ACharStream) []const u8 {
         // Convert input's utf-8 to output's ascii-telex
         const bytes_len = &self.transformed_bytes_len;
         const trans_start_at = bytes_len.*;
@@ -216,13 +218,15 @@ pub const Text = struct {
 
         var i: *usize = &self.processed_types_count;
         while (i.* <= self.tokens_number) : (i.* += 1) {
+            // Check if reach the end of tokens list
             if (i.* == self.tokens_number) {
+                // If no more tokens for sure then return
                 if (self.tokens_number_finalized) return;
                 // BEGIN waiting for new tokens (all tokens is processed)
                 while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
                     std.time.sleep(sleep_time);
                     sleeps_count += 1;
-                    std.debug.print("\n- - - -\n{d} <= {d}\n- - - -\n", .{ self.tokens_number, sleeps_count });
+                    // std.debug.print("\n- - - -\n{d} <= {d}\n- - - -\n", .{ self.tokens_number, sleeps_count });
                 }
                 if (i.* == self.tokens_number) {
                     // No new token and timeout
@@ -233,18 +237,27 @@ pub const Text = struct {
                 }
             } // END waiting for new tokens
 
+
+            // Init token and it's attributes shortcuts
             var token = self.tokens[i.*];
+
+            // is NewLine token
+            if (token[0] == '\n') {
+                self.transformed_bytes[self.transformed_bytes_len] = '\n';
+                self.transformed_bytes_len += 1;
+                continue;
+            }
+
+            //  and it's attributes shortcuts
             var attrs = &self.tokens_attrs[i.*];
+            var token_written = false;
+            
+            // Reserver first-byte to write token attrs
+            const firt_byte_index = self.transformed_bytes_len;
+            self.transformed_bytes_len += 1;
 
-            if (attrs.category != .alphabet) {
-                // Copy token as it is
-                for (token) |b| {
-                    self.transformed_bytes[self.transformed_bytes_len] = b;
-                    self.transformed_bytes_len += 1;
-                }
-            } else {
-
-                // Type info's must existed
+            if (attrs.category == .alphabet) {
+                // Since token is alphabet, it's alphabet_types[i].info must existed
                 var type_info = self.alphabet_types.get(token).?;
                 const not_transformed = type_info.category == .others;
 
@@ -260,8 +273,9 @@ pub const Text = struct {
 
                     if (syllable.can_be_vietnamese) {
                         type_info.category = .syllable;
-                        type_info.transform = self.recordAndReturnTransform(char_stream);
-                        // std.debug.print("| {d}:{s} |\n", .{ i, type_info.transform });
+                        type_info.transform = self.saveAndReturnTransform(char_stream);
+                        token_written = true;
+                        // std.debug.print("\n{d}:{s}\n", .{ i, type_info.transform });
                     } else {
                         type_info.category = .alphabet;
                     }
@@ -272,18 +286,16 @@ pub const Text = struct {
                     self.transforms[i.*] = type_info.transform;
                     token = type_info.transform;
                 }
-
-                if (!(not_transformed and type_info.category == .syllable)) {
-                    for (token) |b| {
-                        self.transformed_bytes[self.transformed_bytes_len] = b;
-                        self.transformed_bytes_len += 1;
-                    }
-                }
             }
 
-            // Write attrs + space at the end of token's ouput stream
-            self.appendTramsformedBytes(@bitCast(u8, attrs.*));
-            // self.appendTramsformedBytes(' ');
+            if (!token_written) {
+                for (token) |b| {
+                    self.transformed_bytes[self.transformed_bytes_len] = b;
+                    self.transformed_bytes_len += 1;
+                }
+            }
+            // Write attrs + space at the begin of token's ouput stream
+            self.transformed_bytes[firt_byte_index] = @bitCast(u8, attrs.*);
         }
     }
 };
