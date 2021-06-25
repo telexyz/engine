@@ -114,7 +114,7 @@ pub const Text = struct {
 
         // Init transformed_bytes, each token may have an additional byte at the begining
         // to present it's attribute so we need more memory than input_bytes
-        self.transformed_bytes_size = input_bytes_size + est_token_num.*;
+        self.transformed_bytes_size = input_bytes_size / 3;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Start empty token list and empty transfomed bytes
