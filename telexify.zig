@@ -358,12 +358,25 @@ const TextFileTokenizer = struct {
     }
 
     fn write_output_file(self: TextFileTokenizer, output_filename: []const u8, max: usize) !void {
-        var n = self.text.transformed_bytes_len;
+        var n = self.text.tokens_number;
         if (max > 0 and n > max) n = max;
         // Open files to write transformed input data (final result)
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
-        _ = try output_file.writer().write(self.text.transformed_bytes[0..n]);
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            const token = self.text.tokens[i];
+            const attrs = self.text.tokens_attrs[i];
+            _ = try output_file.writer().write(token);
+            if (attrs.category == .syllable) {
+                const trans = self.text.transforms[i];
+                _ = try output_file.writer().write("|");
+                _ = try output_file.writer().write(trans);
+            }
+            if (attrs.surrounded_by_spaces == .both or
+                attrs.surrounded_by_spaces == .right)
+                _ = try output_file.writer().write(" ");
+        }
     }
 
     fn write_token_types_to_file(self: TextFileTokenizer, types: std.StringHashMap(Text.TypeInfo), output_filename: []const u8) !void {
@@ -386,6 +399,9 @@ const TextFileTokenizer = struct {
     }
 };
 
+// Init and config a new TextFileTokenizer
+var tp: TextFileTokenizer = undefined;
+
 pub fn main() anyerror!void {
     const start_time = time.milliTimestamp();
     print("\nstart_time {}\n", .{start_time});
@@ -406,12 +422,10 @@ pub fn main() anyerror!void {
     // Optional, get max_lines_count from args
     const max_lines_count: usize = if (args.nextPosix() != null) 1001 else 0;
 
-    // Init and config a new TextFileTokenizer
-    var tp: TextFileTokenizer = .{
+    tp = .{
         .init_allocator = std.heap.page_allocator,
         .max_lines_count = max_lines_count,
     };
-
     try tp.init(input_filename);
     defer tp.deinit();
 
@@ -421,15 +435,24 @@ pub fn main() anyerror!void {
 
     try tp.parse();
 
-    const deinit_ms = time.milliTimestamp() - start_time;
-    const deinit_mins = @intToFloat(f32, deinit_ms) / 60000;
-    print("\nDeinit Start! Duration {} ms => {d:.2} mins\n", .{ deinit_ms, deinit_mins });
+    const step1_ms = time.milliTimestamp() - start_time;
+    const step1_mins = @intToFloat(f32, step1_ms) / 60000;
+    print("\nStep1 finish! Duration {} ms => {d:.2} mins\n", .{ step1_ms, step1_mins });
+
+    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &tp.text);
 
     try tp.write_spacious_tokens_to_file("_output/01_spacious-tokens.txt");
     try tp.write_token_types_to_file(tp.text.alphabet_types, "_output/02_alphabet-types.txt");
     try tp.write_token_types_to_file(tp.text.delimiter_types, "_output/03_delimiter-types.txt");
-    // try tp.write_output_file("_output/??_telexified_1000.txt", 1000);
-    // try tp.write_output_file(output_filename, 0);
+
+    thread.wait();
+
+    const step2_ms = time.milliTimestamp() - start_time;
+    const step2_mins = @intToFloat(f32, step2_ms) / 60000;
+    print("\nStep2 finish! Duration {} ms => {d:.2} mins\n", .{ step2_ms, step2_mins });
+
+    try tp.write_output_file("_output/04_telexified_999.txt", 999);
+    try tp.write_output_file(output_filename, 0);
 
     const end_time = time.milliTimestamp();
     print("\nend_time {}\n", .{end_time});
@@ -439,11 +462,11 @@ pub fn main() anyerror!void {
 }
 
 test "Telexify" {
-    var tp: TextFileTokenizer = .{
+    var tfp: TextFileTokenizer = .{
         .init_allocator = std.testing.allocator,
         .max_lines_count = 100, // For testing process maximum 100 lines only
     };
-    try tp.init("_input/corpus/corpus-title-sample.txt");
-    defer tp.deinit();
-    try tp.parse();
+    try tfp.init("_input/corpus/corpus-title-sample.txt");
+    defer tfp.deinit();
+    try tfp.deinit();
 }

@@ -210,10 +210,16 @@ pub const Text = struct {
         var i: usize = 0;
         while (i < self.tokens_number) : (i += 1) {
             const token = self.tokens[i];
-            const type_info = self.alphabet_types.get(token);
+            var type_info = self.alphabet_types.get(token);
 
-            if (type_info == null) continue;
-            if (type_info.?.transform != null) continue;
+            if (type_info == null) continue; // not alphabet type
+
+            if (type_info.?.transform != null) {
+                // transformed
+                self.tokens_attrs[i].category = .syllable;
+                self.transforms[i] = type_info.?.transform.?;
+                continue;
+            }
 
             var syllable = parsers.parseAmTietToGetSyllable(true, printNothing, token);
             const begin = self.transformed_bytes_len;
@@ -225,10 +231,11 @@ pub const Text = struct {
                 self.transformed_bytes_len += 1;
             }
 
-            self.tokens_attrs[i].category = .syllable;
-            self.transforms[i] = self.transformed_bytes[begin..self.transformed_bytes_len];
+            type_info.?.transform = self.transformed_bytes[begin..self.transformed_bytes_len];
 
-            std.debug.print("| {d}:{s} |\n", .{ i, self.transforms[i] });
+            self.tokens_attrs[i].category = .syllable;
+            self.transforms[i] = type_info.?.transform.?;
+            // std.debug.print("| {d}:{s} |\n", .{ i, self.transforms[i] });
         }
     }
 };
