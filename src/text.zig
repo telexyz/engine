@@ -1,4 +1,6 @@
 const std = @import("std");
+
+const parsers = @import("./parsers.zig");
 const chars_utils = @import("./chars_utils.zig");
 const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
 
@@ -196,10 +198,17 @@ pub const Text = struct {
         self.transformed_bytes[self.transformed_bytes_len] = b;
     }
 
-    pub fn telexifyAlphabetTokens() void {
-        //
+    pub fn telexifyAlphabetTokens(self: Text) void {
+        var i: usize = 0;
+        while (i < self.tokens_number) : (i += 1) {
+            const token = self.tokens[i];
+            var syllable = parsers.parseAmTietToGetSyllable(printNothing, token);
+            std.debug.print("| {d}:{s} |\n", .{ i, syllable.toStr() });
+        }
     }
 };
+
+fn printNothing(comptime fmt_str: []const u8, args: anytype) void {}
 
 test "Text" {
     var text = Text{
@@ -222,9 +231,16 @@ test "Text" {
     try std.testing.expect(text.tokens_number == 1);
     try std.testing.expectEqualStrings(text.tokens[0], "Cả");
 
+    try text.countToken(it.next().?, token_attrs);
+    try text.countToken(it.next().?, token_attrs);
+
+    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, text);
+    thread.wait();
+
     while (it.next()) |tkn| {
         try text.countToken(tkn, token_attrs);
     }
+
     try std.testing.expect(text.tokens_number == 9);
     try std.testing.expectEqualStrings(text.tokens[7], "nhà");
     try std.testing.expect(text.alphabet_types_count.get("nhà").? == 2);
