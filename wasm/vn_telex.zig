@@ -37,7 +37,7 @@ pub export fn wasmCanBeVietnamese(start: usize, size: usize, mem_ptr: [*]u8) boo
     message_ptr = mem_ptr;
 
     const am_tiet: []const u8 = mem_ptr[start .. start + size];
-    const result = parseAmTietToGetSyllable(print, am_tiet).can_be_vietnamese;
+    const result = parseAmTietToGetSyllable(false, print, am_tiet).can_be_vietnamese;
 
     // printStr(am_tiet);
     // printResult(if (result) 1 else 0);

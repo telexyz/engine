@@ -52,7 +52,7 @@ pub fn syllableToId(syllable: Syllable) u17 {
 // => Còn 1-bit dư của cả tri-syllable (1=64-21*3) chưa biết làm gì?
 
 pub fn amTietToId(am_tiet: []const u8) u17 {
-    return syllableToId(parseAmTietToGetSyllable(print, am_tiet));
+    return syllableToId(parseAmTietToGetSyllable(false, print, am_tiet));
 }
 
 // Convert an id to Syllable
@@ -109,7 +109,7 @@ pub fn syllableToNoMarkSyllable(syllable: Syllable) Syllable {
 }
 
 pub fn amTietToNoMarkId(am_tiet: []const u8) u17 {
-    const syllable = parseAmTietToGetSyllable(print, am_tiet);
+    const syllable = parseAmTietToGetSyllable(false, print, am_tiet);
     const no_mark_syllable = syllableToNoMarkSyllable(syllable);
     return syllableToId(no_mark_syllable);
 }

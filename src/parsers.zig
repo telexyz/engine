@@ -194,7 +194,7 @@ const unicode = std.unicode;
 // Syllable is a data structure that split am_tiet input into:
 // .am_dau, .am_giua, .am_cuoi, and .tone enums. It also do a checking to see
 // if this am_tiet .can_be_vietnamese or not
-pub fn parseAmTietToGetSyllable(comptime print: print_op, str: []const u8) Syllable {
+pub fn parseAmTietToGetSyllable(strict: bool, comptime print: print_op, str: []const u8) Syllable {
     var syllable = Syllable.init();
     var char_stream = U2ACharStream.init();
 
@@ -227,11 +227,36 @@ pub fn parseAmTietToGetSyllable(comptime print: print_op, str: []const u8) Sylla
         char_stream.pushCharAndFirstByte(char, byte) catch |err| {
             // Any error with char_stream, just return current parsed syllable
             // The error should not affect the result of the parse
+            syllable.can_be_vietnamese = false;
             return syllable;
         };
         pushCharsToSyllable(print, &char_stream, &syllable);
         index = next_index;
     }
+
+    if (strict) {
+        // Check #1: Filter out ascii-telex syllable like:
+        // car => cả, beer => bể ...
+        if (char_stream.tone == 0 and syllable.tone != ._none) {
+            syllable.can_be_vietnamese = false;
+            return syllable;
+        }
+
+        // Check #2: Filter out ascii-telex syllable like:
+        // awn => ăn, doo => dô
+        if (syllable.am_giua.hasMark() and !char_stream.has_mark) {
+            syllable.can_be_vietnamese = false;
+            return syllable;
+        }
+
+        // Check #3: Filter out prefix look like syllable but it's not:
+        // Mộtd, cuốiiii ...
+        if (char_stream.len > syllable.len()) {
+            syllable.can_be_vietnamese = false;
+            return syllable;
+        }
+    }
+
     return syllable;
 }
 
@@ -484,8 +509,8 @@ inline fn _amDau(str: []const u8) AmDau {
 }
 
 fn canBeVietnamese(am_tiet: []const u8) bool {
-    // return parseAmTietToGetSyllable(std.debug.print, am_tiet).can_be_vietnamese;
-    return parseAmTietToGetSyllable(print_nothing, am_tiet).can_be_vietnamese;
+    // return parseAmTietToGetSyllable(false, std.debug.print, am_tiet).can_be_vietnamese;
+    return parseAmTietToGetSyllable(false, print_nothing, am_tiet).can_be_vietnamese;
 }
 
 fn print_nothing(comptime fmt_str: []const u8, args: anytype) void {}
@@ -493,12 +518,12 @@ fn print_nothing(comptime fmt_str: []const u8, args: anytype) void {}
 pub export fn testPerformance(n: usize) void {
     var i: usize = 0;
     while (i < n) : (i += 1) {
-        _ = parseAmTietToGetSyllable(print_nothing, "gioaj");
-        _ = parseAmTietToGetSyllable(print_nothing, "gioas");
-        _ = parseAmTietToGetSyllable(print_nothing, "giueej");
-        _ = parseAmTietToGetSyllable(print_nothing, "giuyeen");
-        _ = parseAmTietToGetSyllable(print_nothing, "giuyeetj");
-        _ = parseAmTietToGetSyllable(print_nothing, "giuy");
+        _ = parseAmTietToGetSyllable(false, print_nothing, "gioaj");
+        _ = parseAmTietToGetSyllable(false, print_nothing, "gioas");
+        _ = parseAmTietToGetSyllable(false, print_nothing, "giueej");
+        _ = parseAmTietToGetSyllable(false, print_nothing, "giuyeen");
+        _ = parseAmTietToGetSyllable(false, print_nothing, "giuyeetj");
+        _ = parseAmTietToGetSyllable(false, print_nothing, "giuy");
     }
 }
 
@@ -514,14 +539,14 @@ test "canBeVietnamese() // get tone from stream" {
 }
 
 test "canBeVietnamese() // other encode" {
-    var syllable = parseAmTietToGetSyllable(print_nothing, "mất");
+    var syllable = parseAmTietToGetSyllable(false, print_nothing, "mất");
     try expect(syllable.can_be_vietnamese);
     try expect(syllable.am_dau == .m);
     try expect(syllable.am_giua == .aa);
     try expect(syllable.am_cuoi == .t);
     try expect(syllable.tone == .s);
 
-    syllable = parseAmTietToGetSyllable(print_nothing, "ắn");
+    syllable = parseAmTietToGetSyllable(false, print_nothing, "ắn");
     try expect(syllable.am_giua == .aw);
 }
 
@@ -597,8 +622,8 @@ test "canBeVietnamese() // No-tone and/or no-mark" {
 
 const syllableToAmTiet = @import("converters.zig").syllableToAmTiet;
 fn strToAmTiet(str: []const u8) []const u8 {
-    return syllableToAmTiet(parseAmTietToGetSyllable(print_nothing, str));
-    // return parseAmTietToGetSyllable(print_nothing, str).toStr();
+    return syllableToAmTiet(parseAmTietToGetSyllable(false, print_nothing, str));
+    // return parseAmTietToGetSyllable(false, print_nothing, str).toStr();
 }
 
 test "canBeVietnamese() // iee, yee (uyee), ooo, uee" {

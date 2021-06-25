@@ -23,5 +23,5 @@ pub fn main() anyerror!void {
     };
 
     print("Syllable: {s}\n", .{syllable});
-    print("parseAmTietToGetSyllable \"{s}\" => {any}\n\n", .{ syllable, parsers.parseAmTietToGetSyllable(print, syllable) });
+    print("parseAmTietToGetSyllable \"{s}\" => {any}\n\n", .{ syllable, parsers.parseAmTietToGetSyllable(false, print, syllable) });
 }

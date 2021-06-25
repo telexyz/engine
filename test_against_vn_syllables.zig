@@ -9,7 +9,7 @@ fn print(comptime fmt_str: []const u8, args: anytype) void {
 
 inline fn canBeVi(buff: []u8, word: []const u8) bool {
     // print("\n\nword: '{s}'\n", .{ word });
-    return parsers.parseAmTietToGetSyllable(print, word).can_be_vietnamese;
+    return parsers.parseAmTietToGetSyllable(false, print, word).can_be_vietnamese;
 }
 
 const expect = @import("std").testing.expect;
