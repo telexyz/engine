@@ -76,6 +76,7 @@ const TextFileTokenizer = struct {
         var is_spacious_delimiter = true;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
+        var byte2: u8 = 0; // second byte of the utf-8 char (if needed)
         var char_bytes_length: u3 = undefined;
         var char_type: CharTypes = undefined;
 
@@ -144,15 +145,13 @@ const TextFileTokenizer = struct {
                         @panic("error.Utf8InvalidStartByte");
                     }
 
-                    var byte2 = input_bytes[index + 1];
-
                     // The most important thing here is we determine char_bytes_length
                     // So later we increase next_index pointer to a VALID byte
                     if (first_byte <= 0b0111_1111) {
                         char_bytes_length = 1;
-                        //
                     } else if (0b1100_0000 <= first_byte and first_byte <= 0b1101_1111) {
                         char_bytes_length = 2;
+                        byte2 = input_bytes[index + 1];
                         // Rough filter to see if it .alphabet_char_can_be
                         if (195 <= first_byte and first_byte <= 198 and
                             128 <= byte2 and byte2 <= 189)
@@ -164,6 +163,7 @@ const TextFileTokenizer = struct {
                         //
                     } else if (first_byte == 225) {
                         char_bytes_length = 3;
+                        byte2 = input_bytes[index + 1];
                         // Rough filter to see if it .alphabet_char_can_be
                         if (byte2 == 186 or byte2 == 187)
                             char_type = .alphabet_char_can_be;

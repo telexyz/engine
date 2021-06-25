@@ -126,7 +126,7 @@ pub const Text = struct {
         // free all allocated memories
         self.arena.deinit();
     }
-    pub fn countToken(self: *Text, token: []const u8, token_attrs: TokenAttributes) !void {
+    pub inline fn countToken(self: *Text, token: []const u8, token_attrs: TokenAttributes) !void {
         // Insert token into a hash_map to know if we seen it before or not
         // const token = self.input_bytes[token_start..token_end];
         self.tokens[self.tokens_number] = token;
