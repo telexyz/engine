@@ -1,6 +1,6 @@
 # VIETNAM TKNZ
 
-* Rule #1: SYLLABLES are FIRST CLASS Citizen
+* Rule #1: SYLLABLES are FIRST CLASS Citizens
 * Rule #2: SubWord must re-use known SYLLABLES
 * Rule #3: Phải tách được tokens bị dính
 	=> Chấp nhận nhiều ứng cử viên tiềm năng, chọn lọc sau!
@@ -14,41 +14,42 @@ TODO:
 
 * Handle `Thoọng`, need to conver `oo` to `ooo`
 
-* Token can be `lower_case`, `title_case` or `upper_case`, mark they _case-attribute_ and normalize them to _lower_case-form tokens_
-
-* Choose an efficient bytes-hashing algorithm to count similar _utf8 lower_case-fom tokens_ to create _utf8 types_ (see `_HASH.md`)
-
 * Find an efficient way to check if a _utf8 type_ is a Vi Syllable or not!
   - We know that `am_giua` is a must for a Vi Syllable
   - Some `am_giua` can follow one some `am_dau` and only be followed by some `am_cuoi`
 
 * Convert _utf8 types_ to _ascii-telex types_: colapse types that have similar _ascii-telex represention_ to create next layer of _ascii-telex types_
 
+[ DONE ]
+
+* Choose an efficient bytes-hashing algorithm to count similar _utf8 lower_case-fom tokens_ to create _utf8 types_ (see `_HASH.md`)
+
 ### Bi-directonaly Mapping Multiple layer of (Re-)presentations:
 1. utf8 byte
 2. utf8 non-breaking tokens
-3. case-attribute + utf8_lower_case-form tokens
-4. utf8_lower_case types
-5. ascii-telex_lower_case types (syllable vocab)
+3. utf8 tokens
+4. utf8 types
+5. ascii-telex types (syllable vocab)
 
-Above if final result of phrase-1
+The purpose of this phrase is to split the input text into a list of non-breaking tokens separated by space characters that can be inputted from keyboard (32, 9).
 
-The purpose of this phrase is to split the input text into a list of non-breaking tokens separated by invisiable space characters that can input from keyboard (32, 7).
+It's could be Syllables `Chây   ì   nộp   phạt   nguội   Cháu   đòi   tiền   cơm   dì   nhà   Đà   Nẵng   nghiên   cứu   tiện   ích   nhắn   tin   khi   vi   phạm   đến   chủ   phương   Khó   xử   vụ   mẹ   tuổi   trộm   xe   hơi   của   con   gái   Thay   đổi   về   đăng   ký   chuyển   nhượng   từ   bạn   cần   biết   Những   trường   hợp   trưng   cầu   giám   định   trong   án   kinh   tế   Thị   trấn   ở   bán   với   giá   hơn   để   thu   hút   cư   dân   Bỏ   quy`
 
-It's could be anything, a very-long url for example, a VERY LONG TOKEN: http://vnexpress.net/tin-tuc/giao-duc/cao-dang-cong-nghe-thong-tin-tp-hcm-khong-co-nguoi-dieu-hanh-307767.
+Or non-alphabet / abbr / foreign-words ... `.   ,   70   12/2   1   12/2/2018:   20   :   '   '.   12/2.   20.000   02/2018.   2/2018?.   2/2018.   12/2:   24.000   2   ?.   -   12/02/2018,   18   (   ).   12   !'.   12:   7/18.   12/2/2018.   m2   BOT   18   QL18   TPHCM   CAND   7   FLC   4   SEA   Games   PVP   Land   U23   6km   MC   68   3   Samsung   Display   300   VFF   29   8   TNCN   AFF   Cup   2008   23   Italy   euro   200   Vietlott   105   27   21   casino   1986   FDI   jeans   DNNVV   bikini   TP   HCM   25   30   Rolls   Royce   Bespoke   2017   Cagliari   Juventus   HLV   Allegri   Serie   Icardi   Inter   80   4000   26   Rome   Mourinho   Morata   C1   Real   Ronaldo   VN   K   BHXH   THPT   Myanmar   Rohingya   TAND   T   ara   Facebook   Clip   Mercedes   container   Venezuela   265   Google   Uber   Aerobic   260   16   Malaysia   Chol`,
 
-Or Vi Syllables `Chây   ì   nộp   phạt   nguội   Cháu   đòi   tiền   cơm   dì   nhà   Đà   Nẵng   nghiên   cứu   tiện   ích   nhắn   tin   khi   vi   phạm   đến   chủ   phương   Khó   xử   vụ   mẹ   tuổi   trộm   xe   hơi   của   con   gái   Thay   đổi   về   đăng   ký   chuyển   nhượng   từ   bạn   cần   biết   Những   trường   hợp   trưng   cầu   giám   định   trong   án   kinh   tế   Thị   trấn   ở   bán   với   giá   hơn   để   thu   hút   cư   dân   Bỏ   quy`
+Or look-like-Vietnamese (typo, abbr, borrowed-words ...) `BHYTNâng   ĐHTB   Bôlykhămxay   này15   Xôviết   iốt   NộiThích   HĐBA   crôm   Chilê   HĐLĐ   uyênhXí   Hrê   Krông   BĐKH   đôla   ĐHQG   Euréka   QSĐ   đónTết   Tiếg   toàndiện   záo   zụk   ĐT601   LĐLĐVN   LĐTB   zăng   CQĐT   đôlômit   Thoọng   Vắcxin   ĐVHD   áBo   PTĐ   CĐCS   xtê   GĐKT   kêt   sơmi   QĐND   ATVSLĐ   Môt   hạiBài`
 
-Or digits / abbr / foreign words `70   12   2   Ollolai   Italia   1   USD   2018   20   000   02   24   m2   BOT   18   QL18   TPHCM   CAND   7   FLC   4   SEA   Games   PVP   Land   U23   6km   MC   68   3   Samsung   Display   300   VFF   29   8   TNCN   AFF   Cup   2008   23   Italy   euro   200   Vietlott   105   27   21   casino   1986   FDI   jeans   DNNVV   bikini   TP   HCM   25   30   Rolls   Royce   Bespoke   2017   Cagliari   Juventus   HLV   Allegri   Serie   Icardi   Inter   80   4000   26   Rome   Mourinho   Morata   C1   Real   Ronaldo   VN   K   BHXH   THPT   Myanmar   Rohingya   TAND   T   ara   Facebook   Clip   Mercedes   container   Venezuela   265   Google   Uber   Aerobic   260   16   Malaysia   Chol`,
 
-Or most-likeky-Vietnamese (has mark-or-tone) likes `BHYTNâng   ĐHTB   Bôlykhămxay   này15   Xôviết   iốt   NộiThích   HĐBA   crôm   Chilê   HĐLĐ   uyênhXí   Hrê   Krông   BĐKH   đôla   ĐHQG   Euréka   QSĐ   đónTết   Tiếg   toàndiện   záo   zụk   ĐT601   LĐLĐVN   LĐTB   zăng   CQĐT   đôlômit   Thoọng   Vắcxin   ĐVHD   áBo   PTĐ   CĐCS   xtê   GĐKT   kêt   sơmi   QĐND   ATVSLĐ   Môt   hạiBài`
-
-This phrase must complete below tasks:
+This phrase must FULLFILL:
 
 * Moving fast and try to detect as much syllable-tokens using strict rules [$] as possible!
+
 * Convert utf-8 syllable-token to ascii-telex syllable-token
+
 * Treat newline-10 as a special token type
+
 * Adding class-attribute to each token 1 => Syllable, 2 => Newline 3 => Others
+
 * Counting similar tokens to create types
 
 [$] Strick rules ensure that only utf-8 token that 100% look like a vi-syllable with 0-confusion is converted. VD: `Ngươì => Nguwowif` but not confusing case like `ngườí` or `cáiiii gì????` ...
@@ -58,7 +59,7 @@ Input: "Ngươì ơiii chào nhé!"
 Output: "Nguowif", "ơiii", "chaof", "nhé!"
 ```
 
-By doing all of this we respect Rule #1/ SYLLABLES are FIRST CLASS Citizen. By respecting Rule-#1, we build syllable vocab, and prepare input data the next phrase.
+By doing all of this we respect Rule #1/ that makes "SYLLABLES are FIRST CLASS Citizens" so we can build a syllable vocab, and prepare input data the next phrase.
 
 
 ## Phrase-2: Word-boundary-Split for `Others` token
