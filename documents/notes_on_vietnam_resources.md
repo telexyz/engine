@@ -11,5 +11,6 @@ https://www.facebook.com/groups/vietnam.data.scientists/
 DATA 
 
 https://github.com/binhvq/news-corpus
+=> Backup https://archive.org/details/binhvq_news-corpus
 
 https://github.com/binhvq/vietdict106k
