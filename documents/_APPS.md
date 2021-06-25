@@ -7,30 +7,27 @@ Desired output: "Tôi là người Việt Nam"
 
 Từ input tạo ra nhiều variants có dấu và thanh, sau đó embed variants vào một model có sẵn để scoring và tìm ra 1-3 variants tiềm năng nhất.
 
-## Approach #2: bài toán translation từ ko dấu sang có dấu
 
-Với mỗi sent của corpus, tạo 1 phiên bản ko dấu tương ứng. Dùng phiên bản ko dấu làm đầu vào, phiên bản có dấu làm đầu ra để train
+## Approach #2: bài toán dịch từ ko dấu sang có dấu như là sửa lỗi chính tả
 
-## Approach #3: bài toán sửa lỗi chính tả
-
-https://discuss.huggingface.co/t/pre-training-fine-tuning-seq2seq-model-for-spelling-and-or-grammar-correction-in-french/7090
-
-https://www.microsoft.com/en-us/research/blog/speller100-zero-shot-spelling-correction-at-scale-for-100-plus-languages/
+https://discuss.huggingface.co/t/pre-train-a-seq2seq-model-for-a-quick-vietnamese-input-method-by-mapping-ascii-syllables-that-missing-marke-and-tones-to-utf-8-syllables-e-g-toi-noi-tieng-viet-toi-noi-ti-ng-vi-t/7139
 
 Pre-train a Seq2Seq model for a Quick Vietnamese Input Method by mapping Ascii syllables that missing marke and tones to UTF-8 syllables. E.g. toi noi tieng Viet => tôi nói tiếng Việt.
 
-Problem: Most popular Vietnamese input method is Telex, that require additional keypress to create marks and tones for Vietnamese syllable. E.g: tooi => tôi, nois => nói, tieengs => tiếng, Vieetj => Việt. It's work just fine it you have are using laptop, desktop that have a physical QWERTY keyboard (typing with 8 fingers). But it's slow and error-prone while using smartphones (virtual keyboard typing with 2 fingers) or featured-phones (using T9 with only 0-9 keys). By using ML to map the minimal Ascii version of syllables to utf-8 with full marks and tone syllables, I hope that we can improve the situation. Beside pre-train the model using big data from pre-defined text corpus, on-the-fly learning / adapting from the document user is typing also help to improve the accuracy since we tend to repeating the same terms, keywords or phrases ...
+Problem: Most popular Vietnamese input method is Telex, that require additional keypress to create marks and tones for Vietnamese syllable. E.g: tooi => tôi, nois => nói, tieengs => tiếng, Vieetj => Việt. It's work just fine it you have are using laptop, desktop that have a physical QWERTY keyboard (typing with 10 fingers). But it's slow and error-prone while using smartphones (virtual keyboard typing with 2 fingers) or featured-phones (using T9 with only 0-9 keys). By using ML to map the minimal Ascii version of syllables to utf-8 with full marks and tone syllables, I hope that we can improve the situation. Beside pre-train the model using big data from pre-defined text corpus, on-the-fly learning / adapting from the document user is typing also help to improve the accuracy since we tend to repeating the same terms, keywords or phrases ...
 
 Model: I'm quite new to the field so have no idea which model is best for Vietnamese in general. Please discuss.
 
 Data: https://github.com/binhvq/news-corpus
-around 18.6 GB of internet news/articles crawled from 130 Vietnamese online news websites.
+around 18.6 GB of internet news/articles crawled from 130 Vietnamese news websites.
 
-Method: As you see from the example in the project title. We can treat the project as a sub-problem of spelling correction (deletion only). So we can follow below project proposal step-by-step.
+Method: As you see from the example in the project title. We can treat the project as a sub-problem of spelling correction (deletion only: tooi => toi, nois => noi, tieengs => tieng, Vieetj => Viet). So we can follow below project proposal step-by-step.
 
 https://discuss.huggingface.co/t/pre-training-fine-tuning-seq2seq-model-for-spelling-and-or-grammar-correction-in-english/7101
 
-"The models who used to take weeks to train on GPU or any other hardware can put out in hours with TPU." TPU is only used for TensorFlow projects by researchers and developers.
+- - -
+
+**Advantage of TPU**: "The models who used to take weeks to train on GPU or any other hardware can put out in hours with TPU." TPU is only used for TensorFlow projects by researchers and developers.
 
 
 
