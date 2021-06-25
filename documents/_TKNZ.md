@@ -8,7 +8,7 @@
 * Rule #5: Prefer simple solution!
 
 
-## Phrase-1: Space-split (space-32, tab-9)
+## Phase-1: Space-split (space-32, tab-9)
 
 TODO:
 
@@ -31,7 +31,7 @@ TODO:
 4. utf8 types
 5. ascii-telex types (syllable vocab)
 
-The purpose of this phrase is to split the input text into a list of non-breaking tokens separated by space characters that can be inputted from keyboard (32, 9).
+The purpose of this phase is to split the input text into a list of non-breaking tokens separated by space characters that can be inputted from keyboard (32, 9).
 
 It's could be Syllables `Chây   ì   nộp   phạt   nguội   Cháu   đòi   tiền   cơm   dì   nhà   Đà   Nẵng   nghiên   cứu   tiện   ích   nhắn   tin   khi   vi   phạm   đến   chủ   phương   Khó   xử   vụ   mẹ   tuổi   trộm   xe   hơi   của   con   gái   Thay   đổi   về   đăng   ký   chuyển   nhượng   từ   bạn   cần   biết   Những   trường   hợp   trưng   cầu   giám   định   trong   án   kinh   tế   Thị   trấn   ở   bán   với   giá   hơn   để   thu   hút   cư   dân   Bỏ   quy`
 
@@ -40,7 +40,7 @@ Or non-alphabet / abbr / foreign-words ... `.   ,   70   12/2   1   12/2/2018:  
 Or look-like-Vietnamese (typo, abbr, borrowed-words ...) `BHYTNâng   ĐHTB   Bôlykhămxay   này15   Xôviết   iốt   NộiThích   HĐBA   crôm   Chilê   HĐLĐ   uyênhXí   Hrê   Krông   BĐKH   đôla   ĐHQG   Euréka   QSĐ   đónTết   Tiếg   toàndiện   záo   zụk   ĐT601   LĐLĐVN   LĐTB   zăng   CQĐT   đôlômit   Thoọng   Vắcxin   ĐVHD   áBo   PTĐ   CĐCS   xtê   GĐKT   kêt   sơmi   QĐND   ATVSLĐ   Môt   hạiBài`
 
 
-This phrase must FULLFILL:
+This phase must FULLFILL:
 
 * Moving fast and try to detect as much syllable-tokens using strict rules [$] as possible!
 
@@ -59,21 +59,21 @@ Input: "Ngươì ơiii chào nhé!"
 Output: "Nguowif", "ơiii", "chaof", "nhé!"
 ```
 
-By doing all of this we respect Rule #1/ that makes "SYLLABLES are FIRST CLASS Citizens" so we can build a syllable vocab, and prepare input data the next phrase.
+By doing all of this we respect Rule #1/ that makes "SYLLABLES are FIRST CLASS Citizens" so we can build a syllable vocab, and prepare input data the next phase.
 
 
-## Phrase-2: Word-boundary-Split for `Others` token
+## Phase-2: Word-boundary-Split for `Others` token
 
 ```js
 Input: "Nguowif", "ơiii", "chaof", "nhé!"
 Output: "Nguowif", "owi", "i", "i", "chaof", "nhes", "!"
 ```
-After phase-#1, the number of others-token is quite small. For above example we need to process token number 3 and 4 only!
+After phase-#1, the number of others-tokens is quite small. For above example we need to process token number 3,4 and 7 only!
 
 
 TODO:
 
-* Sử dụng dạng nguyên bản utf8 của vocab để scan OOV types, nhằm tách các thành phần chắc chắn. Chú ý cách viết hoa vs viết thường có thể dùng để làm boundary để tách (xem ví dụ dưới).
+* Sử dụng tokens dạng nguyên bản utf8 của vocab để scan OOV types, nhằm tách các thành phần chắc chắn là âm tiết. Chú ý cách phân biệt chữ cái viết hoa vs chữ cái viết thường có thể dùng để làm boundary để tách (xem ví dụ dưới).
 
 * Có nhiều cách tách thì giữ lại thành nhiều dị bản, càng nhiều ứng cử viên tiềm năng càng tốt, cân hết!
 
@@ -91,12 +91,14 @@ Splits on word boundaries (using the following regular expression: `\w+|[^\w\s]+
 Note: beside a-zA-Z \w must include Vi marked+toned chars: 
 `đàáãâăèéêìíĩòóõôơýùúũưủụọỏịỉỳỵỷỹạảẹẻẽầấậẩẫằắặẳẵềếệểễồốộổỗờớợởỡừứựửữ`
 
-This phrase must:
+This phase must:
 
 * Re-use syllable vocab to break tokens in meaningful parts
-* Using subword tokenize techniques to obtain best results
 
-## Phrase-3: Anything elses
+* Combining subword tokenize techniques to obtain best results
+
+
+## Phase-3: Anything elses / Post-processing
 
 Digit tknz?, Viết tắt? ...
 
