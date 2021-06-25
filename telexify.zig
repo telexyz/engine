@@ -117,6 +117,10 @@ const TextFileTokenizer = struct {
                 '\n' => { // New line should be treated differently
                     // It's could be a hint for sentences / phrases break ...
                     char_type = .space;
+                    try self.text.countToken(input_bytes[index .. index + 1], Text.TokenAttributes{
+                        .category = .others,
+                        .surrounded_by_spaces = .none,
+                    });
                     // counting_lines to used to limit number of input data
                     // to run a trial on a large data set
                     if (index > percentage_threshold) {
@@ -196,12 +200,19 @@ const TextFileTokenizer = struct {
                         //
                         const token = input_bytes[space_boundary_token_start_at..index];
 
-                        const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .both };
+                        const tkn_attrs: Text.TokenAttributes = .{
+                            .category = .alphabet,
+                            .surrounded_by_spaces = .both,
+                        };
 
                         try self.text.countToken(token, tkn_attrs);
 
                         if (counting_lines) {
-                            print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                            print("\"{s}\" => {}, {}\n", .{
+                                token,
+                                tkn_attrs.category,
+                                tkn_attrs.surrounded_by_spaces,
+                            });
                         }
                     } else {
                         //
@@ -209,12 +220,19 @@ const TextFileTokenizer = struct {
 
                         if (is_spacious_delimiter) {
                             //
-                            const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .both };
+                            const tkn_attrs: Text.TokenAttributes = .{
+                                .category = .others,
+                                .surrounded_by_spaces = .both,
+                            };
 
                             try self.text.countToken(token, tkn_attrs);
 
                             if (counting_lines) {
-                                print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                                print("\"{s}\" => {}, {}\n", .{
+                                    token,
+                                    tkn_attrs.category,
+                                    tkn_attrs.surrounded_by_spaces,
+                                });
                             }
                         } else {
                             _ = try self.spacious_tokens_map.getOrPut(token);
@@ -225,12 +243,19 @@ const TextFileTokenizer = struct {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
 
-                        const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .right };
+                        const tkn_attrs: Text.TokenAttributes = .{
+                            .category = .alphabet,
+                            .surrounded_by_spaces = .right,
+                        };
 
                         try self.text.countToken(token, tkn_attrs);
 
                         if (counting_lines) {
-                            print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                            print("\"{s}\" => {}, {}\n", .{
+                                token,
+                                tkn_attrs.category,
+                                tkn_attrs.surrounded_by_spaces,
+                            });
                         }
                     }
 
@@ -238,12 +263,19 @@ const TextFileTokenizer = struct {
                         //
                         const token = input_bytes[delimiter_start_at..index];
 
-                        const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .right };
+                        const tkn_attrs: Text.TokenAttributes = .{
+                            .category = .others,
+                            .surrounded_by_spaces = .right,
+                        };
 
                         try self.text.countToken(token, tkn_attrs);
 
                         if (counting_lines) {
-                            print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                            print("\"{s}\" => {}, {}\n", .{
+                                token,
+                                tkn_attrs.category,
+                                tkn_attrs.surrounded_by_spaces,
+                            });
                         }
                     }
                 } // END if (in_space_boundary_token_zone)
@@ -266,13 +298,20 @@ const TextFileTokenizer = struct {
                         if (alphabet_token_start_at <= index) {
                             //
                             const token = input_bytes[alphabet_token_start_at..index];
-
-                            const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at == space_boundary_token_start_at) .left else .none };
+                            const first = alphabet_token_start_at == space_boundary_token_start_at;
+                            const tkn_attrs: Text.TokenAttributes = .{
+                                .category = .alphabet,
+                                .surrounded_by_spaces = if (first) .left else .none,
+                            };
 
                             try self.text.countToken(token, tkn_attrs);
 
                             if (counting_lines) {
-                                print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                                print("\"{s}\" => {}, {}\n", .{
+                                    token,
+                                    tkn_attrs.category,
+                                    tkn_attrs.surrounded_by_spaces,
+                                });
                             }
                         }
                     }
@@ -295,13 +334,21 @@ const TextFileTokenizer = struct {
                         if (delimiter_start_at <= index) {
                             //
                             const token = input_bytes[delimiter_start_at..index];
+                            const first = delimiter_start_at == space_boundary_token_start_at;
 
-                            const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = if (delimiter_start_at == space_boundary_token_start_at) .left else .none };
+                            const tkn_attrs: Text.TokenAttributes = .{
+                                .category = .others,
+                                .surrounded_by_spaces = if (first) .left else .none,
+                            };
 
                             try self.text.countToken(token, tkn_attrs);
 
                             if (counting_lines) {
-                                print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                                print("\"{s}\" => {}, {}\n", .{
+                                    token,
+                                    tkn_attrs.category,
+                                    tkn_attrs.surrounded_by_spaces,
+                                });
                             }
                         }
                     }
