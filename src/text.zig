@@ -195,6 +195,10 @@ pub const Text = struct {
     pub inline fn overwriteCurrentTramsformedByte(self: *Text, b: u8) void {
         self.transformed_bytes[self.transformed_bytes_len] = b;
     }
+
+    pub fn telexifyAlphabetTokens() void {
+        //
+    }
 };
 
 test "Text" {
