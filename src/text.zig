@@ -126,22 +126,19 @@ pub const Text = struct {
         // free all allocated memories
         self.arena.deinit();
     }
-    pub fn countToken(self: *Text, token: []const u8, token_attrs: TokenAttributes) !u32 {
+    pub fn countToken(self: *Text, token: []const u8, token_attrs: TokenAttributes) !void {
         // Insert token into a hash_map to know if we seen it before or not
         // const token = self.input_bytes[token_start..token_end];
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = token_attrs;
         self.tokens_number += 1;
 
-        if (token_attrs.category == .alphabet) {
-            const gop = try self.alphabet_types_count.getOrPutValue(token, 0);
-            gop.value_ptr.* += 1;
-            return gop.value_ptr.*;
-        } else {
-            const gop = try self.delimiter_types_count.getOrPutValue(token, 0);
-            gop.value_ptr.* += 1;
-            return gop.value_ptr.*;
-        }
+        const gop = if (token_attrs.category == .alphabet)
+            try self.alphabet_types_count.getOrPutValue(token, 0)
+        else
+            try self.delimiter_types_count.getOrPutValue(token, 0);
+
+        gop.value_ptr.* += 1;
     }
 
     pub inline fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream, tkn_idx: usize) []const u8 {
