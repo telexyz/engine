@@ -23,6 +23,7 @@ pub const Text = struct {
     // (normally input byte are readed from a text file, corpus.txt for example)
     // Each tokens[i] slice will point to the original input_bytes
     tokens: [][]const u8 = undefined,
+    tokens_attrs: []TokenAttributes = undefined,
 
     // A token can have multiple transforms:
     // For example ascii_transforms[i] is the ascii-telex transformation of tokens[i]
@@ -58,16 +59,37 @@ pub const Text = struct {
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
 
-    // A token can have multiple atribute:
-    // We can present attributes as multiple binary values like:
-    // tokens_is_vn_syllable[i] => true|false
-    // I think we should use AN ENUM value to present attributes
-    // So later we can encoded it as an ascii (invisible) char in the output stream,
-    // we can put it at the beginning of token representation just like
-    // sentencepiece put ▁ at beginning of the token to encode SPACE char (32)
-    // Here we define TokenCategory enum to add attribute to the segmented token
-    const TokenCategory = enum { None, Syllable, NewLine, Others };
-    // None is a dump category to skip 0 value
+    // A token can have multiple atributes:
+    // Each attribute is re-presented by an enum
+    // The final encoded attribute is re-presented by a struct
+    pub const TokenAttributes = packed struct {
+        category: TokenCategory,
+        surrounded_by_spaces: TokenSurroundedBySpaces,
+    };
+
+    pub const TokenCategory = enum(u6) {
+        others = 1, // + 2-bits => 4,5,6,7
+        alphabet = 4, // + 2-bits => 16,17,18,19
+        syllable = 5, // + 2-bits => 20,21,22,23
+    };
+
+    pub const TokenSurroundedBySpaces = enum(u2) {
+        // Using 2-bits to describle
+        none, // 0|0
+        right, // 0|1
+        left, // 1|0
+        both, // 1|1
+    };
+    // Khi lưu ra text file ta sẽ lưu TokenAtrributes byte và space byte cùng nhau
+    // Như vậy sẽ đạt được 2 mục đích:
+    // 1/ tách từng token ra cho dễ nhìn
+    // 2/ khi scan chuỗi, thì scan 2-bytes một, check bytes[0] <= 32 thì đó là boundary
+    // Scan 2-bytes 1 sẽ cho tốc độ nhanh gấp 1.5 lần so với scan từng byte-1
+
+    // Token attribute can be extracted from itself, \n for example
+    pub fn isNewLineToken(token) bool {
+        return token[0] == '\n';
+    }
 
     pub fn init(self: *Text) !void {
         // Init will-be-used-from-now-on allocator from init_allocator
@@ -80,6 +102,7 @@ pub const Text = struct {
 
         // Init token list
         self.tokens = try self.allocator.alloc([]const u8, est_token_num.*);
+        self.tokens_attrs = try self.allocator.alloc(TokenAttributes, est_token_num.*);
 
         // Init types count
         self.types_count = std.StringHashMap(u32).init(self.allocator);
@@ -101,10 +124,11 @@ pub const Text = struct {
         // free all allocated memories
         self.arena.deinit();
     }
-    pub fn countToken(self: *Text, token: []const u8) !u32 {
+    pub fn countToken(self: *Text, token: []const u8, token_attrs: TokenAttributes) !u32 {
         // Insert token into a hash_map to know if we seen it before or not
         // const token = self.input_bytes[token_start..token_end];
         self.tokens[self.tokens_number] = token;
+        self.tokens_attrs[self.tokens_number] = token_attrs;
         self.tokens_number += 1;
         const gop = try self.types_count.getOrPutValue(token, 0);
         gop.value_ptr.* += 1;

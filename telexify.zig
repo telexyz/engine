@@ -160,11 +160,6 @@ const TextFileTokenizer = struct {
     const CharTypes = enum { alphabet_char, alphabet_char_can_be, space, others };
 
     pub fn parse(self: *TextFileTokenizer) !void {
-        @setRuntimeSafety(false);
-
-        var char_stream = U2ACharStream.init();
-        var syllable = parsers.Syllable.init();
-
         var index: usize = undefined;
         var next_index: usize = 0;
 
@@ -180,10 +175,6 @@ const TextFileTokenizer = struct {
         var first_byte: u8 = 0; // first byte of the utf-8 char
         var char_bytes_length: u3 = undefined;
         var char_type: CharTypes = undefined;
-
-        // Store result of very-fast utf-8 char filter to know if utf-8 char can be
-        // processed by telex-syllable parser or not
-        var telex_code: u10 = undefined;
 
         const input_bytes = self.input_bytes;
         const bytes_len = input_bytes.len;
@@ -207,11 +198,6 @@ const TextFileTokenizer = struct {
             // so we init char_bytes_length value to 1
             char_bytes_length = 1;
 
-            // a-z, A-Z is VN syllable char for sure
-            // is_upper is used to distinguish a-z vs A-Z
-            // it's a shortcut to speedup VN syllable detecting algorithm
-            var is_upper = false;
-
             // The main purpose of the switch filter here is to split input utf-8 char
             // stream into tokens and SPACE delimiters - the MOST FUNDAMENTAL segmentation:
             // SPACE vs NON-SPACE so we ensure that no-information is missed!
@@ -219,14 +205,7 @@ const TextFileTokenizer = struct {
             switch (first_byte) {
                 // a-z, A-Z are very common so the chance we meet them is quite often
                 // we filter them out first to speed up the filtering process
-                'a'...'z' => {
-                    char_type = .alphabet_char;
-                },
-                'A'...'Z' => {
-                    is_upper = true;
-                    // Convert first_byte to ascii lowercase so the VN syllable parser
-                    // (understand a-z only) will treat 'a' and 'A' the same ...
-                    first_byte |= 0b00100000; // toLower
+                'a'...'z', 'A'...'Z' => {
                     char_type = .alphabet_char;
                 },
 
@@ -261,6 +240,7 @@ const TextFileTokenizer = struct {
                     }
                 },
                 else => {
+                    // Based on code of zig std lib
                     // pub fn utf8ByteSequenceLength(first_byte: u8) !u3 {
                     // 0b0000_0000...0b0111_1111 => 1,
                     // 0b1100_0000...0b1101_1111 => 2,
@@ -271,51 +251,43 @@ const TextFileTokenizer = struct {
                     // uninterested ascii and utf-8 chars, we marked them as .others
                     char_type = .others;
 
-                    if (false) {
-                        var temp = try unicode.utf8ByteSequenceLength(first_byte);
-                        char_bytes_length = temp;
+                    if (first_byte > 0b1111_0111) {
+                        @panic("error.Utf8InvalidStartByte");
+                    }
+
+                    var byte2 = input_bytes[index + 1];
+
+                    // The most important thing here is we determine char_bytes_length
+                    // So later we increase next_index pointer to a VALID byte
+                    if (first_byte <= 0b0111_1111) {
+                        char_bytes_length = 1;
                         //
+                    } else if (0b1100_0000 <= first_byte and first_byte <= 0b1101_1111) {
+                        char_bytes_length = 2;
+                        // Rough filter to see if it .alphabet_char_can_be
+                        if (195 <= first_byte and first_byte <= 198 and
+                            128 <= byte2 and byte2 <= 189)
+                            char_type = .alphabet_char_can_be;
+
+                        if ((first_byte == 204 or first_byte == 205) and
+                            128 <= byte2 and byte2 <= 163)
+                            char_type = .alphabet_char_can_be;
+                        //
+                    } else if (first_byte == 225) {
+                        char_bytes_length = 3;
+                        // Rough filter to see if it .alphabet_char_can_be
+                        if (byte2 == 186 or byte2 == 187)
+                            char_type = .alphabet_char_can_be;
+                        //
+                    } else if (0b1111_0000 <= first_byte and first_byte <= 0b1111_0111) {
+                        char_bytes_length = 4;
                     } else {
-                        //
-                        if (first_byte > 0b1111_0111) {
-                            @panic("error.Utf8InvalidStartByte");
-                        }
-
-                        var byte2 = input_bytes[index + 1];
-
-                        // The most important thing here is we determine char_bytes_length
-                        // So later we increase next_index pointer to a VALID byte
-                        if (first_byte <= 0b0111_1111) {
-                            char_bytes_length = 1;
-                            //
-                        } else if (0b1100_0000 <= first_byte and first_byte <= 0b1101_1111) {
-                            char_bytes_length = 2;
-                            // Rough filter to see if it .alphabet_char_can_be
-                            if (195 <= first_byte and first_byte <= 198 and
-                                128 <= byte2 and byte2 <= 189)
-                                char_type = .alphabet_char_can_be;
-
-                            if ((first_byte == 204 or first_byte == 205) and
-                                128 <= byte2 and byte2 <= 163)
-                                char_type = .alphabet_char_can_be;
-                            //
-                        } else if (first_byte == 225) {
-                            char_bytes_length = 3;
-                            // Rough filter to see if it .alphabet_char_can_be
-                            if (byte2 == 186 or byte2 == 187)
-                                char_type = .alphabet_char_can_be;
-                            //
-                        } else if (0b1111_0000 <= first_byte and first_byte <= 0b1111_0111) {
-                            char_bytes_length = 4;
-                        } else {
-                            char_bytes_length = 3;
-                        }
-                    } // got_error == null
+                        char_bytes_length = 3;
+                    }
                 },
             }
             // Point the next_index pointer to the next VALID byte
             next_index = index + char_bytes_length;
-            // print("{s} => {}\n", .{ input_bytes[index..next_index], char_type });
 
             if (char_type == .space) {
                 // in_space_boundary_token_zone bool variable let we know that if the current char is
@@ -328,21 +300,24 @@ const TextFileTokenizer = struct {
                     // This is the first time we get out of token_zone
                     // so we end the current token at current byte index
                     const token = input_bytes[space_boundary_token_start_at..index];
-                    if (counting_lines and
-                        (is_spacious_alphabet or is_spacious_delimiter))
-                    {
-                        print("\"{s}\" => Spacious\n", .{token});
-                    }
                     if (is_spacious_alphabet) {
-                        const count = try self.text.countToken(token);
+                        const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .both };
+                        const count = try self.text.countToken(token, tkn_attrs);
                         if (count == 1) { // first seen token
                             try self.recordSpaceDelimiterToken(true, token);
                         }
+                        if (counting_lines) {
+                            print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                        }
                     } else {
                         if (is_spacious_delimiter) {
-                            const count = try self.text.countToken(token);
-                            if (count == 1) { // first seen token
+                            const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .both };
+                            const count = try self.text.countToken(token, tkn_attrs);
+                            if (count == 1) { // first seen delimiter
                                 try self.recordWordBoundaryToken(false, token);
+                            }
+                            if (counting_lines) {
+                                print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                             }
                         } else {
                             const gop = try self.spacious_tokens_map.getOrPut(token);
@@ -353,23 +328,25 @@ const TextFileTokenizer = struct {
 
                     if (in_alphabet_token_zone and alphabet_token_start_at > space_boundary_token_start_at) {
                         const tkn = input_bytes[alphabet_token_start_at..index];
-                        if (counting_lines) {
-                            print("\"{s}\" => Alphabets\n", .{tkn});
-                        }
-                        const count = try self.text.countToken(tkn);
-                        if (count == 1) { // first seen alphabets
+                        const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .right };
+                        const count = try self.text.countToken(tkn, tkn_attrs);
+                        if (count == 1) { // first seen alphabet
                             try self.recordWordBoundaryToken(true, tkn);
+                        }
+                        if (counting_lines) {
+                            print("\"{s}\" => {}, {}\n", .{ tkn, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                         }
                     }
 
                     if (!in_alphabet_token_zone and delimiter_start_at > space_boundary_token_start_at) {
                         const tkn = input_bytes[delimiter_start_at..index];
-                        if (counting_lines) {
-                            print("\"{s}\" => Delimiters\n", .{tkn});
-                        }
-                        const count = try self.text.countToken(tkn);
+                        const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .right };
+                        const count = try self.text.countToken(tkn, tkn_attrs);
                         if (count == 1) { // first seen delimiter
                             try self.recordWordBoundaryToken(false, tkn);
+                        }
+                        if (counting_lines) {
+                            print("\"{s}\" => {}, {}\n", .{ tkn, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                         }
                     }
                 } // END if (in_space_boundary_token_zone)
@@ -391,12 +368,17 @@ const TextFileTokenizer = struct {
                         // Record alphabets
                         if (alphabet_token_start_at <= index) {
                             const token = input_bytes[alphabet_token_start_at..index];
-                            if (counting_lines) {
-                                print("\"{s}\" => Alphabets\n", .{token});
-                            }
-                            const count = try self.text.countToken(token);
+
+                            const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at == space_boundary_token_start_at) .left else .none };
+
+                            const count = try self.text.countToken(token, tkn_attrs);
+
                             if (count == 1) { // first seen alphabets
                                 try self.recordWordBoundaryToken(true, token);
+                            }
+
+                            if (counting_lines) {
+                                print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                             }
                         }
                     }
@@ -418,12 +400,17 @@ const TextFileTokenizer = struct {
                         // Record delimiter
                         if (delimiter_start_at <= index) {
                             const token = input_bytes[delimiter_start_at..index];
-                            if (counting_lines) {
-                                print("\"{s}\" => Delimiters\n", .{token});
-                            }
-                            const count = try self.text.countToken(token);
+
+                            const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = if (delimiter_start_at == space_boundary_token_start_at) .left else .none };
+
+                            const count = try self.text.countToken(token, tkn_attrs);
+
                             if (count == 1) { // first seen delimiter
                                 try self.recordWordBoundaryToken(false, token);
+                            }
+
+                            if (counting_lines) {
+                                print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                             }
                         }
                     }
