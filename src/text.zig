@@ -155,13 +155,9 @@ pub const Text = struct {
         gop.value_ptr.*.count += 1;
     }
 
-    pub fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream, tkn_idx: usize) []const u8 {
+    pub fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream) []const u8 {
         // Convert input's utf-8 to output's ascii-telex
-        const transformed_token_start_at = self.transformed_bytes_len;
-        // Set start char of ascii-telex to a special value
-        // ▁'3:226:150:129 used by sentencepiece
-        // self.transformed_bytes[self.transformed_bytes_len] = 0b00000001;
-        // self.transformed_bytes_len += 1;
+        const trans_start_at = self.transformed_bytes_len;
 
         if (char_stream.is_upper_case) {
             var i: usize = 0;
@@ -196,9 +192,8 @@ pub const Text = struct {
                 self.transformed_bytes_len += 1;
             }
         }
-        // self.transforms[tkn_idx] = self.transformed_bytes[transformed_token_start_at..self.transformed_bytes_len];
         // END Convert input's utf-8 to output's ascii-telex
-        return self.transformed_bytes[transformed_token_start_at..self.transformed_bytes_len];
+        return self.transformed_bytes[trans_start_at..self.transformed_bytes_len];
     }
 
     pub inline fn appendTramsformedBytes(self: *Text, b: u8) void {
@@ -212,6 +207,8 @@ pub const Text = struct {
 
     pub fn telexifyAlphabetTokens(self: *Text) void {
         @setRuntimeSafety(false);
+
+        var char_stream = U2ACharStream.init();
         const max_sleeps: u8 = 5;
         const sleep_time: u64 = 100_000_000; // nanosec
         var sleeps_count: u8 = 0;
@@ -256,33 +253,34 @@ pub const Text = struct {
 
             // Type info's must existed
             var type_info = self.alphabet_types.get(token).?;
+            const not_transformed = type_info.category == .others;
 
-            if (type_info.category == .others) {
+            if (not_transformed) {
                 // Not transformed yet
-                var syllable = parsers.parseAmTietToGetSyllable(
+                char_stream.reset();
+                var syllable = parsers.parseTokenToGetSyllable(
                     true,
                     printNothing,
+                    &char_stream,
                     token,
                 );
 
                 if (syllable.can_be_vietnamese) {
-                    const begin = self.transformed_bytes_len;
-                    for (syllable.toStr()) |b| {
-                        self.transformed_bytes[self.transformed_bytes_len] = b;
-                        self.transformed_bytes_len += 1;
-                    }
                     type_info.category = .syllable;
-                    type_info.transform = self.transformed_bytes[begin..self.transformed_bytes_len];
-
+                    type_info.transform = self.recordAndReturnTransform(char_stream);
                     // std.debug.print("| {d}:{s} |\n", .{ i, type_info.transform });
                 } else {
                     type_info.category = .alphabet;
                 }
             }
+
             if (type_info.category == .syllable) {
                 attrs.category = .syllable;
                 self.transforms[i.*] = type_info.transform;
-            } else {
+                token = type_info.transform;
+            }
+
+            if (!(not_transformed and type_info.category == .syllable)) {
                 for (token) |b| {
                     self.transformed_bytes[self.transformed_bytes_len] = b;
                     self.transformed_bytes_len += 1;

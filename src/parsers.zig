@@ -195,9 +195,17 @@ const unicode = std.unicode;
 // .am_dau, .am_giua, .am_cuoi, and .tone enums. It also do a checking to see
 // if this am_tiet .can_be_vietnamese or not
 pub fn parseAmTietToGetSyllable(strict: bool, comptime print: print_op, str: []const u8) Syllable {
-    var syllable = Syllable.init();
     var char_stream = U2ACharStream.init();
+    return parseTokenToGetSyllable(strict, print, &char_stream, str);
+}
 
+pub fn parseTokenToGetSyllable(
+    strict: bool,
+    comptime print: print_op,
+    char_stream: *U2ACharStream,
+    str: []const u8,
+) Syllable {
+    var syllable = Syllable.init();
     var index: usize = 0;
     var next_index: usize = undefined;
 
@@ -230,7 +238,7 @@ pub fn parseAmTietToGetSyllable(strict: bool, comptime print: print_op, str: []c
             syllable.can_be_vietnamese = false;
             return syllable;
         };
-        pushCharsToSyllable(print, &char_stream, &syllable);
+        pushCharsToSyllable(print, char_stream, &syllable);
         index = next_index;
     }
 

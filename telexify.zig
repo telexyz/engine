@@ -372,16 +372,9 @@ const TextFileTokenizer = struct {
 
         while (i < n) : (i += 1) {
             const attrs = self.text.tokens_attrs[i];
-            if (attrs.category == .syllable) {
-                //
-                const trans = self.text.transforms[i];
-                _ = try output_file.writer().write(trans);
-                //
-            } else {
-                //
-                const token = self.text.tokens[i];
-                _ = try output_file.writer().write(token);
-            }
+            const token = if (attrs.category == .syllable) self.text.transforms[i] else self.text.tokens[i];
+
+            _ = try output_file.writer().write(token);
 
             if (attrs.surrounded_by_spaces == .both or
                 attrs.surrounded_by_spaces == .right)
