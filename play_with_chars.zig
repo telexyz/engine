@@ -5,7 +5,7 @@ const unicode = std.unicode;
 // https://www.windmill.co.uk/ascii-control-codes.html
 // Avoid: 0 null, 8 backspace, 9 \t, 10 \n, \x0a \x0b \x0c \x0d \x1b
 // Dùng được 24 invisible ascii chars, 1-7, 15-26 ...
-var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1f|";
+// var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1f|";
 
 //\n\tđĐàáãâăèéêìíĩòóõôơýùúũưủụọỏịỉỳỵỷỹạảẹẻẽẦẤẬẨẪẰẮẶẲẴỀẾỆỂỄỒỐỘỔỖỜỚỢỞỠỪỨỰỬỮầấậẩẫằắặẳẵềếệểễồốộổỗờớợởỡừứựửữ";
 
@@ -18,6 +18,9 @@ var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18
 // var str = "cmnpthg"; // Đứng cuối ko là nguyên âm chỉ có thể là
 
 // var str = "qwertyuiopasdfghjklzxcvbnm";
+
+// 2-bytes-utf8 chars | look exactly like ascii
+var str = "АВМСКоНРрЕ|ABMCKoHPpE";
 
 pub fn main() !void {
     var file = try std.fs.cwd().createFile("_output/play_with_chars.txt", .{});
@@ -41,7 +44,7 @@ pub fn main() !void {
         var i: usize = 0;
         while (i < char_bytes_length) {
             const b = str[index + i];
-            print(":{x}:{d}", .{ b, b });
+            print(" : {b} {d}", .{ b, b });
             i += 1;
         }
         print(" \n", .{});
