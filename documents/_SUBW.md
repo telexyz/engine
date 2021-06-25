@@ -6,7 +6,7 @@ zig run telexify.zig -- _input/corpus/VNESEcorpus.txt _output/telexified/VNESEco
 
 zig run telexify.zig -- _input/corpus/VNTQcorpus-big.txt _output/telexified/VNTQcorpus.txt
 
-zig run telexify.zig -- _input/corpus/corpus-title-sample.txt _output/telexified/corpus-title-sample.txt
+zig run telexify.zig -- _input/corpus/corpus-title-sample.txt _output/telexified/corpus-title-sample.txt 1000
 
 # spm_normalize --input=_input/corpus/corpus-title.txt --output=_input/corpus/corpus-title-normalied.txt --normalization_rule_tsv=_input/nfkc.tsv
 ```
