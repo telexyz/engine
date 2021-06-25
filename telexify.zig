@@ -108,7 +108,7 @@ const TextFileTokenizer = struct {
             switch (first_byte) {
                 // a-z, A-Z are very common so the chance we meet them is quite often
                 // we filter them out first to speed up the filtering process
-                '0'...'9', 'a'...'z', 'A'...'Z' => {
+                'a'...'z', 'A'...'Z', '0'...'9' => {
                     char_type = .alphabet_char;
                 },
 
