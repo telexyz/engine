@@ -49,7 +49,8 @@ pub const Text = struct {
 
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
-    types_count: std.StringHashMap(u32) = undefined,
+    alphabet_types_count: std.StringHashMap(u32) = undefined,
+    delimiter_types_count: std.StringHashMap(u32) = undefined,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
@@ -105,7 +106,8 @@ pub const Text = struct {
         self.tokens_attrs = try self.allocator.alloc(TokenAttributes, est_token_num.*);
 
         // Init types count
-        self.types_count = std.StringHashMap(u32).init(self.allocator);
+        self.alphabet_types_count = std.StringHashMap(u32).init(self.allocator);
+        self.delimiter_types_count = std.StringHashMap(u32).init(self.allocator);
 
         // Init transforms list
         self.transforms = try self.allocator.alloc([]const u8, est_token_num.*);
@@ -130,9 +132,16 @@ pub const Text = struct {
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = token_attrs;
         self.tokens_number += 1;
-        const gop = try self.types_count.getOrPutValue(token, 0);
-        gop.value_ptr.* += 1;
-        return gop.value_ptr.*;
+
+        if (token_attrs.category == .alphabet) {
+            const gop = try self.alphabet_types_count.getOrPutValue(token, 0);
+            gop.value_ptr.* += 1;
+            return gop.value_ptr.*;
+        } else {
+            const gop = try self.delimiter_types_count.getOrPutValue(token, 0);
+            gop.value_ptr.* += 1;
+            return gop.value_ptr.*;
+        }
     }
 
     pub inline fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream, tkn_idx: usize) []const u8 {

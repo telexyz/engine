@@ -21,35 +21,12 @@ const TextFileTokenizer = struct {
 
     input_file: File = undefined,
     input_bytes: []const u8 = undefined,
+
     spacious_tokens_map: std.StringHashMap(void) = undefined,
-
-    syllables1_file: File = undefined,
-    syllables2_file: File = undefined,
-    syllables1_count: usize = 0,
-    syllables2_count: usize = 0,
-
-    alphabets_file: File = undefined,
-    delimiters_file: File = undefined,
-    alphabets_count: usize = 0,
-    delimiters_count: usize = 0,
-
-    space_boundary_tokens1_file: File = undefined,
-    space_boundary_tokens2_file: File = undefined,
-    space_boundary_tokens1_count: usize = 0,
-    space_boundary_tokens2_count: usize = 0,
 
     text: Text = undefined,
 
     const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
-
-    const space_boundary_tokens1_filename = "./_output/01_spacious_alphabets.txt";
-    const space_boundary_tokens2_filename = "./_output/02_spacious_tokens.txt";
-
-    const alphabets_filename = "./_output/03_alphabets.txt";
-    const delimiters_filename = "./_output/04_none-alphabets.txt";
-
-    const syllables1_filename = "./_output/05_syllables.txt";
-    const syllables2_filename = "./_output/06_syllables_funny.txt";
 
     pub fn init(self: *TextFileTokenizer, input_filename: []const u8) !void {
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
@@ -65,96 +42,12 @@ const TextFileTokenizer = struct {
         try self.text.init();
 
         self.spacious_tokens_map = std.StringHashMap(void).init(self.allocator);
-
-        // Open files to write intermediate results
-        self.space_boundary_tokens1_file = try std.fs.cwd().createFile(space_boundary_tokens1_filename, .{});
-        self.space_boundary_tokens2_file = try std.fs.cwd().createFile(space_boundary_tokens2_filename, .{});
-
-        self.space_boundary_tokens1_count = 0;
-        self.space_boundary_tokens2_count = 0;
-
-        self.syllables1_file = try std.fs.cwd().createFile(syllables1_filename, .{});
-        self.syllables2_file = try std.fs.cwd().createFile(syllables2_filename, .{});
-
-        self.syllables1_count = 0;
-        self.syllables2_count = 0;
-
-        self.alphabets_file = try std.fs.cwd().createFile(alphabets_filename, .{});
-        self.delimiters_file = try std.fs.cwd().createFile(delimiters_filename, .{});
-
-        self.alphabets_count = 0;
-        self.delimiters_count = 0;
     }
 
     pub fn deinit(self: *TextFileTokenizer) void {
         self.input_file.close();
-
-        self.space_boundary_tokens1_file.close();
-        self.space_boundary_tokens2_file.close();
-
-        self.syllables1_file.close();
-        self.syllables2_file.close();
-
-        self.alphabets_file.close();
-        self.delimiters_file.close();
-
         self.text.deinit();
         self.arena.deinit();
-    }
-
-    // Supplement functions
-    inline fn recordWordBoundaryToken(self: *TextFileTokenizer, is_alphabet: bool, token: []const u8) !void {
-        if (is_alphabet) {
-            _ = try self.alphabets_file.writer().write(token);
-            self.alphabets_count += 1;
-            if (@rem(self.alphabets_count, 10) == 0)
-                _ = try self.alphabets_file.writer().write("\n")
-            else
-                _ = try self.alphabets_file.writer().write("   ");
-        } else { // Write it delimiters.txt
-            _ = try self.delimiters_file.writer().write(token);
-            self.delimiters_count += 1;
-            if (@rem(self.delimiters_count, 10) == 0)
-                _ = try self.delimiters_file.writer().write("\n")
-            else
-                _ = try self.delimiters_file.writer().write("   ");
-        }
-    }
-
-    inline fn recordSyllableToken(self: *TextFileTokenizer, is_pure_utf8: bool, token: []const u8) !void {
-        if (is_pure_utf8) {
-            _ = try self.syllables1_file.writer().write(token);
-            self.syllables1_count += 1;
-            if (@rem(self.syllables1_count, 12) == 0)
-                _ = try self.syllables1_file.writer().write("\n")
-            else
-                _ = try self.syllables1_file.writer().write("   ");
-        } else {
-            _ = try self.syllables2_file.writer().write(token);
-            self.syllables2_count += 1;
-            if (@rem(self.syllables2_count, 12) == 0)
-                _ = try self.syllables2_file.writer().write("\n")
-            else
-                _ = try self.syllables2_file.writer().write("   ");
-        }
-    }
-
-    inline fn recordSpaceDelimiterToken(self: *TextFileTokenizer, is_spacious_alphabet: bool, token: []const u8) !void {
-        if (is_spacious_alphabet) {
-            _ = try self.space_boundary_tokens1_file.writer().write(token);
-            self.space_boundary_tokens1_count += 1;
-            if (@rem(self.space_boundary_tokens1_count, 12) == 0)
-                _ = try self.space_boundary_tokens1_file.writer().write("\n")
-            else
-                _ = try self.space_boundary_tokens1_file.writer().write("   ");
-        } else {
-            _ = try self.space_boundary_tokens2_file.writer().write(token);
-            self.space_boundary_tokens2_count += 1;
-            if (@rem(self.space_boundary_tokens2_count, 12) == 0)
-                _ = try self.space_boundary_tokens2_file.writer().write("\n")
-            else
-                _ = try self.space_boundary_tokens2_file.writer().write("   ");
-        }
     }
 
     const CharTypes = enum { alphabet_char, alphabet_char_can_be, space, others };
@@ -299,54 +192,50 @@ const TextFileTokenizer = struct {
 
                     // This is the first time we get out of token_zone
                     // so we end the current token at current byte index
-                    const token = input_bytes[space_boundary_token_start_at..index];
                     if (is_spacious_alphabet) {
+                        //
+                        const token = input_bytes[space_boundary_token_start_at..index];
                         const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .both };
-                        const count = try self.text.countToken(token, tkn_attrs);
-                        if (count == 1) { // first seen token
-                            try self.recordSpaceDelimiterToken(true, token);
-                        }
+                        _ = try self.text.countToken(token, tkn_attrs);
+
                         if (counting_lines) {
                             print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                         }
                     } else {
+                        //
+                        const token = input_bytes[space_boundary_token_start_at..index];
                         if (is_spacious_delimiter) {
+                            //
                             const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .both };
-                            const count = try self.text.countToken(token, tkn_attrs);
-                            if (count == 1) { // first seen delimiter
-                                try self.recordWordBoundaryToken(false, token);
-                            }
+                            _ = try self.text.countToken(token, tkn_attrs);
+
                             if (counting_lines) {
                                 print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                             }
                         } else {
-                            const gop = try self.spacious_tokens_map.getOrPut(token);
-                            if (!gop.found_existing)
-                                try self.recordSpaceDelimiterToken(false, token);
+                            _ = try self.spacious_tokens_map.getOrPut(token);
                         }
                     }
 
                     if (in_alphabet_token_zone and alphabet_token_start_at > space_boundary_token_start_at) {
-                        const tkn = input_bytes[alphabet_token_start_at..index];
+                        //
+                        const token = input_bytes[alphabet_token_start_at..index];
                         const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .right };
-                        const count = try self.text.countToken(tkn, tkn_attrs);
-                        if (count == 1) { // first seen alphabet
-                            try self.recordWordBoundaryToken(true, tkn);
-                        }
+                        _ = try self.text.countToken(token, tkn_attrs);
+
                         if (counting_lines) {
-                            print("\"{s}\" => {}, {}\n", .{ tkn, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                            print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                         }
                     }
 
                     if (!in_alphabet_token_zone and delimiter_start_at > space_boundary_token_start_at) {
-                        const tkn = input_bytes[delimiter_start_at..index];
+                        //
+                        const token = input_bytes[delimiter_start_at..index];
                         const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .right };
-                        const count = try self.text.countToken(tkn, tkn_attrs);
-                        if (count == 1) { // first seen delimiter
-                            try self.recordWordBoundaryToken(false, tkn);
-                        }
+                        _ = try self.text.countToken(token, tkn_attrs);
+
                         if (counting_lines) {
-                            print("\"{s}\" => {}, {}\n", .{ tkn, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
+                            print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
                         }
                     }
                 } // END if (in_space_boundary_token_zone)
@@ -371,11 +260,7 @@ const TextFileTokenizer = struct {
 
                             const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at == space_boundary_token_start_at) .left else .none };
 
-                            const count = try self.text.countToken(token, tkn_attrs);
-
-                            if (count == 1) { // first seen alphabets
-                                try self.recordWordBoundaryToken(true, token);
-                            }
+                            _ = try self.text.countToken(token, tkn_attrs);
 
                             if (counting_lines) {
                                 print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
@@ -403,11 +288,7 @@ const TextFileTokenizer = struct {
 
                             const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = if (delimiter_start_at == space_boundary_token_start_at) .left else .none };
 
-                            const count = try self.text.countToken(token, tkn_attrs);
-
-                            if (count == 1) { // first seen delimiter
-                                try self.recordWordBoundaryToken(false, token);
-                            }
+                            _ = try self.text.countToken(token, tkn_attrs);
 
                             if (counting_lines) {
                                 print("\"{s}\" => {}, {}\n", .{ token, tkn_attrs.category, tkn_attrs.surrounded_by_spaces });
@@ -420,6 +301,42 @@ const TextFileTokenizer = struct {
         } // End main loop
     }
 
+    inline fn recordSyllableToken(self: *TextFileTokenizer, is_pure_utf8: bool, token: []const u8) !void {
+        if (is_pure_utf8) {
+            _ = try self.syllables1_file.writer().write(token);
+            self.syllables1_count += 1;
+            if (@rem(self.syllables1_count, 12) == 0)
+                _ = try self.syllables1_file.writer().write("\n")
+            else
+                _ = try self.syllables1_file.writer().write("   ");
+        } else {
+            _ = try self.syllables2_file.writer().write(token);
+            self.syllables2_count += 1;
+            if (@rem(self.syllables2_count, 12) == 0)
+                _ = try self.syllables2_file.writer().write("\n")
+            else
+                _ = try self.syllables2_file.writer().write("   ");
+        }
+    }
+
+    fn write_spacious_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
+        var file = try std.fs.cwd().createFile(output_filename, .{});
+        defer file.close();
+        var tokens_count: usize = 0;
+        var it = self.spacious_tokens_map.iterator();
+        while (it.next()) |kv| {
+            const token = kv.key_ptr.*;
+
+            _ = try file.writer().write(token);
+            tokens_count += 1;
+
+            if (@rem(tokens_count, 12) == 0)
+                _ = try file.writer().write("\n")
+            else
+                _ = try file.writer().write("   ");
+        }
+    }
+
     fn write_output_file(self: TextFileTokenizer, output_filename: []const u8, max: usize) !void {
         var n = self.text.transformed_bytes_len;
         if (max > 0 and n > max) n = max;
@@ -429,7 +346,7 @@ const TextFileTokenizer = struct {
         _ = try output_file.writer().write(self.text.transformed_bytes[0..n]);
     }
 
-    fn write_token_types_to_file(self: TextFileTokenizer, output_filename: []const u8) !void {
+    fn write_token_types_to_file(self: TextFileTokenizer, types_count: std.StringHashMap(u32), output_filename: []const u8) !void {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
@@ -437,7 +354,7 @@ const TextFileTokenizer = struct {
         var buffer: [max_token_len + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
-        var it = self.text.types_count.iterator();
+        var it = types_count.iterator();
         while (it.next()) |kv| {
             if (max_token_len < kv.key_ptr.*.len) {
                 print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
@@ -488,8 +405,10 @@ pub fn main() anyerror!void {
     const deinit_mins = @intToFloat(f32, deinit_ms) / 60000;
     print("\nDeinit Start! Duration {} ms => {d:.2} mins\n", .{ deinit_ms, deinit_mins });
 
-    try tp.write_token_types_to_file("_output/07_types.txt");
-    try tp.write_output_file("_output/08_telexified_1000.txt", 1000);
+    try tp.write_spacious_tokens_to_file("_output/01_spacious-tokens.txt");
+    try tp.write_token_types_to_file(tp.text.alphabet_types_count, "_output/02_alphabet-types.txt");
+    try tp.write_token_types_to_file(tp.text.delimiter_types_count, "_output/03_delimiter-types.txt");
+    // try tp.write_output_file("_output/??_telexified_1000.txt", 1000);
     try tp.write_output_file(output_filename, 0);
 
     const end_time = time.milliTimestamp();
@@ -504,11 +423,7 @@ test "Telexify" {
         .init_allocator = std.testing.allocator,
         .max_lines_count = 100, // process maximum 100 lines only
     };
-
     try tp.init("_input/corpus/corpus-title-sample.txt");
     defer tp.deinit();
-    // errdefer tp.deinit();
     try tp.parse();
-    try tp.write_output_file("_output/telexified/corpus-title-sample.txt");
-    try tp.write_token_types_to_file("_output/telexified/corpus-title-sample_types.txt");
 }
