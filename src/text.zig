@@ -58,15 +58,15 @@ pub const Text = struct {
     estimated_tokens_number: usize = undefined,
     // Start the text with empty tokens list, hence tokens_number = 0
     tokens_number: usize = 0,
+    processed_types_count: usize = 0,
 
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
 
-    const MAX_TELEXIFIED_SIZE = 12 * 1024 * 1024; // 12mb
-
     pub const TypeInfo = struct {
         count: u32 = 0,
-        transform: ?[]const u8 = null,
+        transform: []const u8 = undefined,
+        category: TokenCategory = .others,
     };
 
     // A token can have multiple atributes:
@@ -123,8 +123,11 @@ pub const Text = struct {
 
         // Init transformed_bytes, each token may have an additional byte at the begining
         // to present it's attribute so we need more memory than input_bytes
-        self.transformed_bytes_size = MAX_TELEXIFIED_SIZE;
-        self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
+        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 3;
+        self.transformed_bytes = try self.allocator.alloc(
+            u8,
+            self.transformed_bytes_size,
+        );
 
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
@@ -150,13 +153,13 @@ pub const Text = struct {
         gop.value_ptr.*.count += 1;
     }
 
-    pub inline fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream, tkn_idx: usize) []const u8 {
+    pub fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream, tkn_idx: usize) []const u8 {
         // Convert input's utf-8 to output's ascii-telex
         const transformed_token_start_at = self.transformed_bytes_len;
         // Set start char of ascii-telex to a special value
         // ▁'3:226:150:129 used by sentencepiece
-        self.transformed_bytes[self.transformed_bytes_len] = 0b00000001;
-        self.transformed_bytes_len += 1;
+        // self.transformed_bytes[self.transformed_bytes_len] = 0b00000001;
+        // self.transformed_bytes_len += 1;
 
         if (char_stream.is_upper_case) {
             var i: usize = 0;
@@ -206,36 +209,75 @@ pub const Text = struct {
     }
 
     pub fn telexifyAlphabetTokens(self: *Text) void {
-        // @setRuntimeSafety(false);
-        var i: usize = 0;
-        while (i < self.tokens_number) : (i += 1) {
-            const token = self.tokens[i];
-            var type_info = self.alphabet_types.get(token);
+        @setRuntimeSafety(false);
+        const max_sleeps: u8 = 9;
+        const sleep_time: u64 = 100_000_000; // nanosec
+        var sleeps_count: u8 = 0;
 
-            if (type_info == null) continue; // not alphabet type
+        var i: *usize = &self.processed_types_count;
+        while (i.* <= self.tokens_number) : (i.* += 1) {
+            if (i.* == self.tokens_number) {
+                // All tokens is processed, waiting for new tokens
+                while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
+                    std.time.sleep(sleep_time);
+                    sleeps_count += 1;
+                    std.debug.print("\n- - - -\n{d} <= {d}\n- - - -\n", .{ self.tokens_number, sleeps_count });
+                }
+                if (i.* == self.tokens_number) {
+                    // No new token and timeout then return
+                    return;
+                } else {
+                    // reset sleep counter and continue
+                    sleeps_count = 0;
+                }
+            } // END waiting for new token
 
-            if (type_info.?.transform != null) {
-                // transformed
-                self.tokens_attrs[i].category = .syllable;
-                self.transforms[i] = type_info.?.transform.?;
+            var token = self.tokens[i.*];
+            var attrs = self.tokens_attrs[i.*];
+
+            if (attrs.category != .alphabet) {
+                // ...
+                // Skip if token is not an alphabet
                 continue;
             }
 
-            var syllable = parsers.parseAmTietToGetSyllable(true, printNothing, token);
-            const begin = self.transformed_bytes_len;
+            // Type info's must existed
+            var type_info = self.alphabet_types.get(token).?;
 
-            if (!syllable.can_be_vietnamese) continue;
+            if (type_info.category == .others) {
+                // Not transformed yet
+                var syllable = parsers.parseAmTietToGetSyllable(
+                    true,
+                    printNothing,
+                    token,
+                );
+                const begin = self.transformed_bytes_len;
 
-            for (syllable.toStr()) |b| {
-                self.transformed_bytes[self.transformed_bytes_len] = b;
-                self.transformed_bytes_len += 1;
+                if (syllable.can_be_vietnamese) {
+                    for (syllable.toStr()) |b| {
+                        self.transformed_bytes[self.transformed_bytes_len] = b;
+                        self.transformed_bytes_len += 1;
+                    }
+                    type_info.category = .syllable;
+                    type_info.transform = self.transformed_bytes[begin..self.transformed_bytes_len];
+
+                    // std.debug.print("| {d}:{s} |\n", .{ i, type_info.transform });
+                } else {
+                    type_info.category = .alphabet;
+                }
+            }
+            if (type_info.category == .syllable) {
+                attrs.category = .syllable;
+                self.transforms[i.*] = type_info.transform;
+            } else {
+                // ...
             }
 
-            type_info.?.transform = self.transformed_bytes[begin..self.transformed_bytes_len];
-
-            self.tokens_attrs[i].category = .syllable;
-            self.transforms[i] = type_info.?.transform.?;
-            // std.debug.print("| {d}:{s} |\n", .{ i, self.transforms[i] });
+            if (attrs.surrounded_by_spaces == .both or
+                attrs.surrounded_by_spaces == .right)
+            {
+                // ...
+            }
         }
     }
 };
@@ -267,11 +309,13 @@ test "Text" {
     try text.countToken(it.next().?, token_attrs);
 
     const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
-    thread.wait();
 
     while (it.next()) |tkn| {
         try text.countToken(tkn, token_attrs);
     }
+
+    thread.wait();
+    text.telexifyAlphabetTokens();
 
     try std.testing.expect(text.tokens_number == 9);
     try std.testing.expectEqualStrings(text.tokens[7], "nhà");
