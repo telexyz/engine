@@ -301,24 +301,6 @@ const TextFileTokenizer = struct {
         } // End main loop
     }
 
-    inline fn recordSyllableToken(self: *TextFileTokenizer, is_pure_utf8: bool, token: []const u8) !void {
-        if (is_pure_utf8) {
-            _ = try self.syllables1_file.writer().write(token);
-            self.syllables1_count += 1;
-            if (@rem(self.syllables1_count, 12) == 0)
-                _ = try self.syllables1_file.writer().write("\n")
-            else
-                _ = try self.syllables1_file.writer().write("   ");
-        } else {
-            _ = try self.syllables2_file.writer().write(token);
-            self.syllables2_count += 1;
-            if (@rem(self.syllables2_count, 12) == 0)
-                _ = try self.syllables2_file.writer().write("\n")
-            else
-                _ = try self.syllables2_file.writer().write("   ");
-        }
-    }
-
     fn write_spacious_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(output_filename, .{});
         defer file.close();
