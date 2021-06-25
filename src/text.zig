@@ -75,8 +75,8 @@ pub const Text = struct {
     // Each attribute is re-presented by an enum
     // The final encoded attribute is re-presented by a struct
     pub const TokenAttributes = packed struct {
-        category: TokenCategory,
         surrounded_by_spaces: TokenSurroundedBySpaces,
+        category: TokenCategory,
     };
 
     pub const TokenCategory = enum(u6) {
@@ -157,43 +157,44 @@ pub const Text = struct {
 
     pub fn recordAndReturnTransform(self: *Text, char_stream: U2ACharStream) []const u8 {
         // Convert input's utf-8 to output's ascii-telex
-        const trans_start_at = self.transformed_bytes_len;
+        const bytes_len = &self.transformed_bytes_len;
+        const trans_start_at = bytes_len.*;
 
         if (char_stream.is_upper_case) {
             var i: usize = 0;
             while (i < char_stream.len) : (i += 1) {
                 // Upper case the whole input bytes
-                self.transformed_bytes[self.transformed_bytes_len] =
+                self.transformed_bytes[bytes_len.*] =
                     char_stream.buffer[i] & 0b11011111;
-                self.transformed_bytes_len += 1;
+                bytes_len.* += 1;
             }
             if (char_stream.tone != 0) {
-                self.transformed_bytes[self.transformed_bytes_len] =
+                self.transformed_bytes[bytes_len.*] =
                     char_stream.tone & 0b11011111;
-                self.transformed_bytes_len += 1;
+                bytes_len.* += 1;
             }
         } else {
             var i: usize = 0;
             // Upper case the first letter
             if (char_stream.is_title_case) {
-                self.transformed_bytes[self.transformed_bytes_len] =
+                self.transformed_bytes[bytes_len.*] =
                     char_stream.buffer[0] & 0b11011111;
-                self.transformed_bytes_len += 1;
+                bytes_len.* += 1;
                 i = 1; // skip the first byte
             }
             // Copy the rest
             while (i < char_stream.len) {
-                self.transformed_bytes[self.transformed_bytes_len] = char_stream.buffer[i];
+                self.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
                 i += 1;
-                self.transformed_bytes_len += 1;
+                bytes_len.* += 1;
             }
             if (char_stream.tone != 0) {
-                self.transformed_bytes[self.transformed_bytes_len] = char_stream.tone;
-                self.transformed_bytes_len += 1;
+                self.transformed_bytes[bytes_len.*] = char_stream.tone;
+                bytes_len.* += 1;
             }
         }
         // END Convert input's utf-8 to output's ascii-telex
-        return self.transformed_bytes[trans_start_at..self.transformed_bytes_len];
+        return self.transformed_bytes[trans_start_at..bytes_len.*];
     }
 
     pub inline fn appendTramsformedBytes(self: *Text, b: u8) void {
@@ -217,82 +218,72 @@ pub const Text = struct {
         while (i.* <= self.tokens_number) : (i.* += 1) {
             if (i.* == self.tokens_number) {
                 if (self.tokens_number_finalized) return;
-                // All tokens is processed, waiting for new tokens
+                // BEGIN waiting for new tokens (all tokens is processed)
                 while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
                     std.time.sleep(sleep_time);
                     sleeps_count += 1;
                     std.debug.print("\n- - - -\n{d} <= {d}\n- - - -\n", .{ self.tokens_number, sleeps_count });
                 }
                 if (i.* == self.tokens_number) {
-                    // No new token and timeout then return
+                    // No new token and timeout
                     return;
                 } else {
-                    // reset sleep counter and continue
+                    // Reset sleep counter and continue
                     sleeps_count = 0;
                 }
-            } // END waiting for new token
+            } // END waiting for new tokens
 
             var token = self.tokens[i.*];
             var attrs = &self.tokens_attrs[i.*];
 
             if (attrs.category != .alphabet) {
+                // Copy token as it is
                 for (token) |b| {
                     self.transformed_bytes[self.transformed_bytes_len] = b;
                     self.transformed_bytes_len += 1;
                 }
+            } else {
 
-                if (attrs.surrounded_by_spaces == .both or
-                    attrs.surrounded_by_spaces == .right)
-                {
-                    self.transformed_bytes[self.transformed_bytes_len] = ' ';
-                    self.transformed_bytes_len += 1;
+                // Type info's must existed
+                var type_info = self.alphabet_types.get(token).?;
+                const not_transformed = type_info.category == .others;
+
+                if (not_transformed) {
+                    // Not transformed yet
+                    char_stream.reset();
+                    var syllable = parsers.parseTokenToGetSyllable(
+                        true,
+                        printNothing,
+                        &char_stream,
+                        token,
+                    );
+
+                    if (syllable.can_be_vietnamese) {
+                        type_info.category = .syllable;
+                        type_info.transform = self.recordAndReturnTransform(char_stream);
+                        // std.debug.print("| {d}:{s} |\n", .{ i, type_info.transform });
+                    } else {
+                        type_info.category = .alphabet;
+                    }
                 }
-                // Skip if token is not an alphabet
-                continue;
-            }
 
-            // Type info's must existed
-            var type_info = self.alphabet_types.get(token).?;
-            const not_transformed = type_info.category == .others;
-
-            if (not_transformed) {
-                // Not transformed yet
-                char_stream.reset();
-                var syllable = parsers.parseTokenToGetSyllable(
-                    true,
-                    printNothing,
-                    &char_stream,
-                    token,
-                );
-
-                if (syllable.can_be_vietnamese) {
-                    type_info.category = .syllable;
-                    type_info.transform = self.recordAndReturnTransform(char_stream);
-                    // std.debug.print("| {d}:{s} |\n", .{ i, type_info.transform });
-                } else {
-                    type_info.category = .alphabet;
+                if (type_info.category == .syllable) {
+                    attrs.category = .syllable;
+                    self.transforms[i.*] = type_info.transform;
+                    token = type_info.transform;
                 }
-            }
 
-            if (type_info.category == .syllable) {
-                attrs.category = .syllable;
-                self.transforms[i.*] = type_info.transform;
-                token = type_info.transform;
-            }
-
-            if (!(not_transformed and type_info.category == .syllable)) {
-                for (token) |b| {
-                    self.transformed_bytes[self.transformed_bytes_len] = b;
-                    self.transformed_bytes_len += 1;
+                if (!(not_transformed and type_info.category == .syllable)) {
+                    for (token) |b| {
+                        self.transformed_bytes[self.transformed_bytes_len] = b;
+                        self.transformed_bytes_len += 1;
+                    }
                 }
             }
 
-            if (attrs.surrounded_by_spaces == .both or
-                attrs.surrounded_by_spaces == .right)
-            {
-                self.transformed_bytes[self.transformed_bytes_len] = ' ';
-                self.transformed_bytes_len += 1;
-            }
+            // Write attrs + space at the end of token's ouput stream
+            self.appendTramsformedBytes(@bitCast(u8, attrs.*));
+            // self.appendTramsformedBytes(' ');
         }
     }
 };
