@@ -236,7 +236,17 @@ pub const Text = struct {
             var attrs = self.tokens_attrs[i.*];
 
             if (attrs.category != .alphabet) {
-                // ...
+                for (token) |b| {
+                    self.transformed_bytes[self.transformed_bytes_len] = b;
+                    self.transformed_bytes_len += 1;
+                }
+
+                if (attrs.surrounded_by_spaces == .both or
+                    attrs.surrounded_by_spaces == .right)
+                {
+                    self.transformed_bytes[self.transformed_bytes_len] = ' ';
+                    self.transformed_bytes_len += 1;
+                }
                 // Skip if token is not an alphabet
                 continue;
             }
@@ -251,9 +261,9 @@ pub const Text = struct {
                     printNothing,
                     token,
                 );
-                const begin = self.transformed_bytes_len;
 
                 if (syllable.can_be_vietnamese) {
+                    const begin = self.transformed_bytes_len;
                     for (syllable.toStr()) |b| {
                         self.transformed_bytes[self.transformed_bytes_len] = b;
                         self.transformed_bytes_len += 1;
@@ -270,13 +280,17 @@ pub const Text = struct {
                 attrs.category = .syllable;
                 self.transforms[i.*] = type_info.transform;
             } else {
-                // ...
+                for (token) |b| {
+                    self.transformed_bytes[self.transformed_bytes_len] = b;
+                    self.transformed_bytes_len += 1;
+                }
             }
 
             if (attrs.surrounded_by_spaces == .both or
                 attrs.surrounded_by_spaces == .right)
             {
-                // ...
+                self.transformed_bytes[self.transformed_bytes_len] = ' ';
+                self.transformed_bytes_len += 1;
             }
         }
     }
