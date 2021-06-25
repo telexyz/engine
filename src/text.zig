@@ -200,8 +200,31 @@ pub const Text = struct {
 test "Text" {
     var text = Text{
         .init_allocator = std.testing.allocator,
-        .input_bytes = "thử nghiệm nhé, car nhà!",
+        .input_bytes = "Cả nhà ơi, thử nghiệm nhé, cả nhà !",
     };
+
     try text.init();
     defer text.deinit();
+
+    // Text is a struct with very basic function
+    // It's up to tokenizer to split the text and assign value to tokens[i]
+    var it = std.mem.tokenize(text.input_bytes, " ");
+    var token = it.next();
+    var token_attrs: Text.TokenAttributes = .{
+        .category = .alphabet,
+        .surrounded_by_spaces = .both,
+    };
+    try text.countToken(token.?, token_attrs);
+    try std.testing.expect(text.tokens_number == 1);
+    try std.testing.expectEqualStrings(text.tokens[0], "Cả");
+
+    while (it.next()) |tkn| {
+        try text.countToken(tkn, token_attrs);
+    }
+    try std.testing.expect(text.tokens_number == 9);
+    try std.testing.expectEqualStrings(text.tokens[7], "nhà");
+    try std.testing.expect(text.alphabet_types_count.get("nhà").? == 2);
+    try std.testing.expect(text.alphabet_types_count.get("xxx") == null);
+    try std.testing.expect(text.alphabet_types_count.count() == 8);
+    try std.testing.expect(text.delimiter_types_count.count() == 0);
 }
