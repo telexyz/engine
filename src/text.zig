@@ -233,7 +233,7 @@ pub const Text = struct {
             } // END waiting for new token
 
             var token = self.tokens[i.*];
-            var attrs = self.tokens_attrs[i.*];
+            var attrs = &self.tokens_attrs[i.*];
 
             if (attrs.category != .alphabet) {
                 for (token) |b| {

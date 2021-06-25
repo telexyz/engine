@@ -14,13 +14,15 @@ TODO:
 
 * Handle `Thoọng`, need to conver `oo` to `ooo`
 
+* colapse types that have similar _ascii-telex represention_ to create next layer of _ascii-telex types_
+
+[ DONE ]
+
+* Convert _utf8 types_ to _ascii-telex types_
+
 * Find an efficient way to check if a _utf8 type_ is a Vi Syllable or not!
   - We know that `am_giua` is a must for a Vi Syllable
   - Some `am_giua` can follow one some `am_dau` and only be followed by some `am_cuoi`
-
-* Convert _utf8 types_ to _ascii-telex types_: colapse types that have similar _ascii-telex represention_ to create next layer of _ascii-telex types_
-
-[ DONE ]
 
 * Choose an efficient bytes-hashing algorithm to count similar _utf8 lower_case-fom tokens_ to create _utf8 types_ (see `_HASH.md`)
 
@@ -40,7 +42,7 @@ Or non-alphabet / abbr / foreign-words ... `.   ,   70   12/2   1   12/2/2018:  
 Or look-like-Vietnamese (typo, abbr, borrowed-words ...) `BHYTNâng   ĐHTB   Bôlykhămxay   này15   Xôviết   iốt   NộiThích   HĐBA   crôm   Chilê   HĐLĐ   uyênhXí   Hrê   Krông   BĐKH   đôla   ĐHQG   Euréka   QSĐ   đónTết   Tiếg   toàndiện   záo   zụk   ĐT601   LĐLĐVN   LĐTB   zăng   CQĐT   đôlômit   Thoọng   Vắcxin   ĐVHD   áBo   PTĐ   CĐCS   xtê   GĐKT   kêt   sơmi   QĐND   ATVSLĐ   Môt   hạiBài`
 
 
-This phase must FULLFILL:
+This phase must:
 
 * Moving fast and try to detect as much syllable-tokens using strict rules [$] as possible!
 
