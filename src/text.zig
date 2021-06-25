@@ -59,6 +59,8 @@ pub const Text = struct {
     // Start the text with empty tokens list, hence tokens_number = 0
     tokens_number: usize = 0,
     processed_types_count: usize = 0,
+    // To skip sleep time
+    tokens_number_finalized: bool = false,
 
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
@@ -210,13 +212,14 @@ pub const Text = struct {
 
     pub fn telexifyAlphabetTokens(self: *Text) void {
         @setRuntimeSafety(false);
-        const max_sleeps: u8 = 9;
+        const max_sleeps: u8 = 5;
         const sleep_time: u64 = 100_000_000; // nanosec
         var sleeps_count: u8 = 0;
 
         var i: *usize = &self.processed_types_count;
         while (i.* <= self.tokens_number) : (i.* += 1) {
             if (i.* == self.tokens_number) {
+                if (self.tokens_number_finalized) return;
                 // All tokens is processed, waiting for new tokens
                 while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
                     std.time.sleep(sleep_time);

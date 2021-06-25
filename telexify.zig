@@ -473,13 +473,14 @@ pub fn main() anyerror!void {
         tp.text.delimiter_types,
         "_output/03_delimiter-types.txt",
     );
+    try tp.write_output_file_from_tokens("_output/04_telexified_999.txt", 999);
 
     const step2_ms = time.milliTimestamp() - start_time;
     const step2_mins = @intToFloat(f32, step2_ms) / 60000;
     print("\nStep2 finish! Duration {} ms => {d:.2} mins\n", .{ step2_ms, step2_mins });
 
     thread.wait();
-    try tp.write_output_file_from_tokens("_output/04_telexified_999.txt", 999);
+    tp.text.tokens_number_finalized = true;
     tp.text.telexifyAlphabetTokens();
     try tp.write_output_file_from_buffer(output_filename, 0);
 
