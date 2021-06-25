@@ -195,7 +195,9 @@ const TextFileTokenizer = struct {
                     if (is_spacious_alphabet) {
                         //
                         const token = input_bytes[space_boundary_token_start_at..index];
+
                         const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .both };
+
                         try self.text.countToken(token, tkn_attrs);
 
                         if (counting_lines) {
@@ -204,9 +206,11 @@ const TextFileTokenizer = struct {
                     } else {
                         //
                         const token = input_bytes[space_boundary_token_start_at..index];
+
                         if (is_spacious_delimiter) {
                             //
                             const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .both };
+
                             try self.text.countToken(token, tkn_attrs);
 
                             if (counting_lines) {
@@ -220,7 +224,9 @@ const TextFileTokenizer = struct {
                     if (in_alphabet_token_zone and alphabet_token_start_at > space_boundary_token_start_at) {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
+
                         const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = .right };
+
                         try self.text.countToken(token, tkn_attrs);
 
                         if (counting_lines) {
@@ -231,7 +237,9 @@ const TextFileTokenizer = struct {
                     if (!in_alphabet_token_zone and delimiter_start_at > space_boundary_token_start_at) {
                         //
                         const token = input_bytes[delimiter_start_at..index];
+
                         const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = .right };
+
                         try self.text.countToken(token, tkn_attrs);
 
                         if (counting_lines) {
@@ -256,6 +264,7 @@ const TextFileTokenizer = struct {
                         in_alphabet_token_zone = false;
                         // Record alphabets
                         if (alphabet_token_start_at <= index) {
+                            //
                             const token = input_bytes[alphabet_token_start_at..index];
 
                             const tkn_attrs: Text.TokenAttributes = .{ .category = .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at == space_boundary_token_start_at) .left else .none };
@@ -284,6 +293,7 @@ const TextFileTokenizer = struct {
                         in_alphabet_token_zone = true;
                         // Record delimiter
                         if (delimiter_start_at <= index) {
+                            //
                             const token = input_bytes[delimiter_start_at..index];
 
                             const tkn_attrs: Text.TokenAttributes = .{ .category = .others, .surrounded_by_spaces = if (delimiter_start_at == space_boundary_token_start_at) .left else .none };
@@ -391,7 +401,7 @@ pub fn main() anyerror!void {
     try tp.write_token_types_to_file(tp.text.alphabet_types_count, "_output/02_alphabet-types.txt");
     try tp.write_token_types_to_file(tp.text.delimiter_types_count, "_output/03_delimiter-types.txt");
     // try tp.write_output_file("_output/??_telexified_1000.txt", 1000);
-    try tp.write_output_file(output_filename, 0);
+    // try tp.write_output_file(output_filename, 0);
 
     const end_time = time.milliTimestamp();
     print("\nend_time {}\n", .{end_time});
