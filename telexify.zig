@@ -11,11 +11,15 @@ const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
 const Text = @import("./src/text.zig").Text;
 
 inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void {
-    print("\"{s}\" => {}, {}\n", .{
-        token,
-        token_attrs.category,
-        token_attrs.surrounded_by_spaces,
-    });
+    if (token[0] == '\n') {
+        print("\nNEWLINE: ", .{});
+    } else {
+        print("\"{s}\" => {}, {}\n", .{
+            token,
+            token_attrs.category,
+            token_attrs.surrounded_by_spaces,
+        });
+    }
 }
 
 const TextFileTokenizer = struct {
@@ -123,24 +127,6 @@ const TextFileTokenizer = struct {
                 '\n' => { // New line should be treated differently
                     // It's could be a hint for sentences / phrases break ...
                     char_type = .space;
-                    try self.text.countToken(input_bytes[index .. index + 1], Text.TokenAttributes{
-                        .category = .others,
-                        .surrounded_by_spaces = .none,
-                    });
-                    // counting_lines to used to limit number of input data
-                    // to run a trial on a large data set
-                    if (index > percentage_threshold) {
-                        percentage += 1;
-                        print("processed: {d}%\n", .{percentage});
-                        percentage_threshold += one_percent;
-                    }
-                    if (counting_lines) {
-                        lines_count += 1;
-                        print("line: {d}\n", .{lines_count});
-                        if (counting_lines and lines_count >= self.max_lines_count) {
-                            return;
-                        }
-                    }
                 },
                 else => {
                     // Based on code of zig std lib
@@ -261,6 +247,31 @@ const TextFileTokenizer = struct {
                         //
                     }
                 } // END if (in_space_boundary_token_zone)
+                if (first_byte == '\n') {
+                    // Treat newline as a special token
+                    const token = input_bytes[index .. index + 1];
+                    const token_attrs = Text.TokenAttributes{
+                        .category = .others,
+                        .surrounded_by_spaces = .none,
+                    };
+                    try self.text.countToken(token, token_attrs);
+
+                    if (counting_lines) {
+                        printToken(token, token_attrs);
+                        lines_count += 1;
+                        print("{d}\n\n", .{lines_count});
+                        if (counting_lines and lines_count >= self.max_lines_count) {
+                            return;
+                        }
+                    }
+
+                    if (index > percentage_threshold) {
+                        percentage += 1;
+                        print("processed: {d}%\n", .{percentage});
+                        percentage_threshold += one_percent;
+                    }
+                }
+                // END char_type => .space
             } else { // char_type => .alphabet_char{_can_be}, or .others
                 if (char_type == .others) {
                     if (!in_space_boundary_token_zone) {
