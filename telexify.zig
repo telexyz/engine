@@ -38,7 +38,7 @@ const TextFileTokenizer = struct {
 
     const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
 
-    pub fn init(self: *TextFileTokenizer, input_filename: []const u8, output_filename: []const u8) !void {
+    pub fn init(self: *TextFileTokenizer, input_filename: []const u8) !void {
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
         self.allocator = &self.arena.allocator;
 
@@ -450,7 +450,7 @@ pub fn main() anyerror!void {
         .max_lines_count = max_lines_count,
     };
 
-    try tp.init(input_filename, output_filename);
+    try tp.init(input_filename);
     defer tp.deinit();
 
     const init_ms = time.milliTimestamp() - start_time;
@@ -498,5 +498,7 @@ test "Telexify" {
     };
     try tfp.init("_input/corpus/corpus-title-sample.txt");
     defer tfp.deinit();
-    try tfp.deinit();
+    try tfp.parse();
+    tfp.text.tokens_number_finalized = true;
+    tfp.text.telexifyAlphabetTokens();
 }
