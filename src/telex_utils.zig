@@ -4,7 +4,7 @@ const expect = testing.expect;
 const print = std.debug.print;
 const unicode = std.unicode;
 
-const sd = @import("Syllable_data.zig");
+const sd = @import("syllable_data_structs.zig");
 
 const IS_UPPER = 512;
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# zig test src/syllable_data.zig
+# zig test src/syllable_data_structs.zig
 
 # zig test src/parsers.zig
 

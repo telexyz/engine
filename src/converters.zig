@@ -1,12 +1,12 @@
 const std = @import("std");
 const fmt = std.fmt;
 
-const syllable_data = @import("./syllable_data.zig");
-const Syllable = syllable_data.Syllable;
-const AmDau = syllable_data.AmDau;
-const AmGiua = syllable_data.AmGiua;
-const AmCuoi = syllable_data.AmCuoi;
-const Tone = syllable_data.Tone;
+const syllable_data_structs = @import("./syllable_data_structs.zig");
+const Syllable = syllable_data_structs.Syllable;
+const AmDau = syllable_data_structs.AmDau;
+const AmGiua = syllable_data_structs.AmGiua;
+const AmCuoi = syllable_data_structs.AmCuoi;
+const Tone = syllable_data_structs.Tone;
 
 const parseAmTietToGetSyllable = @import("./parsers.zig").parseAmTietToGetSyllable;
 

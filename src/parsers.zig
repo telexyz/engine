@@ -1,9 +1,9 @@
-const syllable_data = @import("./syllable_data.zig");
-pub const Syllable = syllable_data.Syllable;
-const AmDau = syllable_data.AmDau;
-const AmGiua = syllable_data.AmGiua;
-const AmCuoi = syllable_data.AmCuoi;
-const Tone = syllable_data.Tone;
+const syllable_data_structs = @import("./syllable_data_structs.zig");
+pub const Syllable = syllable_data_structs.Syllable;
+const AmDau = syllable_data_structs.AmDau;
+const AmGiua = syllable_data_structs.AmGiua;
+const AmCuoi = syllable_data_structs.AmCuoi;
+const Tone = syllable_data_structs.Tone;
 
 const U2ACharStream = @import("./chars_utils.zig").Utf8ToAsciiTelexAmTietCharStream;
 

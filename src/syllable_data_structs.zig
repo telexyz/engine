@@ -11,7 +11,7 @@ const fmt = std.fmt;
 // Các phụ âm đầu, vần (nguyên âm và phụ âm cuối) được tạo thành từ:
 /// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x.
 /// - 11 nguyên âm: i, e, ê, ư, u, o, ô, ơ, a, ă, â.
-pub const AmDau = enum {
+pub const AmDau = enum(u5) {
     _none,
     b,
     c,
@@ -95,7 +95,7 @@ test "Enum AmDau" {
 /// Trong Tiếng Việt, nguyên âm nào cũng có thể làm âm chính của tiếng.
 /// - Các nguyên âm đơn: (11 nguyên âm ghi ở trên)
 /// - Các nguyên âm đôi : Có 3 nguyên âm đôi và được tách thành 8 nguyên âm sau:
-pub const AmGiua = enum {
+pub const AmGiua = enum(u5) {
     _none,
     a,
     e,
@@ -202,7 +202,7 @@ test "Enum AmGiua" {
 /// * Âm cuối:
 /// - Các phụ âm cuối vần : p, t, c (ch), m, n, ng (nh)
 /// - 2 bán âm cuối vần : i (y), u (o)
-pub const AmCuoi = enum {
+pub const AmCuoi = enum(u4) {
     _none,
     c,
     m,
@@ -253,7 +253,7 @@ test "Enum AmCuoi.len" {
     try expect(AmCuoi._none.len() == 0);
 }
 
-pub const Tone = enum {
+pub const Tone = enum(u3) {
     _none,
     s,
     f,
@@ -293,7 +293,7 @@ test "Enum Tone.isHarsh" {
     try expect(Tone.s.isHarsh() == false);
 }
 
-pub const Syllable = struct {
+pub const Syllable = packed struct {
     am_dau: AmDau,
     am_giua: AmGiua,
     am_cuoi: AmCuoi,
