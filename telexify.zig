@@ -32,8 +32,9 @@ const TextFileTokenizer = struct {
     input_file: File = undefined,
     input_bytes: []const u8 = undefined,
 
-    // Duo (or mixed or not-pure) means contains both alphabet and non_alphabet
-    duo_spacious_tokens_map: std.StringHashMap(void) = undefined,
+    // Mixed of alphabet and non-alphabet (or not-pure) tokens,
+    // splitted by space delimiter
+    mixed_tokens_map: std.StringHashMap(void) = undefined,
 
     text: Text = undefined,
 
@@ -52,7 +53,7 @@ const TextFileTokenizer = struct {
         };
         try self.text.init();
 
-        self.duo_spacious_tokens_map = std.StringHashMap(void).init(self.allocator);
+        self.mixed_tokens_map = std.StringHashMap(void).init(self.allocator);
     }
 
     pub fn deinit(self: *TextFileTokenizer) void {
@@ -223,7 +224,7 @@ const TextFileTokenizer = struct {
                             if (counting_lines) printToken(token, token_attrs);
                             //
                         } else {
-                            _ = try self.duo_spacious_tokens_map.getOrPut(token);
+                            _ = try self.mixed_tokens_map.getOrPut(token);
                         }
                     }
 
@@ -349,11 +350,11 @@ const TextFileTokenizer = struct {
         } // End main loop
     }
 
-    fn write_duo_spacious_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
+    fn write_mixed_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(output_filename, .{});
         defer file.close();
         var tokens_count: usize = 0;
-        var it = self.duo_spacious_tokens_map.iterator();
+        var it = self.mixed_tokens_map.iterator();
         while (it.next()) |kv| {
             const token = kv.key_ptr.*;
 
@@ -479,15 +480,18 @@ pub fn main() anyerror!void {
         "_output/03-non_alphabet_types.txt",
     );
 
-    try tp.write_duo_spacious_tokens_to_file("_output/04-duo_spacious_tokens.txt");
+    try tp.write_mixed_tokens_to_file("_output/04-mixed_tokens.txt");
 
     // Write sample of final output
     // try tp.write_output_file_from_tokens("_output/05_telexified_999.txt", 999);
     try tp.write_output_file_from_buffer("_output/06-telexified_999.txt", 99999);
 
+    // Wait for sylabeling thread end
     thread.wait();
-
-    // Finalize sylabeling process
+    // Then run one more time to finalize sylabeling process
+    // since there may be some last tokens was skipped before thread end
+    // because sylabeling too fast and timeout before new tokens come
+    // It's a very rare-case happend when the sleep() call fail.
     tp.text.tokens_number_finalized = true;
     tp.text.telexifyAlphabetTokens();
     tp.text.removeSyllablesFromAlphabetTypes();
