@@ -470,7 +470,8 @@ pub fn main() anyerror!void {
         tp.text.delimiter_types,
         "_output/03_delimiter-types.txt",
     );
-    try tp.write_output_file_from_tokens("_output/04_telexified_999.txt", 999);
+    // try tp.write_output_file_from_tokens("_output/04_telexified_999.txt", 999);
+    try tp.write_output_file_from_buffer("_output/04_telexified_999.txt", 999 * 10);
 
     thread.wait();
     tp.text.tokens_number_finalized = true;

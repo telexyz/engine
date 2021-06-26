@@ -216,8 +216,8 @@ pub const Text = struct {
         var char_stream = U2ACharStream.init();
         var prev_percent: u64 = 0;
 
-        const max_sleeps: u8 = 2;
-        const sleep_time: u64 = 333_000_000; // nanosec
+        const max_sleeps: u8 = 1;
+        const sleep_time: u64 = 600_000_000; // nanosec
         var sleeps_count: u8 = 0;
 
         var i: *usize = &self.processed_types_count;
@@ -257,7 +257,7 @@ pub const Text = struct {
 
                 if (percent > prev_percent) {
                     prev_percent = percent;
-                    if (@rem(percent, 2) == 0)
+                    if (@rem(percent, 3) == 0)
                         std.debug.print("{s}{d}% Syllabling\n", .{ PAD, percent });
                 }
 
