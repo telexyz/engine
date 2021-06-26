@@ -465,12 +465,13 @@ pub fn main() anyerror!void {
     print("\nStep-1: Token segmenting finish! Duration {} ms => {d:.2} mins\n\n", .{ step1_ms, step1_mins });
 
     // Write out stats
-    try tp.write_spacious_tokens_to_file("_output/01_spacious-tokens.txt");
-
     try tp.write_counts_to_file(
         tp.text.delimiter_types,
-        "_output/02_delimiter-types.txt",
+        "_output/03_delimiter-types.txt",
     );
+
+    try tp.write_spacious_tokens_to_file("_output/04_spacious-tokens.txt");
+
     // Write sample of final output
     // try tp.write_output_file_from_tokens("_output/05_telexified_999.txt", 999);
     try tp.write_output_file_from_buffer("_output/05_telexified_999.txt", 99999);
@@ -489,13 +490,14 @@ pub fn main() anyerror!void {
     print("\nWriting final transformation to file ...\n", .{});
 
     try tp.write_counts_to_file(
-        tp.text.alphabet_types,
-        "_output/03_alphabet-types.txt",
+        tp.text.syllable_types,
+        "_output/01_syllable-types.txt",
     );
     try tp.write_counts_to_file(
-        tp.text.syllable_types,
-        "_output/04_syllable-types.txt",
+        tp.text.alphabet_types,
+        "_output/02_alphabet-types.txt",
     );
+    // Final result
     try tp.write_output_file_from_buffer(output_filename, 0);
 
     const end_time = time.milliTimestamp();
