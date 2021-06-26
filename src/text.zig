@@ -215,8 +215,8 @@ pub const Text = struct {
         var char_stream = U2ACharStream.init();
         var prev_percent: u64 = 0;
 
-        const max_sleeps: u8 = 5;
-        const sleep_time: u64 = 100_000_000; // nanosec
+        const max_sleeps: u8 = 2;
+        const sleep_time: u64 = 333_000_000; // nanosec
         var sleeps_count: u8 = 0;
 
         var i: *usize = &self.processed_types_count;
@@ -229,7 +229,7 @@ pub const Text = struct {
                 while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
                     std.time.sleep(sleep_time);
                     sleeps_count += 1;
-                    // std.debug.print("\nWaiting for new tokens {d} <= {d}\n", .{ self.tokens_number, sleeps_count });
+                    std.debug.print("               ... waiting for new tokens\n", .{});
                 }
                 if (i.* == self.tokens_number) {
                     // No new token and timeout
@@ -249,7 +249,7 @@ pub const Text = struct {
                 self.transformed_bytes_len += 1;
 
                 // Show token parsing progress
-                const percent: u64 = if (prev_percent < 80)
+                const percent: u64 = if (prev_percent < 75)
                     (100 * self.transformed_bytes_len) / self.transformed_bytes_size
                 else
                     (100 * i.*) / self.tokens_number;
