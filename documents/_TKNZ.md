@@ -8,11 +8,11 @@
 * Rule #5: Prefer simple solution!
 
 
-## Phase-1: Space-split (space-32, tab-9)
+## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs non_alphabet splitter
 
 TODO:
 
-* Handle `Thoọng`, need to conver `oo` to `ooo`
+* Handle `Thoọng`: need to conver `oo` to `ooo` before passing to syll-parser
 
 * Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
@@ -62,19 +62,41 @@ This phase must:
 
 ```js
 Input: "Ngươì ơiii chào nhé!"
-Output: "Nguowif", "ơiii", "chaof", "nhé!"
+Output: "Nguowif", "ơiii", "chaof", "nhes", "!"
 ```
 
 By doing all of this we respect Rule #1/ that makes "SYLLABLES are FIRST CLASS Citizens" so we can build a syllable vocab, and prepare input data the next phase.
 
 
-## Phase-2: Word-boundary-Split for `Others` token
+## Phase-2: Subword segmentation
+
+https://everdark.github.io/k9/notebooks/ml/natural_language_understanding/subword_units/subword_units.nb.html#12_probablistic_subword_segmentation
+
+We iterate over every position in a given word. At each end-of-character position, we determine the best segment by finding the one with highest likelihood given the current vocabulary.
+
+we need to have a vocabulary for subwords that can attribute each subword to a probability. We can use BPE to build such vocabulary. For complete coverage we will also include character-level subwords into the vocabulary.
+
+https://everdark.github.io/k9/notebooks/ml/natural_language_understanding/subword_units/subword_units.nb.html#123_em_with_viterbi
+
+Now we know the idea of EM, and we know how to find the optimal segment path by Viterbi, we can put them together to forumlate the optimization task of our probablistic subword segmentation.
+
+* Initialize a large seeding subword vocabulary from the training corpus
+* [Expectation] Estimate each subword probability by the corresponding frequency counts in the vocabulary
+* [Maximization] Use Viterbi to segment the corpus, returning the optimal segments
+* Compute the loss of each new subword from optimal segments
+* Shrink the vocabulary size by dropping the subwords with top X% smallest losses
+* Repeat step 2 to 5 until the vocabulary size reaches a desired number
+
+The loss of a subword in step 4 is the reduction in overall training corpus segment likelihood if that subword is removed from the current vocabulary.
+
+we used BPE to generate the initial vocabulary. Another common choice is to the suffix array algorithm. to generate the common substrings.
+
 
 ```js
-Input: "Nguowif", "ơiii", "chaof", "nhé!"
+Input: "Nguowif", "ơiii", "chaof", "nhes", "!"
 Output: "Nguowif", "owi", "i", "i", "chaof", "nhes", "!"
 ```
-After phase-#1, the number of others-tokens is quite small. For above example we need to process token number 3,4 and 7 only!
+After phase-#1, the number of others-tokens is quite small. For above example we need to process token number 3 only!
 
 
 TODO:
@@ -91,11 +113,6 @@ Try: "Mẹnuôi" -> "Mẹn|uôi" -> true
 Try: "NgheNh|ìn" -> false
 Try: "Môn|ôlôxốp" -> "Mô|nô|lô|xốp" ?? nên giữ nguyên vì đây là tên riêng
 ```
-
-
-Splits on word boundaries (using the following regular expression: `\w+|[^\w\s]+`)
-Note: beside a-zA-Z \w must include Vi marked+toned chars: 
-`đàáãâăèéêìíĩòóõôơýùúũưủụọỏịỉỳỵỷỹạảẹẻẽầấậẩẫằắặẳẵềếệểễồốộổỗờớợởỡừứựửữ`
 
 This phase must:
 
