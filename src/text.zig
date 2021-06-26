@@ -53,6 +53,7 @@ pub const Text = struct {
     // Listing tytes along with its frequence will reveal intersting information
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     delimiter_types: std.StringHashMap(TypeInfo) = undefined,
+    syllable_types: std.StringHashMap(u32) = undefined,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
@@ -68,7 +69,7 @@ pub const Text = struct {
     pub const TypeInfo = struct {
         count: u32 = 0,
         transform: []const u8 = undefined,
-        category: TokenCategory = .others,
+        category: TokenCategory = ._none,
     };
 
     // A token can have multiple atributes:
@@ -80,9 +81,13 @@ pub const Text = struct {
     };
 
     pub const TokenCategory = enum(u6) {
+        // 3 main token categoried, used to write to disk as token's attrs
         syllable = 1, // + 2-bits => 04,05,06,07 ^D^E^F^G
         alphabet = 4, // + 2-bits => 16,17,18,19 ^P^Q^R^S
         others = 5, //   + 2-bits => 20,21,22,23 ^T^U^V^W
+
+        // Supplement category, used as to mark an intialized value
+        _none = 0,
     };
 
     pub const TokenSurroundedBySpaces = enum(u2) {
@@ -119,17 +124,15 @@ pub const Text = struct {
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.delimiter_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.syllable_types = std.StringHashMap(u32).init(self.allocator);
 
         // Init transforms list
         self.transforms = try self.allocator.alloc([]const u8, est_token_num.*);
 
-        // Init transformed_bytes, each token may have an additional byte at the begining
-        // to present it's attribute so we need more memory than input_bytes
+        // Init transformed_bytes, each token may have an additional byte at the
+        // begining to store it's attribute so we need more memory than input_bytes
         self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5;
-        self.transformed_bytes = try self.allocator.alloc(
-            u8,
-            self.transformed_bytes_size,
-        );
+        self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
@@ -159,7 +162,7 @@ pub const Text = struct {
         self.tokens_number += 1;
     }
 
-    pub fn saveAndReturnTransform(self: *Text, char_stream: U2ACharStream) []const u8 {
+    pub fn saveAndReturnTrans(self: *Text, char_stream: U2ACharStream) []const u8 {
         // Convert input's utf-8 to output's ascii-telex
         const bytes_len = &self.transformed_bytes_len;
         const trans_start_at = bytes_len.*;
@@ -250,7 +253,7 @@ pub const Text = struct {
                 self.transformed_bytes_len += 1;
 
                 // Show token parsing progress
-                const percent: u64 = if (prev_percent < 75)
+                const percent: u64 = if (!self.tokens_number_finalized)
                     (100 * self.transformed_bytes_len) / self.transformed_bytes_size
                 else
                     (100 * i.*) / self.tokens_number;
@@ -275,12 +278,11 @@ pub const Text = struct {
             if (attrs.category == .alphabet) {
                 // Since token is alphabet, it's alphabet_types[i]'s info must existed
                 const type_info = self.alphabet_types.getPtr(token).?;
-                const not_transformed = type_info.*.category == .others;
 
-                if (not_transformed) {
+                if (type_info.*.category == ._none) {
                     // Not transformed yet
                     char_stream.reset();
-                    var syllable = parsers.parseTokenToGetSyllable(
+                    const syllable = parsers.parseTokenToGetSyllable(
                         true,
                         printNothing,
                         &char_stream,
@@ -288,23 +290,34 @@ pub const Text = struct {
                     );
 
                     if (syllable.can_be_vietnamese) {
+                        // First time convert type to syllable
                         type_info.*.category = .syllable;
-                        type_info.*.transform = self.saveAndReturnTransform(char_stream);
+                        // Point token value to it's syllable trans
+                        token = self.saveAndReturnTrans(char_stream);
+                        type_info.*.transform = token;
+                        // First token point to this syllable trans don't need
+                        // to write data, later, mark token_written = true to know
                         token_written = true;
-                        // std.debug.print("\n{d}:{s}\n", .{ i, type_info.*.transform });
+                        // Record and count syllable
+                        const gop =
+                            self.syllable_types.getOrPutValue(token, 0) catch null;
+                        gop.?.value_ptr.* += type_info.*.count;
                     } else {
+                        // Not syllable thì chỉ có thể là alphabet
                         type_info.*.category = .alphabet;
                     }
                 }
 
                 if (type_info.*.category == .syllable) {
                     attrs.category = .syllable;
-                    self.transforms[i.*] = type_info.*.transform;
+                    // Point token value to it's syllable trans
                     token = type_info.*.transform;
+                    self.transforms[i.*] = token;
                 }
-            }
+            } // attrs.category == .alphabet
 
             if (!token_written) {
+                // write original token it's is not syllable
                 for (token) |b| {
                     self.transformed_bytes[self.transformed_bytes_len] = b;
                     self.transformed_bytes_len += 1;
@@ -312,6 +325,17 @@ pub const Text = struct {
             }
             // Write attrs at the begin of token's ouput stream
             self.transformed_bytes[firt_byte_index] = @bitCast(u8, attrs.*);
+        }
+    }
+
+    pub fn removeSyllablesFromAlphabetTypes(self: *Text) void {
+        if (!self.tokens_number_finalized) return;
+
+        var it = self.alphabet_types.iterator();
+        while (it.next()) |kv| {
+            if (kv.value_ptr.*.category == .syllable) {
+                _ = self.alphabet_types.remove(kv.key_ptr.*);
+            }
         }
     }
 };

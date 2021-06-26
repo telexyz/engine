@@ -22,7 +22,7 @@ inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void 
     }
 }
 
-const TextFilesegmentr = struct {
+const TextFileTokenizer = struct {
     max_lines_count: usize = 0,
 
     init_allocator: *std.mem.Allocator,
@@ -38,7 +38,7 @@ const TextFilesegmentr = struct {
 
     const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
 
-    pub fn init(self: *TextFilesegmentr, input_filename: []const u8) !void {
+    pub fn init(self: *TextFileTokenizer, input_filename: []const u8) !void {
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
         self.allocator = &self.arena.allocator;
 
@@ -54,7 +54,7 @@ const TextFilesegmentr = struct {
         self.spacious_tokens_map = std.StringHashMap(void).init(self.allocator);
     }
 
-    pub fn deinit(self: *TextFilesegmentr) void {
+    pub fn deinit(self: *TextFileTokenizer) void {
         self.input_file.close();
         self.text.deinit();
         self.arena.deinit();
@@ -62,7 +62,7 @@ const TextFilesegmentr = struct {
 
     const CharTypes = enum { alphabet_char, alphabet_char_can_be, space, others };
 
-    pub fn segment(self: *TextFilesegmentr) !void {
+    pub fn segment(self: *TextFileTokenizer) !void {
         var index: usize = undefined;
         var next_index: usize = 0;
 
@@ -340,7 +340,7 @@ const TextFilesegmentr = struct {
         } // End main loop
     }
 
-    fn write_spacious_tokens_to_file(self: *TextFilesegmentr, output_filename: []const u8) !void {
+    fn write_spacious_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(output_filename, .{});
         defer file.close();
         var tokens_count: usize = 0;
@@ -359,7 +359,7 @@ const TextFilesegmentr = struct {
     }
 
     fn write_output_file_from_tokens(
-        self: TextFilesegmentr,
+        self: TextFileTokenizer,
         output_filename: []const u8,
         max: usize,
     ) !void {
@@ -387,7 +387,7 @@ const TextFilesegmentr = struct {
     }
 
     fn write_output_file_from_buffer(
-        self: TextFilesegmentr,
+        self: TextFileTokenizer,
         output_filename: []const u8,
         max: usize,
     ) !void {
@@ -399,7 +399,7 @@ const TextFilesegmentr = struct {
         _ = try output_file.writer().write(self.text.transformed_bytes[0..n]);
     }
 
-    fn write_token_types_to_file(self: TextFilesegmentr, types: std.StringHashMap(Text.TypeInfo), output_filename: []const u8) !void {
+    fn write_counts_to_file(self: TextFileTokenizer, counts: anytype, output_filename: []const u8) !void {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
@@ -407,20 +407,22 @@ const TextFilesegmentr = struct {
         var buffer: [max_token_len + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
-        var it = types.iterator();
+        var it = counts.iterator();
         while (it.next()) |kv| {
             if (max_token_len < kv.key_ptr.*.len) {
                 print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
-            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.*.count, kv.key_ptr.* });
+            const count = if (comptime @TypeOf(counts) == std.StringHashMap(Text.TypeInfo)) kv.value_ptr.*.count else kv.value_ptr.*;
+
+            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ count, kv.key_ptr.* });
             _ = try output_file.writer().write(result);
         }
     }
 };
 
-// Init and config a new TextFilesegmentr
-var tp: TextFilesegmentr = undefined;
+// Init and config a new TextFileTokenizer
+var tp: TextFileTokenizer = undefined;
 
 pub fn main() anyerror!void {
     const start_time = time.milliTimestamp();
@@ -459,29 +461,41 @@ pub fn main() anyerror!void {
 
     const step1_ms = time.milliTimestamp() - start_time;
     const step1_mins = @intToFloat(f32, step1_ms) / 60000;
+
     print("\nStep-1: Token segmenting finish! Duration {} ms => {d:.2} mins\n\n", .{ step1_ms, step1_mins });
 
+    // Write out stats
     try tp.write_spacious_tokens_to_file("_output/01_spacious-tokens.txt");
-    try tp.write_token_types_to_file(
-        tp.text.alphabet_types,
-        "_output/02_alphabet-types.txt",
-    );
-    try tp.write_token_types_to_file(
+
+    try tp.write_counts_to_file(
         tp.text.delimiter_types,
-        "_output/03_delimiter-types.txt",
+        "_output/02_delimiter-types.txt",
     );
-    // try tp.write_output_file_from_tokens("_output/04_telexified_999.txt", 999);
-    try tp.write_output_file_from_buffer("_output/04_telexified_999.txt", 999 * 10);
+    // Write sample of final output
+    // try tp.write_output_file_from_tokens("_output/05_telexified_999.txt", 999);
+    try tp.write_output_file_from_buffer("_output/05_telexified_999.txt", 99999);
 
     thread.wait();
+
+    // Finalize sylabeling process
     tp.text.tokens_number_finalized = true;
     tp.text.telexifyAlphabetTokens();
+    tp.text.removeSyllablesFromAlphabetTypes();
 
     const step2_ms = time.milliTimestamp() - start_time;
     const step2_mins = @intToFloat(f32, step2_ms) / 60000;
     print("\nStep-2:  Token syllabling finish! Duration {} ms => {d:.2} mins\n\n", .{ step2_ms, step2_mins });
 
     print("\nWriting final transformation to file ...\n", .{});
+
+    try tp.write_counts_to_file(
+        tp.text.alphabet_types,
+        "_output/03_alphabet-types.txt",
+    );
+    try tp.write_counts_to_file(
+        tp.text.syllable_types,
+        "_output/04_syllable-types.txt",
+    );
     try tp.write_output_file_from_buffer(output_filename, 0);
 
     const end_time = time.milliTimestamp();
@@ -492,7 +506,7 @@ pub fn main() anyerror!void {
 }
 
 test "Telexify" {
-    var tfp: TextFilesegmentr = .{
+    var tfp: TextFileTokenizer = .{
         .init_allocator = std.testing.allocator,
         .max_lines_count = 100, // For testing process maximum 100 lines only
     };
