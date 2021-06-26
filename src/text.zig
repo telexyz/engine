@@ -210,6 +210,7 @@ pub const Text = struct {
         self.transformed_bytes[self.transformed_bytes_len] = b;
     }
 
+    const PAD = "                 ";
     pub fn telexifyAlphabetTokens(self: *Text) void {
         @setRuntimeSafety(false);
         var char_stream = U2ACharStream.init();
@@ -229,7 +230,7 @@ pub const Text = struct {
                 while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
                     std.time.sleep(sleep_time);
                     sleeps_count += 1;
-                    std.debug.print("               ... waiting for new tokens\n", .{});
+                    std.debug.print("{s}... wait new tokens\n", .{PAD});
                 }
                 if (i.* == self.tokens_number) {
                     // No new token and timeout
@@ -257,7 +258,7 @@ pub const Text = struct {
                 if (percent > prev_percent) {
                     prev_percent = percent;
                     if (@rem(percent, 2) == 0)
-                        std.debug.print("               {d}% Syllabling\n", .{percent});
+                        std.debug.print("{s}{d}% Syllabling\n", .{ PAD, percent });
                 }
 
                 continue;
