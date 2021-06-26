@@ -66,11 +66,11 @@ const TextFileTokenizer = struct {
         var index: usize = undefined;
         var next_index: usize = 0;
 
-        var space_boundary_token_start_at: usize = 0;
+        var non_space_token_start_at: usize = 0;
         var alphabet_token_start_at: usize = 0;
         var non_alphabet_start_at: usize = 0;
 
-        var in_space_boundary_token_zone = true;
+        var in_non_space_token_zone = true;
         var in_alphabet_token_zone = true;
         var is_spacious_alphabet = true;
         var is_spacious_non_alphabet = true;
@@ -180,18 +180,18 @@ const TextFileTokenizer = struct {
             next_index = index + char_bytes_length;
 
             if (char_type == .space) {
-                // in_space_boundary_token_zone bool variable let we know that if the current char is
-                // belongs to a token or is SPACE delimitor
-                if (in_space_boundary_token_zone) {
+                // in_non_space_token_zone bool variable let we know that if the
+                // current char is belongs to a token or is SPACE delimitor
+                if (in_non_space_token_zone) {
                     // Current char is SPACE delimitor
                     // so we are not in token zone anymore
-                    in_space_boundary_token_zone = false;
+                    in_non_space_token_zone = false;
 
                     // This is the first time we get out of token_zone
                     // so we end the current token at current byte index
                     if (is_spacious_alphabet) {
                         //
-                        const token = input_bytes[space_boundary_token_start_at..index];
+                        const token = input_bytes[non_space_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
                             .category = .alphabet,
@@ -203,7 +203,7 @@ const TextFileTokenizer = struct {
                         //
                     } else {
                         //
-                        const token = input_bytes[space_boundary_token_start_at..index];
+                        const token = input_bytes[non_space_token_start_at..index];
 
                         if (is_spacious_non_alphabet) {
                             //
@@ -220,7 +220,7 @@ const TextFileTokenizer = struct {
                         }
                     }
 
-                    if (in_alphabet_token_zone and alphabet_token_start_at > space_boundary_token_start_at) {
+                    if (in_alphabet_token_zone and alphabet_token_start_at > non_space_token_start_at) {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
 
@@ -234,7 +234,7 @@ const TextFileTokenizer = struct {
                         //
                     }
 
-                    if (!in_alphabet_token_zone and non_alphabet_start_at > space_boundary_token_start_at) {
+                    if (!in_alphabet_token_zone and non_alphabet_start_at > non_space_token_start_at) {
                         //
                         const token = input_bytes[non_alphabet_start_at..index];
 
@@ -247,7 +247,7 @@ const TextFileTokenizer = struct {
                         if (counting_lines) printToken(token, token_attrs);
                         //
                     }
-                } // END if (in_space_boundary_token_zone)
+                } // END if (in_non_space_token_zone)
                 if (first_byte == '\n') {
                     // Record newline to treat special token
                     // it's category is non_alphabet but we can check it value
@@ -277,10 +277,10 @@ const TextFileTokenizer = struct {
                 // END char_type => .space
             } else { // char_type => .alphabet_char{_can_be}, or .non_alphabet_char
                 if (char_type == .non_alphabet_char) {
-                    if (!in_space_boundary_token_zone) {
-                        in_space_boundary_token_zone = true;
+                    if (!in_non_space_token_zone) {
+                        in_non_space_token_zone = true;
                         // Reset
-                        space_boundary_token_start_at = index;
+                        non_space_token_start_at = index;
                         alphabet_token_start_at = next_index;
                         non_alphabet_start_at = index;
                         is_spacious_alphabet = true;
@@ -294,7 +294,7 @@ const TextFileTokenizer = struct {
                         if (alphabet_token_start_at <= index) {
                             //
                             const token = input_bytes[alphabet_token_start_at..index];
-                            const first = alphabet_token_start_at == space_boundary_token_start_at;
+                            const first = alphabet_token_start_at == non_space_token_start_at;
 
                             const token_attrs: Text.TokenAttributes = .{
                                 .category = .alphabet,
@@ -307,10 +307,10 @@ const TextFileTokenizer = struct {
                     }
                     alphabet_token_start_at = next_index;
                 } else { // char_type => .alphabet_char{_can_be}
-                    if (!in_space_boundary_token_zone) {
-                        in_space_boundary_token_zone = true;
+                    if (!in_non_space_token_zone) {
+                        in_non_space_token_zone = true;
                         // Reset
-                        space_boundary_token_start_at = index;
+                        non_space_token_start_at = index;
                         alphabet_token_start_at = index;
                         non_alphabet_start_at = next_index;
                         is_spacious_alphabet = true;
@@ -324,7 +324,7 @@ const TextFileTokenizer = struct {
                         if (non_alphabet_start_at <= index) {
                             //
                             const token = input_bytes[non_alphabet_start_at..index];
-                            const first = non_alphabet_start_at == space_boundary_token_start_at;
+                            const first = non_alphabet_start_at == non_space_token_start_at;
 
                             const token_attrs: Text.TokenAttributes = .{
                                 .category = .non_alphabet,
