@@ -467,14 +467,14 @@ pub fn main() anyerror!void {
     // Write out stats
     try tp.write_counts_to_file(
         tp.text.delimiter_types,
-        "_output/03_delimiter-types.txt",
+        "_output/03-non_alphabet_types.txt",
     );
 
-    try tp.write_spacious_tokens_to_file("_output/04_spacious-tokens.txt");
+    try tp.write_spacious_tokens_to_file("_output/04-spacious_tokens.txt");
 
     // Write sample of final output
     // try tp.write_output_file_from_tokens("_output/05_telexified_999.txt", 999);
-    try tp.write_output_file_from_buffer("_output/05_telexified_999.txt", 99999);
+    try tp.write_output_file_from_buffer("_output/05-telexified_999.txt", 99999);
 
     thread.wait();
 
@@ -491,11 +491,11 @@ pub fn main() anyerror!void {
 
     try tp.write_counts_to_file(
         tp.text.syllable_types,
-        "_output/01_syllable-types.txt",
+        "_output/01-syllable_types.txt",
     );
     try tp.write_counts_to_file(
         tp.text.alphabet_types,
-        "_output/02_alphabet-types.txt",
+        "_output/02-alphabet_types.txt",
     );
     // Final result
     try tp.write_output_file_from_buffer(output_filename, 0);

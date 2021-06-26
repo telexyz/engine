@@ -14,9 +14,11 @@ TODO:
 
 * Handle `Thoọng`, need to conver `oo` to `ooo`
 
-* colapse types that have similar _ascii-telex represention_ to create next layer of _ascii-telex types_
+* Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
 [ DONE ]
+
+* colapse types that have similar _ascii-telex trans_ to create next layer of _ascii-telex types_
 
 * Convert _utf8 types_ to _ascii-telex types_
 
@@ -26,12 +28,12 @@ TODO:
 
 * Choose an efficient bytes-hashing algorithm to count similar _utf8 lower_case-fom tokens_ to create _utf8 types_ (see `_HASH.md`)
 
-### Bi-directonaly Mapping Multiple layer of (Re-)presentations:
-1. utf8 byte
-2. utf8 non-breaking tokens
-3. utf8 tokens
-4. utf8 types
-5. ascii-telex types (syllable vocab)
+### One-Way-Mapping Multiple layer of (Re-)presentations:
+1. utf8 bytes => 2.
+2. utf8 non-breaking tokens => 3.
+3. utf8 alphabet tokens & utf8 delimiter (non-alphabet) tokens => 4.
+4. utf8 alphabet types => 5. & utf8 delimiter (non-alphabet) types
+5. ascii-telex syllable types (syllable vocab)
 
 The purpose of this phase is to split the input text into a list of non-breaking tokens separated by space characters that can be inputted from keyboard (32, 9).
 
