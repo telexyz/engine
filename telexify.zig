@@ -83,9 +83,9 @@ const TextFileTokenizer = struct {
         const input_bytes = self.input_bytes;
         const bytes_len = input_bytes.len;
 
-        const one_percent = bytes_len / 100;
+        const five_percent = bytes_len / 20;
         var percentage: u8 = 0;
-        var percentage_threshold = one_percent;
+        var percentage_threshold = five_percent;
 
         var lines_count: usize = 0;
         const counting_lines: bool = self.max_lines_count > 0;
@@ -267,9 +267,9 @@ const TextFileTokenizer = struct {
                     }
 
                     if (index > percentage_threshold) {
-                        percentage += 1;
+                        percentage += 5;
                         print("processed: {d}%\n", .{percentage});
-                        percentage_threshold += one_percent;
+                        percentage_threshold += five_percent;
                     }
                 }
                 // END char_type => .space
@@ -452,14 +452,14 @@ pub fn main() anyerror!void {
 
     const init_ms = time.milliTimestamp() - start_time;
     const init_mins = @intToFloat(f32, init_ms) / 60000;
-    print("\nInit Done! Duration {} ms => {d:.2} mins\n", .{ init_ms, init_mins });
+    print("\nInit Done! Duration {} ms => {d:.2} mins\n\n", .{ init_ms, init_mins });
 
     const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &tp.text);
     try tp.parse();
 
     const step1_ms = time.milliTimestamp() - start_time;
     const step1_mins = @intToFloat(f32, step1_ms) / 60000;
-    print("\nStep1 finish! Duration {} ms => {d:.2} mins\n", .{ step1_ms, step1_mins });
+    print("\nStep-1: Token segmentation finish! Duration {} ms => {d:.2} mins\n\n", .{ step1_ms, step1_mins });
 
     try tp.write_spacious_tokens_to_file("_output/01_spacious-tokens.txt");
     try tp.write_token_types_to_file(
@@ -472,14 +472,14 @@ pub fn main() anyerror!void {
     );
     try tp.write_output_file_from_tokens("_output/04_telexified_999.txt", 999);
 
-    const step2_ms = time.milliTimestamp() - start_time;
-    const step2_mins = @intToFloat(f32, step2_ms) / 60000;
-    print("\nStep2 finish! Duration {} ms => {d:.2} mins\n", .{ step2_ms, step2_mins });
-
     thread.wait();
     tp.text.tokens_number_finalized = true;
     tp.text.telexifyAlphabetTokens();
     try tp.write_output_file_from_buffer(output_filename, 0);
+
+    const step2_ms = time.milliTimestamp() - start_time;
+    const step2_mins = @intToFloat(f32, step2_ms) / 60000;
+    print("\nStep-2:  Token parsing finish! Duration {} ms => {d:.2} mins\n\n", .{ step2_ms, step2_mins });
 
     const end_time = time.milliTimestamp();
     print("\nend_time {}\n", .{end_time});
