@@ -80,9 +80,9 @@ pub const Text = struct {
     };
 
     pub const TokenCategory = enum(u6) {
-        syllable = 1, // + 2-bits => 04,05,06,07 
-        alphabet = 4, // + 2-bits => 16,17,18,19 
-        others = 5, //   + 2-bits => 20,21,22,23 
+        syllable = 1, // + 2-bits => 04,05,06,07 ^D^E^F^G
+        alphabet = 4, // + 2-bits => 16,17,18,19 ^P^Q^R^S
+        others = 5, //   + 2-bits => 20,21,22,23 ^T^U^V^W
     };
 
     pub const TokenSurroundedBySpaces = enum(u2) {
@@ -210,6 +210,8 @@ pub const Text = struct {
 
     pub fn telexifyAlphabetTokens(self: *Text) void {
         @setRuntimeSafety(false);
+        var prev_percentage: u64 = 0;
+        var min_tokens_number = self.estimated_tokens_number / 2;
 
         var char_stream = U2ACharStream.init();
         const max_sleeps: u8 = 5;
@@ -237,7 +239,6 @@ pub const Text = struct {
                 }
             } // END waiting for new tokens
 
-
             // Init token and it's attributes shortcuts
             var token = self.tokens[i.*];
 
@@ -245,13 +246,24 @@ pub const Text = struct {
             if (token[0] == '\n') {
                 self.transformed_bytes[self.transformed_bytes_len] = '\n';
                 self.transformed_bytes_len += 1;
+
+                // Show token parsing progress
+                if (self.tokens_number > min_tokens_number) {
+                    const percentage: u64 = (100 * i.*) / self.tokens_number;
+                    if (percentage > prev_percentage) {
+                        prev_percentage = percentage;
+                        if (@rem(percentage, 5) == 0)
+                            std.debug.print("2. Syllable Parsing: {d}%\n", .{percentage});
+                    }
+                }
+
                 continue;
             }
 
             //  and it's attributes shortcuts
             var attrs = &self.tokens_attrs[i.*];
             var token_written = false;
-            
+
             // Reserver first-byte to write token attrs
             const firt_byte_index = self.transformed_bytes_len;
             self.transformed_bytes_len += 1;
@@ -294,7 +306,7 @@ pub const Text = struct {
                     self.transformed_bytes_len += 1;
                 }
             }
-            // Write attrs + space at the begin of token's ouput stream
+            // Write attrs at the begin of token's ouput stream
             self.transformed_bytes[firt_byte_index] = @bitCast(u8, attrs.*);
         }
     }
