@@ -39,11 +39,10 @@ pub const Text = struct {
     transforms: [][]const u8 = undefined,
 
     // We'll need transformed_bytes stream as a data store for transforms slices
-    // transforms[i] will point to the transformed_bytes stream
-    // How to use transformed_bytes is up's to the tokenizer (see telexify.zig)
+    // transforms[i] will point to a position in the transformed_bytes stream
     transformed_bytes: []u8 = undefined,
 
-    // Allocated size
+    // Allocated size, estimated based on input_bytes.len
     transformed_bytes_size: usize = undefined,
 
     // Actually used, started with 0
@@ -51,9 +50,20 @@ pub const Text = struct {
 
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
+
+    // Use data of input_bytes, pointed by tokens[i]
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
+    // Use data of input_bytes, pointed by tokens[i]
     non_alphabet_types: std.StringHashMap(TypeInfo) = undefined,
+
+    // Use data of transformed_bytes, pointed by transforms[i]
     syllable_types: std.StringHashMap(u32) = undefined,
+
+    // Use data of lsyll_bytes
+    lower_syllable_types: std.StringHashMap(u32) = undefined,
+    lsyll_bytes: []u8 = undefined,
+    lsyll_bytes_size: usize = undefined,
+    lsyll_bytes_len: usize = 0,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
@@ -134,9 +144,15 @@ pub const Text = struct {
         self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
+        // Init lower_syllables, lsyll
+        self.lower_syllable_types = std.StringHashMap(u32).init(self.allocator);
+        self.lsyll_bytes_size = 16 * 1024 * 1024; // 16mb
+        self.lsyll_bytes = try self.allocator.alloc(u8, self.lsyll_bytes_size);
+
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
         self.transformed_bytes_len = 0;
+        self.lsyll_bytes_len = 0;
     }
     pub fn deinit(self: *Text) void {
         // Since we use ArenaAllocator, simply deinit arena itself to
@@ -298,10 +314,15 @@ pub const Text = struct {
                         // First token point to this syllable trans don't need
                         // to write data, later, mark token_written = true to know
                         token_written = true;
+
                         // Record and count syllable
+                        const count = type_info.*.count;
                         const gop =
                             self.syllable_types.getOrPutValue(token, 0) catch null;
-                        gop.?.value_ptr.* += type_info.*.count;
+                        gop.?.value_ptr.* += count;
+
+                        // Take syllable to create lowercase version
+                        self.saveAndCountLowerSyllable(token, count) catch unreachable;
                     } else {
                         // Not syllable thì chỉ có thể là alphabet
                         type_info.*.category = .alphabet;
@@ -326,6 +347,19 @@ pub const Text = struct {
             // Write attrs at the begin of token's ouput stream
             self.transformed_bytes[firt_byte_index] = @bitCast(u8, attrs.*);
         }
+    }
+
+    pub fn saveAndCountLowerSyllable(self: *Text, token: []const u8, count: u32) !void {
+        const next = self.lsyll_bytes_len + token.len;
+        const lsyll = self.lsyll_bytes[self.lsyll_bytes_len..next];
+        // To lower
+        for (token) |c, i| {
+            lsyll[i] = c | 0b00100000;
+        }
+        const gop = try self.lower_syllable_types.getOrPutValue(lsyll, 0);
+        gop.value_ptr.* += count;
+
+        self.lsyll_bytes_len = next;
     }
 
     pub fn removeSyllablesFromAlphabetTypes(self: *Text) void {

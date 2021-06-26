@@ -483,7 +483,7 @@ pub fn main() anyerror!void {
 
     // Write sample of final output
     // try tp.write_output_file_from_tokens("_output/05_telexified_999.txt", 999);
-    try tp.write_output_file_from_buffer("_output/05-telexified_999.txt", 99999);
+    try tp.write_output_file_from_buffer("_output/06-telexified_999.txt", 99999);
 
     thread.wait();
 
@@ -505,6 +505,10 @@ pub fn main() anyerror!void {
     try tp.write_counts_to_file(
         tp.text.alphabet_types,
         "_output/02-alphabet_types.txt",
+    );
+    try tp.write_counts_to_file(
+        tp.text.lower_syllable_types,
+        "_output/05-lower_syllables.txt",
     );
     // Final result
     try tp.write_output_file_from_buffer(output_filename, 0);
