@@ -125,7 +125,7 @@ pub const Text = struct {
 
         // Init transformed_bytes, each token may have an additional byte at the begining
         // to present it's attribute so we need more memory than input_bytes
-        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 3;
+        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5;
         self.transformed_bytes = try self.allocator.alloc(
             u8,
             self.transformed_bytes_size,
@@ -147,7 +147,6 @@ pub const Text = struct {
         self.tokens_attrs[self.tokens_number] = token_attrs;
         // Default, transform to itself :)
         self.transforms[self.tokens_number] = token;
-        self.tokens_number += 1;
 
         const gop = if (token_attrs.category == .alphabet)
             try self.alphabet_types.getOrPutValue(token, TypeInfo{})
@@ -155,6 +154,9 @@ pub const Text = struct {
             try self.delimiter_types.getOrPutValue(token, TypeInfo{});
 
         gop.value_ptr.*.count += 1;
+
+        // increare only when counter is finalized since other threads are watching
+        self.tokens_number += 1;
     }
 
     pub fn saveAndReturnTransform(self: *Text, char_stream: U2ACharStream) []const u8 {
@@ -210,10 +212,9 @@ pub const Text = struct {
 
     pub fn telexifyAlphabetTokens(self: *Text) void {
         @setRuntimeSafety(false);
-        var prev_percentage: u64 = 0;
-        var min_tokens_number = self.estimated_tokens_number / 2;
-
         var char_stream = U2ACharStream.init();
+        var prev_percent: u64 = 0;
+
         const max_sleeps: u8 = 5;
         const sleep_time: u64 = 100_000_000; // nanosec
         var sleeps_count: u8 = 0;
@@ -228,7 +229,7 @@ pub const Text = struct {
                 while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
                     std.time.sleep(sleep_time);
                     sleeps_count += 1;
-                    // std.debug.print("\n- - - -\n{d} <= {d}\n- - - -\n", .{ self.tokens_number, sleeps_count });
+                    // std.debug.print("\nWaiting for new tokens {d} <= {d}\n", .{ self.tokens_number, sleeps_count });
                 }
                 if (i.* == self.tokens_number) {
                     // No new token and timeout
@@ -248,13 +249,15 @@ pub const Text = struct {
                 self.transformed_bytes_len += 1;
 
                 // Show token parsing progress
-                if (self.tokens_number > min_tokens_number) {
-                    const percentage: u64 = (100 * i.*) / self.tokens_number;
-                    if (percentage > prev_percentage) {
-                        prev_percentage = percentage;
-                        if (@rem(percentage, 5) == 0)
-                            std.debug.print("2. Syllable Parsing: {d}%\n", .{percentage});
-                    }
+                const percent: u64 = if (prev_percent < 80)
+                    (100 * self.transformed_bytes_len) / self.transformed_bytes_size
+                else
+                    (100 * i.*) / self.tokens_number;
+
+                if (percent > prev_percent) {
+                    prev_percent = percent;
+                    if (@rem(percent, 2) == 0)
+                        std.debug.print("               {d}% Syllabling\n", .{percent});
                 }
 
                 continue;
@@ -269,9 +272,9 @@ pub const Text = struct {
             self.transformed_bytes_len += 1;
 
             if (attrs.category == .alphabet) {
-                // Since token is alphabet, it's alphabet_types[i].info must existed
-                var type_info = self.alphabet_types.get(token).?;
-                const not_transformed = type_info.category == .others;
+                // Since token is alphabet, it's alphabet_types[i]'s info must existed
+                const type_info = self.alphabet_types.getPtr(token).?;
+                const not_transformed = type_info.*.category == .others;
 
                 if (not_transformed) {
                     // Not transformed yet
@@ -284,19 +287,19 @@ pub const Text = struct {
                     );
 
                     if (syllable.can_be_vietnamese) {
-                        type_info.category = .syllable;
-                        type_info.transform = self.saveAndReturnTransform(char_stream);
+                        type_info.*.category = .syllable;
+                        type_info.*.transform = self.saveAndReturnTransform(char_stream);
                         token_written = true;
-                        // std.debug.print("\n{d}:{s}\n", .{ i, type_info.transform });
+                        // std.debug.print("\n{d}:{s}\n", .{ i, type_info.*.transform });
                     } else {
-                        type_info.category = .alphabet;
+                        type_info.*.category = .alphabet;
                     }
                 }
 
-                if (type_info.category == .syllable) {
+                if (type_info.*.category == .syllable) {
                     attrs.category = .syllable;
-                    self.transforms[i.*] = type_info.transform;
-                    token = type_info.transform;
+                    self.transforms[i.*] = type_info.*.transform;
+                    token = type_info.*.transform;
                 }
             }
 

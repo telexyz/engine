@@ -268,7 +268,7 @@ const TextFilesegmentr = struct {
 
                     if (index > percentage_threshold) {
                         percentage += 5;
-                        print("1. Space Segmenting: {d}%\n", .{percentage});
+                        print("Segmenting {d}%\n", .{percentage});
                         percentage_threshold += five_percent;
                     }
                 }
@@ -459,7 +459,7 @@ pub fn main() anyerror!void {
 
     const step1_ms = time.milliTimestamp() - start_time;
     const step1_mins = @intToFloat(f32, step1_ms) / 60000;
-    print("\nStep-1: Token segmentation finish! Duration {} ms => {d:.2} mins\n\n", .{ step1_ms, step1_mins });
+    print("\nStep-1: Token segmenting finish! Duration {} ms => {d:.2} mins\n\n", .{ step1_ms, step1_mins });
 
     try tp.write_spacious_tokens_to_file("_output/01_spacious-tokens.txt");
     try tp.write_token_types_to_file(
@@ -478,7 +478,7 @@ pub fn main() anyerror!void {
 
     const step2_ms = time.milliTimestamp() - start_time;
     const step2_mins = @intToFloat(f32, step2_ms) / 60000;
-    print("\nStep-2:  Token parsing finish! Duration {} ms => {d:.2} mins\n\n", .{ step2_ms, step2_mins });
+    print("\nStep-2:  Token syllabling finish! Duration {} ms => {d:.2} mins\n\n", .{ step2_ms, step2_mins });
 
     print("\nWriting final transformation to file ...\n", .{});
     try tp.write_output_file_from_buffer(output_filename, 0);
