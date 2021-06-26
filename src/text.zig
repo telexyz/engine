@@ -52,7 +52,7 @@ pub const Text = struct {
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
-    delimiter_types: std.StringHashMap(TypeInfo) = undefined,
+    non_alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     syllable_types: std.StringHashMap(u32) = undefined,
 
     // Try to predict maxium number of token to alloc mememory in advance
@@ -84,7 +84,7 @@ pub const Text = struct {
         // 3 main token categoried, used to write to disk as token's attrs
         syllable = 1, // + 2-bits => 04,05,06,07 ^D^E^F^G
         alphabet = 4, // + 2-bits => 16,17,18,19 ^P^Q^R^S
-        others = 5, //   + 2-bits => 20,21,22,23 ^T^U^V^W
+        non_alphabet = 5, // + 2-bits => 20,21,22,23 ^T^U^V^W
 
         // Supplement category, used as to mark an intialized value
         _none = 0,
@@ -123,7 +123,7 @@ pub const Text = struct {
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.delimiter_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.non_alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.syllable_types = std.StringHashMap(u32).init(self.allocator);
 
         // Init transforms list
@@ -154,7 +154,7 @@ pub const Text = struct {
         const gop = if (token_attrs.category == .alphabet)
             try self.alphabet_types.getOrPutValue(token, TypeInfo{})
         else
-            try self.delimiter_types.getOrPutValue(token, TypeInfo{});
+            try self.non_alphabet_types.getOrPutValue(token, TypeInfo{});
 
         gop.value_ptr.*.count += 1;
 
@@ -380,5 +380,5 @@ test "Text" {
     try std.testing.expect(text.alphabet_types.get("nhà").?.count == 2);
     try std.testing.expect(text.alphabet_types.get("xxx") == null);
     try std.testing.expect(text.alphabet_types.count() == 8);
-    try std.testing.expect(text.delimiter_types.count() == 0);
+    try std.testing.expect(text.non_alphabet_types.count() == 0);
 }

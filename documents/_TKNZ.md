@@ -16,6 +16,8 @@ TODO:
 
 * Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
+* Break alphabet-types into have-marks-and-tone vs others
+
 [ DONE ]
 
 * colapse types that have similar _ascii-telex trans_ to create next layer of _ascii-telex types_

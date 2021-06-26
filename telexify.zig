@@ -60,7 +60,7 @@ const TextFileTokenizer = struct {
         self.arena.deinit();
     }
 
-    const CharTypes = enum { alphabet_char, alphabet_char_can_be, space, others };
+    const CharTypes = enum { alphabet_char, alphabet_char_can_be, space, non_alphabet_char };
 
     pub fn segment(self: *TextFileTokenizer) !void {
         var index: usize = undefined;
@@ -68,12 +68,12 @@ const TextFileTokenizer = struct {
 
         var space_boundary_token_start_at: usize = 0;
         var alphabet_token_start_at: usize = 0;
-        var delimiter_start_at: usize = 0;
+        var non_alphabet_start_at: usize = 0;
 
         var in_space_boundary_token_zone = true;
         var in_alphabet_token_zone = true;
         var is_spacious_alphabet = true;
-        var is_spacious_delimiter = true;
+        var is_spacious_non_alphabet = true;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
         var byte2: u8 = 0; // second byte of the utf-8 char (if needed)
@@ -139,8 +139,8 @@ const TextFileTokenizer = struct {
                     // 0b1111_0000...0b1111_0111 => 4,
                     // else => error.Utf8InvalidStartByte,
 
-                    // uninterested ascii and utf-8 chars, we marked them as .others
-                    char_type = .others;
+                    // uninterested ascii and utf-8 chars, we marked them as .non_alphabet_char
+                    char_type = .non_alphabet_char;
 
                     if (first_byte > 0b1111_0111) {
                         @panic("error.Utf8InvalidStartByte");
@@ -205,10 +205,10 @@ const TextFileTokenizer = struct {
                         //
                         const token = input_bytes[space_boundary_token_start_at..index];
 
-                        if (is_spacious_delimiter) {
+                        if (is_spacious_non_alphabet) {
                             //
                             const token_attrs: Text.TokenAttributes = .{
-                                .category = .others,
+                                .category = .non_alphabet,
                                 .surrounded_by_spaces = .both,
                             };
 
@@ -234,12 +234,12 @@ const TextFileTokenizer = struct {
                         //
                     }
 
-                    if (!in_alphabet_token_zone and delimiter_start_at > space_boundary_token_start_at) {
+                    if (!in_alphabet_token_zone and non_alphabet_start_at > space_boundary_token_start_at) {
                         //
-                        const token = input_bytes[delimiter_start_at..index];
+                        const token = input_bytes[non_alphabet_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = .others,
+                            .category = .non_alphabet,
                             .surrounded_by_spaces = .right,
                         };
 
@@ -249,10 +249,12 @@ const TextFileTokenizer = struct {
                     }
                 } // END if (in_space_boundary_token_zone)
                 if (first_byte == '\n') {
-                    // Treat newline as a special token
+                    // Record newline to treat special token
+                    // it's category is non_alphabet but we can check it value
+                    // to know it's newline token
                     const token = input_bytes[index .. index + 1];
                     const token_attrs = Text.TokenAttributes{
-                        .category = .others,
+                        .category = .non_alphabet,
                         .surrounded_by_spaces = .none,
                     };
                     try self.text.countToken(token, token_attrs);
@@ -273,16 +275,16 @@ const TextFileTokenizer = struct {
                     }
                 }
                 // END char_type => .space
-            } else { // char_type => .alphabet_char{_can_be}, or .others
-                if (char_type == .others) {
+            } else { // char_type => .alphabet_char{_can_be}, or .non_alphabet_char
+                if (char_type == .non_alphabet_char) {
                     if (!in_space_boundary_token_zone) {
                         in_space_boundary_token_zone = true;
                         // Reset
                         space_boundary_token_start_at = index;
                         alphabet_token_start_at = next_index;
-                        delimiter_start_at = index;
+                        non_alphabet_start_at = index;
                         is_spacious_alphabet = true;
-                        is_spacious_delimiter = true;
+                        is_spacious_non_alphabet = true;
                     }
 
                     is_spacious_alphabet = false;
@@ -310,22 +312,22 @@ const TextFileTokenizer = struct {
                         // Reset
                         space_boundary_token_start_at = index;
                         alphabet_token_start_at = index;
-                        delimiter_start_at = next_index;
+                        non_alphabet_start_at = next_index;
                         is_spacious_alphabet = true;
-                        is_spacious_delimiter = true;
+                        is_spacious_non_alphabet = true;
                     }
 
-                    is_spacious_delimiter = false;
+                    is_spacious_non_alphabet = false;
                     if (!in_alphabet_token_zone) {
                         in_alphabet_token_zone = true;
-                        // Record delimiter
-                        if (delimiter_start_at <= index) {
+                        // Record non_alphabet
+                        if (non_alphabet_start_at <= index) {
                             //
-                            const token = input_bytes[delimiter_start_at..index];
-                            const first = delimiter_start_at == space_boundary_token_start_at;
+                            const token = input_bytes[non_alphabet_start_at..index];
+                            const first = non_alphabet_start_at == space_boundary_token_start_at;
 
                             const token_attrs: Text.TokenAttributes = .{
-                                .category = .others,
+                                .category = .non_alphabet,
                                 .surrounded_by_spaces = if (first) .left else .none,
                             };
 
@@ -334,7 +336,7 @@ const TextFileTokenizer = struct {
                             //
                         }
                     }
-                    delimiter_start_at = next_index;
+                    non_alphabet_start_at = next_index;
                 }
             }
         } // End main loop
@@ -466,7 +468,7 @@ pub fn main() anyerror!void {
 
     // Write out stats
     try tp.write_counts_to_file(
-        tp.text.delimiter_types,
+        tp.text.non_alphabet_types,
         "_output/03-non_alphabet_types.txt",
     );
 
