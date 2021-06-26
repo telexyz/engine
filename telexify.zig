@@ -32,7 +32,8 @@ const TextFileTokenizer = struct {
     input_file: File = undefined,
     input_bytes: []const u8 = undefined,
 
-    spacious_tokens_map: std.StringHashMap(void) = undefined,
+    // Duo (or mixed or not-pure) means contains both alphabet and non_alphabet
+    duo_spacious_tokens_map: std.StringHashMap(void) = undefined,
 
     text: Text = undefined,
 
@@ -51,7 +52,7 @@ const TextFileTokenizer = struct {
         };
         try self.text.init();
 
-        self.spacious_tokens_map = std.StringHashMap(void).init(self.allocator);
+        self.duo_spacious_tokens_map = std.StringHashMap(void).init(self.allocator);
     }
 
     pub fn deinit(self: *TextFileTokenizer) void {
@@ -66,13 +67,19 @@ const TextFileTokenizer = struct {
         var index: usize = undefined;
         var next_index: usize = 0;
 
+        // Any text can be defined as a sequence of non_space_token|space_token|...
+        // A non_space_token can be a alphabet_token or a non_alphabet or
+        // is composed of alphabet|non_alphabet|... alternatively
+
         var non_space_token_start_at: usize = 0;
         var alphabet_token_start_at: usize = 0;
         var non_alphabet_start_at: usize = 0;
 
         var in_non_space_token_zone = true;
         var in_alphabet_token_zone = true;
+        // A spacious_alphabet is a whole non_space_token
         var is_spacious_alphabet = true;
+        // A spacious_non_alphabet is a whole non_space_token
         var is_spacious_non_alphabet = true;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
@@ -180,7 +187,7 @@ const TextFileTokenizer = struct {
             next_index = index + char_bytes_length;
 
             if (char_type == .space) {
-                // in_non_space_token_zone bool variable let we know that if the
+                // in_non_space_token_zone bool variable let us know that if the
                 // current char is belongs to a token or is SPACE delimitor
                 if (in_non_space_token_zone) {
                     // Current char is SPACE delimitor
@@ -216,7 +223,7 @@ const TextFileTokenizer = struct {
                             if (counting_lines) printToken(token, token_attrs);
                             //
                         } else {
-                            _ = try self.spacious_tokens_map.getOrPut(token);
+                            _ = try self.duo_spacious_tokens_map.getOrPut(token);
                         }
                     }
 
@@ -342,11 +349,11 @@ const TextFileTokenizer = struct {
         } // End main loop
     }
 
-    fn write_spacious_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
+    fn write_duo_spacious_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(output_filename, .{});
         defer file.close();
         var tokens_count: usize = 0;
-        var it = self.spacious_tokens_map.iterator();
+        var it = self.duo_spacious_tokens_map.iterator();
         while (it.next()) |kv| {
             const token = kv.key_ptr.*;
 
@@ -472,7 +479,7 @@ pub fn main() anyerror!void {
         "_output/03-non_alphabet_types.txt",
     );
 
-    try tp.write_spacious_tokens_to_file("_output/04-spacious_tokens.txt");
+    try tp.write_duo_spacious_tokens_to_file("_output/04-duo_spacious_tokens.txt");
 
     // Write sample of final output
     // try tp.write_output_file_from_tokens("_output/05_telexified_999.txt", 999);
