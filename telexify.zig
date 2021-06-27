@@ -86,7 +86,7 @@ const TextFileTokenizer = struct {
         // A spacious_{alphabet|nonalpha} is a whole nonspace_token
         var is_spacious_alphabet = true;
         var is_spacious_nonalpha = true;
-        var having_mark_or_tone = false;
+        var having_marktone = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
         var byte2: u8 = 0; // second byte of the utf-8 char (if needed)
@@ -207,7 +207,7 @@ const TextFileTokenizer = struct {
                         const token = input_bytes[nonspace_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = if (having_mark_or_tone) .marktone else .alphabet,
+                            .category = if (having_marktone) .marktone else .alphabet,
                             .surrounded_by_spaces = .both,
                         };
 
@@ -238,7 +238,7 @@ const TextFileTokenizer = struct {
                         const token = input_bytes[alphabet_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = if (having_mark_or_tone) .marktone else .alphabet,
+                            .category = if (having_marktone) .marktone else .alphabet,
                             .surrounded_by_spaces = .right,
                         };
 
@@ -299,7 +299,7 @@ const TextFileTokenizer = struct {
                         // Reset flags
                         is_spacious_alphabet = true;
                         is_spacious_nonalpha = true;
-                        having_mark_or_tone = false;
+                        having_marktone = false;
                     }
 
                     is_spacious_alphabet = false;
@@ -312,7 +312,7 @@ const TextFileTokenizer = struct {
                             const first = alphabet_token_start_at == nonspace_token_start_at;
 
                             const token_attrs: Text.TokenAttributes = .{
-                                .category = if (having_mark_or_tone) .marktone else .alphabet,
+                                .category = if (having_marktone) .marktone else .alphabet,
                                 .surrounded_by_spaces = if (first) .left else .none,
                             };
 
@@ -331,11 +331,11 @@ const TextFileTokenizer = struct {
                         // Reset flags
                         is_spacious_alphabet = true;
                         is_spacious_nonalpha = true;
-                        having_mark_or_tone = false;
+                        having_marktone = false;
                     }
 
                     if (char_type == .marktone_char)
-                        having_mark_or_tone = true;
+                        having_marktone = true;
 
                     is_spacious_nonalpha = false;
 
