@@ -527,7 +527,7 @@ pub fn main() anyerror!void {
 
     // Write sample of final output
     try tp.write_output_file_from_tokens(
-        "_output/07_telexified-777.txt",
+        "_output/07-telexified-777.txt",
         777,
     );
     try tp.write_output_file_from_buffer(

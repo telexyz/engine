@@ -1,13 +1,46 @@
-## Dùng mã ascii để lưu, syll id, mục đích để ko phá game khi lưu dùng utf8
-/0-9: 47,48-57 => 11
-@A-Z: 64,65-90 => 27
- a-z: 97-122   => 26
-Total = 64 (2^6) => Cần 3-asciis để mã hóa 18-bits
+## Dùng mã ascii để lưu, syll id, mục đích để ko phá game khi lưu cùng ascii/utf8
+`/0-9`: 47,48-57 => 11
+`@A-Z`: 64,65-90 => 27
+ `a-z`: 97-122   => 26
+Total = 64 (2^6) => Cần 3-bytes để mã hóa 18-bits dưới dạng ascii đọc được
 
-Dùng được 24 invisible ascii chars, 1-7, 15-26
-var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1f|";
+```js
+// Dùng được 27 invisible ascii chars, 1-8, 11,12, 15-31
+var str = "|\x01\x02\x03\x04\x05\x06\x07\x08\x0b\x0c\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f|";
+```
+Mã hóa độ dài token: `switch(lencode) {`
+* 01-08: 01-08          ` 1... 8 => token_len = lencode,`
+* 15-31: 09-25          `15...31 => token_len = lencode - 6,`
+* 11,12: >= 26             `else =>  ... ... ... , }`
 
+Mã hóa token attrs khi đi cùng ascii/utf8 text (IMPLEMENTED in `text.zig`)
+```js
+// src/text.zig
+// Còn dư hai full-slots 0,1 và hai half-slots 2,4
+    pub const TokenCategory = enum(u6) {
+        // Dùng được 27 invisible ascii chars, 1-8,11, 12,15-31
+        // 3 main token categoried, used to write to disk as token's attrs
+        //         0  //  + 2-bits  => 00,01,02,03 + 1 => \x01\x02\x03\x04
+        //         1  //  + 2-bits  => 04,05,06,07 + 1 => \x05\x06\x07\x08
+        //         2  //  + 0x11    =>       10    + 1 => \x0b
+        //         3  //  + 0x00,11 => 12       15     => \x0c\x0f
+        syllable = 4, //  + 2-bits  => 16,17,18,19     => \x10\x11\x12\x13
+        marktone = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
+        alphabet = 6, //  + 2-bits  => 24,25,26,27     => \x18\x19\x1a\x1b
+        nonalpha = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
+        // Supplement category ids 8-63
+        // used as an intialized/temp values / need to be processed / state machine
+        _none = 8, // initial state
+    };
 
+    pub const TokenSurroundedBySpaces = enum(u2) {
+        // Use 2-bits to describle
+        none, //  0|0
+        right, // 0|1
+        left, //  1|0
+        both, //  1|1
+    };
+```
 ## Lợi ích của việc Telexifiy Syllables (utf-8 to ascii-telex)
 
 * Giảm số ký tự cần để mã hóa
@@ -16,25 +49,44 @@ var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18
 
 * Dùng `u17` đủ để nghi nhớ toàn bộ syllables, không cần dùng từ điển mà từ universal `u17 ID` này là có thể khôi phục lại text-form của syllable.
 
-* Tăng tốc mã hóa toàn bộ dữ liệu. Coi syllables là vocab. Sau khi gạn lọc các syllables có thể telexified, phần còn ở giữa là `OOV`. Việc mã hóa OOV sẽ đơn giản và nhẹ nhàng hơn do phần dữ liệu này nhỏ. Sử dụng BPE chỉ với OOV sẽ vô cùng nhanh so với việc BPE trên toàn bộ dữ liệu.
+* Tăng tốc mã hóa toàn bộ dữ liệu. Coi syllables là vocab. Sau khi gạn lọc các syllables có thể telexified, phần còn lại là `OOV`. Việc mã hóa OOV sẽ đơn giản và nhẹ nhàng hơn do phần dữ liệu này nhỏ và có syllables làm nền tảng để mã hóa tiếp.
 
 *// Cách tiếp cận hiện đại //*
 
-Coi `syllables` là cái đã biết. `OOV` là cái đáng để phám phá. Tiếng Việt dùng từ mượn, từ nước người, tên riêng, viết tắt rất là nhiều. OOV cần khá lớn. 5000
+Coi `syllables` là cái đã biết. `OOV` là cái đáng để phám phá. Tiếng Việt dùng từ mượn, từ nước người, tên riêng, viết tắt rất là nhiều. Chỗ chứa OOVs cần đủ lớn.
 
 `▁tooi ▁ddeens ▁dduwowngf ▁3/4`
 
 
-## Final
+## Finalize
 
-### Dùng 20-bits (5x4) để mã hóa Syllables (2.5-bytes)
-17-bits must, 1-bit để phân biệt S hay O, 1-bit để xem trước có ▁ hay ko? 1 bit để xem chữ cái đầu có viết hoa hay ko? 1-bit để xem syllable có dc auto-completed hay ko?
-`.uyee <= .uye, .iee <= .ie, .yee <= .ye, .uee <= .ue, .uwow <= .uwo`
+### a.1/ Dùng 20-bits (5x4) để mã hóa Syllables (2.5-bytes)
+* 17-bits is a must, 
++ 01-bit để phân biệt Syllable hay OOV
++ 01-bit để xem trước có ▁ (space) hay ko? 
++ 01 bit để xem chữ cái đầu có viết hoa hay ko? 
 
-### Dùng 16-bits (4x4) để mã hóa OOVs (2-bytes)
-1-bit để phân biệt S hay O, 1-bit để xem trước có ▁ hay ko? Còn 14-bits tức là 16,384 chỗ để chứa OOV (<= thoải mái, chứa được toàn bộ tiếng Anh nếu dùng BPE để chơi song ngữ luôn).
+### a.2/ Dùng 16-bits (4x4) để mã hóa OOVs (2-bytes)
+- 01-bit để phân biệt Syllable hay OOV 
+- 01-bit để xem trước có ▁ (space) hay ko? 
+* Còn 14-bits tức là 16,384 chỗ để chứa OOV 
+(<= có thể thêm 01 ngôn nhữ nữa như tiếng Anh chẳng hạn nếu dùng BPE).
 
-=> Chọn chia hết cho 4 để có thể dùng PackedIntStruct :^)
+Nếu cần nâng lên 20-bits như sylls => chứa được 2^18 = 262,144 từ
+Cắt 2-bits để làm việc khác vẫn còn chỗ cho 65,536 từ
+=> Chọn chia hết cho 4 để dễ dồn bits vào bytes (xem PackedIntStruct :^)
+
+### b/ Lưu tất cả vào 20-bits (2.5 bytes)
+* 17-bits đầu đương nhiên dùng hết
++ 01-bit để xem trước có ▁ (space) hay ko? 
++ 01 bit để xem chữ cái đầu có viết hoa hay ko? 
++ 01 bit để xem toàn bộ token có viết hoa hay ko?
+<hoặc>
++ 01-bit để xem syllable có dc auto-completed hay ko? `.uyee <= .uye, .iee <= .ie, .yee <= .ye, .uee <= .ue, .uwow <= .uwo`</hoặc>
+
+Sau khi phân tách 17 bits đầu vào âm-đầu + âm giữa + âm cuối + tone sẽ biết được là syll hay oov? Phần còn lại dư 63,368 chỗ cho OOVs (xem chi tiết ở phần cuối)
+
+!!! NGHIÊNG VỀ b/ VÌ CÓ THÊM 1 BIT ĐỂ LƯU ATTRS VÀ THÊM CHỖ CHO OOV !!!
 
 ## Convert *all* Vietnamese `(mono,bi,)tri-syllables` to `u64`
 (*all* means enough to cover every use-cases)
@@ -57,10 +109,12 @@ Coi `syllables` là cái đã biết. `OOV` là cái đáng để phám phá. Ti
 	+ 0x10: right  of the-phrase
 	+ 0x11: I'm the-whole-phrase
 
-* ??? 2-bits to mark the `in-between-delimiter-category` of `tri-syllables`:
-	+ 0x00: SPACES \s \n \t
-	+ 0x01: NOT_SPACES '-' '/' ':' ...
-	+ 0x10: MIXED (of three above)
+* ??? 2-bits to mark the `in-between-delimiter category` of `tri-syllables`:
+(phần nằm giữa hay phần nối các syll trong tri-syll)
+	+ 0x00: NONE       	    	"ngàyhômnay"
+	+ 0x00: SPACE \s \t 		"ngày hôm nay"
+	+ 0x01: OTHER '-' '/' ':'   "ngày-hôm-nay", "3/4"
+	+ 0x10: .....
 
 ?? Other conversions:
 

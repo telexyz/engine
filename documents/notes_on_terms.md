@@ -1,5 +1,18 @@
 ## Notes on terms
 
+`syllable`: token là âm tiết tiếng Việt hoàn chỉnh
+
+`marktone`: token ko là âm tiết tiếng Việt, chỉ chứa ký tự trong bảng chữ cái tiếng Việt và phải có ký tự mang dấu hoặc thanh (khả năng cao là tiếng Việt lỗi chính tả, từ vay mượn ...)
+
+`alphabet`: token ko là âm tiết tiếng Việt, chỉ chứa ký tự a-zA-Z (phần nhiều là từ nước ngoài)
+
+`nonalpha`: token không chứa ký tự nào trong bảng chữ cái tiếng Việt
+`nonalpha` có thể phân nhỏ hơn thành: 
+* `digits`: 12  54  34.5  44,56
+* `units`: %, $
+* `phrase_breakers`: , ; : ! ? .
+* ...
+
 ### Conclusion
 
 To avoid confusion we agree to follow below rules on using-terms for the whole project:
@@ -16,7 +29,7 @@ Thông số tiếng Việt lấy từ Vietnam Lexicography Center (Vietlex)
     - 81.55% các âm tiết đồng thời là các từ đơn.
     - 70.72% các từ ghép có 2 âm tiết.
     - 13.59% các từ ghép có 3,4 âm tiết.
-    - 1.04% các từ ghép có từ 5 âm tiết trở lên.
+    - 01.04% các từ ghép có từ 5 âm tiết trở lên.
 
 
     + ...
