@@ -4,6 +4,8 @@ rm _output/*.txt
 
 ~/zig run telexify.zig -O ReleaseFast -- _input/corpus/corpus-title.txt _output/telexified/corpus-title.txt
 
+# ~/zig run telexify.zig -- _input/test.txt _output/test.txt
+
 # zig run telexify0.zig -O ReleaseFast -- _input/corpus/corpus-title.txt _output/telexified/corpus-title.txt
 
 # zig run telexify.zig -O ReleaseSafe -- _input/corpus/corpus-title.txt _output/telexified/corpus-title.txt

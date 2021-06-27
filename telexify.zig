@@ -64,7 +64,7 @@ const TextFileTokenizer = struct {
 
     const CharTypes = enum {
         alphabet_char,
-        marktone_char,
+        marktone_char, // https://vi.wikipedia.org/wiki/Dấu_phụ
         nonalpha_char,
         space,
     };
@@ -86,7 +86,7 @@ const TextFileTokenizer = struct {
         // A spacious_{alphabet|nonalpha} is a whole nonspace_token
         var is_spacious_alphabet = true;
         var is_spacious_nonalpha = true;
-        var having_marktone = false;
+        var contains_marktone_char = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
         var byte2: u8 = 0; // second byte of the utf-8 char (if needed)
@@ -191,6 +191,13 @@ const TextFileTokenizer = struct {
             }
             // Point the next_index pointer to the next VALID byte
             next_index = index + char_bytes_length;
+            if (first_byte == 'c' and input_bytes[next_index] == 'p' and char_type == .marktone_char) {
+                print("\n--- {}  ----\n", .{char_type});
+            }
+
+            if (first_byte == 'p' and input_bytes[index - 1] == 'c' and char_type == .marktone_char) {
+                print("\n--- {}  ----\n", .{char_type});
+            }
 
             if (char_type == .space) {
                 // in_nonspace_token_zone bool variable let us know that if the
@@ -207,7 +214,7 @@ const TextFileTokenizer = struct {
                         const token = input_bytes[nonspace_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = if (having_marktone) .marktone else .alphabet,
+                            .category = if (contains_marktone_char) .marktone else .alphabet,
                             .surrounded_by_spaces = .both,
                         };
 
@@ -238,7 +245,7 @@ const TextFileTokenizer = struct {
                         const token = input_bytes[alphabet_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = if (having_marktone) .marktone else .alphabet,
+                            .category = if (contains_marktone_char) .marktone else .alphabet,
                             .surrounded_by_spaces = .right,
                         };
 
@@ -299,10 +306,11 @@ const TextFileTokenizer = struct {
                         // Reset flags
                         is_spacious_alphabet = true;
                         is_spacious_nonalpha = true;
-                        having_marktone = false;
+                        contains_marktone_char = false;
                     }
 
                     is_spacious_alphabet = false;
+
                     if (in_alphabet_token_zone) {
                         in_alphabet_token_zone = false;
                         // Record alphabets
@@ -312,7 +320,7 @@ const TextFileTokenizer = struct {
                             const first = alphabet_token_start_at == nonspace_token_start_at;
 
                             const token_attrs: Text.TokenAttributes = .{
-                                .category = if (having_marktone) .marktone else .alphabet,
+                                .category = if (contains_marktone_char) .marktone else .alphabet,
                                 .surrounded_by_spaces = if (first) .left else .none,
                             };
 
@@ -321,7 +329,7 @@ const TextFileTokenizer = struct {
                         }
                     }
                     alphabet_token_start_at = next_index;
-                } else { // char_type => .alphabet_char, marktone_char
+                } else { // char_type => .alphabet_char, .marktone_char
                     if (!in_nonspace_token_zone) {
                         in_nonspace_token_zone = true;
                         // Reset indexes
@@ -331,11 +339,11 @@ const TextFileTokenizer = struct {
                         // Reset flags
                         is_spacious_alphabet = true;
                         is_spacious_nonalpha = true;
-                        having_marktone = false;
+                        contains_marktone_char = false;
                     }
 
                     if (char_type == .marktone_char)
-                        having_marktone = true;
+                        contains_marktone_char = true;
 
                     is_spacious_nonalpha = false;
 
@@ -530,10 +538,6 @@ pub fn main() anyerror!void {
         "_output/07-telexified-777.txt",
         777,
     );
-    try tp.write_output_file_from_buffer(
-        "_output/08-telexified-888.txt",
-        888_888,
-    );
 
     // Wait for sylabeling thread end
     thread.wait();
@@ -563,7 +567,10 @@ pub fn main() anyerror!void {
         "_output/03-marktone_types.txt",
         "_output/04-alphabet_types.txt",
     );
-
+    try tp.write_output_file_from_buffer(
+        "_output/08-telexified-888.txt",
+        888_888,
+    );
     // Final result
     try tp.write_output_file_from_buffer(output_filename, 0);
 

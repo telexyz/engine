@@ -123,6 +123,7 @@ pub const Text = struct {
         return token[0] == '\n';
     }
 
+    const BUFF_SIZE = 100;
     pub fn init(self: *Text) !void {
         // Init will-be-used-from-now-on allocator from init_allocator
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
@@ -130,7 +131,7 @@ pub const Text = struct {
 
         const input_bytes_size = self.input_bytes.len;
         var est_token_num = &self.estimated_tokens_number;
-        est_token_num.* = input_bytes_size / AVG_BYTES_PER_TOKEN;
+        est_token_num.* = input_bytes_size / AVG_BYTES_PER_TOKEN + BUFF_SIZE;
 
         // Init token list
         self.tokens = try self.allocator.alloc([]const u8, est_token_num.*);
@@ -146,12 +147,12 @@ pub const Text = struct {
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
-        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5;
+        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5 + BUFF_SIZE;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllower...
         self.syllower_types = std.StringHashMap(u32).init(self.allocator);
-        self.syllower_bytes_size = 16 * 1024 * 1024; // 16mb
+        self.syllower_bytes_size = 1024 * 1024; // 1mb
         self.syllower_bytes = try self.allocator.alloc(u8, self.syllower_bytes_size);
 
         // Start empty token list and empty transfomed bytes
@@ -323,6 +324,10 @@ pub const Text = struct {
                         // For nonalpha attrs.category it can only
                         // .alphabet or .marktone
                         type_info.*.category = attrs.category;
+                        if (token[0] == 'c' and token[1] == 'p') {
+                            // std.debug.print("{s} => {}; {s} => {}\n\n", .{ token, attrs.category, char_stream.toStr(), char_stream.hasMarkOrTone() });
+                            // cp => TokenCategory.marktone; cp => false
+                        }
                     }
                 }
 
