@@ -57,13 +57,12 @@ pub const Text = struct {
     nonalpha_types: std.StringHashMap(TypeInfo) = undefined,
 
     // Use data of transformed_bytes, pointed by transforms[i]
-    syllable_types: std.StringHashMap(u32) = undefined,
-
-    // Use data of lsyll_bytes
-    lower_syllable_types: std.StringHashMap(u32) = undefined,
-    lsyll_bytes: []u8 = undefined,
-    lsyll_bytes_size: usize = undefined,
-    lsyll_bytes_len: usize = 0,
+    syllable_types: std.StringHashMap(u32) = undefined, // syllable.toLower =
+    syllower_types: std.StringHashMap(u32) = undefined, // syllower
+    // Data buffer for syllower_types
+    syllower_bytes: []u8 = undefined,
+    syllower_bytes_size: usize = undefined,
+    syllower_bytes_len: usize = 0,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
@@ -150,15 +149,15 @@ pub const Text = struct {
         self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
-        // Init lower_syllables, lsyll
-        self.lower_syllable_types = std.StringHashMap(u32).init(self.allocator);
-        self.lsyll_bytes_size = 16 * 1024 * 1024; // 16mb
-        self.lsyll_bytes = try self.allocator.alloc(u8, self.lsyll_bytes_size);
+        // Init syllower...
+        self.syllower_types = std.StringHashMap(u32).init(self.allocator);
+        self.syllower_bytes_size = 16 * 1024 * 1024; // 16mb
+        self.syllower_bytes = try self.allocator.alloc(u8, self.syllower_bytes_size);
 
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
         self.transformed_bytes_len = 0;
-        self.lsyll_bytes_len = 0;
+        self.syllower_bytes_len = 0;
     }
     pub fn deinit(self: *Text) void {
         // Since we use ArenaAllocator, simply deinit arena itself to
@@ -322,7 +321,7 @@ pub const Text = struct {
                         self.saveAndCountLowerSyllable(token, count) catch unreachable;
                     } else {
                         // For nonalpha attrs.category it can only
-                        // .alphabet or .have_mark_or_tone
+                        // .alphabet or .marktone
                         type_info.*.category = attrs.category;
                     }
                 }
@@ -348,16 +347,16 @@ pub const Text = struct {
     }
 
     pub fn saveAndCountLowerSyllable(self: *Text, token: []const u8, count: u32) !void {
-        const next = self.lsyll_bytes_len + token.len;
-        const lsyll = self.lsyll_bytes[self.lsyll_bytes_len..next];
+        const next = self.syllower_bytes_len + token.len;
+        const lsyll = self.syllower_bytes[self.syllower_bytes_len..next];
         // To lower
         for (token) |c, i| {
             lsyll[i] = c | 0b00100000;
         }
-        const gop = try self.lower_syllable_types.getOrPutValue(lsyll, 0);
+        const gop = try self.syllower_types.getOrPutValue(lsyll, 0);
         gop.value_ptr.* += count;
 
-        self.lsyll_bytes_len = next;
+        self.syllower_bytes_len = next;
     }
 
     pub fn removeSyllablesFromAlphabetTypes(self: *Text) void {
