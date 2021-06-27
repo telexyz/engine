@@ -3,9 +3,9 @@ const print = std.debug.print;
 const unicode = std.unicode;
 
 // https://www.windmill.co.uk/ascii-control-codes.html
-// Avoid: 0 null, 8 backspace, 9 \t, 10 \n, \x0a \x0b \x0c \x0d \x1b
-// Dùng được 24 invisible ascii chars, 1-7, 15-26 ...
-var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1f|";
+// Avoid: 0 null, 8 backspace, \x09 (\t-9-tab), \x0a (\n-10-newline),\x0d (13-enter)
+// Dùng được 27 invisible ascii chars, 1-8, 11,12, 15-31
+var str = "|\x01\x02\x03\x04\x05\x06\x07\x08\x0b\x0c\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f|";
 
 //\n\tđĐàáãâăèéêìíĩòóõôơýùúũưủụọỏịỉỳỵỷỹạảẹẻẽẦẤẬẨẪẰẮẶẲẴỀẾỆỂỄỒỐỘỔỖỜỚỢỞỠỪỨỰỬỮầấậẩẫằắặẳẵềếệểễồốộổỗờớợởỡừứựửữ";
 
@@ -44,7 +44,7 @@ pub fn main() !void {
         var i: usize = 0;
         while (i < char_bytes_length) {
             const b = str[index + i];
-            print(" : {b} {d}", .{ b, b });
+            print(" : {x} {d}", .{ b, b });
             i += 1;
         }
         print(" \n", .{});

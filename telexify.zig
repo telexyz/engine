@@ -66,7 +66,7 @@ const TextFileTokenizer = struct {
         alphabet_char,
         mark_or_tone_char,
         space,
-        non_alphabet_char,
+        nonalpha_char,
     };
 
     pub fn segment(self: *TextFileTokenizer) !void {
@@ -74,19 +74,19 @@ const TextFileTokenizer = struct {
         var next_index: usize = 0;
 
         // Any text can be defined as a sequence of non_space_token|space_token|...
-        // A non_space_token can be a alphabet_token or a non_alphabet or
-        // is composed of alphabet|non_alphabet|... alternatively
+        // A non_space_token can be a alphabet_token or a nonalpha or
+        // is composed of alphabet|nonalpha|... alternatively
 
         var non_space_token_start_at: usize = 0;
         var alphabet_token_start_at: usize = 0;
-        var non_alphabet_start_at: usize = 0;
+        var nonalpha_start_at: usize = 0;
 
         var in_non_space_token_zone = true;
         var in_alphabet_token_zone = true;
         // A spacious_alphabet is a whole non_space_token
         var is_spacious_alphabet = true;
-        // A spacious_non_alphabet is a whole non_space_token
-        var is_spacious_non_alphabet = true;
+        // A spacious_nonalpha is a whole non_space_token
+        var is_spacious_nonalpha = true;
         var have_mark_or_tone = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
@@ -153,8 +153,8 @@ const TextFileTokenizer = struct {
                     // 0b1111_0000...0b1111_0111 => 4,
                     // else => error.Utf8InvalidStartByte,
 
-                    // uninterested ascii and utf-8 chars, we marked them as .non_alphabet_char
-                    char_type = .non_alphabet_char;
+                    // uninterested ascii and utf-8 chars, we marked them as .nonalpha_char
+                    char_type = .nonalpha_char;
 
                     if (first_byte > 0b1111_0111) {
                         @panic("error.Utf8InvalidStartByte");
@@ -219,10 +219,10 @@ const TextFileTokenizer = struct {
                         //
                         const token = input_bytes[non_space_token_start_at..index];
 
-                        if (is_spacious_non_alphabet) {
+                        if (is_spacious_nonalpha) {
                             //
                             const token_attrs: Text.TokenAttributes = .{
-                                .category = .non_alphabet,
+                                .category = .nonalpha,
                                 .surrounded_by_spaces = .both,
                             };
 
@@ -248,12 +248,12 @@ const TextFileTokenizer = struct {
                         //
                     }
 
-                    if (!in_alphabet_token_zone and non_alphabet_start_at > non_space_token_start_at) {
+                    if (!in_alphabet_token_zone and nonalpha_start_at > non_space_token_start_at) {
                         //
-                        const token = input_bytes[non_alphabet_start_at..index];
+                        const token = input_bytes[nonalpha_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = .non_alphabet,
+                            .category = .nonalpha,
                             .surrounded_by_spaces = .right,
                         };
 
@@ -264,11 +264,11 @@ const TextFileTokenizer = struct {
                 } // END if (in_non_space_token_zone)
                 if (first_byte == '\n') {
                     // Record newline to treat special token
-                    // it's category is non_alphabet but we can check it value
+                    // it's category is nonalpha but we can check it value
                     // to know it's newline token
                     const token = input_bytes[index .. index + 1];
                     const token_attrs = Text.TokenAttributes{
-                        .category = .non_alphabet,
+                        .category = .nonalpha,
                         .surrounded_by_spaces = .none,
                     };
                     try self.text.countToken(token, token_attrs);
@@ -289,16 +289,16 @@ const TextFileTokenizer = struct {
                     }
                 }
                 // END char_type => .space
-            } else { // char_type => .alphabet_char, or .non_alphabet_char
-                if (char_type == .non_alphabet_char) {
+            } else { // char_type => .alphabet_char, or .nonalpha_char
+                if (char_type == .nonalpha_char) {
                     if (!in_non_space_token_zone) {
                         in_non_space_token_zone = true;
                         // Reset
                         non_space_token_start_at = index;
                         alphabet_token_start_at = next_index;
-                        non_alphabet_start_at = index;
+                        nonalpha_start_at = index;
                         is_spacious_alphabet = true;
-                        is_spacious_non_alphabet = true;
+                        is_spacious_nonalpha = true;
                         have_mark_or_tone = false;
                     }
 
@@ -327,27 +327,27 @@ const TextFileTokenizer = struct {
                         // Reset
                         non_space_token_start_at = index;
                         alphabet_token_start_at = index;
-                        non_alphabet_start_at = next_index;
+                        nonalpha_start_at = next_index;
                         is_spacious_alphabet = true;
-                        is_spacious_non_alphabet = true;
+                        is_spacious_nonalpha = true;
                         have_mark_or_tone = false;
                     }
 
                     if (char_type == .mark_or_tone_char)
                         have_mark_or_tone = true;
 
-                    is_spacious_non_alphabet = false;
+                    is_spacious_nonalpha = false;
 
                     if (!in_alphabet_token_zone) {
                         in_alphabet_token_zone = true;
-                        // Record non_alphabet
-                        if (non_alphabet_start_at <= index) {
+                        // Record nonalpha
+                        if (nonalpha_start_at <= index) {
                             //
-                            const token = input_bytes[non_alphabet_start_at..index];
-                            const first = non_alphabet_start_at == non_space_token_start_at;
+                            const token = input_bytes[nonalpha_start_at..index];
+                            const first = nonalpha_start_at == non_space_token_start_at;
 
                             const token_attrs: Text.TokenAttributes = .{
-                                .category = .non_alphabet,
+                                .category = .nonalpha,
                                 .surrounded_by_spaces = if (first) .left else .none,
                             };
 
@@ -356,7 +356,7 @@ const TextFileTokenizer = struct {
                             //
                         }
                     }
-                    non_alphabet_start_at = next_index;
+                    nonalpha_start_at = next_index;
                 }
             }
         } // End main loop
@@ -517,8 +517,8 @@ pub fn main() anyerror!void {
 
     // Write out stats
     try write_counts_to_file(
-        tp.text.non_alphabet_types,
-        "_output/05-non_alphabet_types.txt",
+        tp.text.nonalpha_types,
+        "_output/05-nonalpha_types.txt",
     );
 
     try tp.write_mixed_tokens_to_file(

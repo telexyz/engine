@@ -54,7 +54,7 @@ pub const Text = struct {
     // Use data of input_bytes, pointed by tokens[i]
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     // Use data of input_bytes, pointed by tokens[i]
-    non_alphabet_types: std.StringHashMap(TypeInfo) = undefined,
+    nonalpha_types: std.StringHashMap(TypeInfo) = undefined,
 
     // Use data of transformed_bytes, pointed by transforms[i]
     syllable_types: std.StringHashMap(u32) = undefined,
@@ -91,22 +91,27 @@ pub const Text = struct {
     };
 
     pub const TokenCategory = enum(u6) {
+        // Dùng được 27 invisible ascii chars, 1-8,11, 12,15-31
         // 3 main token categoried, used to write to disk as token's attrs
-        syllable = 1, // + 2-bits => 04,05,06,07 ^D^E^F^G
-        alphabet = 4, // + 2-bits => 16,17,18,19 ^P^Q^R^S
-        non_alphabet = 5, // + 2-bits => 20,21,22,23 ^T^U^V^W
-
-        // Supplement category
-        _none = 0, // used as an intialized value, need to process later
-        have_mark_or_tone = 6,
+        //         0  //  + 2-bits  => 00,01,02,03 + 1 => \x01\x02\x03\x04
+        //         1  //  + 2-bits  => 04,05,06,07 + 1 => \x05\x06\x07\x08
+        //         2  //  + 0x11    =>       10    + 1 => \x0b
+        //         3  //  + 0x00,11 => 12       15     => \x0c\x0f
+        syllable = 4, //  + 2-bits  => 16,17,18,19     => \x10\x11\x12\x13
+        marktone = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
+        alphabet = 6, //  + 2-bits  => 24,25,26,27     => \x18\x19\x1a\x1b
+        nonalpha = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
+        // Supplement category ids 8-63
+        // used as an intialized/temp values / need to be processed / state machine
+        _none = 8, // initial state
     };
 
     pub const TokenSurroundedBySpaces = enum(u2) {
-        // Using 2-bits to describle
-        none, // 0|0
+        // Use 2-bits to describle
+        none, //  0|0
         right, // 0|1
-        left, // 1|0
-        both, // 1|1
+        left, //  1|0
+        both, //  1|1
     };
     // Khi lưu ra text file ta sẽ lưu TokenAtrributes byte và space byte cùng nhau
     // Như vậy sẽ đạt được 2 mục đích:
@@ -134,7 +139,7 @@ pub const Text = struct {
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.non_alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.nonalpha_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.syllable_types = std.StringHashMap(u32).init(self.allocator);
 
         // Init transforms list
@@ -168,8 +173,8 @@ pub const Text = struct {
         // Default, transform to itself :)
         self.transforms[self.tokens_number] = token;
 
-        const gop = if (token_attrs.category == .non_alphabet)
-            try self.non_alphabet_types.getOrPutValue(token, TypeInfo{})
+        const gop = if (token_attrs.category == .nonalpha)
+            try self.nonalpha_types.getOrPutValue(token, TypeInfo{})
         else
             try self.alphabet_types.getOrPutValue(token, TypeInfo{});
 
@@ -283,7 +288,7 @@ pub const Text = struct {
             const firt_byte_index = self.transformed_bytes_len;
             self.transformed_bytes_len += 1;
 
-            if (attrs.category != .non_alphabet) {
+            if (attrs.category != .nonalpha) {
                 // Since token is alphabet, it's alphabet_types[i]'s info must existed
                 const type_info = self.alphabet_types.getPtr(token).?;
 
@@ -316,7 +321,7 @@ pub const Text = struct {
                         // Take syllable to create lowercase version
                         self.saveAndCountLowerSyllable(token, count) catch unreachable;
                     } else {
-                        // For non_alphabet attrs.category it can only
+                        // For nonalpha attrs.category it can only
                         // .alphabet or .have_mark_or_tone
                         type_info.*.category = attrs.category;
                     }
@@ -410,5 +415,5 @@ test "Text" {
     try std.testing.expect(text.alphabet_types.get("nhà").?.count == 2);
     try std.testing.expect(text.alphabet_types.get("xxx") == null);
     try std.testing.expect(text.alphabet_types.count() == 8);
-    try std.testing.expect(text.non_alphabet_types.count() == 0);
+    try std.testing.expect(text.nonalpha_types.count() == 0);
 }

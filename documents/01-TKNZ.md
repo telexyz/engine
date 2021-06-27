@@ -8,7 +8,7 @@
 * Rule #5: Prefer simple solution!
 
 
-## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs non_alphabet splitter
+## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
 TODO:
 

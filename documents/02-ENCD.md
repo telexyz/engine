@@ -1,3 +1,13 @@
+## Dùng mã ascii để lưu, syll id, mục đích để ko phá game khi lưu dùng utf8
+/0-9: 47,48-57 => 11
+@A-Z: 64,65-90 => 27
+ a-z: 97-122   => 26
+Total = 64 (2^6) => Cần 3-asciis để mã hóa 18-bits
+
+Dùng được 24 invisible ascii chars, 1-7, 15-26
+var str = "|\x01\x02\x03\x04\x05\x06\x07\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1f|";
+
+
 ## Lợi ích của việc Telexifiy Syllables (utf-8 to ascii-telex)
 
 * Giảm số ký tự cần để mã hóa
