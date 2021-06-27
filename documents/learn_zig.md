@@ -9,16 +9,14 @@ cd zig
 
 mkdir build
 cd build
-cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm)
+cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm) 
+# To compile in release mode use the -DCMAKE_BUILD_TYPE=Release flag
+# cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm) -DCMAKE_BUILD_TYPE=Release
 make install
 sudo ln -s ~/repos/zig/build/bin/zig ~/zig
 ~/zig
 ```
-### Stage-2
 
-```
-cd ~/repos/zig
-./build/zig build --prefix $(pwd)/stage2 -Denable-llvm
 ```
 
 ### Useful Zig utils to processing text
