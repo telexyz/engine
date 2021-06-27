@@ -17,6 +17,7 @@ TODO:
 * Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
 * Break alphabet-types into have-marks-and-tone vs others
+FIX: why "cp" is categoried as marktone?
 
 [ DONE ]
 
