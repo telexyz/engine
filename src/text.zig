@@ -321,13 +321,28 @@ pub const Text = struct {
                         // Take syllable to create lowercase version
                         self.saveAndCountLowerSyllable(token, count) catch unreachable;
                     } else {
-                        // For nonalpha attrs.category it can only
-                        // .alphabet or .marktone
+
+                        // For non-syllable, attrs.category can only
+                        // be .alphabet or .marktone
                         type_info.*.category = attrs.category;
-                        if (token[0] == 'c' and token[1] == 'p') {
-                            // std.debug.print("{s} => {}; {s} => {}\n\n", .{ token, attrs.category, char_stream.toStr(), char_stream.hasMarkOrTone() });
-                            // cp => TokenCategory.marktone; cp => false
-                        }
+
+                        // if (char_stream.hasMarkOrTone()) {
+                        //     type_info.*.category = .marktone;
+                        // } else {
+                        //     var n = char_stream.len;
+                        //     if (char_stream.tone != 0) n += 1;
+
+                        //     type_info.*.category = if (n >= token.len)
+                        //         TokenCategory.alphabet
+                        //     else
+                        //         attrs.category;
+                        // }
+
+                        // DEBUG
+                        // if (token[0] == 'c' and token[1] == 'p') {
+                        //     std.debug.print("{s} => {}; {s} => {}\n\n", .{ token, attrs.category, char_stream.toStr(), char_stream.hasMarkOrTone() });
+                        //     std.debug.print("\n{s} {s} {s} {s}\n\n", .{ self.tokens[i.* + 1], self.tokens[i.* + 2], self.tokens[i.* + 3], self.tokens[i.* + 4] });
+                        // }
                     }
                 }
 

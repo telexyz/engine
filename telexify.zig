@@ -191,13 +191,6 @@ const TextFileTokenizer = struct {
             }
             // Point the next_index pointer to the next VALID byte
             next_index = index + char_bytes_length;
-            if (first_byte == 'c' and input_bytes[next_index] == 'p' and char_type == .marktone_char) {
-                print("\n--- {}  ----\n", .{char_type});
-            }
-
-            if (first_byte == 'p' and input_bytes[index - 1] == 'c' and char_type == .marktone_char) {
-                print("\n--- {}  ----\n", .{char_type});
-            }
 
             if (char_type == .space) {
                 // in_nonspace_token_zone bool variable let us know that if the
@@ -326,6 +319,8 @@ const TextFileTokenizer = struct {
 
                             try self.text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
+                            //
+                            contains_marktone_char = false;
                         }
                     }
                     alphabet_token_start_at = next_index;
@@ -363,6 +358,7 @@ const TextFileTokenizer = struct {
                             try self.text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
                             //
+                            contains_marktone_char = false;
                         }
                     }
                     nonalpha_token_start_at = next_index;
