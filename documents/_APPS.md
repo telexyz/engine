@@ -23,7 +23,23 @@ around 18.6 GB of internet news/articles crawled from 130 Vietnamese news websit
 
 Method: As you see from the example in the project title. We can treat the project as a sub-problem of spelling correction (deletion only: tooi => toi, nois => noi, tieengs => tieng, Vieetj => Viet). So we can follow below project proposal step-by-step.
 
-https://discuss.huggingface.co/t/pre-training-fine-tuning-seq2seq-model-for-spelling-and-or-grammar-correction-in-english/7101
+=> Nếu delete-only có thể dùng https://github.com/wolfgarbe/SymSpell
+The Symmetric Delete spelling correction algorithm reduces the complexity of edit candidate generation and dictionary lookup for a given Damerau-Levenshtein distance
+https://github.com/Arkoniak/SymSpellChecker.jl
+https://github.com/chenkovsky/aha/blob/master/src/aha/sym_spell.cr
+
+=> Mở rộng thêm cho phrase, delete cả space thì sẽ xử lý được cả trường hợp gõ dính từ.
+
+Trong corpus trên, trường hợp dính từ khá nhiều. Điển hình là
+`xembeckhamthôỉhồnvàothắnglơịcủamilan` => Người đọc có thể hiểu được ngay
+`xem beckham thổi hồn vào thắng lợi của milan`
+
+Google search chưa tách từ bị dính nhiều như thế cho tiếng Việt
+https://www.google.com/search?q=xembeckhamthôỉhồnvàothắnglơịcủamilan
+=> Your search - xembeckhamthôỉhồnvàothắnglơịcủamilan - did not match any documents.
+
+Search khoảng 4-5 từ dính nhau thì ok
+https://www.google.com/search?q=xembeckhamthôỉhồn
 
 - - -
 
