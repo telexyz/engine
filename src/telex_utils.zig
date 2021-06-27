@@ -9,7 +9,6 @@ const sd = @import("syllable_data_structs.zig");
 const IS_UPPER = 512;
 
 pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
-    var has_mark: bool = false;
     var am_giua: sd.AmGiua = ._none;
     var tone: sd.Tone = ._none;
     var telex_code: u10 = 0;

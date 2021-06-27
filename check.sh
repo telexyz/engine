@@ -6,8 +6,8 @@
 
 # zig test src/converters.zig
 
-zig test test_against_vn_syllables.zig
+~/zig test test_against_vn_syllables.zig
 
-zig test src/text.zig
+~/zig test src/text.zig
 
-zig test telexify.zig
+~/zig test telexify.zig

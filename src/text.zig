@@ -115,7 +115,7 @@ pub const Text = struct {
     // Scan 2-bytes 1 sẽ cho tốc độ nhanh gấp 1.5 lần so với scan từng byte-1
 
     // Token attribute can be extracted from itself, \n for example
-    pub fn isNewLineToken(token) bool {
+    pub fn isNewLineToken(token: []const u8) bool {
         return token[0] == '\n';
     }
 
@@ -367,7 +367,10 @@ pub const Text = struct {
     }
 };
 
-fn printNothing(comptime fmt_str: []const u8, args: anytype) void {}
+fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
+    if (false)
+        std.debug.print(fmt_str, args);
+}
 
 test "Text" {
     var text = Text{

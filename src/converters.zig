@@ -15,7 +15,8 @@ const AM_CUOI_BITS_OFFSET = 10;
 const TONE_BITS_OFFSET = 14;
 
 fn print(comptime fmt_str: []const u8, args: anytype) void {
-    // @import("std").debug.print(fmt_str, args);
+    if (false)
+        std.debug.print(fmt_str, args);
 }
 
 // Convert any Syllable to an uniq id (17 bits)

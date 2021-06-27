@@ -449,28 +449,28 @@ const TextFileTokenizer = struct {
             }
         }
     }
-
-    fn write_counts_to_file(self: TextFileTokenizer, counts: anytype, output_filename: []const u8) !void {
-        var output_file = try std.fs.cwd().createFile(output_filename, .{});
-        defer output_file.close();
-
-        const max_token_len = 30;
-        var buffer: [max_token_len + 15]u8 = undefined;
-        const buff_slice = buffer[0..];
-
-        var it = counts.iterator();
-        while (it.next()) |kv| {
-            if (max_token_len < kv.key_ptr.*.len) {
-                print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
-                continue;
-            }
-            const count = if (comptime @TypeOf(counts) == std.StringHashMap(Text.TypeInfo)) kv.value_ptr.*.count else kv.value_ptr.*;
-
-            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ count, kv.key_ptr.* });
-            _ = try output_file.writer().write(result);
-        }
-    }
 };
+
+fn write_counts_to_file(counts: anytype, output_filename: []const u8) !void {
+    var output_file = try std.fs.cwd().createFile(output_filename, .{});
+    defer output_file.close();
+
+    const max_token_len = 30;
+    var buffer: [max_token_len + 15]u8 = undefined;
+    const buff_slice = buffer[0..];
+
+    var it = counts.iterator();
+    while (it.next()) |kv| {
+        if (max_token_len < kv.key_ptr.*.len) {
+            print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
+            continue;
+        }
+        const count = if (comptime @TypeOf(counts) == std.StringHashMap(Text.TypeInfo)) kv.value_ptr.*.count else kv.value_ptr.*;
+
+        const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ count, kv.key_ptr.* });
+        _ = try output_file.writer().write(result);
+    }
+}
 
 // Init and config a new TextFileTokenizer
 var tp: TextFileTokenizer = undefined;
@@ -516,7 +516,7 @@ pub fn main() anyerror!void {
     print("\nStep-1: Token segmenting finish! Duration {} ms => {d:.2} mins\n\n", .{ step1_ms, step1_mins });
 
     // Write out stats
-    try tp.write_counts_to_file(
+    try write_counts_to_file(
         tp.text.non_alphabet_types,
         "_output/05-non_alphabet_types.txt",
     );
@@ -548,12 +548,12 @@ pub fn main() anyerror!void {
 
     print("\nWriting final transformation to file ...\n", .{});
 
-    try tp.write_counts_to_file(
+    try write_counts_to_file(
         tp.text.syllable_types,
         "_output/01-syllable_types.txt",
     );
 
-    try tp.write_counts_to_file(
+    try write_counts_to_file(
         tp.text.lower_syllable_types,
         "_output/02-lower_syllables.txt",
     );

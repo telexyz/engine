@@ -9,7 +9,10 @@ const telex_utils = @import("./src/telex_utils.zig");
 const chars_utils = @import("./src/chars_utils.zig");
 const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
 
-fn print_nothing(comptime fmt_str: []const u8, args: anytype) void {}
+fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
+    if (false)
+        std.debug.print(fmt_str, args);
+}
 
 const TextProcessor = struct {
     init_allocator: *std.mem.Allocator,
@@ -405,7 +408,7 @@ const TextProcessor = struct {
                     },
                 }
 
-                parsers.pushCharsToSyllable(print_nothing, &char_stream, &syllable);
+                parsers.pushCharsToSyllable(printNothing, &char_stream, &syllable);
             }
         } // End main loop
         self.output_index = output_index;

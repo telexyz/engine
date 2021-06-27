@@ -1,3 +1,26 @@
+## Buig zig from source
+
+https://github.com/ziglang/zig/wiki/Building-Zig-From-Source
+
+```sh
+cd ~/repos
+git clone https://github.com/ziglang/zig.git
+cd zig
+
+mkdir build
+cd build
+cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm)
+make install
+sudo ln -s ~/repos/zig/build/bin/zig ~/zig
+~/zig
+```
+### Stage-2
+
+```
+cd ~/repos/zig
+./build/zig build --prefix $(pwd)/stage2 -Denable-llvm
+```
+
 ### Useful Zig utils to processing text
 
 https://github.com/ziglang/zig/blob/master/lib/std/mem.zig
