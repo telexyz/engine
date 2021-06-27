@@ -36,10 +36,12 @@ Trong corpus trên, trường hợp dính từ khá nhiều. Điển hình là
 
 Google search chưa tách từ bị dính nhiều như thế cho tiếng Việt
 https://www.google.com/search?q=xembeckhamthôỉhồnvàothắnglơịcủamilan
-=> Your search - xembeckhamthôỉhồnvàothắnglơịcủamilan - did not match any documents.
+Your search - xembeckhamthôỉhồnvàothắnglơịcủamilan - did not match any documents.
 
 Search khoảng 4-5 từ dính nhau thì ok
 https://www.google.com/search?q=xembeckhamthôỉhồn
+
+=> Mở rộng nữa nữa thì xuống tới tầng viết tắt: ko => khoong, nx => nhuwngx, xhcn => xax hooij chur nghiax ...
 
 - - -
 
