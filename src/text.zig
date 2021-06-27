@@ -96,8 +96,9 @@ pub const Text = struct {
         alphabet = 4, // + 2-bits => 16,17,18,19 ^P^Q^R^S
         non_alphabet = 5, // + 2-bits => 20,21,22,23 ^T^U^V^W
 
-        // Supplement category, used as to mark an intialized value
-        _none = 0,
+        // Supplement category
+        _none = 0, // used as an intialized value, need to process later
+        have_mark_or_tone = 6,
     };
 
     pub const TokenSurroundedBySpaces = enum(u2) {
@@ -167,10 +168,10 @@ pub const Text = struct {
         // Default, transform to itself :)
         self.transforms[self.tokens_number] = token;
 
-        const gop = if (token_attrs.category == .alphabet)
-            try self.alphabet_types.getOrPutValue(token, TypeInfo{})
+        const gop = if (token_attrs.category == .non_alphabet)
+            try self.non_alphabet_types.getOrPutValue(token, TypeInfo{})
         else
-            try self.non_alphabet_types.getOrPutValue(token, TypeInfo{});
+            try self.alphabet_types.getOrPutValue(token, TypeInfo{});
 
         gop.value_ptr.*.count += 1;
 
@@ -218,15 +219,6 @@ pub const Text = struct {
         }
         // END Convert input's utf-8 to output's ascii-telex
         return self.transformed_bytes[trans_start_at..bytes_len.*];
-    }
-
-    pub inline fn appendTramsformedBytes(self: *Text, b: u8) void {
-        self.transformed_bytes[self.transformed_bytes_len] = b;
-        self.transformed_bytes_len += 1;
-    }
-
-    pub inline fn overwriteCurrentTramsformedByte(self: *Text, b: u8) void {
-        self.transformed_bytes[self.transformed_bytes_len] = b;
     }
 
     const PAD = "                 ";
@@ -291,7 +283,7 @@ pub const Text = struct {
             const firt_byte_index = self.transformed_bytes_len;
             self.transformed_bytes_len += 1;
 
-            if (attrs.category == .alphabet) {
+            if (attrs.category != .non_alphabet) {
                 // Since token is alphabet, it's alphabet_types[i]'s info must existed
                 const type_info = self.alphabet_types.getPtr(token).?;
 
@@ -324,8 +316,9 @@ pub const Text = struct {
                         // Take syllable to create lowercase version
                         self.saveAndCountLowerSyllable(token, count) catch unreachable;
                     } else {
-                        // Not syllable thì chỉ có thể là alphabet
-                        type_info.*.category = .alphabet;
+                        // For non_alphabet attrs.category it can only
+                        // .alphabet or .have_mark_or_tone
+                        type_info.*.category = attrs.category;
                     }
                 }
 

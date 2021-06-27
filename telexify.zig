@@ -62,7 +62,12 @@ const TextFileTokenizer = struct {
         self.arena.deinit();
     }
 
-    const CharTypes = enum { alphabet_char, alphabet_char_can_be, space, non_alphabet_char };
+    const CharTypes = enum {
+        alphabet_char,
+        mark_or_tone_char,
+        space,
+        non_alphabet_char,
+    };
 
     pub fn segment(self: *TextFileTokenizer) !void {
         var index: usize = undefined;
@@ -82,6 +87,7 @@ const TextFileTokenizer = struct {
         var is_spacious_alphabet = true;
         // A spacious_non_alphabet is a whole non_space_token
         var is_spacious_non_alphabet = true;
+        var have_mark_or_tone = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
         var byte2: u8 = 0; // second byte of the utf-8 char (if needed)
@@ -161,21 +167,21 @@ const TextFileTokenizer = struct {
                     } else if (0b1100_0000 <= first_byte and first_byte <= 0b1101_1111) {
                         char_bytes_length = 2;
                         byte2 = input_bytes[index + 1];
-                        // Rough filter to see if it .alphabet_char_can_be
+                        // Rough filter to see if it .mark_or_tone_char
                         if (195 <= first_byte and first_byte <= 198 and
                             128 <= byte2 and byte2 <= 189)
-                            char_type = .alphabet_char_can_be;
+                            char_type = .mark_or_tone_char;
 
                         if ((first_byte == 204 or first_byte == 205) and
                             128 <= byte2 and byte2 <= 163)
-                            char_type = .alphabet_char_can_be;
+                            char_type = .mark_or_tone_char;
                         //
                     } else if (first_byte == 225) {
                         char_bytes_length = 3;
                         byte2 = input_bytes[index + 1];
-                        // Rough filter to see if it .alphabet_char_can_be
+                        // Rough filter to see if it .mark_or_tone_char
                         if (byte2 == 186 or byte2 == 187)
-                            char_type = .alphabet_char_can_be;
+                            char_type = .mark_or_tone_char;
                         //
                     } else if (0b1111_0000 <= first_byte and first_byte <= 0b1111_0111) {
                         char_bytes_length = 4;
@@ -202,7 +208,7 @@ const TextFileTokenizer = struct {
                         const token = input_bytes[non_space_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = .alphabet,
+                            .category = if (have_mark_or_tone) .have_mark_or_tone else .alphabet,
                             .surrounded_by_spaces = .both,
                         };
 
@@ -233,7 +239,7 @@ const TextFileTokenizer = struct {
                         const token = input_bytes[alphabet_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
-                            .category = .alphabet,
+                            .category = if (have_mark_or_tone) .have_mark_or_tone else .alphabet,
                             .surrounded_by_spaces = .right,
                         };
 
@@ -283,7 +289,7 @@ const TextFileTokenizer = struct {
                     }
                 }
                 // END char_type => .space
-            } else { // char_type => .alphabet_char{_can_be}, or .non_alphabet_char
+            } else { // char_type => .alphabet_char, or .non_alphabet_char
                 if (char_type == .non_alphabet_char) {
                     if (!in_non_space_token_zone) {
                         in_non_space_token_zone = true;
@@ -293,6 +299,7 @@ const TextFileTokenizer = struct {
                         non_alphabet_start_at = index;
                         is_spacious_alphabet = true;
                         is_spacious_non_alphabet = true;
+                        have_mark_or_tone = false;
                     }
 
                     is_spacious_alphabet = false;
@@ -305,7 +312,7 @@ const TextFileTokenizer = struct {
                             const first = alphabet_token_start_at == non_space_token_start_at;
 
                             const token_attrs: Text.TokenAttributes = .{
-                                .category = .alphabet,
+                                .category = if (have_mark_or_tone) .have_mark_or_tone else .alphabet,
                                 .surrounded_by_spaces = if (first) .left else .none,
                             };
 
@@ -314,7 +321,7 @@ const TextFileTokenizer = struct {
                         }
                     }
                     alphabet_token_start_at = next_index;
-                } else { // char_type => .alphabet_char{_can_be}
+                } else { // char_type => .alphabet_char, mark_or_tone_char
                     if (!in_non_space_token_zone) {
                         in_non_space_token_zone = true;
                         // Reset
@@ -323,9 +330,14 @@ const TextFileTokenizer = struct {
                         non_alphabet_start_at = next_index;
                         is_spacious_alphabet = true;
                         is_spacious_non_alphabet = true;
+                        have_mark_or_tone = false;
                     }
 
+                    if (char_type == .mark_or_tone_char)
+                        have_mark_or_tone = true;
+
                     is_spacious_non_alphabet = false;
+
                     if (!in_alphabet_token_zone) {
                         in_alphabet_token_zone = true;
                         // Record non_alphabet
@@ -409,6 +421,35 @@ const TextFileTokenizer = struct {
         _ = try output_file.writer().write(self.text.transformed_bytes[0..n]);
     }
 
+    fn write_alphabet_types_to_files(
+        self: TextFileTokenizer,
+        marktone_filename: []const u8,
+        alphabet_filename: []const u8,
+    ) !void {
+        var alphabet_file = try std.fs.cwd().createFile(alphabet_filename, .{});
+        var marktone_file = try std.fs.cwd().createFile(marktone_filename, .{});
+        defer alphabet_file.close();
+        defer marktone_file.close();
+
+        const max_token_len = 30;
+        var buffer: [max_token_len + 15]u8 = undefined;
+        const buff_slice = buffer[0..];
+
+        var it = self.text.alphabet_types.iterator();
+        while (it.next()) |kv| {
+            if (max_token_len < kv.key_ptr.*.len) {
+                print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
+                continue;
+            }
+            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.*.count, kv.key_ptr.* });
+            if (kv.value_ptr.*.category == .have_mark_or_tone) {
+                _ = try marktone_file.writer().write(result);
+            } else {
+                _ = try alphabet_file.writer().write(result);
+            }
+        }
+    }
+
     fn write_counts_to_file(self: TextFileTokenizer, counts: anytype, output_filename: []const u8) !void {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
@@ -477,14 +518,19 @@ pub fn main() anyerror!void {
     // Write out stats
     try tp.write_counts_to_file(
         tp.text.non_alphabet_types,
-        "_output/03-non_alphabet_types.txt",
+        "_output/05-non_alphabet_types.txt",
     );
 
-    try tp.write_mixed_tokens_to_file("_output/04-mixed_tokens.txt");
+    try tp.write_mixed_tokens_to_file(
+        "_output/06-mixed_tokens.txt",
+    );
 
     // Write sample of final output
     // try tp.write_output_file_from_tokens("_output/05_telexified_999.txt", 999);
-    try tp.write_output_file_from_buffer("_output/06-telexified_999.txt", 99999);
+    try tp.write_output_file_from_buffer(
+        "_output/07-telexified_999.txt",
+        99999,
+    );
 
     // Wait for sylabeling thread end
     thread.wait();
@@ -506,14 +552,17 @@ pub fn main() anyerror!void {
         tp.text.syllable_types,
         "_output/01-syllable_types.txt",
     );
-    try tp.write_counts_to_file(
-        tp.text.alphabet_types,
-        "_output/02-alphabet_types.txt",
-    );
+
     try tp.write_counts_to_file(
         tp.text.lower_syllable_types,
-        "_output/05-lower_syllables.txt",
+        "_output/02-lower_syllables.txt",
     );
+
+    try tp.write_alphabet_types_to_files(
+        "_output/03-marktone_types.txt",
+        "_output/04-alphabet_types.txt",
+    );
+
     // Final result
     try tp.write_output_file_from_buffer(output_filename, 0);
 
