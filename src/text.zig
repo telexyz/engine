@@ -73,6 +73,7 @@ pub const Text = struct {
     // To skip sleep time
     tokens_number_finalized: bool = false,
 
+    allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
@@ -123,16 +124,22 @@ pub const Text = struct {
     // Scan 2-bytes 1 sẽ cho tốc độ nhanh gấp 1.5 lần so với scan từng byte-1
 
     pub fn initFromFile(self: *Text, input_filename: []const u8) !void {
+        self.initAllocatorIfNeeded();
         var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
         defer input_file.close();
         var input_bytes = try input_file.reader().readAllAlloc(self.allocator, MAX_INPUT_FILE_SIZE);
         try self.initFromInputBytes(input_bytes);
     }
 
-    pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {
-        // Init will-be-used-from-now-on allocator from init_allocator
+    fn initAllocatorIfNeeded(self: *Text) void {
+        if (self.allocator_initialized) return;
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
         self.allocator = &self.arena.allocator;
+        self.allocator_initialized = true;
+    }
+
+    pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {
+        self.initAllocatorIfNeeded();
         self.input_bytes = input_bytes;
 
         const input_bytes_size = self.input_bytes.len;
