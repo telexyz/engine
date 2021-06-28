@@ -73,7 +73,6 @@ pub const Text = struct {
     // To skip sleep time
     tokens_number_finalized: bool = false,
 
-    init_from_file = false,
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
@@ -127,7 +126,7 @@ pub const Text = struct {
         var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
         defer input_file.close();
         var input_bytes = try input_file.reader().readAllAlloc(self.allocator, MAX_INPUT_FILE_SIZE);
-        initFromInputBytes(input_bytes);
+        try self.initFromInputBytes(input_bytes);
     }
 
     pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {

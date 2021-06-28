@@ -44,7 +44,7 @@ const Tokenizer = struct {
         space, // ' ' '\t' '\n'
     };
 
-    pub fn segment(self: *Tokenizer, text: Text) !void {
+    pub fn segment(self: *Tokenizer, text: *Text) !void {
         var index: usize = undefined;
         var next_index: usize = 0;
 
@@ -72,7 +72,7 @@ const Tokenizer = struct {
         var char_bytes_len: u3 = undefined; // an utf8 char may composed of 2,3,4 bytes
         var char_type: CharTypes = undefined;
 
-        const input_bytes = self.input_bytes;
+        const input_bytes = text.input_bytes;
         const bytes_len = input_bytes.len;
 
         const five_percent = bytes_len / 20;
@@ -458,11 +458,11 @@ fn write_counts_to_file(counts: anytype, output_filename: []const u8) !void {
     }
 }
 
-// Init a Tokenizer and a Text
-var tknz: Tokenizer = undefined;
-var text: Text = undefined;
-
 pub fn main() anyerror!void {
+    // Init a Tokenizer and a Text
+    var tknz: Tokenizer = undefined;
+    var text: Text = undefined;
+
     const start_time = time.milliTimestamp();
     print("\nstart_time {}\n", .{start_time});
 
@@ -501,8 +501,8 @@ pub fn main() anyerror!void {
     const init_mins = @intToFloat(f32, init_ms) / 60000;
     print("\nInit Done! Duration {} ms => {d:.2} mins\n\n", .{ init_ms, init_mins });
 
-    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &tknz.text);
-    try tknz.segment(text);
+    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
+    try tknz.segment(&text);
 
     const step1_ms = time.milliTimestamp() - start_time;
     const step1_mins = @intToFloat(f32, step1_ms) / 60000;
@@ -511,7 +511,7 @@ pub fn main() anyerror!void {
 
     // Write out stats
     try write_counts_to_file(
-        tknz.text.nonalpha_types,
+        text.nonalpha_types,
         "_output/05-nonalpha_types.txt",
     );
     try write_tokens_to_file(
@@ -521,7 +521,7 @@ pub fn main() anyerror!void {
 
     // Write sample of final output
     try write_text_tokens_to_file(
-        tknz.text,
+        text,
         "_output/07-telexified-777.txt",
         777,
     );
@@ -532,9 +532,9 @@ pub fn main() anyerror!void {
     // since there may be some last tokens was skipped before thread end
     // because sylabeling too fast and timeout before new tokens come
     // It's a very rare-case happend when the sleep() call fail.
-    tknz.text.tokens_number_finalized = true;
-    tknz.text.telexifyAlphabetTokens();
-    tknz.text.removeSyllablesFromAlphabetTypes();
+    text.tokens_number_finalized = true;
+    text.telexifyAlphabetTokens();
+    text.removeSyllablesFromAlphabetTypes();
 
     const step2_ms = time.milliTimestamp() - start_time;
     const step2_mins = @intToFloat(f32, step2_ms) / 60000;
@@ -543,26 +543,26 @@ pub fn main() anyerror!void {
     print("\nWriting final transformation to file ...\n", .{});
 
     try write_counts_to_file(
-        tknz.text.syllable_types,
+        text.syllable_types,
         "_output/01-syllable_types.txt",
     );
     try write_counts_to_file(
-        tknz.text.syllower_types,
+        text.syllower_types,
         "_output/02-syllower_types.txt",
     );
     try write_alphabet_types_to_files(
-        tknz.text.alphabet_types,
+        text.alphabet_types,
         "_output/03-marktone_types.txt",
         "_output/04-alphabet_types.txt",
     );
     try write_transforms_to_file(
-        tknz.text,
+        text,
         "_output/08-telexified-888.txt",
         888_888,
     );
     // Final result
     try write_transforms_to_file(
-        tknz.text,
+        text,
         output_filename,
         0,
     );
@@ -583,9 +583,9 @@ pub fn main() anyerror!void {
 //     defer tknz.deinit();
 
 //     try tknz.read_input_bytes_from_file("_input/corpus/test.txt");
-//     try tknz.text.init(tknz.input_bytes);
+//     try text.init(tknz.input_bytes);
 //     try tknz.segment();
 
-//     tknz.text.tokens_number_finalized = true;
-//     tknz.text.telexifyAlphabetTokens();
+//     text.tokens_number_finalized = true;
+//     text.telexifyAlphabetTokens();
 // }
