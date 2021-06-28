@@ -4,6 +4,7 @@ const print = std.debug.print;
 const Text = @import("./src/text.zig").Text;
 const TextokOutputHelpers = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
+const text_utils = @import("./src/text_utils.zig");
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
@@ -111,7 +112,7 @@ pub fn main() anyerror!void {
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
+    const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
     try tknz.segment(&text);
     const step1_time = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
 
@@ -124,7 +125,7 @@ pub fn main() anyerror!void {
     // because sylabeling too fast and timeout before new tokens come
     // It's a very rare-case happend when the sleep() call fail.
     text.tokens_number_finalized = true;
-    text.telexifyAlphabetTokens();
+    text_utils.telexifyAlphabetTokens(&text);
     const step2_time = showMeTimeLap(step0_time, "Step-2: Token syllabling finish!");
 
     print("\nWriting final results to file ...\n", .{});
