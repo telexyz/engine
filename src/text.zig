@@ -1,4 +1,5 @@
 const std = @import("std");
+const File = std.fs.File;
 
 const parsers = @import("./parsers.zig");
 const chars_utils = @import("./chars_utils.zig");
@@ -72,8 +73,10 @@ pub const Text = struct {
     // To skip sleep time
     tokens_number_finalized: bool = false,
 
+    init_from_file = false,
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
+    const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
     const BUFF_SIZE = 100; // incase input is small, estimated fail, so need buffer
 
@@ -120,12 +123,14 @@ pub const Text = struct {
     // 2/ khi scan chuỗi, thì scan 2-bytes một, check bytes[0] <= 32 thì đó là boundary
     // Scan 2-bytes 1 sẽ cho tốc độ nhanh gấp 1.5 lần so với scan từng byte-1
 
-    // Token attribute can be extracted from itself, \n for example
-    pub fn isNewLineToken(token: []const u8) bool {
-        return token[0] == '\n';
+    pub fn initFromFile(self: *Text, input_filename: []const u8) !void {
+        var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
+        defer input_file.close();
+        var input_bytes = try input_file.reader().readAllAlloc(self.allocator, MAX_INPUT_FILE_SIZE);
+        initFromInputBytes(input_bytes);
     }
 
-    pub fn init(self: *Text, input_bytes: []const u8) !void {
+    pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {
         // Init will-be-used-from-now-on allocator from init_allocator
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
         self.allocator = &self.arena.allocator;

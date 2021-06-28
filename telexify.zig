@@ -1,7 +1,6 @@
 const std = @import("std");
 const print = std.debug.print;
 const time = std.time;
-const File = std.fs.File;
 
 const Text = @import("./src/text.zig").Text;
 
@@ -24,34 +23,17 @@ const Tokenizer = struct {
     arena: std.heap.ArenaAllocator = undefined,
     allocator: *std.mem.Allocator = undefined,
 
-    input_bytes: []const u8 = undefined,
-
     // Mixed of alphabet and non-alphabet (or not-pure) tokens,
     // splitted by space delimiter
     mixed_tokens_map: std.StringHashMap(void) = undefined,
 
-    text: Text = undefined,
-
-    const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
-
     pub fn init(self: *Tokenizer) !void {
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
         self.allocator = &self.arena.allocator;
-        self.text = Text{ .init_allocator = self.init_allocator };
         self.mixed_tokens_map = std.StringHashMap(void).init(self.allocator);
     }
 
-    pub fn read_input_bytes_from_file(
-        self: *Tokenizer,
-        input_filename: []const u8,
-    ) !void {
-        var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
-        defer input_file.close();
-        self.input_bytes = try input_file.reader().readAllAlloc(self.allocator, MAX_INPUT_FILE_SIZE);
-    }
-
     pub fn deinit(self: *Tokenizer) void {
-        self.text.deinit();
         self.arena.deinit();
     }
 
@@ -62,7 +44,7 @@ const Tokenizer = struct {
         space, // ' ' '\t' '\n'
     };
 
-    pub fn segment(self: *Tokenizer) !void {
+    pub fn segment(self: *Tokenizer, text: Text) !void {
         var index: usize = undefined;
         var next_index: usize = 0;
 
@@ -208,7 +190,7 @@ const Tokenizer = struct {
                             .surrounded_by_spaces = .both,
                         };
 
-                        try self.text.countToken(token, token_attrs);
+                        try text.countToken(token, token_attrs);
                         if (counting_lines) printToken(token, token_attrs);
                         //
                     } else {
@@ -222,7 +204,7 @@ const Tokenizer = struct {
                                 .surrounded_by_spaces = .both,
                             };
 
-                            try self.text.countToken(token, token_attrs);
+                            try text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
                             //
                         } else {
@@ -239,7 +221,7 @@ const Tokenizer = struct {
                             .surrounded_by_spaces = .right,
                         };
 
-                        try self.text.countToken(token, token_attrs);
+                        try text.countToken(token, token_attrs);
                         if (counting_lines) printToken(token, token_attrs);
                         //
                     }
@@ -253,7 +235,7 @@ const Tokenizer = struct {
                             .surrounded_by_spaces = .right,
                         };
 
-                        try self.text.countToken(token, token_attrs);
+                        try text.countToken(token, token_attrs);
                         if (counting_lines) printToken(token, token_attrs);
                         //
                     }
@@ -267,7 +249,7 @@ const Tokenizer = struct {
                         .category = .nonalpha,
                         .surrounded_by_spaces = .none,
                     };
-                    try self.text.countToken(token, token_attrs);
+                    try text.countToken(token, token_attrs);
 
                     if (counting_lines) {
                         printToken(token, token_attrs);
@@ -314,7 +296,7 @@ const Tokenizer = struct {
                                 .surrounded_by_spaces = if (first) .left else .none,
                             };
 
-                            try self.text.countToken(token, token_attrs);
+                            try text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
                             //
                             contains_marktone_char = false;
@@ -352,7 +334,7 @@ const Tokenizer = struct {
                                 .surrounded_by_spaces = if (first) .left else .none,
                             };
 
-                            try self.text.countToken(token, token_attrs);
+                            try text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
                             //
                             contains_marktone_char = false;
@@ -476,8 +458,9 @@ fn write_counts_to_file(counts: anytype, output_filename: []const u8) !void {
     }
 }
 
-// Init and config a new Tokenizer
-var tp: Tokenizer = undefined;
+// Init a Tokenizer and a Text
+var tknz: Tokenizer = undefined;
+var text: Text = undefined;
 
 pub fn main() anyerror!void {
     const start_time = time.milliTimestamp();
@@ -499,23 +482,27 @@ pub fn main() anyerror!void {
     // Optional, get max_lines_count from args
     const max_lines_count: usize = if (args.nextPosix() != null) 1001 else 0;
 
-    tp = .{
+    tknz = .{
         .init_allocator = std.heap.page_allocator,
         .max_lines_count = max_lines_count,
     };
 
-    try tp.init();
-    defer tp.deinit();
+    text = .{
+        .init_allocator = std.heap.page_allocator,
+    };
 
-    try tp.read_input_bytes_from_file(input_filename);
-    try tp.text.init(tp.input_bytes);
+    try tknz.init();
+    defer tknz.deinit();
+
+    try text.initFromFile(input_filename);
+    defer text.deinit();
 
     const init_ms = time.milliTimestamp() - start_time;
     const init_mins = @intToFloat(f32, init_ms) / 60000;
     print("\nInit Done! Duration {} ms => {d:.2} mins\n\n", .{ init_ms, init_mins });
 
-    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &tp.text);
-    try tp.segment();
+    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &tknz.text);
+    try tknz.segment(text);
 
     const step1_ms = time.milliTimestamp() - start_time;
     const step1_mins = @intToFloat(f32, step1_ms) / 60000;
@@ -524,17 +511,17 @@ pub fn main() anyerror!void {
 
     // Write out stats
     try write_counts_to_file(
-        tp.text.nonalpha_types,
+        tknz.text.nonalpha_types,
         "_output/05-nonalpha_types.txt",
     );
     try write_tokens_to_file(
-        tp.mixed_tokens_map,
+        tknz.mixed_tokens_map,
         "_output/06-mixed_tokens.txt",
     );
 
     // Write sample of final output
     try write_text_tokens_to_file(
-        tp.text,
+        tknz.text,
         "_output/07-telexified-777.txt",
         777,
     );
@@ -545,9 +532,9 @@ pub fn main() anyerror!void {
     // since there may be some last tokens was skipped before thread end
     // because sylabeling too fast and timeout before new tokens come
     // It's a very rare-case happend when the sleep() call fail.
-    tp.text.tokens_number_finalized = true;
-    tp.text.telexifyAlphabetTokens();
-    tp.text.removeSyllablesFromAlphabetTypes();
+    tknz.text.tokens_number_finalized = true;
+    tknz.text.telexifyAlphabetTokens();
+    tknz.text.removeSyllablesFromAlphabetTypes();
 
     const step2_ms = time.milliTimestamp() - start_time;
     const step2_mins = @intToFloat(f32, step2_ms) / 60000;
@@ -556,26 +543,26 @@ pub fn main() anyerror!void {
     print("\nWriting final transformation to file ...\n", .{});
 
     try write_counts_to_file(
-        tp.text.syllable_types,
+        tknz.text.syllable_types,
         "_output/01-syllable_types.txt",
     );
     try write_counts_to_file(
-        tp.text.syllower_types,
+        tknz.text.syllower_types,
         "_output/02-syllower_types.txt",
     );
     try write_alphabet_types_to_files(
-        tp.text.alphabet_types,
+        tknz.text.alphabet_types,
         "_output/03-marktone_types.txt",
         "_output/04-alphabet_types.txt",
     );
     try write_transforms_to_file(
-        tp.text,
+        tknz.text,
         "_output/08-telexified-888.txt",
         888_888,
     );
     // Final result
     try write_transforms_to_file(
-        tp.text,
+        tknz.text,
         output_filename,
         0,
     );
@@ -587,18 +574,18 @@ pub fn main() anyerror!void {
     print("Duration {} ms => {d:.2} mins\n\n", .{ duration, minutes });
 }
 
-test "Tokenizer" {
-    var tp: Tokenizer = .{
-        .init_allocator = std.testing.allocator,
-        .max_lines_count = 100, // For testing process maximum 100 lines only
-    };
-    try tp.init();
-    defer tp.deinit();
+// test "Tokenizer" {
+//     var tp: Tokenizer = .{
+//         .init_allocator = std.testing.allocator,
+//         .max_lines_count = 100, // For testing process maximum 100 lines only
+//     };
+//     try tknz.init();
+//     defer tknz.deinit();
 
-    try tp.read_input_bytes_from_file("_input/corpus/test.txt");
-    try tp.text.init(tp.input_bytes);
-    try tp.segment();
+//     try tknz.read_input_bytes_from_file("_input/corpus/test.txt");
+//     try tknz.text.init(tknz.input_bytes);
+//     try tknz.segment();
 
-    tp.text.tokens_number_finalized = true;
-    tp.text.telexifyAlphabetTokens();
-}
+//     tknz.text.tokens_number_finalized = true;
+//     tknz.text.telexifyAlphabetTokens();
+// }
