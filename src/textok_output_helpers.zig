@@ -1,5 +1,5 @@
 const std = @import("std");
-const Text = @import("./text.zig").Text;
+const Text = @import("./text_data_struct.zig").Text;
 
 pub const TextokOutputHelpers = struct {
     pub fn write_tokens_to_file(tokens_map: std.StringHashMap(void), output_filename: []const u8) !void {

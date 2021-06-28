@@ -16,9 +16,9 @@ Mã hóa độ dài token: `switch(lencode) {`
 * 15-31: 09-25          `15...31 => token_len = lencode - 6,`
 * 11,12: >= 26             `else =>  ... ... ... , }`
 
-Mã hóa token attrs khi đi cùng ascii/utf8 text (IMPLEMENTED in `text.zig`)
+Mã hóa token attrs khi đi cùng ascii/utf8 text (IMPLEMENTED in `text_data_struct.zig`)
 ```js
-// src/text.zig
+// src/text_data_struct.zig
 // Còn dư hai full-slots 0,1 và hai half-slots 2,4
     pub const TokenCategory = enum(u6) {
         // Dùng được 27 invisible ascii chars, 1-8,11, 12,15-31

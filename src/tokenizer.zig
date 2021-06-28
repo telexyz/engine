@@ -1,7 +1,8 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const Text = @import("./text.zig").Text;
+const Text = @import("./text_data_struct.zig").Text;
+const text_utils = @import("./text_utils.zig");
 
 inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void {
     if (token[0] == '\n') {
@@ -366,5 +367,5 @@ test "Tokenizer" {
     try tknz.segment(&text);
 
     text.tokens_number_finalized = true;
-    text.telexifyAlphabetTokens();
+    text_utils.telexifyAlphabetTokens(&text);
 }

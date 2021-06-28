@@ -4,7 +4,7 @@ const print = std.debug.print;
 const parsers = @import("./parsers.zig");
 const chars_utils = @import("./chars_utils.zig");
 const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
-const Text = @import("./text.zig").Text;
+const Text = @import("./text_data_struct.zig").Text;
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)

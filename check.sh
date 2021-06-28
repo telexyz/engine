@@ -8,7 +8,7 @@
 
 ~/zig test test_against_vn_syllables.zig
 
-~/zig test src/text.zig
+~/zig test src/text_data_struct.zig
 
 ~/zig test src/tokenizer.zig
 

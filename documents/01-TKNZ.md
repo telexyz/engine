@@ -16,7 +16,7 @@ TODO:
 
 * Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
-* More test cases for `telexify.zig` and `src/text.zig`
+* More test cases for `telexify.zig` and `src/text_data_struct.zig`
 
 [ DONE ]
 

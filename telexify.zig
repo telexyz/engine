@@ -1,7 +1,7 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const Text = @import("./src/text.zig").Text;
+const Text = @import("./src/text_data_struct.zig").Text;
 const TextokOutputHelpers = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 const text_utils = @import("./src/text_utils.zig");
