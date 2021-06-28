@@ -413,10 +413,9 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 test "Text" {
     var text = Text{
         .init_allocator = std.testing.allocator,
-        .input_bytes = "Cả nhà ơi, thử nghiệm nhé, cả nhà !",
     };
 
-    try text.init();
+    try text.initFromInputBytes("Cả nhà ơi, thử nghiệm nhé, cả nhà !");
     defer text.deinit();
 
     // Text is a struct with very basic function

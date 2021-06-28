@@ -33,6 +33,7 @@ pub const Tokenizer = struct {
     }
 
     pub fn deinit(self: *Tokenizer) void {
+        // self.mixed_tokens_map.deinit();
         self.arena.deinit();
     }
 
@@ -351,12 +352,14 @@ test "Tokenizer" {
         .init_allocator = std.testing.allocator,
         .max_lines_count = 100, // For testing process maximum 100 lines only
     };
+    var text: Text = .{
+        .init_allocator = std.testing.allocator,
+    };
     try tknz.init();
     defer tknz.deinit();
 
-    try tknz.read_input_bytes_from_file("_input/corpus/test.txt");
-    try text.init(tknz.input_bytes);
-    try tknz.segment();
+    try text.initFromFile("_input/corpus/test.txt");
+    try tknz.segment(&text);
 
     text.tokens_number_finalized = true;
     text.telexifyAlphabetTokens();
