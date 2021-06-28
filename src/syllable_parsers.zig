@@ -631,7 +631,7 @@ test "canBeVietnamese() // No-tone and/or no-mark" {
     try expect(canBeVietnamese("ox") == true);
 }
 
-const syllableToAmTiet = @import("converters.zig").syllableToAmTiet;
+const syllableToAmTiet = @import("syllable_converters.zig").syllableToAmTiet;
 fn strToAmTiet(str: []const u8) []const u8 {
     return syllableToAmTiet(parseAmTietToGetSyllable(false, printNothing, str));
     // return parseAmTietToGetSyllable(false, printNothing, str).toStr();

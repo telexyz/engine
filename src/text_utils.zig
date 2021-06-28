@@ -1,7 +1,7 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const parsers = @import("./parsers.zig");
+const parsers = @import("./syllable_parsers.zig");
 const chars_utils = @import("./chars_utils.zig");
 const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
 const Text = @import("./text_data_struct.zig").Text;

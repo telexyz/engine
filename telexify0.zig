@@ -11,7 +11,7 @@ const time = std.time;
 const unicode = std.unicode;
 const File = std.fs.File;
 
-const parsers = @import("./src/parsers.zig");
+const parsers = @import("./src/syllable_parsers.zig");
 const telex_utils = @import("./src/telex_utils.zig");
 const chars_utils = @import("./src/chars_utils.zig");
 const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;

@@ -1,6 +1,6 @@
 const std = @import("std");
 const fmt = std.fmt;
-const parseAmTietToGetSyllable = @import("./src/parsers.zig").parseAmTietToGetSyllable;
+const parseAmTietToGetSyllable = @import("./src/syllable_parsers.zig").parseAmTietToGetSyllable;
 
 // Flexible print function so it can print debug info to various
 // runtime environment (e.g: native, wasm ...), or just do nothing :^)

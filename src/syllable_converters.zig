@@ -8,7 +8,7 @@ const AmGiua = syllable_data_structs.AmGiua;
 const AmCuoi = syllable_data_structs.AmCuoi;
 const Tone = syllable_data_structs.Tone;
 
-const parseAmTietToGetSyllable = @import("./parsers.zig").parseAmTietToGetSyllable;
+const parseAmTietToGetSyllable = @import("./syllable_parsers.zig").parseAmTietToGetSyllable;
 
 const AM_GIUA_BITS_OFFSET = 5;
 const AM_CUOI_BITS_OFFSET = 10;

@@ -1,7 +1,7 @@
 const std = @import("std");
 const print = std.debug.print;
 const time = std.time;
-const parsers = @import("./parsers.zig");
+const parsers = @import("./syllable_parsers.zig");
 
 pub fn main() anyerror!void {
     var args = std.process.args();

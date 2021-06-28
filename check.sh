@@ -2,9 +2,9 @@
 
 # zig test src/syllable_data_structs.zig
 
-# zig test src/parsers.zig
+# zig test src/syllable_parsers.zig
 
-# zig test src/converters.zig
+# zig test src/syllable_converters.zig
 
 ~/zig test test_against_vn_syllables.zig
 
