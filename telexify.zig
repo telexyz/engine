@@ -1,13 +1,8 @@
 const std = @import("std");
 const print = std.debug.print;
 const time = std.time;
-const unicode = std.unicode;
 const File = std.fs.File;
 
-const parsers = @import("./src/parsers.zig");
-const telex_utils = @import("./src/telex_utils.zig");
-const chars_utils = @import("./src/chars_utils.zig");
-const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
 const Text = @import("./src/text.zig").Text;
 
 inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void {
@@ -22,14 +17,13 @@ inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void 
     }
 }
 
-const TextFileTokenizer = struct {
+const Tokenizer = struct {
     max_lines_count: usize = 0,
 
-    init_allocator: *std.mem.Allocator,
+    init_allocator: *std.mem.Allocator = undefined,
     arena: std.heap.ArenaAllocator = undefined,
     allocator: *std.mem.Allocator = undefined,
 
-    input_file: File = undefined,
     input_bytes: []const u8 = undefined,
 
     // Mixed of alphabet and non-alphabet (or not-pure) tokens,
@@ -40,42 +34,45 @@ const TextFileTokenizer = struct {
 
     const MAX_INPUT_FILE_SIZE = 600 * 1024 * 1024; // 600mb
 
-    pub fn init(self: *TextFileTokenizer, input_filename: []const u8) !void {
+    pub fn init(self: *Tokenizer) !void {
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
         self.allocator = &self.arena.allocator;
-
-        self.input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
-        self.input_bytes = try self.input_file.reader().readAllAlloc(self.allocator, MAX_INPUT_FILE_SIZE);
-
-        self.text = Text{
-            .init_allocator = self.init_allocator,
-            .input_bytes = self.input_bytes,
-        };
-        try self.text.init();
-
+        self.text = Text{ .init_allocator = self.init_allocator };
         self.mixed_tokens_map = std.StringHashMap(void).init(self.allocator);
     }
 
-    pub fn deinit(self: *TextFileTokenizer) void {
-        self.input_file.close();
+    pub fn read_input_bytes_from_file(
+        self: *Tokenizer,
+        input_filename: []const u8,
+    ) !void {
+        var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
+        defer input_file.close();
+        self.input_bytes = try input_file.reader().readAllAlloc(self.allocator, MAX_INPUT_FILE_SIZE);
+    }
+
+    pub fn deinit(self: *Tokenizer) void {
         self.text.deinit();
         self.arena.deinit();
     }
 
     const CharTypes = enum {
-        alphabet_char,
+        alphabet_char, // a..zA..Z
         marktone_char, // https://vi.wikipedia.org/wiki/Dấu_phụ
-        nonalpha_char,
-        space,
+        nonalpha_char, // 30%-100%. 91 30% 100%. 30-100% 91. 2017 21/6, 1.148 1&
+        space, // ' ' '\t' '\n'
     };
 
-    pub fn segment(self: *TextFileTokenizer) !void {
+    pub fn segment(self: *Tokenizer) !void {
         var index: usize = undefined;
         var next_index: usize = 0;
 
         // Any text can be defined as a sequence of nonspace_token|space_token|...
-        // A nonspace_token can be a alphabet_token or a nonalpha or
+        // A nonspace_token can be an alphabet_token or a nonalpha_token or
         // is composed of alphabet|nonalpha|... alternatively
+        // Later we will break alphabet_token into:
+        // * syllable
+        // * marktone
+        // And remaining is alphabet (a-zA-Z)
 
         var nonspace_token_start_at: usize = 0;
         var alphabet_token_start_at: usize = 0;
@@ -89,8 +86,8 @@ const TextFileTokenizer = struct {
         var contains_marktone_char = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
-        var byte2: u8 = 0; // second byte of the utf-8 char (if needed)
-        var char_bytes_length: u3 = undefined;
+        var second_byte: u8 = 0; // second byte of the utf-8 char (if needed)
+        var char_bytes_len: u3 = undefined; // an utf8 char may composed of 2,3,4 bytes
         var char_type: CharTypes = undefined;
 
         const input_bytes = self.input_bytes;
@@ -109,11 +106,11 @@ const TextFileTokenizer = struct {
             index = next_index;
             first_byte = input_bytes[index];
 
-            // char_bytes_length can be 1,2,3,4 depend on which
+            // char_bytes_len can be 1,2,3,4 depend on which
             // what is the next utf-8 char in the input stream
             // We process ascii char (first_byte < 128) first
-            // so we init char_bytes_length value to 1
-            char_bytes_length = 1;
+            // so we init char_bytes_len value to 1
+            char_bytes_len = 1;
 
             // The main purpose of the switch filter here is to split input utf-8 char
             // stream into tokens and SPACE delimiters - the MOST FUNDAMENTAL segmentation:
@@ -159,38 +156,38 @@ const TextFileTokenizer = struct {
                         @panic("error.Utf8InvalidStartByte");
                     }
 
-                    // The most important thing here is we determine char_bytes_length
+                    // The most important thing here is we determine char_bytes_len
                     // So later we increase next_index pointer to a VALID byte
                     if (first_byte <= 0b0111_1111) {
-                        char_bytes_length = 1;
+                        char_bytes_len = 1;
                     } else if (0b1100_0000 <= first_byte and first_byte <= 0b1101_1111) {
-                        char_bytes_length = 2;
-                        byte2 = input_bytes[index + 1];
+                        char_bytes_len = 2;
+                        second_byte = input_bytes[index + 1];
                         // Rough filter to see if it .marktone_char
                         if (195 <= first_byte and first_byte <= 198 and
-                            128 <= byte2 and byte2 <= 189)
+                            128 <= second_byte and second_byte <= 189)
                             char_type = .marktone_char;
 
                         if ((first_byte == 204 or first_byte == 205) and
-                            128 <= byte2 and byte2 <= 163)
+                            128 <= second_byte and second_byte <= 163)
                             char_type = .marktone_char;
                         //
                     } else if (first_byte == 225) {
-                        char_bytes_length = 3;
-                        byte2 = input_bytes[index + 1];
+                        char_bytes_len = 3;
+                        second_byte = input_bytes[index + 1];
                         // Rough filter to see if it .marktone_char
-                        if (byte2 == 186 or byte2 == 187)
+                        if (second_byte == 186 or second_byte == 187)
                             char_type = .marktone_char;
                         //
                     } else if (0b1111_0000 <= first_byte and first_byte <= 0b1111_0111) {
-                        char_bytes_length = 4;
+                        char_bytes_len = 4;
                     } else {
-                        char_bytes_length = 3;
+                        char_bytes_len = 3;
                     }
                 },
             }
             // Point the next_index pointer to the next VALID byte
-            next_index = index + char_bytes_length;
+            next_index = index + char_bytes_len;
 
             if (char_type == .space) {
                 // in_nonspace_token_zone bool variable let us know that if the
@@ -366,95 +363,97 @@ const TextFileTokenizer = struct {
             }
         } // End main loop
     }
-
-    fn write_mixed_tokens_to_file(self: *TextFileTokenizer, output_filename: []const u8) !void {
-        var file = try std.fs.cwd().createFile(output_filename, .{});
-        defer file.close();
-        var tokens_count: usize = 0;
-        var it = self.mixed_tokens_map.iterator();
-        while (it.next()) |kv| {
-            const token = kv.key_ptr.*;
-
-            _ = try file.writer().write(token);
-            tokens_count += 1;
-
-            if (@rem(tokens_count, 12) == 0)
-                _ = try file.writer().write("\n")
-            else
-                _ = try file.writer().write("   ");
-        }
-    }
-
-    fn write_output_file_from_tokens(
-        self: TextFileTokenizer,
-        output_filename: []const u8,
-        max: usize,
-    ) !void {
-        var n = self.text.tokens_number;
-        if (max > 0 and n > max) n = max;
-        // Open files to write transformed input data (final result)
-        var output_file = try std.fs.cwd().createFile(output_filename, .{});
-        defer output_file.close();
-
-        var i: usize = 0;
-
-        while (i < n) : (i += 1) {
-            const attrs = self.text.tokens_attrs[i];
-            var token = self.text.tokens[i];
-
-            if (attrs.category == .syllable) {
-                token = self.text.transforms[i];
-            }
-            _ = try output_file.writer().write(token);
-
-            if (attrs.surrounded_by_spaces == .both or
-                attrs.surrounded_by_spaces == .right)
-                _ = try output_file.writer().write(" ");
-        }
-    }
-
-    fn write_output_file_from_buffer(
-        self: TextFileTokenizer,
-        output_filename: []const u8,
-        max: usize,
-    ) !void {
-        var n = self.text.transformed_bytes_len;
-        if (max > 0 and n > max) n = max;
-        // Open files to write transformed input data (final result)
-        var output_file = try std.fs.cwd().createFile(output_filename, .{});
-        defer output_file.close();
-        _ = try output_file.writer().write(self.text.transformed_bytes[0..n]);
-    }
-
-    fn write_alphabet_types_to_files(
-        self: TextFileTokenizer,
-        marktone_filename: []const u8,
-        alphabet_filename: []const u8,
-    ) !void {
-        var alphabet_file = try std.fs.cwd().createFile(alphabet_filename, .{});
-        var marktone_file = try std.fs.cwd().createFile(marktone_filename, .{});
-        defer alphabet_file.close();
-        defer marktone_file.close();
-
-        const max_token_len = 30;
-        var buffer: [max_token_len + 15]u8 = undefined;
-        const buff_slice = buffer[0..];
-
-        var it = self.text.alphabet_types.iterator();
-        while (it.next()) |kv| {
-            if (max_token_len < kv.key_ptr.*.len) {
-                print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
-                continue;
-            }
-            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.*.count, kv.key_ptr.* });
-            if (kv.value_ptr.*.category == .marktone) {
-                _ = try marktone_file.writer().write(result);
-            } else {
-                _ = try alphabet_file.writer().write(result);
-            }
-        }
-    }
 };
+
+fn write_tokens_to_file(tokens_map: std.StringHashMap(void), output_filename: []const u8) !void {
+    var file = try std.fs.cwd().createFile(output_filename, .{});
+    defer file.close();
+
+    var count: usize = 0;
+    var it = tokens_map.iterator();
+
+    while (it.next()) |kv| {
+        const token = kv.key_ptr.*;
+
+        _ = try file.writer().write(token);
+        count += 1;
+
+        if (@rem(count, 12) == 0)
+            _ = try file.writer().write("\n")
+        else
+            _ = try file.writer().write("   ");
+    }
+}
+
+fn write_text_tokens_to_file(
+    text: Text,
+    output_filename: []const u8,
+    max: usize,
+) !void {
+    var n = text.tokens_number;
+    if (max > 0 and n > max) n = max;
+    // Open files to write transformed input data (final result)
+    var output_file = try std.fs.cwd().createFile(output_filename, .{});
+    defer output_file.close();
+
+    var i: usize = 0;
+
+    while (i < n) : (i += 1) {
+        const attrs = text.tokens_attrs[i];
+        var token = text.tokens[i];
+
+        if (attrs.category == .syllable) {
+            token = text.transforms[i];
+        }
+        _ = try output_file.writer().write(token);
+
+        if (attrs.surrounded_by_spaces == .both or
+            attrs.surrounded_by_spaces == .right)
+            _ = try output_file.writer().write(" ");
+    }
+}
+
+fn write_transforms_to_file(
+    text: Text,
+    output_filename: []const u8,
+    max: usize,
+) !void {
+    var n = text.transformed_bytes_len;
+    if (max > 0 and n > max) n = max;
+    // Open files to write transformed input data (final result)
+    var output_file = try std.fs.cwd().createFile(output_filename, .{});
+    defer output_file.close();
+    _ = try output_file.writer().write(text.transformed_bytes[0..n]);
+}
+
+fn write_alphabet_types_to_files(
+    alphabet_types: std.StringHashMap(Text.TypeInfo),
+    marktone_filename: []const u8,
+    alphabet_filename: []const u8,
+) !void {
+    var alphabet_file = try std.fs.cwd().createFile(alphabet_filename, .{});
+    var marktone_file = try std.fs.cwd().createFile(marktone_filename, .{});
+    defer alphabet_file.close();
+    defer marktone_file.close();
+
+    const max_token_len = 30;
+    var buffer: [max_token_len + 15]u8 = undefined;
+    const buff_slice = buffer[0..];
+
+    var it = alphabet_types.iterator();
+    while (it.next()) |kv| {
+        if (max_token_len < kv.key_ptr.*.len) {
+            print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
+            continue;
+        }
+        const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.*.count, kv.key_ptr.* });
+        if (kv.value_ptr.*.category == .marktone) {
+            _ = try marktone_file.writer().write(result);
+        } else {
+            _ = try alphabet_file.writer().write(result);
+        }
+    }
+}
 
 fn write_counts_to_file(counts: anytype, output_filename: []const u8) !void {
     var output_file = try std.fs.cwd().createFile(output_filename, .{});
@@ -477,8 +476,8 @@ fn write_counts_to_file(counts: anytype, output_filename: []const u8) !void {
     }
 }
 
-// Init and config a new TextFileTokenizer
-var tp: TextFileTokenizer = undefined;
+// Init and config a new Tokenizer
+var tp: Tokenizer = undefined;
 
 pub fn main() anyerror!void {
     const start_time = time.milliTimestamp();
@@ -505,8 +504,11 @@ pub fn main() anyerror!void {
         .max_lines_count = max_lines_count,
     };
 
-    try tp.init(input_filename);
+    try tp.init();
     defer tp.deinit();
+
+    try tp.read_input_bytes_from_file(input_filename);
+    try tp.text.init(tp.input_bytes);
 
     const init_ms = time.milliTimestamp() - start_time;
     const init_mins = @intToFloat(f32, init_ms) / 60000;
@@ -525,12 +527,14 @@ pub fn main() anyerror!void {
         tp.text.nonalpha_types,
         "_output/05-nonalpha_types.txt",
     );
-    try tp.write_mixed_tokens_to_file(
+    try write_tokens_to_file(
+        tp.mixed_tokens_map,
         "_output/06-mixed_tokens.txt",
     );
 
     // Write sample of final output
-    try tp.write_output_file_from_tokens(
+    try write_text_tokens_to_file(
+        tp.text,
         "_output/07-telexified-777.txt",
         777,
     );
@@ -559,16 +563,22 @@ pub fn main() anyerror!void {
         tp.text.syllower_types,
         "_output/02-syllower_types.txt",
     );
-    try tp.write_alphabet_types_to_files(
+    try write_alphabet_types_to_files(
+        tp.text.alphabet_types,
         "_output/03-marktone_types.txt",
         "_output/04-alphabet_types.txt",
     );
-    try tp.write_output_file_from_buffer(
+    try write_transforms_to_file(
+        tp.text,
         "_output/08-telexified-888.txt",
         888_888,
     );
     // Final result
-    try tp.write_output_file_from_buffer(output_filename, 0);
+    try write_transforms_to_file(
+        tp.text,
+        output_filename,
+        0,
+    );
 
     const end_time = time.milliTimestamp();
     print("\nend_time {}\n", .{end_time});
@@ -577,14 +587,18 @@ pub fn main() anyerror!void {
     print("Duration {} ms => {d:.2} mins\n\n", .{ duration, minutes });
 }
 
-test "Telexify" {
-    var tfp: TextFileTokenizer = .{
+test "Tokenizer" {
+    var tp: Tokenizer = .{
         .init_allocator = std.testing.allocator,
         .max_lines_count = 100, // For testing process maximum 100 lines only
     };
-    try tfp.init("_input/corpus/corpus-title-sample.txt");
-    defer tfp.deinit();
-    try tfp.segment();
-    tfp.text.tokens_number_finalized = true;
-    tfp.text.telexifyAlphabetTokens();
+    try tp.init();
+    defer tp.deinit();
+
+    try tp.read_input_bytes_from_file("_input/corpus/test.txt");
+    try tp.text.init(tp.input_bytes);
+    try tp.segment();
+
+    tp.text.tokens_number_finalized = true;
+    tp.text.telexifyAlphabetTokens();
 }

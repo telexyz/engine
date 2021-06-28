@@ -18,7 +18,7 @@ pub const Text = struct {
     // Done with boring allocators, now we describe the Text struct
     // First of all text is an input byte stream
     // we must initlized input_bytes somewhere and provide it to Text struct is created
-    input_bytes: []const u8,
+    input_bytes: []const u8 = undefined,
 
     // The we split input bytes into a list of tokens
     // A toke is a slice of []const u8, that point to the original input bytes
@@ -124,10 +124,11 @@ pub const Text = struct {
     }
 
     const BUFF_SIZE = 100;
-    pub fn init(self: *Text) !void {
+    pub fn init(self: *Text, input_bytes: []const u8) !void {
         // Init will-be-used-from-now-on allocator from init_allocator
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
         self.allocator = &self.arena.allocator;
+        self.input_bytes = input_bytes;
 
         const input_bytes_size = self.input_bytes.len;
         var est_token_num = &self.estimated_tokens_number;

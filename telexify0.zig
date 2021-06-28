@@ -1,3 +1,10 @@
+// The simplest and fastest original version of the text processing module:
+// combine of a tokenizer and a syllabelizer. KEEP FOR REFERENCE
+// Newer version split code into functionalities:
+// * src/tokenizer.zig concentrate on input_bytes scanning and plit into tokens
+// * src/text.zig data struct to contains tokens, types ...
+//   transforms them and do stats
+
 const std = @import("std");
 const print = std.debug.print;
 const time = std.time;
