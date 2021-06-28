@@ -1,10 +1,6 @@
 const std = @import("std");
 const File = std.fs.File;
 
-const parsers = @import("./parsers.zig");
-const chars_utils = @import("./chars_utils.zig");
-const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
-
 pub const Text = struct {
     // Must be init when text is created
     init_allocator: *std.mem.Allocator,
@@ -198,201 +194,6 @@ pub const Text = struct {
         self.tokens_number += 1;
     }
 
-    pub fn saveAndReturnTrans(self: *Text, char_stream: U2ACharStream) []const u8 {
-        // Convert input's utf-8 to output's ascii-telex
-        const bytes_len = &self.transformed_bytes_len;
-        const trans_start_at = bytes_len.*;
-
-        if (char_stream.is_upper_case) {
-            var i: usize = 0;
-            while (i < char_stream.len) : (i += 1) {
-                // Upper case the whole input bytes
-                self.transformed_bytes[bytes_len.*] =
-                    char_stream.buffer[i] & 0b11011111;
-                bytes_len.* += 1;
-            }
-            if (char_stream.tone != 0) {
-                self.transformed_bytes[bytes_len.*] =
-                    char_stream.tone & 0b11011111;
-                bytes_len.* += 1;
-            }
-        } else {
-            var i: usize = 0;
-            // Upper case the first letter
-            if (char_stream.is_title_case) {
-                self.transformed_bytes[bytes_len.*] =
-                    char_stream.buffer[0] & 0b11011111;
-                bytes_len.* += 1;
-                i = 1; // skip the first byte
-            }
-            // Copy the rest
-            while (i < char_stream.len) {
-                self.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
-                i += 1;
-                bytes_len.* += 1;
-            }
-            if (char_stream.tone != 0) {
-                self.transformed_bytes[bytes_len.*] = char_stream.tone;
-                bytes_len.* += 1;
-            }
-        }
-        // END Convert input's utf-8 to output's ascii-telex
-        return self.transformed_bytes[trans_start_at..bytes_len.*];
-    }
-
-    const PAD = "                 ";
-    pub fn telexifyAlphabetTokens(self: *Text) void {
-        @setRuntimeSafety(false);
-        var char_stream = U2ACharStream.new();
-        var prev_percent: u64 = 0;
-
-        const max_sleeps: u8 = 2;
-        const sleep_time: u64 = 600_000_000; // nanosec
-        var sleeps_count: u8 = 0;
-
-        var i: *usize = &self.processed_types_count;
-        while (i.* <= self.tokens_number) : (i.* += 1) {
-            // Check if reach the end of tokens list
-            if (i.* == self.tokens_number) {
-                // If no more tokens for sure then return
-                if (self.tokens_number_finalized) return;
-                // BEGIN waiting for new tokens (all tokens is processed)
-                while (sleeps_count < max_sleeps and i.* == self.tokens_number) {
-                    std.time.sleep(sleep_time);
-                    sleeps_count += 1;
-                    std.debug.print("{s}... wait new tokens\n", .{PAD});
-                }
-                if (i.* == self.tokens_number) {
-                    // No new token and timeout
-                    return;
-                } else {
-                    // Reset sleep counter and continue
-                    sleeps_count = 0;
-                }
-            } // END waiting for new tokens
-
-            // Init token and it's attributes shortcuts
-            var token = self.tokens[i.*];
-
-            // is NewLine token
-            if (token[0] == '\n') {
-                self.transformed_bytes[self.transformed_bytes_len] = '\n';
-                self.transformed_bytes_len += 1;
-
-                // Show token parsing progress
-                const percent: u64 = if (!self.tokens_number_finalized)
-                    (100 * self.transformed_bytes_len) / self.transformed_bytes_size
-                else
-                    (100 * i.*) / self.tokens_number;
-
-                if (percent > prev_percent) {
-                    prev_percent = percent;
-                    if (@rem(percent, 3) == 0)
-                        std.debug.print("{s}{d}% Syllabling\n", .{ PAD, percent });
-                }
-
-                continue;
-            }
-
-            //  and it's attributes shortcuts
-            var attrs = &self.tokens_attrs[i.*];
-            var token_written = false;
-
-            // Reserver first-byte to write token attrs
-            const firt_byte_index = self.transformed_bytes_len;
-            self.transformed_bytes_len += 1;
-
-            if (attrs.category != .nonalpha) {
-                // Since token is alphabet, it's alphabet_types[i]'s info must existed
-                const type_info = self.alphabet_types.getPtr(token).?;
-
-                if (type_info.*.category == ._none) {
-                    // Not transformed yet
-                    char_stream.reset();
-                    const syllable = parsers.parseTokenToGetSyllable(
-                        true,
-                        printNothing,
-                        &char_stream,
-                        token,
-                    );
-
-                    if (syllable.can_be_vietnamese) {
-                        // First time convert type to syllable
-                        type_info.*.category = .syllable;
-                        // Point token value to it's syllable trans
-                        token = self.saveAndReturnTrans(char_stream);
-                        type_info.*.transform = token;
-                        // First token point to this syllable trans don't need
-                        // to write data, later, mark token_written = true to know
-                        token_written = true;
-
-                        // Record and count syllable
-                        const count = type_info.*.count;
-                        const gop =
-                            self.syllable_types.getOrPutValue(token, 0) catch null;
-                        gop.?.value_ptr.* += count;
-
-                        // Take syllable to create lowercase version
-                        self.saveAndCountLowerSyllable(token, count) catch unreachable;
-                    } else {
-
-                        // For non-syllable, attrs.category can only
-                        // be .alphabet or .marktone
-                        type_info.*.category = attrs.category;
-
-                        // if (char_stream.hasMarkOrTone()) {
-                        //     type_info.*.category = .marktone;
-                        // } else {
-                        //     var n = char_stream.len;
-                        //     if (char_stream.tone != 0) n += 1;
-
-                        //     type_info.*.category = if (n >= token.len)
-                        //         TokenCategory.alphabet
-                        //     else
-                        //         attrs.category;
-                        // }
-
-                        // DEBUG
-                        // if (token[0] == 'c' and token[1] == 'p') {
-                        //     std.debug.print("{s} => {}; {s} => {}\n\n", .{ token, attrs.category, char_stream.toStr(), char_stream.hasMarkOrTone() });
-                        //     std.debug.print("\n{s} {s} {s} {s}\n\n", .{ self.tokens[i.* + 1], self.tokens[i.* + 2], self.tokens[i.* + 3], self.tokens[i.* + 4] });
-                        // }
-                    }
-                }
-
-                if (type_info.*.category == .syllable) {
-                    attrs.category = .syllable;
-                    // Point token value to it's syllable trans
-                    token = type_info.*.transform;
-                    self.transforms[i.*] = token;
-                }
-            } // attrs.category == .alphabet
-
-            if (!token_written) {
-                // write original token it's is not syllable
-                for (token) |b| {
-                    self.transformed_bytes[self.transformed_bytes_len] = b;
-                    self.transformed_bytes_len += 1;
-                }
-            }
-            // Write attrs at the begin of token's ouput stream
-            self.transformed_bytes[firt_byte_index] = @bitCast(u8, attrs.*);
-        }
-    }
-
-    pub fn saveAndCountLowerSyllable(self: *Text, token: []const u8, count: u32) !void {
-        const next = self.syllower_bytes_len + token.len;
-        const lsyll = self.syllower_bytes[self.syllower_bytes_len..next];
-        // To lower
-        for (token) |c, i| {
-            lsyll[i] = c | 0b00100000;
-        }
-        const gop = try self.syllower_types.getOrPutValue(lsyll, 0);
-        gop.value_ptr.* += count;
-
-        self.syllower_bytes_len = next;
-    }
-
     pub fn removeSyllablesFromAlphabetTypes(self: *Text) void {
         if (!self.tokens_number_finalized) return;
 
@@ -405,10 +206,7 @@ pub const Text = struct {
     }
 };
 
-fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
-    if (false)
-        std.debug.print(fmt_str, args);
-}
+const text_utils = @import("./text_utils.zig");
 
 test "Text" {
     var text = Text{
@@ -420,6 +218,8 @@ test "Text" {
 
     // Text is a struct with very basic function
     // It's up to tokenizer to split the text and assign value to tokens[i]
+    // Here is the simplest tokenizer based on space delimiter
+    // std.mem.tokenize is a Zig standard library function to deal with byte stream
     var it = std.mem.tokenize(text.input_bytes, " ");
     var token = it.next();
     var token_attrs: Text.TokenAttributes = .{
@@ -433,14 +233,14 @@ test "Text" {
     try text.countToken(it.next().?, token_attrs);
     try text.countToken(it.next().?, token_attrs);
 
-    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
+    const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
 
     while (it.next()) |tkn| {
         try text.countToken(tkn, token_attrs);
     }
 
     thread.wait();
-    text.telexifyAlphabetTokens();
+    text_utils.telexifyAlphabetTokens(&text);
 
     try std.testing.expect(text.tokens_number == 9);
     try std.testing.expectEqualStrings(text.tokens[7], "nhà");
