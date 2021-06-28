@@ -95,8 +95,8 @@ const TextProcessor = struct {
         var oov1_writer = std.io.bufferedWriter(self.oov1_file.writer());
         var oov2_writer = std.io.bufferedWriter(self.oov2_file.writer());
 
-        var char_stream = U2ACharStream.init();
-        var syllable = parsers.Syllable.init();
+        var char_stream = U2ACharStream.new();
+        var syllable = parsers.Syllable.new();
 
         var index: usize = undefined;
         var next_index: usize = 0;

@@ -301,7 +301,7 @@ pub const Syllable = packed struct {
     can_be_vietnamese: bool,
     // buffer: [11]u8 = undefined,
 
-    pub fn init() Syllable {
+    pub fn new() Syllable {
         return .{
             .am_dau = ._none,
             .am_giua = ._none,

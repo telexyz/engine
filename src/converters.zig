@@ -58,7 +58,7 @@ pub fn amTietToId(am_tiet: []const u8) u17 {
 
 // Convert an id to Syllable
 fn idToSyllable(id: u17) Syllable {
-    var syllable = Syllable.init();
+    var syllable = Syllable.new();
 
     const n0 = @truncate(u5, id);
     syllable.am_dau = @intToEnum(AmDau, n0);

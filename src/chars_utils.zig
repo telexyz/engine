@@ -34,7 +34,7 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
     is_title_case: bool,
     is_upper_case: bool,
 
-    pub fn init() Utf8ToAsciiTelexAmTietCharStream {
+    pub fn new() Utf8ToAsciiTelexAmTietCharStream {
         return .{
             .len = 0,
             .last_char = 0,
@@ -197,14 +197,14 @@ const expect = testing.expect;
 const U2ACharStream = Utf8ToAsciiTelexAmTietCharStream;
 
 test "init()" {
-    var char_stream = U2ACharStream.init();
+    var char_stream = U2ACharStream.new();
     try expect(char_stream.len == 0);
     try expect(char_stream.last_char == 0);
     // try expect(char_stream.buffer == undefined);
 }
 
 test "unrollTone" {
-    var char_stream = U2ACharStream.init();
+    var char_stream = U2ACharStream.new();
     try char_stream.push('á');
     try expect(char_stream.tone == 's');
     try testing.expectEqualStrings(char_stream.toStr(), "as");

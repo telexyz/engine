@@ -147,8 +147,8 @@ const std = @import("std");
 const expect = std.testing.expect;
 
 test "pushCharsToSyllable()" {
-    var char_stream = U2ACharStream.init();
-    var syllable = Syllable.init();
+    var char_stream = U2ACharStream.new();
+    var syllable = Syllable.new();
 
     try char_stream.push('n');
     pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
@@ -195,7 +195,7 @@ const unicode = std.unicode;
 // .am_dau, .am_giua, .am_cuoi, and .tone enums. It also do a checking to see
 // if this am_tiet .can_be_vietnamese or not
 pub fn parseAmTietToGetSyllable(strict: bool, comptime print: print_op, str: []const u8) Syllable {
-    var char_stream = U2ACharStream.init();
+    var char_stream = U2ACharStream.new();
     return parseTokenToGetSyllable(strict, print, &char_stream, str);
 }
 
@@ -205,7 +205,7 @@ pub fn parseTokenToGetSyllable(
     char_stream: *U2ACharStream,
     str: []const u8,
 ) Syllable {
-    var syllable = Syllable.init();
+    var syllable = Syllable.new();
     var index: usize = 0;
     var next_index: usize = undefined;
 

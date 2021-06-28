@@ -4,7 +4,8 @@ const parsers = @import("./src/parsers.zig");
 const converters = @import("./src/converters.zig");
 
 fn print(comptime fmt_str: []const u8, args: anytype) void {
-    // std.debug.print(fmt_str, args);
+    if (false)
+        std.debug.print(fmt_str, args);
 }
 
 inline fn canBeVi(buff: []u8, word: []const u8) bool {
