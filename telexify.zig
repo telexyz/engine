@@ -50,17 +50,6 @@ fn write_out_results1() !void {
         text.nonalpha_types,
         "_output/05-nonalpha_types.txt",
     );
-    try TextokOutputHelpers.write_tokens_to_file(
-        tknz.mixed_tokens_map,
-        "_output/06-mixed_tokens.txt",
-    );
-
-    // Write sample of final output
-    try TextokOutputHelpers.write_text_tokens_to_file(
-        text,
-        "_output/07-telexified-777.txt",
-        777,
-    );
 }
 
 fn write_out_results2() !void {
@@ -77,6 +66,17 @@ fn write_out_results2() !void {
         "_output/03-marktone_types.txt",
         "_output/04-alphabet_types.txt",
     );
+    try TextokOutputHelpers.write_tokens_to_file(
+        tknz.mixed_tokens_map,
+        "_output/06-mixed_tokens.txt",
+    );
+
+    // Write sample of final output
+    try TextokOutputHelpers.write_text_tokens_to_file(
+        text,
+        "_output/07-telexified-777.txt",
+        777,
+    );
     try TextokOutputHelpers.write_transforms_to_file(
         text,
         "_output/08-telexified-888.txt",
@@ -90,7 +90,7 @@ fn write_out_results2() !void {
     );
 }
 
-fn showDuration(start_time: i64, comptime fmt_str: []const u8) i64 {
+fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
     const now = std.time.milliTimestamp();
     const duration = now - start_time;
     const mins = @intToFloat(f32, duration) / 60000;
@@ -106,21 +106,17 @@ pub fn main() anyerror!void {
     print("\nStarted at {}\n", .{start_time});
 
     initConfigsFromArgs();
-
     try initTexTok();
     defer tknz.deinit();
     defer text.deinit();
-
-    var time = showDuration(start_time, "Init Done!");
+    const step0_time = showMeTimeLap(start_time, "Init Done!");
 
     const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
     try tknz.segment(&text);
-
-    time = showDuration(time, "Step-1: Token segmenting finish!");
+    const step1_time = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
 
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_results1();
-
     // Wait for sylabeling thread end
     thread.wait();
     // Then run one more time to finalize sylabeling process
@@ -129,14 +125,12 @@ pub fn main() anyerror!void {
     // It's a very rare-case happend when the sleep() call fail.
     text.tokens_number_finalized = true;
     text.telexifyAlphabetTokens();
+    const step2_time = showMeTimeLap(step0_time, "Step-2: Token syllabling finish!");
+
+    print("\nWriting final results to file ...\n", .{});
     text.removeSyllablesFromAlphabetTypes();
-
-    time = showDuration(time, "Step-2: Token syllabling finish!");
-
-    print("\nWriting final transformation to file ...\n", .{});
     try write_out_results2();
 
-    time = showDuration(time, "Writing final output done!");
-
-    _ = showDuration(start_time, "Total");
+    _ = showMeTimeLap(step2_time, "Writing final results done!");
+    _ = showMeTimeLap(start_time, "Total");
 }

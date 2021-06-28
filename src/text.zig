@@ -246,7 +246,7 @@ pub const Text = struct {
         var char_stream = U2ACharStream.new();
         var prev_percent: u64 = 0;
 
-        const max_sleeps: u8 = 1;
+        const max_sleeps: u8 = 2;
         const sleep_time: u64 = 600_000_000; // nanosec
         var sleeps_count: u8 = 0;
 
