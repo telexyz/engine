@@ -3,7 +3,7 @@ const print = std.debug.print;
 const time = std.time;
 
 const Text = @import("./src/text.zig").Text;
-const Tokenizer = @import("./src/text.zig").Tokenizer;
+const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 
 fn write_tokens_to_file(tokens_map: std.StringHashMap(void), output_filename: []const u8) !void {
     var file = try std.fs.cwd().createFile(output_filename, .{});

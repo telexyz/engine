@@ -1,7 +1,7 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const Text = @import("./src/text.zig").Text;
+const Text = @import("./text.zig").Text;
 
 inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void {
     if (token[0] == '\n') {
@@ -15,7 +15,7 @@ inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void 
     }
 }
 
-const Tokenizer = struct {
+pub const Tokenizer = struct {
     max_lines_count: usize = 0,
 
     init_allocator: *std.mem.Allocator = undefined,
