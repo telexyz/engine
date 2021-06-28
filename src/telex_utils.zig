@@ -4,13 +4,13 @@ const expect = testing.expect;
 const print = std.debug.print;
 const unicode = std.unicode;
 
-const sd = @import("syllable_data_structs.zig");
+const syllable_data_structs = @import("syllable_data_structs.zig");
 
 const IS_UPPER = 512;
 
 pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
-    var am_giua: sd.AmGiua = ._none;
-    var tone: sd.Tone = ._none;
+    var am_giua: syllable_data_structs.AmGiua = ._none;
+    var tone: syllable_data_structs.Tone = ._none;
     var telex_code: u10 = 0;
     var upper_code: u10 = 0;
 
@@ -667,11 +667,11 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
 test "utf8ToTelexCode()" {
     try expect(getCharByte(utf8ToTelexCode('a', 0)) == 'a');
     try expect(utf8ToTelexCode('A', 0) == 14 + IS_UPPER);
-    try expect(utf8ToTelexCode('á', 0) == 14 + (@intCast(u10, @enumToInt(sd.Tone.s)) << 6));
-    try expect(utf8ToTelexCode('ổ', 0) == @enumToInt(sd.AmGiua.oo) + (@intCast(u10, @enumToInt(sd.Tone.r)) << 6));
+    try expect(utf8ToTelexCode('á', 0) == 14 + (@intCast(u10, @enumToInt(syllable_data_structs.Tone.s)) << 6));
+    try expect(utf8ToTelexCode('ổ', 0) == @enumToInt(syllable_data_structs.AmGiua.oo) + (@intCast(u10, @enumToInt(syllable_data_structs.Tone.r)) << 6));
 
     var telex_code = utf8ToTelexCode('Ẵ', 0);
-    try expect(telex_code == @enumToInt(sd.AmGiua.aw) + (@intCast(u10, @enumToInt(sd.Tone.x)) << 6) + IS_UPPER);
+    try expect(telex_code == @enumToInt(syllable_data_structs.AmGiua.aw) + (@intCast(u10, @enumToInt(syllable_data_structs.Tone.x)) << 6) + IS_UPPER);
     try expect(getToneByte(telex_code) == 'x');
     try expect(isUpper(telex_code));
     try expect(getDoubleBytes(telex_code)[1] == 'w');
@@ -689,11 +689,11 @@ pub inline fn isUpper(telex_code: u10) bool {
 
 pub inline fn getToneByte(telex_code: u10) u8 {
     return switch (@truncate(u3, telex_code >> 6)) {
-        @enumToInt(sd.Tone.s) => 's',
-        @enumToInt(sd.Tone.f) => 'f',
-        @enumToInt(sd.Tone.r) => 'r',
-        @enumToInt(sd.Tone.x) => 'x',
-        @enumToInt(sd.Tone.j) => 'j',
+        @enumToInt(syllable_data_structs.Tone.s) => 's',
+        @enumToInt(syllable_data_structs.Tone.f) => 'f',
+        @enumToInt(syllable_data_structs.Tone.r) => 'r',
+        @enumToInt(syllable_data_structs.Tone.x) => 'x',
+        @enumToInt(syllable_data_structs.Tone.j) => 'j',
         else => 0,
     };
 }
@@ -706,12 +706,12 @@ pub inline fn getDoubleBytes(telex_code: u10) []const u8 {
     const am_giua_code = telex_code & 0b0000111111;
     return switch (am_giua_code) {
         13 => "dd",
-        @enumToInt(sd.AmGiua.aa) => "aa",
-        @enumToInt(sd.AmGiua.aw) => "aw",
-        @enumToInt(sd.AmGiua.ee) => "ee",
-        @enumToInt(sd.AmGiua.oo) => "oo", // bông
-        @enumToInt(sd.AmGiua.ow) => "ow",
-        @enumToInt(sd.AmGiua.uw) => "uw",
+        @enumToInt(syllable_data_structs.AmGiua.aa) => "aa",
+        @enumToInt(syllable_data_structs.AmGiua.aw) => "aw",
+        @enumToInt(syllable_data_structs.AmGiua.ee) => "ee",
+        @enumToInt(syllable_data_structs.AmGiua.oo) => "oo", // bông
+        @enumToInt(syllable_data_structs.AmGiua.ow) => "ow",
+        @enumToInt(syllable_data_structs.AmGiua.uw) => "uw",
         else => "",
     };
 }

@@ -13,8 +13,8 @@ const File = std.fs.File;
 
 const parsers = @import("./src/syllable_parsers.zig");
 const telex_utils = @import("./src/telex_utils.zig");
-const chars_utils = @import("./src/chars_utils.zig");
-const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
+const telex_char_stream = @import("./src/telex_char_stream.zig");
+const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexAmTietCharStream;
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
@@ -103,7 +103,7 @@ const TextProcessor = struct {
         var output_index: usize = 0;
         var token_start_at: usize = 0;
 
-        var got_error: ?chars_utils.CharStreamError = null;
+        var got_error: ?telex_char_stream.CharStreamError = null;
         var in_token_zone = true;
 
         var first_byte: u8 = undefined; // first byte of the utf-8 char
@@ -263,17 +263,17 @@ const TextProcessor = struct {
                     // Check #1: Filter out ascii-telex syllable like:
                     // car => cả, beer => bể ...
                     if (char_stream.tone == 0 and syllable.tone != ._none)
-                        got_error = chars_utils.CharStreamError.ToneIsNotFromUtf8;
+                        got_error = telex_char_stream.CharStreamError.ToneIsNotFromUtf8;
 
                     // Check #2: Filter out ascii-telex syllable like:
                     // awn => ăn, doo => dô
                     if (syllable.am_giua.hasMark() and !char_stream.has_mark)
-                        got_error = chars_utils.CharStreamError.MarkIsNotFromUtf8;
+                        got_error = telex_char_stream.CharStreamError.MarkIsNotFromUtf8;
 
                     // Check #3: Filter out prefix look like syllable but it's not:
                     // Mộtd, cuốiiii ...
                     if (char_stream.len > syllable.len())
-                        got_error = chars_utils.CharStreamError.TooBigToBeSyllable;
+                        got_error = telex_char_stream.CharStreamError.TooBigToBeSyllable;
 
                     // The final check is syllable.can_be_vietnamese
                     if (got_error != null or !syllable.can_be_vietnamese) {
@@ -410,7 +410,7 @@ const TextProcessor = struct {
                         };
                     },
                     else => {
-                        got_error = chars_utils.CharStreamError.InvalidInputChar;
+                        got_error = telex_char_stream.CharStreamError.InvalidInputChar;
                         continue;
                     },
                 }

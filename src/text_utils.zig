@@ -2,8 +2,8 @@ const std = @import("std");
 const print = std.debug.print;
 
 const parsers = @import("./syllable_parsers.zig");
-const chars_utils = @import("./chars_utils.zig");
-const U2ACharStream = chars_utils.Utf8ToAsciiTelexAmTietCharStream;
+const telex_char_stream = @import("./telex_char_stream.zig");
+const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexAmTietCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
