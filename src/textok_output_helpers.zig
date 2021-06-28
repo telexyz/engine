@@ -1,7 +1,7 @@
 const std = @import("std");
 const Text = @import("./text.zig").Text;
 
-pub const TextokHelpers = struct {
+pub const TextokOutputHelpers = struct {
     pub fn write_tokens_to_file(tokens_map: std.StringHashMap(void), output_filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(output_filename, .{});
         defer file.close();

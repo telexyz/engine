@@ -1,25 +1,24 @@
 const std = @import("std");
 const print = std.debug.print;
-const time = std.time;
 
 const Text = @import("./src/text.zig").Text;
-const TextokHelpers = @import("./src/textok_helpers.zig").TextokHelpers;
+const TextokOutputHelpers = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
 var text: Text = undefined;
+
+var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
+var max_lines_count: usize = undefined;
 
-pub fn main() anyerror!void {
-    const start_time = time.milliTimestamp();
-    print("\nstart_time {}\n", .{start_time});
-
+fn initConfigsFromArgs() void {
     // Advance the iterator since we want to ignore the binary name.
     var args = std.process.args();
     _ = args.nextPosix();
     // Get input filename from args
-    const input_filename = args.nextPosix() orelse {
+    input_filename = args.nextPosix() orelse {
         std.debug.warn("expected input_filename as first argument\n", .{});
         std.os.exit(1);
     };
@@ -29,8 +28,10 @@ pub fn main() anyerror!void {
         std.os.exit(1);
     };
     // Optional, get max_lines_count from args
-    const max_lines_count: usize = if (args.nextPosix() != null) 1001 else 0;
+    max_lines_count = if (args.nextPosix() != null) 1001 else 0;
+}
 
+fn initTexTok() !void {
     tknz = .{
         .init_allocator = std.heap.page_allocator,
         .max_lines_count = max_lines_count,
@@ -41,39 +42,84 @@ pub fn main() anyerror!void {
     };
 
     try tknz.init();
-    defer tknz.deinit();
-
     try text.initFromFile(input_filename);
-    defer text.deinit();
+}
 
-    const init_ms = time.milliTimestamp() - start_time;
-    const init_mins = @intToFloat(f32, init_ms) / 60000;
-    print("\nInit Done! Duration {} ms => {d:.2} mins\n\n", .{ init_ms, init_mins });
-
-    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
-    try tknz.segment(&text);
-
-    const step1_ms = time.milliTimestamp() - start_time;
-    const step1_mins = @intToFloat(f32, step1_ms) / 60000;
-
-    print("\nStep-1: Token segmenting finish! Duration {} ms => {d:.2} mins\n\n", .{ step1_ms, step1_mins });
-
-    // Write out stats
-    try TextokHelpers.write_counts_to_file(
+fn write_out_results1() !void {
+    try TextokOutputHelpers.write_counts_to_file(
         text.nonalpha_types,
         "_output/05-nonalpha_types.txt",
     );
-    try TextokHelpers.write_tokens_to_file(
+    try TextokOutputHelpers.write_tokens_to_file(
         tknz.mixed_tokens_map,
         "_output/06-mixed_tokens.txt",
     );
 
     // Write sample of final output
-    try TextokHelpers.write_text_tokens_to_file(
+    try TextokOutputHelpers.write_text_tokens_to_file(
         text,
         "_output/07-telexified-777.txt",
         777,
     );
+}
+
+fn write_out_results2() !void {
+    try TextokOutputHelpers.write_counts_to_file(
+        text.syllable_types,
+        "_output/01-syllable_types.txt",
+    );
+    try TextokOutputHelpers.write_counts_to_file(
+        text.syllower_types,
+        "_output/02-syllower_types.txt",
+    );
+    try TextokOutputHelpers.write_alphabet_types_to_files(
+        text.alphabet_types,
+        "_output/03-marktone_types.txt",
+        "_output/04-alphabet_types.txt",
+    );
+    try TextokOutputHelpers.write_transforms_to_file(
+        text,
+        "_output/08-telexified-888.txt",
+        888_888,
+    );
+    // Final result
+    try TextokOutputHelpers.write_transforms_to_file(
+        text,
+        output_filename,
+        0,
+    );
+}
+
+fn showDuration(start_time: i64, comptime fmt_str: []const u8) i64 {
+    const now = std.time.milliTimestamp();
+    const duration = now - start_time;
+    const mins = @intToFloat(f32, duration) / 60000;
+    print("\n[ " ++ fmt_str ++ " Duration {} ms => {d:.2} mins ]\n\n", .{
+        duration,
+        mins,
+    });
+    return now;
+}
+
+pub fn main() anyerror!void {
+    const start_time = std.time.milliTimestamp();
+    print("\nStarted at {}\n", .{start_time});
+
+    initConfigsFromArgs();
+
+    try initTexTok();
+    defer tknz.deinit();
+    defer text.deinit();
+
+    var time = showDuration(start_time, "Init Done!");
+
+    const thread = try std.Thread.spawn(Text.telexifyAlphabetTokens, &text);
+    try tknz.segment(&text);
+
+    time = showDuration(time, "Step-1: Token segmenting finish!");
+
+    // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
+    try write_out_results1();
 
     // Wait for sylabeling thread end
     thread.wait();
@@ -85,40 +131,12 @@ pub fn main() anyerror!void {
     text.telexifyAlphabetTokens();
     text.removeSyllablesFromAlphabetTypes();
 
-    const step2_ms = time.milliTimestamp() - start_time;
-    const step2_mins = @intToFloat(f32, step2_ms) / 60000;
-    print("\nStep-2:  Token syllabling finish! Duration {} ms => {d:.2} mins\n\n", .{ step2_ms, step2_mins });
+    time = showDuration(time, "Step-2: Token syllabling finish!");
 
     print("\nWriting final transformation to file ...\n", .{});
+    try write_out_results2();
 
-    try TextokHelpers.write_counts_to_file(
-        text.syllable_types,
-        "_output/01-syllable_types.txt",
-    );
-    try TextokHelpers.write_counts_to_file(
-        text.syllower_types,
-        "_output/02-syllower_types.txt",
-    );
-    try TextokHelpers.write_alphabet_types_to_files(
-        text.alphabet_types,
-        "_output/03-marktone_types.txt",
-        "_output/04-alphabet_types.txt",
-    );
-    try TextokHelpers.write_transforms_to_file(
-        text,
-        "_output/08-telexified-888.txt",
-        888_888,
-    );
-    // Final result
-    try TextokHelpers.write_transforms_to_file(
-        text,
-        output_filename,
-        0,
-    );
+    time = showDuration(time, "Writing final output done!");
 
-    const end_time = time.milliTimestamp();
-    print("\nend_time {}\n", .{end_time});
-    const duration = end_time - start_time;
-    const minutes = @intToFloat(f32, duration) / 60000;
-    print("Duration {} ms => {d:.2} mins\n\n", .{ duration, minutes });
+    _ = showDuration(start_time, "Total");
 }
