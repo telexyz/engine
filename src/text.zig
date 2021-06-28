@@ -74,6 +74,8 @@ pub const Text = struct {
 
     // Used to estimate (maximum) tokens_number
     const AVG_BYTES_PER_TOKEN = 3;
+    const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
+    const BUFF_SIZE = 100; // incase input is small, estimated fail, so need buffer
 
     pub const TypeInfo = struct {
         count: u32 = 0,
@@ -123,7 +125,6 @@ pub const Text = struct {
         return token[0] == '\n';
     }
 
-    const BUFF_SIZE = 100;
     pub fn init(self: *Text, input_bytes: []const u8) !void {
         // Init will-be-used-from-now-on allocator from init_allocator
         self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
@@ -153,7 +154,7 @@ pub const Text = struct {
 
         // Init syllower...
         self.syllower_types = std.StringHashMap(u32).init(self.allocator);
-        self.syllower_bytes_size = 1024 * 1024; // 1mb
+        self.syllower_bytes_size = TEXT_DICT_FILE_SIZE;
         self.syllower_bytes = try self.allocator.alloc(u8, self.syllower_bytes_size);
 
         // Start empty token list and empty transfomed bytes
@@ -166,6 +167,7 @@ pub const Text = struct {
         // free all allocated memories
         self.arena.deinit();
     }
+
     pub fn countToken(self: *Text, token: []const u8, token_attrs: TokenAttributes) !void {
         // Insert token into a hash_map to know if we seen it before or not
         // const token = self.input_bytes[token_start..token_end];
@@ -230,7 +232,7 @@ pub const Text = struct {
     const PAD = "                 ";
     pub fn telexifyAlphabetTokens(self: *Text) void {
         @setRuntimeSafety(false);
-        var char_stream = U2ACharStream.init();
+        var char_stream = U2ACharStream.new();
         var prev_percent: u64 = 0;
 
         const max_sleeps: u8 = 1;
