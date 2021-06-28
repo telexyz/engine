@@ -10,4 +10,6 @@
 
 ~/zig test src/text.zig
 
+~/zig test src/tokenizer.zig
+
 ~/zig test telexify.zig
