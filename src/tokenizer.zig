@@ -348,17 +348,21 @@ pub const Tokenizer = struct {
 };
 
 test "Tokenizer" {
+    var text: Text = .{
+        .init_allocator = std.testing.allocator,
+    };
+
+    try text.initFromFile("_input/corpus/test.txt");
+    defer text.deinit();
+
     var tknz: Tokenizer = .{
         .init_allocator = std.testing.allocator,
         .max_lines_count = 100, // For testing process maximum 100 lines only
     };
-    var text: Text = .{
-        .init_allocator = std.testing.allocator,
-    };
+
     try tknz.init();
     defer tknz.deinit();
 
-    try text.initFromFile("_input/corpus/test.txt");
     try tknz.segment(&text);
 
     text.tokens_number_finalized = true;
