@@ -46730,7 +46730,6 @@
          2  UAVs
          2  UANL
          2  UAF
-         2  Tẻn
          2  Tziolis
          2  Tyton
          2  Tyrion
@@ -54818,7 +54817,6 @@
          2  Hoban
          2  Hoarau
          2  Hoaprox
-         2  Hoanh
          2  hoanghamobile
          2  HoaLam
          2  Hoalam
@@ -60782,12 +60780,9 @@
          2  AACC
          2  AAAS
          2  Aaa
-         1  ớp
+         1  ộng
          1  œil
-         1  đụa
-         1  ĐảoĐoàn
-         1  ĐảoNghe
-         1  ĐảoCôn
+         1  ĐĐB
          1  ĐUBP
          1  ĐTSTHX
          1  đriu
@@ -60798,7 +60793,6 @@
          1  ĐKH
          1  Đir
          1  Đioxin
-         1  ĐHĐLHQ
          1  ĐHTL
          1  ĐHQHHN
          1  ĐHQGHCM
@@ -60809,7 +60803,6 @@
          1  Ănghen
          1  útt
          1  ôp
-         1  ôngTrần
          1  Ðu
          1  Étourdissant
          1  zzzzzz
@@ -61988,7 +61981,6 @@
          1  yaba
          1  Yaas
          1  Yaari
-         1  xụm
          1  Xzone
          1  XYZ
          1  Xyxi
@@ -62369,6 +62361,7 @@
          1  xabi
          1  XABI
          1  XAB
+         1  Würzburg
          1  wz
          1  Wz
          1  Wyss
@@ -63582,6 +63575,8 @@
          1  wabb
          1  Waazuma
          1  Waa
+         1  vđv
+         1  Vâm
          1  vz
          1  Vyvy
          1  Vystrel
@@ -65765,6 +65760,7 @@
          1  Vaalserberg
          1  VAALA
          1  Vaal
+         1  Uếch
          1  uzu
          1  Uzu
          1  Uzone
@@ -66647,6 +66643,7 @@
          1  tVan
          1  TVAN
          1  TVA
+         1  tuyệp
          1  Tuyp
          1  Tuynizi
          1  tuyet
@@ -66967,6 +66964,7 @@
          1  TRYTOKC
          1  trypophobia
          1  Trwn
+         1  truội
          1  truyp
          1  Truyols
          1  Truyen
@@ -67955,7 +67953,6 @@
          1  Toanphatmobile
          1  toanngoc
          1  Toami
-         1  Toalét
          1  Toal
          1  Toad
          1  TNXPTPHCM
@@ -68317,8 +68314,6 @@
          1  TIAN
          1  TIALSOFT
          1  TIAGS
-         1  thốì
-         1  Thấn
          1  ThyThy
          1  Thythy
          1  Thyssen
@@ -68403,7 +68398,6 @@
          1  THPTGQ
          1  THPGHP
          1  THPCM
-         1  thoáy
          1  Thouvong
          1  Thousandth
          1  thousands
@@ -68457,7 +68451,6 @@
          1  thks
          1  thk
          1  thj
-         1  THIỀU
          1  thix
          1  ThiTruongSi
          1  thiTHPT
@@ -69766,7 +69759,6 @@
          1  Taan
          1  TAACT
          1  Taaacito
-         1  Sénégas
          1  Szymborka
          1  Szymanowska
          1  Szydlo
@@ -79271,7 +79263,6 @@
          1  Pioglitazone
          1  pioglitazone
          1  pioglitason
-         1  Pinăng
          1  Pinzolo
          1  Pinwheel
          1  Pinus
@@ -81515,6 +81506,7 @@
          1  Onplaza
          1  onpage
          1  Onpage
+         1  ONORÉ
          1  Onondaga
          1  ONOFF
          1  Onoda
@@ -82115,6 +82107,7 @@
          1  OAD
          1  Oach
          1  Oabama
+         1  néc
          1  NZT
          1  NZPA
          1  NZERTF
@@ -83045,6 +83038,7 @@
          1  ngocanh
          1  ngoc
          1  NGL
+         1  ngiều
          1  Nginx
          1  Ngich
          1  NgHLR
@@ -86301,7 +86295,6 @@
          1  Meofashion
          1  meocon
          1  Meobong
-         1  MenếFuture
          1  Menymy
          1  Menwear
          1  MENVN
@@ -88072,6 +88065,8 @@
          1  Maacviet
          1  Maac
          1  MAA
+         1  LĐST
+         1  Lübeck
          1  lzheimer
          1  LZD
          1  lz
@@ -88144,6 +88139,7 @@
          1  LVPBank
          1  lvoire
          1  LVM
+         1  luậnlần
          1  Luzong
          1  LuzlSec
          1  Luzkniki
@@ -91442,6 +91438,7 @@
          1  Kiara
          1  Kiai
          1  kiage
+         1  khệch
          1  KHz
          1  khyua
          1  KHXN
@@ -93308,6 +93305,7 @@
          1  Jaarvis
          1  Jaar
          1  Jaafar
+         1  IĐ
          1  IZZi
          1  Izzat
          1  Izzard
@@ -95134,6 +95132,7 @@
          1  IABM
          1  IAAPA
          1  IAACA
+         1  HĐQTSouthern
          1  HZina
          1  Hyunyoung
          1  Hyunmu
@@ -96083,7 +96082,6 @@
          1  Hjallerup
          1  hj
          1  Hj
-         1  hiêng
          1  Hizza
          1  Hizo
          1  Hizen
@@ -97284,6 +97282,7 @@
          1  Hamden
          1  Hamdaniyah
          1  Hamdan
+         1  Hambuốc
          1  hamburgur
          1  hamburge
          1  Hambufg
@@ -98691,6 +98690,7 @@
          1  gjup
          1  Gjorge
          1  gj
+         1  GIÃ
          1  GIZO
          1  Gizem
          1  Giya
@@ -105198,7 +105198,6 @@
          1  Denayer
          1  DeNa
          1  Dena
-         1  Demôcles
          1  Demy
          1  Demxinh
          1  Demrey
@@ -106509,6 +106508,7 @@
          1  CQR
          1  CQNHNNTW
          1  CQM
+         1  CQCSĐ
          1  CQCN
          1  CQANBG
          1  CQAN
@@ -107122,6 +107122,7 @@
          1  Comtrend
          1  Comsomol
          1  Coms
+         1  Compông
          1  ComputeStick
          1  Computerworld
          1  Computers
@@ -108226,7 +108227,6 @@
          1  Chkdsk
          1  Chkalov
          1  chj
-         1  Chiêuchiếm
          1  Chizova
          1  Chiyoda
          1  CHIVAS
@@ -111526,7 +111526,6 @@
          1  Bjarnason
          1  Bjarke
          1  bj
-         1  biểnĐưa
          1  Bizwoman
          1  BizWatch
          1  BizUni
