@@ -273,12 +273,10 @@ pub const Tokenizer = struct {
                     if (!in_alphabet_token_zone) {
                         // Record nonalpha
                         const token = input_bytes[nonalpha_token_start_at..index];
-
                         const attrs: Text.TokenAttributes = .{
                             .category = .nonalpha,
                             .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
                         };
-
                         try text.countToken(token, attrs);
                         if (counting_lines) printToken(token, attrs);
                         // Reset for alphabet
