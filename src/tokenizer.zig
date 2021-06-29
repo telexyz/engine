@@ -1,4 +1,17 @@
+// The lengthy version of tokenizer is at in-case we need a reference
 // https://github.com/telexyz/telex-engine/blob/04f65c74ec3a0f0b8350fc518faddcf325665de4/src/tokenizer.zig
+
+// For now the bottle neck is at HashMap tokens into types and count
+// By skipping hashing function in text.countToken it took 0.24 mins so segment ~600mb
+// with hashing function on every token it took  0.44 mins (~2x slower)
+
+// Solution-1: Create another thread just for hashing
+// Solution-2: Improve hashing algorithm ... how? since hashing is hard!
+// Solution-3: Break Text into n-parts and run each part in parallels (no-need to run
+//              text_utils.telexifyAlphabetTokens in a separate thread).
+//              After that merge n-parts' results into one! (map-reduce)
+
+// => Solution-3 is the best choice since it apply a general pattern (map-reduce) that scale very well in both multi-threads, multi-processes or distributed-processes
 
 const std = @import("std");
 const print = std.debug.print;
