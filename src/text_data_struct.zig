@@ -175,15 +175,15 @@ pub const Text = struct {
         self.arena.deinit();
     }
 
-    pub fn countToken(self: *Text, token: []const u8, token_attrs: TokenAttributes) !void {
+    pub fn countToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
         // Insert token into a hash_map to know if we seen it before or not
         // const token = self.input_bytes[token_start..token_end];
         self.tokens[self.tokens_number] = token;
-        self.tokens_attrs[self.tokens_number] = token_attrs;
+        self.tokens_attrs[self.tokens_number] = attrs;
         // Default, transform to itself :)
         self.transforms[self.tokens_number] = token;
 
-        const gop = if (token_attrs.category == .nonalpha)
+        const gop = if (attrs.category == .nonalpha)
             try self.nonalpha_types.getOrPutValue(token, TypeInfo{})
         else
             try self.alphabet_types.getOrPutValue(token, TypeInfo{});
@@ -222,21 +222,21 @@ test "Text" {
     // std.mem.tokenize is a Zig standard library function to deal with byte stream
     var it = std.mem.tokenize(text.input_bytes, " ");
     var token = it.next();
-    var token_attrs: Text.TokenAttributes = .{
+    var attrs: Text.TokenAttributes = .{
         .category = .alphabet,
         .surrounded_by_spaces = .both,
     };
-    try text.countToken(token.?, token_attrs);
+    try text.countToken(token.?, attrs);
     try std.testing.expect(text.tokens_number == 1);
     try std.testing.expectEqualStrings(text.tokens[0], "Cả");
 
-    try text.countToken(it.next().?, token_attrs);
-    try text.countToken(it.next().?, token_attrs);
+    try text.countToken(it.next().?, attrs);
+    try text.countToken(it.next().?, attrs);
 
     const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
 
     while (it.next()) |tkn| {
-        try text.countToken(tkn, token_attrs);
+        try text.countToken(tkn, attrs);
     }
 
     thread.wait();
