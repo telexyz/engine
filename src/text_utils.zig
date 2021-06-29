@@ -68,8 +68,8 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                     const syllable_token = saveAsciiTelexTransform(text, char_stream);
                     type_info.transform = syllable_token;
                     countSyllableAndSyllower(text, syllable_token, type_info.count) catch unreachable;
-                } else {
                     token_not_written = false;
+                } else {
                     // For non-syllable, attrs.category can only be
                     // .alphabet or .marktone
                     type_info.*.category = attrs.category;
