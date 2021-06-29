@@ -38,12 +38,12 @@ pub const TextokOutputHelpers = struct {
 
         var it = alphabet_types.iterator();
         while (it.next()) |kv| {
-            if (max_token_len < kv.key_ptr.*.len) {
+            if (max_token_len < kv.key_ptr.len) {
                 std.debug.print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
-            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.*.count, kv.key_ptr.* });
-            if (kv.value_ptr.*.category == .marktone) {
+            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.count, kv.key_ptr.* });
+            if (kv.value_ptr.category == .marktone) {
                 _ = try marktone_file.writer().write(result);
             } else {
                 _ = try alphabet_file.writer().write(result);
@@ -61,11 +61,11 @@ pub const TextokOutputHelpers = struct {
 
         var it = counts.iterator();
         while (it.next()) |kv| {
-            if (max_token_len < kv.key_ptr.*.len) {
+            if (max_token_len < kv.key_ptr.len) {
                 std.debug.print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
-            const count = if (comptime @TypeOf(counts) == std.StringHashMap(Text.TypeInfo)) kv.value_ptr.*.count else kv.value_ptr.*;
+            const count = if (comptime @TypeOf(counts) == std.StringHashMap(Text.TypeInfo)) kv.value_ptr.count else kv.value_ptr.*;
 
             const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ count, kv.key_ptr.* });
             _ = try output_file.writer().write(result);

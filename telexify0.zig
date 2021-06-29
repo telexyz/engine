@@ -438,7 +438,7 @@ const TextProcessor = struct {
 
         var it = self.tokens_count.iterator();
         while (it.next()) |kv| {
-            if (max_token_len < kv.key_ptr.*.len) {
+            if (max_token_len < kv.key_ptr.len) {
                 print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }

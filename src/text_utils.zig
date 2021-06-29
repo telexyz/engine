@@ -72,14 +72,14 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 } else {
                     // For non-syllable, attrs.category can only be
                     // .alphabet or .marktone
-                    type_info.*.category = attrs.category;
+                    type_info.category = attrs.category;
                 }
             }
 
-            if (type_info.*.category == .syllable) {
+            if (type_info.category == .syllable) {
                 attrs.category = .syllable;
                 // Point token value to it's syllable trans
-                token = type_info.*.transform;
+                token = type_info.transform;
                 text.transforms[i.*] = token;
             }
         } // attrs.category == .alphabet or .marktone

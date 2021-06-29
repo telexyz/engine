@@ -188,7 +188,7 @@ pub const Text = struct {
         else
             try self.alphabet_types.getOrPutValue(token, TypeInfo{});
 
-        gop.value_ptr.*.count += 1;
+        gop.value_ptr.count += 1;
 
         // increare only when counter is finalized since other threads are watching
         self.tokens_number += 1;
@@ -199,7 +199,7 @@ pub const Text = struct {
 
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
-            if (kv.value_ptr.*.category == .syllable) {
+            if (kv.value_ptr.category == .syllable) {
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
