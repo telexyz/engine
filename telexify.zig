@@ -12,7 +12,7 @@ var text: Text = undefined;
 
 var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
-var max_lines_count: usize = undefined;
+var max_lines: usize = undefined;
 
 fn initConfigsFromArgs() void {
     // Advance the iterator since we want to ignore the binary name.
@@ -28,8 +28,8 @@ fn initConfigsFromArgs() void {
         std.debug.warn("expected output_filename as second argument\n", .{});
         std.os.exit(1);
     };
-    // Optional, get max_lines_count from args
-    max_lines_count = if (args.nextPosix() != null) 1001 else 0;
+    // Optional, get max_lines from args
+    max_lines = if (args.nextPosix() != null) 1001 else 0;
 }
 
 fn write_out_results1() !void {
@@ -88,7 +88,7 @@ pub fn main() anyerror!void {
     print("\nStarted at {}\n", .{start_time});
 
     initConfigsFromArgs();
-    tknz = .{ .max_lines_count = max_lines_count };
+    tknz = .{ .max_lines = max_lines };
     text = .{ .init_allocator = std.heap.page_allocator };
     try text.initFromFile(input_filename);
     defer text.deinit();

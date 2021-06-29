@@ -19,7 +19,7 @@ inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void 
 }
 
 pub const Tokenizer = struct {
-    max_lines_count: usize = 0,
+    max_lines: usize = 0,
 
     const CharTypes = enum {
         alphabet_char, // a..zA..Z
@@ -61,7 +61,7 @@ pub const Tokenizer = struct {
         var percentage_threshold = five_percent;
 
         var lines_count: usize = 0;
-        const counting_lines: bool = self.max_lines_count > 0;
+        const counting_lines: bool = self.max_lines > 0;
 
         // Main loop to iterate the whole input stream, utf-8 char by utf-8 char
         while (next_index < bytes_len) {
@@ -171,6 +171,7 @@ pub const Tokenizer = struct {
 
                         try text.countToken(token, token_attrs);
                         if (counting_lines) printToken(token, token_attrs);
+                        contains_marktone_char = false;
                         //
                     } else {
                         //
@@ -190,23 +191,21 @@ pub const Tokenizer = struct {
                 if (first_byte == '\n') {
                     // Record newline to treat special token
                     // it's category is nonalpha but we can check it value
-                    // to know it's newline token
+                    // to know if it's newline token later
                     const token = input_bytes[index .. index + 1];
                     const token_attrs = Text.TokenAttributes{
                         .category = .nonalpha,
                         .surrounded_by_spaces = .none,
                     };
                     try text.countToken(token, token_attrs);
-
+                    //
                     if (counting_lines) {
                         printToken(token, token_attrs);
                         lines_count += 1;
                         print("{d}\n\n", .{lines_count});
-                        if (counting_lines and lines_count >= self.max_lines_count) {
-                            return;
-                        }
+                        if (counting_lines and lines_count >= self.max_lines) return;
                     }
-
+                    // Show progress ...
                     if (index > percentage_threshold) {
                         percentage += 5;
                         print("Segmenting {d}%\n", .{percentage});
@@ -217,12 +216,12 @@ pub const Tokenizer = struct {
             } else {
                 // char_type => .alphabet_char, or .nonalpha_char
                 if (char_type == .nonalpha_char) {
+                    //
                     if (!in_nonspace_token_zone) {
                         in_nonspace_token_zone = true;
                         nonspace_token_start_at = index;
                         nonalpha_token_start_at = index;
                         alphabet_token_start_at = next_index;
-                        contains_marktone_char = false;
                     }
 
                     if (in_alphabet_token_zone) {
@@ -230,6 +229,7 @@ pub const Tokenizer = struct {
                         // Record alphabets
                         if (alphabet_token_start_at <= index) {
                             const token = input_bytes[alphabet_token_start_at..index];
+
                             const token_attrs: Text.TokenAttributes = .{
                                 .category = if (contains_marktone_char) .marktone else .alphabet,
                                 .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
@@ -237,11 +237,9 @@ pub const Tokenizer = struct {
 
                             try text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
-                            //
                             contains_marktone_char = false;
                         }
                     }
-
                     alphabet_token_start_at = next_index;
                     //
                 } else {
@@ -251,17 +249,16 @@ pub const Tokenizer = struct {
                         nonspace_token_start_at = index;
                         alphabet_token_start_at = index;
                         nonalpha_token_start_at = next_index;
-                        contains_marktone_char = false;
                     }
 
-                    if (char_type == .marktone_char)
-                        contains_marktone_char = true;
+                    if (char_type == .marktone_char) contains_marktone_char = true;
 
                     if (!in_alphabet_token_zone) {
                         in_alphabet_token_zone = true;
                         // Record nonalpha
                         if (nonalpha_token_start_at <= index) {
                             const token = input_bytes[nonalpha_token_start_at..index];
+
                             const token_attrs: Text.TokenAttributes = .{
                                 .category = .nonalpha,
                                 .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
@@ -269,11 +266,8 @@ pub const Tokenizer = struct {
 
                             try text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
-                            //
-                            contains_marktone_char = false;
                         }
                     }
-
                     nonalpha_token_start_at = next_index;
                 }
             }
@@ -287,7 +281,7 @@ test "Tokenizer" {
     defer text.deinit();
 
     var tknz: Tokenizer = .{
-        .max_lines_count = 100, // For testing process maximum 100 lines only
+        .max_lines = 100, // For testing process maximum 100 lines only
     };
 
     try tknz.segment(&text);
