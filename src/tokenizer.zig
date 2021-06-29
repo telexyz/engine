@@ -208,9 +208,12 @@ pub const Tokenizer = struct {
                             try text.countToken(token, token_attrs);
                             if (counting_lines) printToken(token, token_attrs);
                             //
-                        } else {
-                            _ = try self.mixed_tokens_map.getOrPut(token);
-                        }
+                        } // else  _ = try self.mixed_tokens_map.getOrPut(token);
+                        // Mixed tokens are combining of alpha|nonalpha tokens
+                        // With no space in between, easily re-constructed from
+                        // Text's tokens[i] array, keep code here if we need
+                        // an easiy way to retrieve them, comment it out to speed up
+                        // the segmentation performament by 50%
                     }
 
                     if (in_alphabet_token_zone and alphabet_token_start_at > nonspace_token_start_at) {
