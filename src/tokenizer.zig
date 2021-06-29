@@ -56,9 +56,9 @@ pub const Tokenizer = struct {
         const input_bytes = text.input_bytes;
         const bytes_len = input_bytes.len;
 
-        const five_percent = bytes_len / 20;
-        var percentage: u8 = 0;
-        var percentage_threshold = five_percent;
+        const five_percents = bytes_len / 20;
+        var percents: u8 = 0;
+        var percents_threshold = five_percents;
 
         var lines_count: usize = 0;
         const counting_lines: bool = self.max_lines > 0;
@@ -89,7 +89,7 @@ pub const Tokenizer = struct {
 
                 // The we normalize SPACE delimiters by converting tab to space
                 // and treat newline \n as a hint to do smt special like:
-                // counting progress percentage ... it will not work if the copus
+                // counting progress percents ... it will not work if the copus
                 // don't use \n but it's seem to be a rare case.
                 ' ' => {
                     char_type = .space;
@@ -206,10 +206,10 @@ pub const Tokenizer = struct {
                         if (counting_lines and lines_count >= self.max_lines) return;
                     }
                     // Show progress ...
-                    if (index > percentage_threshold) {
-                        percentage += 5;
-                        print("Segmenting {d}%\n", .{percentage});
-                        percentage_threshold += five_percent;
+                    if (index > percents_threshold) {
+                        percents += 5;
+                        print("Segmenting {d}%\n", .{percents});
+                        percents_threshold += five_percents;
                     }
                 }
                 // END char_type => .space
