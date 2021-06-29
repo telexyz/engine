@@ -5,13 +5,18 @@
 // By skipping hashing function in text.countToken it took 0.24 mins so segment ~600mb
 // with hashing function on every token it took  0.44 mins (~2x slower)
 
-// Solution-1: Create another thread just for hashing
+// Solution-1: Create another thread just for hashing (ad-hoc)
+
 // Solution-2: Improve hashing algorithm ... how? since hashing is hard!
+// Can use perfect hashing and hash function for short input string
+// Or using other data structs like trie, ...
+
 // Solution-3: Break Text into n-parts and run each part in parallels (no-need to run
 //              text_utils.telexifyAlphabetTokens in a separate thread).
 //              After that merge n-parts' results into one! (map-reduce)
 
 // => Solution-3 is the best choice since it apply a general pattern (map-reduce) that scale very well in both multi-threads, multi-processes or distributed-processes
+// => Solution-2 is complement to solution-3
 
 const std = @import("std");
 const print = std.debug.print;
@@ -95,14 +100,13 @@ pub const Tokenizer = struct {
             switch (first_byte) {
                 // a-z, A-Z are very common so the chance we meet them is quite often
                 // we filter them out first to speed up the filtering process
-                // 'a'...'z', 'A'...'Z', '0'...'9' => {
                 'a'...'z', 'A'...'Z' => {
                     char_type = .alphabet_char;
                 },
 
-                // The we normalize SPACE delimiters by converting tab to space
-                // and treat newline \n as a hint to do smt special like:
-                // counting progress percents ... it will not work if the copus
+                // Normalize SPACE delimiters by converting tab to space and treat
+                // newline \n as a hint to do something special like: counting
+                // progress percents ... it will not work if the copus
                 // don't use \n but it's seem to be a rare case.
                 ' ' => {
                     char_type = .space;
@@ -179,22 +183,17 @@ pub const Tokenizer = struct {
                     if (in_alphabet_token_zone) {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
-
                         const token_attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .marktone else .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
-
                         try text.countToken(token, token_attrs);
                         if (counting_lines) printToken(token, token_attrs);
-                        contains_marktone_char = false;
                         //
                     } else {
                         //
                         const token = input_bytes[nonalpha_token_start_at..index];
-
                         const token_attrs: Text.TokenAttributes = .{
                             .category = .nonalpha,
                             .surrounded_by_spaces = if (nonalpha_token_start_at > nonspace_token_start_at) .right else .both,
                         };
-
                         try text.countToken(token, token_attrs);
                         if (counting_lines) printToken(token, token_attrs);
                         //
@@ -226,71 +225,85 @@ pub const Tokenizer = struct {
                     }
                 }
                 // END char_type => .space
-            } else {
-                // char_type => .alphabet_char, or .nonalpha_char
-                if (char_type == .nonalpha_char) {
+
+            } else { // char_type => .alphabet_char, or .nonalpha_char
+
+                // This checkin only happen once at the start of nonspace token
+                if (!in_nonspace_token_zone) {
                     //
-                    if (!in_nonspace_token_zone) {
-                        in_nonspace_token_zone = true;
-                        nonspace_token_start_at = index;
-                        nonalpha_token_start_at = index;
-                        alphabet_token_start_at = next_index;
-                    }
+                    in_nonspace_token_zone = true;
+                    nonspace_token_start_at = index;
 
-                    if (in_alphabet_token_zone) {
+                    if (char_type == .nonalpha_char) {
+                        //
                         in_alphabet_token_zone = false;
-                        // Record alphabets
-                        if (alphabet_token_start_at <= index) {
-                            const token = input_bytes[alphabet_token_start_at..index];
+                        alphabet_token_start_at = next_index;
+                        nonalpha_token_start_at = index;
+                        //
+                    } else {
+                        //
+                        in_alphabet_token_zone = true;
+                        contains_marktone_char = (char_type == .marktone_char);
+                        alphabet_token_start_at = index;
+                        nonalpha_token_start_at = next_index;
+                    }
+                    // next char please
+                    continue;
+                }
 
-                            const token_attrs: Text.TokenAttributes = .{
-                                .category = if (contains_marktone_char) .marktone else .alphabet,
-                                .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
-                            };
-
-                            try text.countToken(token, token_attrs);
-                            if (counting_lines) printToken(token, token_attrs);
-                            contains_marktone_char = false;
-                        }
+                // For other chars of nonespace token, check to split into
+                // nonalpha tokens and alphabet tokens
+                if (char_type == .nonalpha_char) {
+                    if (in_alphabet_token_zone) {
+                        // Record alphabet
+                        const token = input_bytes[alphabet_token_start_at..index];
+                        const token_attrs: Text.TokenAttributes = .{
+                            .category = if (contains_marktone_char) .marktone else .alphabet,
+                            .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
+                        };
+                        try text.countToken(token, token_attrs);
+                        if (counting_lines) printToken(token, token_attrs);
+                        // Reset for nonalpha
+                        in_alphabet_token_zone = false;
                     }
                     alphabet_token_start_at = next_index;
                     //
                 } else {
                     // char_type => .alphabet_char, .marktone_char
-                    if (!in_nonspace_token_zone) {
-                        in_nonspace_token_zone = true;
-                        nonspace_token_start_at = index;
-                        alphabet_token_start_at = index;
-                        nonalpha_token_start_at = next_index;
-                    }
-
-                    if (char_type == .marktone_char) contains_marktone_char = true;
-
                     if (!in_alphabet_token_zone) {
-                        in_alphabet_token_zone = true;
                         // Record nonalpha
-                        if (nonalpha_token_start_at <= index) {
-                            const token = input_bytes[nonalpha_token_start_at..index];
+                        const token = input_bytes[nonalpha_token_start_at..index];
 
-                            const token_attrs: Text.TokenAttributes = .{
-                                .category = .nonalpha,
-                                .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
-                            };
+                        const token_attrs: Text.TokenAttributes = .{
+                            .category = .nonalpha,
+                            .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
+                        };
 
-                            try text.countToken(token, token_attrs);
-                            if (counting_lines) printToken(token, token_attrs);
-                        }
+                        try text.countToken(token, token_attrs);
+                        if (counting_lines) printToken(token, token_attrs);
+                        // Reset for alphabet
+                        in_alphabet_token_zone = true;
+                        contains_marktone_char = (char_type == .marktone_char);
                     }
+                    if (char_type == .marktone_char) contains_marktone_char = true;
                     nonalpha_token_start_at = next_index;
                 }
-            }
+            } // End else char_type => .alphabet_char, or .nonalpha_char
         } // End main loop
     }
 };
 
+const testing = std.testing;
+
 test "Tokenizer" {
+    const input_bytes =
+        \\Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 tỷf.
+        \\Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
+        \\https://vnexpress.net/cdc-tinh-dong-thap-dong-cua-4299620.html
+        \\
+    ;
     var text: Text = .{ .init_allocator = std.testing.allocator };
-    try text.initFromFile("_input/corpus/test.txt");
+    try text.initFromInputBytes(input_bytes);
     defer text.deinit();
 
     var tknz: Tokenizer = .{
@@ -299,6 +312,86 @@ test "Tokenizer" {
 
     try tknz.segment(&text);
 
+    const s1_tokens = "Giá trúng binh quân 13.011 đồng / cp , thu về hơn 1.300 tỷf .";
+    var s1_tkcats = &[15]Text.TokenCategory{ .marktone, .marktone, .alphabet, .marktone, .nonalpha, .marktone, .nonalpha, .alphabet, .nonalpha, .alphabet, .marktone, .marktone, .nonalpha, .marktone, .nonalpha };
+    const s1_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .both, .both, .both, .left, .none, .none, .right, .both, .both, .both, .both, .left, .right };
+
+    var it = std.mem.split(s1_tokens, " ");
+    var i: usize = 0;
+    while (it.next()) |token| {
+        try testing.expectEqualStrings(token, text.tokens[i]);
+        try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
+        try testing.expect(s1_surrds[i] == text.tokens_attrs[i].surrounded_by_spaces);
+        i += 1;
+    }
+
+    try std.testing.expectEqualStrings("\n", text.tokens[i]);
+    const s2_tokens = "Tuyến tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
+    var s2_tkcats = &[15]Text.TokenCategory{ .marktone, .marktone, .alphabet, .nonalpha, .alphabet, .marktone, .marktone, .nonalpha, .alphabet, .marktone, .nonalpha, .marktone, .alphabet, .alphabet, .nonalpha };
+    const s2_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
+    it = std.mem.split(s2_tokens, " ");
+    i += 1;
+    var j: usize = 0;
+    while (it.next()) |token| {
+        try testing.expectEqualStrings(token, text.tokens[i]);
+        // try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
+        try testing.expect(s2_tkcats[j] == text.tokens_attrs[i].category);
+        // print("Token: {s}\n", .{token});
+        // try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_attrs[i].surrounded_by_spaces));
+        try testing.expect(s2_surrds[j] == text.tokens_attrs[i].surrounded_by_spaces);
+        i += 1;
+        j += 1;
+    }
+
+    try std.testing.expectEqualStrings("\n", text.tokens[i]);
+    const s3_tokens = "https :// vnexpress . net / cdc - tinh - dong - thap - dong - cua -4299620. html";
+    it = std.mem.split(s3_tokens, " ");
+    i += 1;
+    j = 0;
+    while (it.next()) |token| {
+        try testing.expectEqualStrings(token, text.tokens[i]);
+
+        const surrounded_by_spaces = text.tokens_attrs[i].surrounded_by_spaces;
+        switch (j) {
+            0 => try testing.expect(surrounded_by_spaces == .left),
+            18 => try testing.expect(surrounded_by_spaces == .right),
+            else => try testing.expect(surrounded_by_spaces == .none),
+        }
+
+        const category = text.tokens_attrs[i].category;
+        if (@rem(j, 2) == 0) {
+            try testing.expect(category == .alphabet);
+        } else {
+            try testing.expect(category == .nonalpha);
+        }
+        i += 1;
+        j += 1;
+    }
+
     text.tokens_number_finalized = true;
     text_utils.telexifyAlphabetTokens(&text);
+
+    s1_tkcats = &[15]Text.TokenCategory{ .syllable, .syllable, .syllable, .syllable, .nonalpha, .syllable, .nonalpha, .alphabet, .nonalpha, .syllable, .syllable, .syllable, .nonalpha, .marktone, .nonalpha };
+    it = std.mem.split(s1_tokens, " ");
+    i = 0;
+    while (it.next()) |token| {
+        try testing.expectEqualStrings(token, text.tokens[i]);
+        try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
+        try testing.expectEqualStrings(@tagName(s1_tkcats[i]), @tagName(text.tokens_attrs[i].category));
+        i += 1;
+    }
+
+    // Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
+    s2_tkcats = &[15]Text.TokenCategory{ .syllable, .syllable, .alphabet, .nonalpha, .syllable, .syllable, .syllable, .nonalpha, .syllable, .syllable, .nonalpha, .syllable, .alphabet, .alphabet, .nonalpha };
+    it = std.mem.split(s2_tokens, " ");
+    i += 1;
+    j = 0;
+    while (it.next()) |token| {
+        print("Token: {s}\n", .{token});
+        try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
+        try testing.expect(s2_tkcats[j] == text.tokens_attrs[i].category);
+        i += 1;
+        i += 1;
+        j += 1;
+    }
 }
