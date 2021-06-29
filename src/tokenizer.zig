@@ -307,7 +307,7 @@ test "Tokenizer" {
     defer text.deinit();
 
     var tknz: Tokenizer = .{
-        .max_lines = 100, // For testing process maximum 100 lines only
+        // .max_lines = 100, // For testing process maximum 100 lines only
     };
 
     try tknz.segment(&text);
@@ -350,7 +350,6 @@ test "Tokenizer" {
     j = 0;
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.tokens[i]);
-
         const surrounded_by_spaces = text.tokens_attrs[i].surrounded_by_spaces;
         switch (j) {
             0 => try testing.expect(surrounded_by_spaces == .left),
@@ -368,6 +367,9 @@ test "Tokenizer" {
         j += 1;
     }
 
+    //
+    // Second passes, telexifyAlphabetTokens
+
     text.tokens_number_finalized = true;
     text_utils.telexifyAlphabetTokens(&text);
 
@@ -376,10 +378,13 @@ test "Tokenizer" {
     i = 0;
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.tokens[i]);
+        // print("Token: {s}\n", .{token});
+        // try testing.expectEqualStrings(@tagName(s1_tkcats[i]), @tagName(text.tokens_attrs[i].category));
         try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
-        try testing.expectEqualStrings(@tagName(s1_tkcats[i]), @tagName(text.tokens_attrs[i].category));
         i += 1;
     }
+
+    try std.testing.expectEqualStrings("\n", text.tokens[i]);
 
     // Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
     s2_tkcats = &[15]Text.TokenCategory{ .syllable, .syllable, .alphabet, .nonalpha, .syllable, .syllable, .syllable, .nonalpha, .syllable, .syllable, .nonalpha, .syllable, .alphabet, .alphabet, .nonalpha };
@@ -387,10 +392,10 @@ test "Tokenizer" {
     i += 1;
     j = 0;
     while (it.next()) |token| {
-        print("Token: {s}\n", .{token});
-        try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
+        try testing.expectEqualStrings(token, text.tokens[i]);
+        // print("Token: {s}\n", .{token});
+        // try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
         try testing.expect(s2_tkcats[j] == text.tokens_attrs[i].category);
-        i += 1;
         i += 1;
         j += 1;
     }

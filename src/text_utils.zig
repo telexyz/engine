@@ -6,6 +6,18 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexAmTietCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
+inline fn printToken(token: []const u8, attrs: Text.TokenAttributes) void {
+    if (token[0] == '\n') {
+        print("\nNEWLINE: ", .{});
+    } else {
+        print("\"{s}\" => {}, {}\n", .{
+            token,
+            attrs.category,
+            attrs.surrounded_by_spaces,
+        });
+    }
+}
+
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
         std.debug.print(fmt_str, args);
@@ -93,6 +105,8 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         }
         // Write attrs at the begin of token's ouput stream
         text.transformed_bytes[firt_byte_index] = @bitCast(u8, attrs.*);
+
+        printToken(token, attrs.*); // DEBUG info
     } // END while text.processed_types_count
 }
 
