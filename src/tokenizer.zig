@@ -1,3 +1,5 @@
+// https://github.com/telexyz/telex-engine/blob/04f65c74ec3a0f0b8350fc518faddcf325665de4/src/tokenizer.zig
+
 const std = @import("std");
 const print = std.debug.print;
 
@@ -18,25 +20,6 @@ inline fn printToken(token: []const u8, token_attrs: Text.TokenAttributes) void 
 
 pub const Tokenizer = struct {
     max_lines_count: usize = 0,
-
-    init_allocator: *std.mem.Allocator = undefined,
-    arena: std.heap.ArenaAllocator = undefined,
-    allocator: *std.mem.Allocator = undefined,
-
-    // Mixed of alphabet and non-alphabet (or not-pure) tokens,
-    // splitted by space delimiter
-    mixed_tokens_map: std.StringHashMap(void) = undefined,
-
-    pub fn init(self: *Tokenizer) !void {
-        self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
-        self.allocator = &self.arena.allocator;
-        self.mixed_tokens_map = std.StringHashMap(void).init(self.allocator);
-    }
-
-    pub fn deinit(self: *Tokenizer) void {
-        // self.mixed_tokens_map.deinit();
-        self.arena.deinit();
-    }
 
     const CharTypes = enum {
         alphabet_char, // a..zA..Z
@@ -63,9 +46,6 @@ pub const Tokenizer = struct {
 
         var in_nonspace_token_zone = true;
         var in_alphabet_token_zone = true;
-        // A spacious_{alphabet|nonalpha} is a whole nonspace_token
-        var is_spacious_alphabet = true;
-        var is_spacious_nonalpha = true;
         var contains_marktone_char = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
@@ -146,29 +126,32 @@ pub const Tokenizer = struct {
                     } else if (0b1100_0000 <= first_byte and first_byte <= 0b1101_1111) {
                         char_bytes_len = 2;
                         second_byte = input_bytes[index + 1];
+
                         // Rough filter to see if it .marktone_char
                         if (195 <= first_byte and first_byte <= 198 and
                             128 <= second_byte and second_byte <= 189)
+                        {
                             char_type = .marktone_char;
-
+                        }
                         if ((first_byte == 204 or first_byte == 205) and
                             128 <= second_byte and second_byte <= 163)
+                        {
                             char_type = .marktone_char;
-                        //
+                        }
                     } else if (first_byte == 225) {
                         char_bytes_len = 3;
                         second_byte = input_bytes[index + 1];
                         // Rough filter to see if it .marktone_char
-                        if (second_byte == 186 or second_byte == 187)
+                        if (second_byte == 186 or second_byte == 187) {
                             char_type = .marktone_char;
-                        //
-                    } else if (0b1111_0000 <= first_byte and first_byte <= 0b1111_0111) {
-                        char_bytes_len = 4;
+                        }
                     } else {
-                        char_bytes_len = 3;
+                        char_bytes_len = if (0b1111_0000 <= first_byte and
+                            first_byte <= 0b1111_0111) 4 else 3;
                     }
                 },
             }
+
             // Point the next_index pointer to the next VALID byte
             next_index = index + char_bytes_len;
 
@@ -180,63 +163,22 @@ pub const Tokenizer = struct {
                     // so we are not in token zone anymore
                     in_nonspace_token_zone = false;
 
-                    // This is the first time we get out of token_zone
-                    // so we end the current token at current byte index
-                    if (is_spacious_alphabet) {
+                    if (in_alphabet_token_zone) {
                         //
-                        const token = input_bytes[nonspace_token_start_at..index];
+                        const token = input_bytes[alphabet_token_start_at..index];
 
-                        const token_attrs: Text.TokenAttributes = .{
-                            .category = if (contains_marktone_char) .marktone else .alphabet,
-                            .surrounded_by_spaces = .both,
-                        };
+                        const token_attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .marktone else .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
 
                         try text.countToken(token, token_attrs);
                         if (counting_lines) printToken(token, token_attrs);
                         //
                     } else {
                         //
-                        const token = input_bytes[nonspace_token_start_at..index];
-
-                        if (is_spacious_nonalpha) {
-                            //
-                            const token_attrs: Text.TokenAttributes = .{
-                                .category = .nonalpha,
-                                .surrounded_by_spaces = .both,
-                            };
-
-                            try text.countToken(token, token_attrs);
-                            if (counting_lines) printToken(token, token_attrs);
-                            //
-                        } // else  _ = try self.mixed_tokens_map.getOrPut(token);
-                        // Mixed tokens are combining of alpha|nonalpha tokens
-                        // With no space in between, easily re-constructed from
-                        // Text's tokens[i] array, keep code here if we need
-                        // an easiy way to retrieve them, comment it out to speed up
-                        // the segmentation performament by 50%
-                    }
-
-                    if (in_alphabet_token_zone and alphabet_token_start_at > nonspace_token_start_at) {
-                        //
-                        const token = input_bytes[alphabet_token_start_at..index];
-
-                        const token_attrs: Text.TokenAttributes = .{
-                            .category = if (contains_marktone_char) .marktone else .alphabet,
-                            .surrounded_by_spaces = .right,
-                        };
-
-                        try text.countToken(token, token_attrs);
-                        if (counting_lines) printToken(token, token_attrs);
-                        //
-                    }
-
-                    if (!in_alphabet_token_zone and nonalpha_token_start_at > nonspace_token_start_at) {
-                        //
                         const token = input_bytes[nonalpha_token_start_at..index];
 
                         const token_attrs: Text.TokenAttributes = .{
                             .category = .nonalpha,
-                            .surrounded_by_spaces = .right,
+                            .surrounded_by_spaces = if (nonalpha_token_start_at > nonspace_token_start_at) .right else .both,
                         };
 
                         try text.countToken(token, token_attrs);
@@ -244,6 +186,7 @@ pub const Tokenizer = struct {
                         //
                     }
                 } // END if (in_nonspace_token_zone)
+                //
                 if (first_byte == '\n') {
                     // Record newline to treat special token
                     // it's category is nonalpha but we can check it value
@@ -271,33 +214,25 @@ pub const Tokenizer = struct {
                     }
                 }
                 // END char_type => .space
-            } else { // char_type => .alphabet_char, or .nonalpha_char
+            } else {
+                // char_type => .alphabet_char, or .nonalpha_char
                 if (char_type == .nonalpha_char) {
                     if (!in_nonspace_token_zone) {
                         in_nonspace_token_zone = true;
-                        // Reset indexes
                         nonspace_token_start_at = index;
-                        alphabet_token_start_at = next_index;
                         nonalpha_token_start_at = index;
-                        // Reset flags
-                        is_spacious_alphabet = true;
-                        is_spacious_nonalpha = true;
+                        alphabet_token_start_at = next_index;
                         contains_marktone_char = false;
                     }
-
-                    is_spacious_alphabet = false;
 
                     if (in_alphabet_token_zone) {
                         in_alphabet_token_zone = false;
                         // Record alphabets
                         if (alphabet_token_start_at <= index) {
-                            //
                             const token = input_bytes[alphabet_token_start_at..index];
-                            const first = alphabet_token_start_at == nonspace_token_start_at;
-
                             const token_attrs: Text.TokenAttributes = .{
                                 .category = if (contains_marktone_char) .marktone else .alphabet,
-                                .surrounded_by_spaces = if (first) .left else .none,
+                                .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
                             };
 
                             try text.countToken(token, token_attrs);
@@ -306,36 +241,30 @@ pub const Tokenizer = struct {
                             contains_marktone_char = false;
                         }
                     }
+
                     alphabet_token_start_at = next_index;
-                } else { // char_type => .alphabet_char, .marktone_char
+                    //
+                } else {
+                    // char_type => .alphabet_char, .marktone_char
                     if (!in_nonspace_token_zone) {
                         in_nonspace_token_zone = true;
-                        // Reset indexes
                         nonspace_token_start_at = index;
                         alphabet_token_start_at = index;
                         nonalpha_token_start_at = next_index;
-                        // Reset flags
-                        is_spacious_alphabet = true;
-                        is_spacious_nonalpha = true;
                         contains_marktone_char = false;
                     }
 
                     if (char_type == .marktone_char)
                         contains_marktone_char = true;
 
-                    is_spacious_nonalpha = false;
-
                     if (!in_alphabet_token_zone) {
                         in_alphabet_token_zone = true;
                         // Record nonalpha
                         if (nonalpha_token_start_at <= index) {
-                            //
                             const token = input_bytes[nonalpha_token_start_at..index];
-                            const first = nonalpha_token_start_at == nonspace_token_start_at;
-
                             const token_attrs: Text.TokenAttributes = .{
                                 .category = .nonalpha,
-                                .surrounded_by_spaces = if (first) .left else .none,
+                                .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
                             };
 
                             try text.countToken(token, token_attrs);
@@ -344,6 +273,7 @@ pub const Tokenizer = struct {
                             contains_marktone_char = false;
                         }
                     }
+
                     nonalpha_token_start_at = next_index;
                 }
             }
@@ -352,20 +282,13 @@ pub const Tokenizer = struct {
 };
 
 test "Tokenizer" {
-    var text: Text = .{
-        .init_allocator = std.testing.allocator,
-    };
-
+    var text: Text = .{ .init_allocator = std.testing.allocator };
     try text.initFromFile("_input/corpus/test.txt");
     defer text.deinit();
 
     var tknz: Tokenizer = .{
-        .init_allocator = std.testing.allocator,
         .max_lines_count = 100, // For testing process maximum 100 lines only
     };
-
-    try tknz.init();
-    defer tknz.deinit();
 
     try tknz.segment(&text);
 

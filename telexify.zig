@@ -32,20 +32,6 @@ fn initConfigsFromArgs() void {
     max_lines_count = if (args.nextPosix() != null) 1001 else 0;
 }
 
-fn initTexTok() !void {
-    tknz = .{
-        .init_allocator = std.heap.page_allocator,
-        .max_lines_count = max_lines_count,
-    };
-
-    text = .{
-        .init_allocator = std.heap.page_allocator,
-    };
-
-    try tknz.init();
-    try text.initFromFile(input_filename);
-}
-
 fn write_out_results1() !void {
     try TextokOutputHelpers.write_counts_to_file(
         text.nonalpha_types,
@@ -67,21 +53,16 @@ fn write_out_results2() !void {
         "_output/03-marktone_types.txt",
         "_output/04-alphabet_types.txt",
     );
-    try TextokOutputHelpers.write_tokens_to_file(
-        tknz.mixed_tokens_map,
-        "_output/06-mixed_tokens.txt",
-    );
-
     // Write sample of final output
+    try TextokOutputHelpers.write_transforms_to_file(
+        text,
+        "_output/06-telexified-666.txt",
+        666_666,
+    );
     try TextokOutputHelpers.write_text_tokens_to_file(
         text,
         "_output/07-telexified-777.txt",
         777,
-    );
-    try TextokOutputHelpers.write_transforms_to_file(
-        text,
-        "_output/08-telexified-888.txt",
-        888_888,
     );
     // Final result
     try TextokOutputHelpers.write_transforms_to_file(
@@ -107,14 +88,15 @@ pub fn main() anyerror!void {
     print("\nStarted at {}\n", .{start_time});
 
     initConfigsFromArgs();
-    try initTexTok();
-    defer tknz.deinit();
+    tknz = .{ .max_lines_count = max_lines_count };
+    text = .{ .init_allocator = std.heap.page_allocator };
+    try text.initFromFile(input_filename);
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
     const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
     try tknz.segment(&text);
-    const step1_time = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
+    _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
 
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_results1();

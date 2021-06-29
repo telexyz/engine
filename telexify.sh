@@ -2,7 +2,7 @@
 
 rm _output/*.txt
 
-zig run telexify.zig -O ReleaseFast -- _input/corpus/corpus-title.txt _output/telexified/corpus-title.txt
+~/zig run telexify.zig -O ReleaseFast -- _input/corpus/corpus-title.txt _output/telexified/corpus-title.txt
 
 # ~/zig run telexify.zig -- _input/corpus/corpus-title.txt _output/telexified/corpus-title.txt
 
