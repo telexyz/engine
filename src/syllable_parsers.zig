@@ -196,7 +196,7 @@ const unicode = std.unicode;
 // if this am_tiet .can_be_vietnamese or not
 pub fn parseAmTietToGetSyllable(strict: bool, comptime print: print_op, str: []const u8) Syllable {
     var char_stream = U2ACharStream.new();
-    char_stream.total_utf8 = strict;
+    char_stream.strict_mode = strict;
     return parseTokenToGetSyllable(strict, print, &char_stream, str);
 }
 

@@ -1,14 +1,15 @@
 const telex_utils = @import("telex_utils.zig");
 
 pub const CharStreamError = error{
-    OutOfLength,
+    OverSize,
     InvalidVowels,
-    InvalidInputChar,
-    MarkCharNotFollowAMarkableVowel,
     MoreThanOneTone,
+    InvalidInputChar,
     ToneIsNotFromUtf8,
     MarkIsNotFromUtf8,
     TooBigToBeSyllable,
+    MarkCharNotFollowAMarkableVowel,
+    UpperCharButNeitherCapitalizedNorTitlized,
 };
 
 pub const Utf8ToAsciiTelexCharStream = struct {
@@ -31,11 +32,13 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     len: usize,
 
     has_mark: bool,
-    pure_utf8: bool,
-    is_title_case: bool,
-    is_upper_case: bool,
+    pure_utf8: bool, // has char encoded strangely
 
-    total_utf8: bool = false,
+    first_char_is_upper: bool,
+    upper_chars_count: u8,
+    lower_chars_count: u8,
+
+    strict_mode: bool = false,
 
     pub fn new() Utf8ToAsciiTelexCharStream {
         return .{
@@ -45,8 +48,9 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             .has_mark = false,
             .buffer = undefined,
             .pure_utf8 = true,
-            .is_title_case = false,
-            .is_upper_case = true,
+            .first_char_is_upper = false,
+            .upper_chars_count = 0,
+            .lower_chars_count = 0,
         };
     }
     pub fn reset(self: *Utf8ToAsciiTelexCharStream) void {
@@ -55,8 +59,9 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         self.tone = 0;
         self.has_mark = false;
         self.pure_utf8 = true;
-        self.is_title_case = false;
-        self.is_upper_case = true;
+        self.first_char_is_upper = false;
+        self.upper_chars_count = 0;
+        self.lower_chars_count = 0;
     }
     pub fn lastCharIsMarkableVowel(self: *Utf8ToAsciiTelexCharStream) bool {
         return switch (self.buffer[self.len - 1]) {
@@ -75,16 +80,24 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             n += 1;
         }
 
-        if (self.is_upper_case) {
+        if (self.isCapitalized()) {
             var i: usize = 0;
             while (i < n) : (i += 1) {
                 self.buffer[i] &= 0b11011111;
             }
-        } else if (self.is_title_case) {
+        } else if (self.isTitlied()) {
             self.buffer[0] &= 0b11011111;
         }
 
         return self.buffer[0..n];
+    }
+
+    pub fn isCapitalized(self: Utf8ToAsciiTelexCharStream) bool {
+        return self.lower_chars_count == 0;
+    }
+
+    pub fn isTitlied(self: Utf8ToAsciiTelexCharStream) bool {
+        return self.upper_chars_count == 1 and self.first_char_is_upper;
     }
 
     fn pushTelexCode(self: *Utf8ToAsciiTelexCharStream, telex_code: u10) CharStreamError!void {
@@ -93,9 +106,23 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         }
 
         if (telex_utils.isUpper(telex_code)) {
-            self.is_title_case = (self.len == 0);
+            if (self.strict_mode) {
+                // Reject mixed upper vs lower case syllable,
+                // keep only titelized or capitalized sylls
+                if (!self.isCapitalized())
+                    return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
+            }
+            if (self.len == 0) self.first_char_is_upper = true;
+            self.upper_chars_count += 1;
+            //
         } else {
-            self.is_upper_case = false;
+            self.lower_chars_count += 1;
+            if (self.strict_mode) {
+                // handle lower char in trict mode
+                if (!(self.upper_chars_count == 0 or
+                    (self.upper_chars_count == 1 and self.isTitlied())))
+                    return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
+            }
         }
 
         const tone = telex_utils.getToneByte(telex_code);
@@ -112,7 +139,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         if (buff.len == 2) {
             self.has_mark = true;
             if (self.len + buff.len > MAX_LEN) {
-                return CharStreamError.OutOfLength;
+                return CharStreamError.OverSize;
             }
             self.buffer[self.len] = buff[0];
             self.len += 1;
@@ -122,7 +149,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             // buff.len == 1
             const byte = telex_utils.getCharByte(telex_code);
 
-            if (self.total_utf8) {
+            if (self.strict_mode) {
                 // Handle `Thoọng`: need to convert `oo` to `ooo` before passing to
                 // syll-parser. `oô`, `ôo` are invalid
                 if (byte == 'o' and self.len > 0 and self.buffer[self.len - 1] == 'o') {
@@ -140,7 +167,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     }
 
     pub inline fn pushCharAndFirstByte(self: *Utf8ToAsciiTelexCharStream, char: u21, first_byte: u8) CharStreamError!void {
-        if (self.len >= MAX_LEN) return CharStreamError.OutOfLength;
+        if (self.len >= MAX_LEN) return CharStreamError.OverSize;
 
         // Process can-not-stand-alone char
         // '̀'768, '́'769, '̂'770, '̃'771, '̆'774, '̉'777, '̣'803, '̀'832, '́'833
@@ -196,18 +223,6 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     pub inline fn push(self: *Utf8ToAsciiTelexCharStream, char: u21) CharStreamError!void {
         try self.pushCharAndFirstByte(char, 0);
     }
-
-    pub inline fn pushByte(self: *Utf8ToAsciiTelexCharStream, byte: u8, is_upper: bool) CharStreamError!void {
-        if (self.len >= MAX_LEN) return CharStreamError.OutOfLength;
-        self.last_char = @intCast(u21, byte);
-        if (is_upper) {
-            self.is_title_case = (self.len == 0);
-        } else {
-            self.is_upper_case = false;
-        }
-        self.buffer[self.len] = byte;
-        self.len += 1;
-    }
 };
 
 const std = @import("std");
@@ -230,12 +245,47 @@ test "unrollTone" {
 
     try char_stream.push('A');
     try testing.expectEqualStrings(char_stream.toStr(), "aas");
-    try expect(!char_stream.is_title_case);
-    try expect(!char_stream.is_upper_case);
+    try expect(!char_stream.isTitlied());
+    try expect(!char_stream.isCapitalized());
     try expect(!char_stream.has_mark);
 
     try char_stream.push('ô');
     try expect(char_stream.has_mark);
 
     try char_stream.push('ầ') catch |err| expect(err == CharStreamError.MoreThanOneTone);
+}
+
+test "strict_mode" {
+    var char_stream = U2ACharStream.new();
+    char_stream.strict_mode = true;
+
+    try char_stream.push('D');
+    try testing.expect(char_stream.upper_chars_count == 1);
+    try char_stream.push('e');
+    try testing.expect(char_stream.upper_chars_count == 1);
+    char_stream.push('D') catch |err|
+        try testing.expect(err == CharStreamError.UpperCharButNeitherCapitalizedNorTitlized);
+    //
+    char_stream.reset();
+    try char_stream.push('E');
+    try testing.expect(char_stream.upper_chars_count == 1);
+    try char_stream.push('Ư');
+    try testing.expect(char_stream.upper_chars_count == 2);
+    try char_stream.push('Ơ');
+    try testing.expect(char_stream.upper_chars_count == 3);
+    try char_stream.push('Ă');
+    try testing.expect(char_stream.upper_chars_count == 4);
+    char_stream.push('d') catch |err|
+        try testing.expect(err == CharStreamError.UpperCharButNeitherCapitalizedNorTitlized);
+    //
+    //
+    char_stream.reset();
+    try char_stream.push('ẽ');
+    char_stream.push('D') catch |err|
+        try testing.expect(err == CharStreamError.UpperCharButNeitherCapitalizedNorTitlized);
+    //
+    char_stream.reset();
+    try char_stream.push('ô');
+    char_stream.push('o') catch |err|
+        try testing.expect(err == CharStreamError.InvalidVowels);
 }

@@ -29,7 +29,7 @@ const WAIT_NANOSECS: u64 = 600_000_000; // nanoseconds
 pub fn telexifyAlphabetTokens(text: *Text) void {
     @setRuntimeSafety(false);
     var char_stream = U2ACharStream.new();
-    char_stream.total_utf8 = true;
+    char_stream.strict_mode = true;
     var prev_percent: u64 = 0;
     const max_sleeps: u8 = 1;
     var sleeps_count: u8 = 0;
@@ -161,7 +161,7 @@ pub fn saveAsciiTelexTransform(text: *Text, char_stream: U2ACharStream) []const 
     const bytes_len = &text.transformed_bytes_len;
     const trans_start_at = bytes_len.*;
 
-    if (char_stream.is_upper_case) {
+    if (char_stream.isCapitalized()) {
         var i: usize = 0;
         while (i < char_stream.len) : (i += 1) {
             // Upper case the whole input bytes
@@ -177,7 +177,7 @@ pub fn saveAsciiTelexTransform(text: *Text, char_stream: U2ACharStream) []const 
     } else {
         var i: usize = 0;
         // Upper case the first letter
-        if (char_stream.is_title_case) {
+        if (char_stream.isTitlied()) {
             text.transformed_bytes[bytes_len.*] =
                 char_stream.buffer[0] & 0b11011111;
             bytes_len.* += 1;

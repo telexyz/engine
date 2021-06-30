@@ -10,9 +10,13 @@
 
 ## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
-TODOs:
+[ LATER ] <= NOW IS NOT THE BOTTLE NECK
 
-* Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
+* Find an efficient way to check if a _utf8 type_ is a Vi Syllable or not!
+  - We know that `am_giua` is a must for a Vi Syllable
+  - Some `am_giua` can follow one some `am_dau` and only be followed by some `am_cuoi`
+
+TODOs:
 
 * Test syllable counts
 
@@ -20,11 +24,7 @@ TODOs:
 
 [ DONE ]
 
-[ LATER ] <= NOW IS NOT THE BOTTLE NECK
-
-* Find an efficient way to check if a _utf8 type_ is a Vi Syllable or not!
-  - We know that `am_giua` is a must for a Vi Syllable
-  - Some `am_giua` can follow one some `am_dau` and only be followed by some `am_cuoi`
+* Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
 * Handle `Thoọng`: need to convert `oo` to `ooo` before passing to syll-parser. 
 `oô`, `ôo` are invalid, can recognized by using `char_stream.has_mark` 
