@@ -33,9 +33,6 @@ pub const Text = struct {
     // but it not looked right for me. I think it we should keep original form.
     // Same tokens counted to type, we will save transform in TypeInfo
 
-    // Mapping from a token id to it's type info
-    tokens_type_infos: []*TypeInfo = undefined,
-
     // We'll need transformed_bytes stream as a data store for transforms slices
     // transforms[i] will point to a position in the transformed_bytes stream
     transformed_bytes: []u8 = undefined,
@@ -66,7 +63,7 @@ pub const Text = struct {
     estimated_tokens_number: usize = undefined,
     // Start the text with empty tokens list, hence tokens_number = 0
     tokens_number: usize = 0,
-    processed_types_count: usize = 0,
+    processed_tokens_number: usize = 0,
     // To skip sleep time
     tokens_number_finalized: bool = false,
 
@@ -83,7 +80,7 @@ pub const Text = struct {
         category: TokenCategory = ._none,
 
         pub fn isSyllable(self: TypeInfo) bool {
-            return self.category == .syllmark or self.category == .syllmark;
+            return self.category == .syllmark or self.category == .syllable;
         }
 
         pub fn haveMarkTone(self: TypeInfo) bool {
@@ -99,7 +96,7 @@ pub const Text = struct {
         category: TokenCategory,
 
         pub fn isSyllable(self: TokenAttributes) bool {
-            return self.category == .syllmark or self.category == .syllmark;
+            return self.category == .syllmark or self.category == .syllable;
         }
 
         pub fn haveMarkTone(self: TypeInfo) bool {
@@ -178,9 +175,6 @@ pub const Text = struct {
         self.nonalpha_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
-        // Init tokens_type_infos list
-        self.tokens_type_infos = try self.allocator.alloc(*TypeInfo, est_token_num.*);
-
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
         self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5 + BUFF_SIZE;
@@ -208,15 +202,15 @@ pub const Text = struct {
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = attrs;
 
+        const type_info = TypeInfo{
+            .transform = token, // Default, transform to itself :)
+            .category = ._none,
+        };
         const gop = if (attrs.category == .nonalpha)
-            try self.nonalpha_types.getOrPutValue(token, TypeInfo{})
+            try self.nonalpha_types.getOrPutValue(token, type_info)
         else
-            try self.alphabet_types.getOrPutValue(token, TypeInfo{});
-
+            try self.alphabet_types.getOrPutValue(token, type_info);
         gop.value_ptr.count += 1;
-        gop.value_ptr.transform = token; // Default, transform to itself :)
-        // Save mapping from token to it's type info
-        self.tokens_type_infos[self.tokens_number] = gop.value_ptr;
 
         // increare only when counter is finalized since other threads are watching
         self.tokens_number += 1;

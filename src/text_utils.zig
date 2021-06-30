@@ -33,7 +33,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
     const max_sleeps: u8 = 1;
     var sleeps_count: u8 = 0;
 
-    var i: *usize = &text.processed_types_count;
+    var i: *usize = &text.processed_tokens_number;
     while (i.* <= text.tokens_number) : (i.* += 1) {
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
@@ -65,17 +65,30 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         const firt_byte_index = text.transformed_bytes_len;
         text.transformed_bytes_len += 1;
 
-        if (attrs.category == .alphabet or attrs.category == .alphmark) {
-            // alphmark is alphabet and both count to alphabet_types
-            // Since token is alphabet, it's alphabet_types' info must existed
+        if (attrs.category != .nonalpha) {
+            // Get token coresponding type info
             const type_info = text.alphabet_types.getPtr(token).?;
+
+            // print("\n| Tkn: {s}, {} | ", .{ token, type_info.category }); // DEBUG
             if (type_info.category == ._none) { // Not transformed yet
                 char_stream.reset();
                 // Try to convert token to syllable
-                const syllable = parsers.parseTokenToGetSyllable(true, printNothing, &char_stream, token);
+                const syllable = parsers.parseTokenToGetSyllable(
+                    true, // strick mode on
+                    printNothing,
+                    &char_stream,
+                    token,
+                );
+
+                // print("Alphabet: {s}, {} => is_vn_syllable {}\n", .{ token, attrs.category, syllable.can_be_vietnamese }); // DEBUG
+
                 if (syllable.can_be_vietnamese) {
                     // Token is vietnamese syllable
-                    type_info.category = if (attrs.category == .alphmark) .syllmark else .syllable;
+                    type_info.category = switch (attrs.category) {
+                        .alphmark => .syllmark,
+                        .alphabet => .syllable,
+                        else => unreachable,
+                    };
                     // Write ascii-telex transform
                     const syllable_token = saveAsciiTelexTransform(text, char_stream);
                     type_info.transform = syllable_token;
@@ -90,7 +103,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
 
             if (type_info.isSyllable()) {
                 attrs.category = type_info.category;
-                // Point token value to it's type trans
+                // Point token value to it's type trans to write to output stream
                 token = type_info.transform;
             }
         } // attrs.category == .alphabet or .alphmark
@@ -105,8 +118,8 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         // Write attrs at the begin of token's ouput stream
         text.transformed_bytes[firt_byte_index] = attrs.toByte();
 
-        printToken(token, attrs.*); // DEBUG info
-    } // END while text.processed_types_count
+        // printToken(token, attrs.*); // DEBUG
+    } // END while text.processed_tokens_number
 }
 
 fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_percent: *u64) void {

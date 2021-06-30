@@ -77,7 +77,7 @@ pub const TextokOutputHelpers = struct {
         }
     }
 
-    pub fn write_text_trans_to_file(text: Text, output_filename: []const u8, max: usize) !void {
+    pub fn write_text_tokens_to_file(text: Text, output_filename: []const u8, max: usize) !void {
         var n = text.tokens_number;
         if (max > 0 and n > max) n = max;
         // Open files to write transformed input data (final result)
@@ -87,11 +87,9 @@ pub const TextokOutputHelpers = struct {
         var i: usize = 0;
 
         while (i < n) : (i += 1) {
+            _ = try output_file.writer().write(text.tokens[i]);
+
             const attrs = text.tokens_attrs[i];
-            var trans = text.tokens_type_infos[i].transform;
-
-            _ = try output_file.writer().write(trans);
-
             if (attrs.surrounded_by_spaces == .both or
                 attrs.surrounded_by_spaces == .right)
                 _ = try output_file.writer().write(" ");
