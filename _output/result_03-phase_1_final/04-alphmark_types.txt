@@ -1,4 +1,5 @@
      29571  ĐH
+     20738  ĐT
      16075  ôtô
       9714  CĐ
       9155  CĐV
@@ -92,6 +93,7 @@
        311  ximăng
        292  ĐHTB
        290  BĐ
+       286  Đ
        284  ĐD
        280  UBTƯ
        272  TMĐT
@@ -99,6 +101,7 @@
        268  hécta
        266  ATVSLĐ
        265  CQĐT
+       258  Ôsin
        247  Đôrêmon
        244  bêtông
        243  BĐVN
@@ -314,6 +317,7 @@
         36  ĐTCK
         36  Côte
         35  ĐKXT
+        35  ĐBP
         35  HKPĐ
         35  glôcôm
         34  TiênPhongBank
@@ -397,6 +401,7 @@
         23  Dzũng
         23  Axít
         22  ắcquy
+        22  đep
         22  Yôk
         22  văc
         22  tâp
@@ -512,6 +517,7 @@
         16  Brúc
         15  ĐắkLắk
         15  Đôlta
+        15  ĐV
         15  ĐTDD
         15  điêden
         15  ĐCT
@@ -681,6 +687,7 @@
         11  Activité
         10  Đăc
         10  ĐTT
+        10  ĐL
         10  Ănggôla
         10  Ăngghen
         10  Ôliu
@@ -791,6 +798,7 @@
          8  Đăkrinh
          8  ĐăkLăk
          8  đôc
+         8  ĐUQSTW
          8  Đubai
          8  ĐTV
          8  ĐTH
@@ -855,6 +863,7 @@
          7  ĐắkMi
          7  đôminô
          7  Đrang
+         7  ĐLGL
          7  ĐHĐN
          7  ĐHQT
          7  ĐHKH
@@ -932,6 +941,7 @@
          6  Đăkdrinh
          6  ĐôLa
          6  đât
+         6  ĐTN
          6  Đrắk
          6  ĐKGD
          6  ĐKB
@@ -944,6 +954,7 @@
          6  Ðau
          6  Êxtônia
          6  Êritơria
+         6  Étienne
          6  zục
          6  Yàng
          6  Ytế
@@ -1195,6 +1206,7 @@
          4  Đt
          4  ĐSBCL
          4  Đrắc
+         4  đru
          4  ĐP
          4  ĐNB
          4  ĐMC
@@ -1208,6 +1220,7 @@
          4  Điêzen
          4  ĐHĐCD
          4  ĐHNĐT
+         4  ĐC
          4  ĐBHĐND
          4  Đatanla
          4  đat
@@ -1427,6 +1440,7 @@
          3  ĐTĐT
          3  ĐTĐM
          3  ĐTPT
+         3  ĐTHT
          3  ĐTCS
          3  ĐSV
          3  Đrăk
@@ -1440,6 +1454,7 @@
          3  ĐHCĐBT
          3  ĐHBC
          3  Đh
+         3  ĐCTT
          3  đap
          3  Đamb
          3  Đakmi
@@ -1731,6 +1746,7 @@
          2  ẢRập
          2  ảnnh
          2  ươc
+         2  ƯMTTQ
          2  ơiiii
          2  Škoda
          2  ĐứcLinhMobile
@@ -1768,6 +1784,7 @@
          2  ĐTST
          2  ĐTL
          2  ĐTBC
+         2  đri
          2  ĐQT
          2  ĐNH
          2  ĐMN
@@ -1790,6 +1807,7 @@
          2  ĐHGTVT
          2  ĐGH
          2  ĐG
+         2  đet
          2  Đep
          2  Đensavẳn
          2  ĐBĐB
@@ -2557,6 +2575,7 @@
          1  ƒ
          1  Şükür
          1  Şükrü
+         1  œil
          1  Ōura
          1  Đừnglopịlỗ
          1  ĐứcTuấn
@@ -2654,6 +2673,7 @@
          1  đơngiá
          1  Đŭh
          1  ĐĩaThan
+         1  ĐĐB
          1  Đăngơ
          1  đăngký
          1  ĐăkĐoa
@@ -2731,6 +2751,7 @@
          1  đup
          1  đuoc
          1  Đul
+         1  ĐUBP
          1  đuađặc
          1  ĐTĐĐ
          1  ĐTĐD
@@ -2745,6 +2766,7 @@
          1  ĐTTL
          1  ĐTTH
          1  ĐTTD
+         1  ĐTSTHX
          1  ĐTPTĐP
          1  ĐTphối
          1  ĐTPDA
@@ -2778,7 +2800,9 @@
          1  Đrá
          1  Đruynh
          1  Đroeng
+         1  đriu
          1  ĐRinh
+         1  Đrak
          1  Đqốc
          1  ĐQM
          1  ĐQL
@@ -2796,10 +2820,13 @@
          1  đoànCả
          1  đoànCúp
          1  Đoremi
+         1  đop
          1  Đongnai
          1  ĐongA
+         1  đol
          1  Đoak
          1  ĐNT
+         1  ĐNM
          1  ĐNL
          1  đnh
          1  ĐND
@@ -2818,6 +2845,7 @@
          1  ĐKVN
          1  ĐKTW
          1  ĐKKS
+         1  ĐKH
          1  ĐKGT
          1  ĐKDN
          1  ĐKCK
@@ -2839,6 +2867,8 @@
          1  điêùkiện
          1  đivăng
          1  đir
+         1  Đir
+         1  Đioxin
          1  điop
          1  Đioali
          1  đinhtúk
@@ -2854,13 +2884,16 @@
          1  Đhâm
          1  ĐHYHN
          1  Đhu
+         1  ĐHTL
          1  ĐHTG
          1  ĐHTDTTĐBSCL
          1  ĐHTBTG
          1  ĐHSKĐA
          1  Đhrôồng
          1  ĐHRôông
+         1  ĐHQHHN
          1  ĐHQGTPHCM
+         1  ĐHQGHCM
          1  ĐHPG
          1  ĐHMỹ
          1  ĐHMTCN
@@ -2883,9 +2916,12 @@
          1  ĐEY
          1  đey
          1  Đensavanh
+         1  Đensavan
          1  Đek
          1  đeeeee
          1  đeeee
+         1  đec
+         1  Đec
          1  ĐDV
          1  ĐDPL
          1  ĐDPHCN
@@ -2916,6 +2952,7 @@
          1  đb
          1  đaư
          1  đazinăng
+         1  Đatkeys
          1  Đasara
          1  Đasar
          1  Đarkrông
@@ -2956,6 +2993,7 @@
          1  Ăngôla
          1  Ăngko
          1  Ăngka
+         1  Ănghen
          1  ăndặm
          1  ăcqui
          1  Ăc
@@ -2963,6 +3001,7 @@
          1  Ÿng
          1  Ÿ
          1  Üldas
+         1  útt
          1  úong
          1  úon
          1  Úep
@@ -2990,6 +3029,7 @@
          1  Ôpan
          1  ôpan
          1  Ôpal
+         1  ôp
          1  ÔngTập
          1  ôngTrịnh
          1  ôngTrần
@@ -3047,6 +3087,7 @@
          1  Ðá
          1  Ðàn
          1  Ðua
+         1  Ðu
          1  Ðoạt
          1  Ðoa
          1  Ðiệp
@@ -3079,6 +3120,7 @@
          1  étvê
          1  Étte
          1  ÉTS
+         1  Étourdissant
          1  Étonnants
          1  Étendard
          1  és
@@ -3235,7 +3277,6 @@
          1  xàlan
          1  xyên
          1  xyHàng
-         1  XYchỉ
          1  Xvôn
          1  xuốngTrái
          1  xuốngg
@@ -3302,6 +3343,7 @@
          1  Wạyne
          1  Wơk
          1  Wüthrich
+         1  Würzburg
          1  Wärtsilä
          1  Wâu
          1  wàt
@@ -3365,6 +3407,7 @@
          1  VĐX
          1  VĐVQG
          1  VĐVchuyên
+         1  vđv
          1  vđtg
          1  VĐTC
          1  vđqg
@@ -4565,6 +4608,7 @@
          1  optổ
          1  operacíon
          1  Onoré
+         1  ONORÉ
          1  Ombré
          1  Oláh
          1  OlympicViệt
@@ -5145,6 +5189,7 @@
          1  lđội
          1  LĐVL
          1  LĐTTVN
+         1  LĐST
          1  LĐQT
          1  LĐN
          1  lđlĐvnNguyễn
@@ -5164,6 +5209,7 @@
          1  lýp
          1  lýmáy
          1  lýBurberry
+         1  Lübeck
          1  Lúit
          1  Lúis
          1  Löfven
@@ -5223,6 +5269,7 @@
          1  luỡi
          1  luậtĐại
          1  luậtNguyên
+         1  luậnlần
          1  Lučić
          1  LuôngPraBăng
          1  Luôngphrabang
@@ -5508,6 +5555,7 @@
          1  Iập
          1  Iần
          1  İstanbul
+         1  IĐ
          1  ić
          1  IÊU
          1  iêng
@@ -5595,6 +5643,7 @@
          1  HĐTQ
          1  HĐTP
          1  HĐSX
+         1  HĐQTSouthern
          1  HĐQTcông
          1  HĐQN
          1  HĐQLQ
@@ -5771,6 +5820,7 @@
          1  Harcène
          1  Hamsík
          1  hambơgơ
+         1  Hambuốc
          1  Haitháng
          1  HAIPhiên
          1  haikư
@@ -6329,6 +6379,7 @@
          1  Crát
          1  Cratiê
          1  CQTPĐB
+         1  CQCSĐ
          1  CPBĐ
          1  Coói
          1  Coòng
@@ -6345,6 +6396,7 @@
          1  consolidacíon
          1  Comédie
          1  Compăct
+         1  Compông
          1  Compás
          1  complê
          1  ComplexThành
@@ -6649,7 +6701,6 @@
          1  BìnhDương
          1  Bìnhdo
          1  bêta
-         1  Bêta
          1  bêrê
          1  Bêp
          1  Bênêđictô

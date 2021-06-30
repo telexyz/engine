@@ -14,11 +14,13 @@ TODO:
 
 * Handle `Thoọng`: need to conver `oo` to `ooo` before passing to syll-parser
 
+* Test types' counts
+
+[ DONE ]
+
 * Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
 * More test cases for `telexify.zig` and `src/text_data_struct.zig`
-
-[ DONE ]
 
 * Break alphabet-types into have-marks-and-tone vs others
 FIX: why "cp" is categoried as alphmark?

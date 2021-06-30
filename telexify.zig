@@ -57,12 +57,12 @@ fn write_out_results2() !void {
     // Write sample of final output to preview
     try TextokOutputHelpers.write_text_tokens_to_file(
         text,
-        "_output/07-telexified-777.txt",
+        "_output/07-tokens_sample.txt.txt",
         777,
     );
     try TextokOutputHelpers.write_transforms_to_file(
         text,
-        "_output/08-telexified-888.txt",
+        "_output/08-telexified_sample.txt",
         888_888,
     );
     // Final result
