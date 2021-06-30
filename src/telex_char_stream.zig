@@ -100,6 +100,12 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         return self.upper_chars_count == 1 and self.first_char_is_upper;
     }
 
+    pub fn hasVowelMark(self: Utf8ToAsciiTelexCharStream) bool {
+        return self.has_mark and // but not đ (dd)
+            !(self.buffer[0] == 'd' and
+            self.buffer[1] == 'd');
+    }
+
     fn pushTelexCode(self: *Utf8ToAsciiTelexCharStream, telex_code: u10) CharStreamError!void {
         if (telex_code == 0) {
             return CharStreamError.InvalidInputChar;
@@ -153,7 +159,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 // Handle `Thoọng`: need to convert `oo` to `ooo` before passing to
                 // syll-parser. `oô`, `ôo` are invalid
                 if (byte == 'o' and self.len > 0 and self.buffer[self.len - 1] == 'o') {
-                    if (self.has_mark) {
+                    if (self.hasVowelMark()) {
                         return CharStreamError.InvalidVowels;
                     }
                     self.buffer[self.len] = 'o';
@@ -259,7 +265,8 @@ test "strict_mode" {
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
 
-    try char_stream.push('D');
+    try char_stream.push('Đ');
+    try testing.expect(!char_stream.hasVowelMark());
     try testing.expect(char_stream.upper_chars_count == 1);
     try char_stream.push('e');
     try testing.expect(char_stream.upper_chars_count == 1);
@@ -269,8 +276,10 @@ test "strict_mode" {
     char_stream.reset();
     try char_stream.push('E');
     try testing.expect(char_stream.upper_chars_count == 1);
+    try testing.expect(!char_stream.hasVowelMark());
     try char_stream.push('Ư');
     try testing.expect(char_stream.upper_chars_count == 2);
+    try testing.expect(char_stream.hasVowelMark());
     try char_stream.push('Ơ');
     try testing.expect(char_stream.upper_chars_count == 3);
     try char_stream.push('Ă');
