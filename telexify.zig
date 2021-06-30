@@ -57,7 +57,7 @@ fn write_out_results2() !void {
     // Write sample of final output to preview
     try TextokOutputHelpers.write_text_tokens_to_file(
         text,
-        "_output/07-tokens_sample.txt.txt",
+        "_output/07-tokens_sample.txt",
         777,
     );
     try TextokOutputHelpers.write_transforms_to_file(
