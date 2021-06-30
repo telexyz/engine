@@ -16,8 +16,6 @@
   - We know that `am_giua` is a must for a Vi Syllable
   - Some `am_giua` can follow one some `am_dau` and only be followed by some `am_cuoi`
 
-TODOs:
-
 * Test syllable counts
 
 * Sort type counts before write to files
