@@ -2,12 +2,12 @@
 // https://github.com/telexyz/telex-engine/blob/04f65c74ec3a0f0b8350fc518faddcf325665de4/src/tokenizer.zig
 
 // For now the bottle neck is at HashMap tokens into types and count
-// By skipping hashing function in text.countToken it took 0.24 mins so segment ~600mb
+// By skipping hashing function in text.countToken it took 0.24 mins to segment ~600mb
 // with hashing function on every token it took  0.44 mins (~2x slower)
 
 // Solution-1: Create another thread just for hashing (ad-hoc)
 
-// Solution-2: Improve hashing algorithm ... how? since hashing is hard!
+// Solution-2: Improve hashing algorithm ... how?
 // Can use perfect hashing and hash function for short input string
 // Or using other data structs like trie, ...
 

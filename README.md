@@ -16,22 +16,17 @@ https://github.com/tuyenvm/OpenKey
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-### A basic text tokenizer / a text processor
+### TexTok: A text tokenizer
 
 + Input: Text files
 
 + Output: Xem `documents/encoding.md`. OOVs are encoded later using BPE.
 
-TODO: 
-* From telexify.zig tokenizer, record tokens[i], transforms[i] to it's Text struct.
-* Make use of tokens[i] category info ... (syllable, newline vs others)
-* Break other's token into syllables and traditional vocab using BPE
-
-TO-TEST: Test telexify.zig extensively.
-
-TO-TEST: convert syllable to various format and valid them with telex parser.
+Xem `01-TKNZ.md` (xong phrase-1).
 
 [ >>> DONE <<< ]
+
+TO-TEST: convert syllable to various format and valid them with telex parser.
 
 Hiện tại với mỗi char đầu vào phải switch 3 lần, lần 1 phân biệt kiểu char, lần 2, convert từ utf-8 về ascii-telex, lần 3 xem nó là viết hoa hay thường => viết 1 hàm trung lập thống nhất 3 lần switch này về làm 1.
 

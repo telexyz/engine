@@ -7,10 +7,28 @@
 * Rule #4: Don't try to be clever
 * Rule #5: Prefer simple solution!
 
+## Enhancement !!!
+
+For now the bottle neck is at HashMap tokens into types and count
+By skipping hashing function in text.countToken it took 0.24 mins to segment ~600mb
+with hashing function on every token it took  0.44 mins (~2x slower)
+
+**Solution-2**: Improve hashing algorithm ... how? 
+Can use perfect hashing and hash function for short input string
+Or using other data structs like trie, ...
+
+**Solution-3**: Break Text into n-parts and run each part in parallels (no-need to run
+             text_utils.telexifyAlphabetTokens in a separate thread).
+             After that merge n-parts' results into one! (map-reduce)
+
+=> Solution-3 is the best choice since it apply a general pattern (map-reduce) that scale very well in both multi-threads, multi-processes or distributed-processes
+
+=> Solution-2 is complement to solution-3 since it will speedup each single pileline
+
 
 ## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
-[ LATER ] <= NOW IS NOT THE BOTTLE NECK
+[ LATER ] <= NOT THE BOTTLE NECK
 
 * Find an efficient way to check if a _utf8 type_ is a Vi Syllable or not!
   - We know that `am_giua` is a must for a Vi Syllable
@@ -19,6 +37,10 @@
 * Test syllable counts
 
 * Sort type counts before write to files
+
+__TODOs__:
+
+
 
 [ DONE ]
 
@@ -131,7 +153,7 @@ This phase must:
 * Combining subword tokenize techniques to obtain best results
 
 
-## Phase-3: Anything elses / Post-processing
+## Phase-3: Everything Else / Post-processing
 
 Digit tknz?, Viết tắt? ...
 
