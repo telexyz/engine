@@ -22,7 +22,7 @@ Extra features: BPE-dropout (https://arxiv.org/pdf/1910.13267.pdf, 2019)
 ```sh
 pip3 install youtokentome
 # Nhanh khủng khiếp!
-yttm bpe --data _input/corpus/corpus-title-telexified.txt --model _models/yttm-telexified.model --vocab_size 8000
+yttm bpe --data _output/telexified/corpus-title.txt --model _models/yttm-telexified.model --vocab_size 20000
 yttm encode --model _models/yttm-telexified.model --output_type subword
 ```
 
