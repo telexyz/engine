@@ -295,7 +295,7 @@ const testing = std.testing;
 
 test "Tokenizer" {
     const input_bytes =
-        \\Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 tỷf.
+        \\Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
         \\Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
         \\https://vnexpress.net/cdc-tinh-dong-thap-dong-cua-4299620.html
         \\
@@ -310,7 +310,7 @@ test "Tokenizer" {
 
     try tknz.segment(&text);
 
-    const s1_tokens = "Giá trúng binh quân 13.011 đồng / cp , thu về hơn 1.300 tỷf .";
+    const s1_tokens = "Giá trúng binh quân 13.011 đồng / cp , thu về hơn 1.300 voọc .";
     var s1_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alphabet, .alphmark, .nonalpha, .alphmark, .nonalpha, .alphabet, .nonalpha, .alphabet, .alphmark, .alphmark, .nonalpha, .alphmark, .nonalpha };
     const s1_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .both, .both, .both, .left, .none, .none, .right, .both, .both, .both, .both, .left, .right };
 
@@ -376,8 +376,8 @@ test "Tokenizer" {
 
     try testing.expect(text.processed_tokens_number == text.tokens_number);
 
-    // Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 tỷf.
-    s1_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .syllable, .syllmark, .nonalpha, .syllmark, .nonalpha, .alphabet, .nonalpha, .syllable, .syllmark, .syllmark, .nonalpha, .alphmark, .nonalpha };
+    // Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
+    s1_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .syllable, .syllmark, .nonalpha, .syllmark, .nonalpha, .alphabet, .nonalpha, .syllable, .syllmark, .syllmark, .nonalpha, .syllmark, .nonalpha };
     it = std.mem.split(s1_tokens, " ");
     i = 0;
     while (it.next()) |token| {

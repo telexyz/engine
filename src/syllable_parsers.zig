@@ -654,6 +654,7 @@ test "canBeVietnamese() // iee, yee (uyee), ooo, uee" {
     // the user is aiming for 'ô' or 'oo' (both need to type double 'o')
     try std.testing.expectEqualStrings(utf8ToAmTiet("toong"), "tooong");
     try std.testing.expectEqualStrings(utf8ToAmTiet("thoọng"), "thooongj");
+    try std.testing.expectEqualStrings(utf8ToAmTiet("voọc"), "vooocj");
     try std.testing.expectEqualStrings(strToAmTiet("tieu"), "tieeu");
     try std.testing.expectEqualStrings(strToAmTiet("yeu"), "yeeu");
     try std.testing.expectEqualStrings(strToAmTiet("tuyenr"), "tuyeenr");
