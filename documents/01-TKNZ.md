@@ -10,10 +10,13 @@
 
 ## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
+TODOs:
 
 * Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 
 * Test syllable counts
+
+* Sort type counts before write to files
 
 [ DONE ]
 

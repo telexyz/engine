@@ -319,23 +319,25 @@ pub const Syllable = packed struct {
     }
 
     // [ NEED TEST ]
-    pub fn toStr(self: *Syllable) []const u8 {
+    pub fn printBuff(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
         const dau = if (self.am_dau == ._none) blank else @tagName(self.am_dau);
         const giua = if (self.am_giua == ._none) blank else @tagName(self.am_giua);
         const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
         const tone = if (self.tone == ._none) blank else @tagName(self.tone);
 
-        var buffer: [11]u8 = undefined;
+        std.debug.assert(buff.len >= dau.len + giua.len + cuoi.len + tone.len);
+
         var n: usize = 0;
         const parts: [4][]const u8 = .{ dau, giua, cuoi, tone };
+
         for (parts) |s| {
             for (s) |b| {
-                buffer[n] = b;
+                buff[n] = b;
                 n += 1;
             }
         }
-        return buffer[0..n];
+        return buff[0..n];
     }
 
     pub fn len(self: Syllable) u8 {
@@ -349,7 +351,7 @@ pub const Syllable = packed struct {
     }
 };
 
-test "Syllable's tone" {
+test "Syllable's printBuff" {
     var syll = Syllable{
         .am_dau = AmDau.ng,
         .am_giua = AmGiua.uwa,
@@ -357,12 +359,16 @@ test "Syllable's tone" {
         .tone = Tone.s,
         .can_be_vietnamese = true,
     };
-    try std.testing.expectEqualStrings(syll.toStr(), "nguwas");
+
+    var buffer: [11]u8 = undefined;
+    const buff = buffer[0..];
+
+    try std.testing.expectEqualStrings(syll.printBuff(buff), "nguwas");
 
     syll.am_giua = .o;
-    try std.testing.expectEqualStrings(syll.toStr(), "ngos");
+    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngos");
 
     syll.am_cuoi = .n;
     syll.tone = ._none;
-    try std.testing.expectEqualStrings(syll.toStr(), "ngon");
+    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngon");
 }

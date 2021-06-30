@@ -635,10 +635,12 @@ test "canBeVietnamese() // No-tone and/or no-mark" {
 const syllableToAmTiet = @import("syllable_converters.zig").syllableToAmTiet;
 fn strToAmTiet(str: []const u8) []const u8 {
     return syllableToAmTiet(parseAmTietToGetSyllable(false, printNothing, str));
-    // return parseAmTietToGetSyllable(false, printNothing, str).toStr();
 }
 fn utf8ToAmTiet(str: []const u8) []const u8 {
-    return syllableToAmTiet(parseAmTietToGetSyllable(true, printNothing, str));
+    // return syllableToAmTiet(parseAmTietToGetSyllable(true, printNothing, str));
+    var buffer: [11]u8 = undefined;
+    const buff = buffer[0..];
+    return parseAmTietToGetSyllable(true, printNothing, str).printBuff(buff);
 }
 
 test "canBeVietnamese() // iee, yee (uyee), ooo, uee" {
@@ -651,6 +653,7 @@ test "canBeVietnamese() // iee, yee (uyee), ooo, uee" {
     // .ooo <= .oo need to process at keyboard input level since we don't know
     // the user is aiming for 'ô' or 'oo' (both need to type double 'o')
     try std.testing.expectEqualStrings(utf8ToAmTiet("toong"), "tooong");
+    try std.testing.expectEqualStrings(utf8ToAmTiet("thoọng"), "thooongj");
     try std.testing.expectEqualStrings(strToAmTiet("tieu"), "tieeu");
     try std.testing.expectEqualStrings(strToAmTiet("yeu"), "yeeu");
     try std.testing.expectEqualStrings(strToAmTiet("tuyenr"), "tuyeenr");
