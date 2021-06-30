@@ -29,6 +29,7 @@ const WAIT_NANOSECS: u64 = 600_000_000; // nanoseconds
 pub fn telexifyAlphabetTokens(text: *Text) void {
     @setRuntimeSafety(false);
     var char_stream = U2ACharStream.new();
+    char_stream.total_utf8 = true;
     var prev_percent: u64 = 0;
     const max_sleeps: u8 = 1;
     var sleeps_count: u8 = 0;

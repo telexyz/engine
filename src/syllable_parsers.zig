@@ -196,6 +196,7 @@ const unicode = std.unicode;
 // if this am_tiet .can_be_vietnamese or not
 pub fn parseAmTietToGetSyllable(strict: bool, comptime print: print_op, str: []const u8) Syllable {
     var char_stream = U2ACharStream.new();
+    char_stream.total_utf8 = strict;
     return parseTokenToGetSyllable(strict, print, &char_stream, str);
 }
 
@@ -636,6 +637,9 @@ fn strToAmTiet(str: []const u8) []const u8 {
     return syllableToAmTiet(parseAmTietToGetSyllable(false, printNothing, str));
     // return parseAmTietToGetSyllable(false, printNothing, str).toStr();
 }
+fn utf8ToAmTiet(str: []const u8) []const u8 {
+    return syllableToAmTiet(parseAmTietToGetSyllable(true, printNothing, str));
+}
 
 test "canBeVietnamese() // iee, yee (uyee), ooo, uee" {
     // Note: Need to convert no-mark format back to marked version for
@@ -645,7 +649,8 @@ test "canBeVietnamese() // iee, yee (uyee), ooo, uee" {
     // .uyee <= .uye,
     // .uee <= .ue,
     // .ooo <= .oo need to process at keyboard input level since we don't know
-    // the user is aiming for 'ô' or 'oo' (both need to type double 'o', 'o')
+    // the user is aiming for 'ô' or 'oo' (both need to type double 'o')
+    try std.testing.expectEqualStrings(utf8ToAmTiet("toong"), "tooong");
     try std.testing.expectEqualStrings(strToAmTiet("tieu"), "tieeu");
     try std.testing.expectEqualStrings(strToAmTiet("yeu"), "yeeu");
     try std.testing.expectEqualStrings(strToAmTiet("tuyenr"), "tuyeenr");

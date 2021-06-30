@@ -2,6 +2,7 @@ const telex_utils = @import("telex_utils.zig");
 
 pub const CharStreamError = error{
     OutOfLength,
+    InvalidVowels,
     InvalidInputChar,
     MarkCharNotFollowAMarkableVowel,
     MoreThanOneTone,
@@ -33,6 +34,8 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     pure_utf8: bool,
     is_title_case: bool,
     is_upper_case: bool,
+
+    total_utf8: bool = false,
 
     pub fn new() Utf8ToAsciiTelexCharStream {
         return .{
@@ -105,6 +108,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         }
 
         const buff = telex_utils.getDoubleBytes(telex_code);
+
         if (buff.len == 2) {
             self.has_mark = true;
             if (self.len + buff.len > MAX_LEN) {
@@ -115,7 +119,22 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             self.buffer[self.len] = buff[1];
             self.len += 1;
         } else {
-            self.buffer[self.len] = telex_utils.getCharByte(telex_code);
+            // buff.len == 1
+            const byte = telex_utils.getCharByte(telex_code);
+
+            if (self.total_utf8) {
+                // Handle `Thoọng`: need to convert `oo` to `ooo` before passing to
+                // syll-parser. `oô`, `ôo` are invalid
+                if (byte == 'o' and self.len > 0 and self.buffer[self.len - 1] == 'o') {
+                    if (self.has_mark) {
+                        return CharStreamError.InvalidVowels;
+                    }
+                    self.buffer[self.len] = 'o';
+                    self.len += 1;
+                }
+            }
+
+            self.buffer[self.len] = byte;
             self.len += 1;
         }
     }
@@ -169,7 +188,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 return CharStreamError.MoreThanOneTone;
             }
         }
-        // Record can-stand-alone char, and process it
+        // Record only can-stand-alone char
         self.last_char = char;
         try self.pushTelexCode(telex_utils.utf8ToTelexCode(char, first_byte));
     }

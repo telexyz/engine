@@ -10,11 +10,16 @@
 
 ## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
-TODO:
+[ LATER ] <= NOW IS NOT THE BOTTLE NECK
 
-* Handle `Thoọng`: need to conver `oo` to `ooo` before passing to syll-parser
+* Find an efficient way to check if a _utf8 type_ is a Vi Syllable or not!
+  - We know that `am_giua` is a must for a Vi Syllable
+  - Some `am_giua` can follow one some `am_dau` and only be followed by some `am_cuoi`
 
 [ DONE ]
+
+* Handle `Thoọng`: need to convert `oo` to `ooo` before passing to syll-parser. 
+`oô`, `ôo` are invalid, can recognized by using `char_stream.has_mark` 
 
 * Test types' counts
 
@@ -28,10 +33,6 @@ FIX: why "cp" is categoried as alphmark?
 * colapse types that have similar _ascii-telex trans_ to create next layer of _ascii-telex types_
 
 * Convert _utf8 types_ to _ascii-telex types_
-
-* Find an efficient way to check if a _utf8 type_ is a Vi Syllable or not!
-  - We know that `am_giua` is a must for a Vi Syllable
-  - Some `am_giua` can follow one some `am_dau` and only be followed by some `am_cuoi`
 
 * Choose an efficient bytes-hashing algorithm to count similar _utf8 lower_case-fom tokens_ to create _utf8 types_ (see `_HASH.md`)
 
