@@ -54,8 +54,8 @@ pub const Text = struct {
     nonalpha_types: std.StringHashMap(TypeInfo) = undefined,
 
     // Use data of transformed_bytes, pointed by transforms[i]
-    syllable_types: std.StringHashMap(u32) = undefined, // syllable.toLower =
-    syllower_types: std.StringHashMap(u32) = undefined, // syllower
+    syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower =
+    syllower_types: std.StringHashMap(TypeInfo) = undefined, // syllower
     // Data buffer for syllower_types
     syllower_bytes: []u8 = undefined,
     syllower_bytes_size: usize = undefined,
@@ -80,6 +80,14 @@ pub const Text = struct {
         count: u32 = 0,
         transform: []const u8 = undefined,
         category: TokenCategory = ._none,
+
+        pub fn isSyllable(self: TypeInfo) bool {
+            return self.category == .syllmark or self.category == .syllmark;
+        }
+
+        pub fn haveMarkTone(self: TypeInfo) bool {
+            return self.category == .syllmark or self.category == .alphmark;
+        }
     };
 
     // A token can have multiple atributes:
@@ -88,19 +96,37 @@ pub const Text = struct {
     pub const TokenAttributes = packed struct {
         surrounded_by_spaces: TokenSurroundedBySpaces,
         category: TokenCategory,
+
+        pub fn isSyllable(self: TokenAttributes) bool {
+            return self.category == .syllmark or self.category == .syllmark;
+        }
+
+        pub fn haveMarkTone(self: TypeInfo) bool {
+            return self.category == .syllmark or self.category == .alphmark;
+        }
+
+        pub fn toByte(self: TokenAttributes) u8 {
+            const byte = @bitCast(u8, self);
+            if (byte < 12) return byte + 1;
+            return byte;
+        }
+        pub fn newFromByte(byte: u8) TokenAttributes {
+            if (byte < 12) byte -= 1;
+            return @bitCast(TokenAttributes, byte);
+        }
     };
 
     pub const TokenCategory = enum(u6) {
         // Dùng được 27 invisible ascii chars, 1-8,11, 12,15-31
         // 3 main token categoried, used to write to disk as token's attrs
-        //         0  //  + 2-bits  => 00,01,02,03 + 1 => \x01\x02\x03\x04
-        //         1  //  + 2-bits  => 04,05,06,07 + 1 => \x05\x06\x07\x08
-        //         2  //  + 0x11    =>       10    + 1 => \x0b
-        //         3  //  + 0x00,11 => 12       15     => \x0c\x0f
-        syllable = 4, //  + 2-bits  => 16,17,18,19     => \x10\x11\x12\x13
-        marktone = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
-        alphabet = 6, //  + 2-bits  => 24,25,26,27     => \x18\x19\x1a\x1b
-        nonalpha = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
+        syllmark = 0, //  + 2-bits  => 00,01,02,03 + 1 => \x01\x02\x03\x04
+        syllable = 1, //  + 2-bits  => 04,05,06,07 + 1 => \x05\x06\x07\x08
+        //         2, //  + 0x11    =>       10    + 1 => \x0b
+        //         3, //  + 0x00,11 => 12       15     => \x0c\x0f
+        alphmark = 4, //  + 2-bits  => 16,17,18,19     => \x10\x11\x12\x13
+        alphabet = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
+        nonalpha = 6, //  + 2-bits  => 24,25,26,27     => \x18\x19\x1a\x1b
+        //       = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
         // Supplement category ids 8-63
         // used as an intialized/temp values / need to be processed / state machine
         _none = 8, // initial state
@@ -149,7 +175,7 @@ pub const Text = struct {
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.nonalpha_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllable_types = std.StringHashMap(u32).init(self.allocator);
+        self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
         // Init transforms list
         self.transforms = try self.allocator.alloc([]const u8, est_token_num.*);
@@ -160,7 +186,7 @@ pub const Text = struct {
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllower...
-        self.syllower_types = std.StringHashMap(u32).init(self.allocator);
+        self.syllower_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.syllower_bytes_size = TEXT_DICT_FILE_SIZE;
         self.syllower_bytes = try self.allocator.alloc(u8, self.syllower_bytes_size);
 
@@ -199,7 +225,7 @@ pub const Text = struct {
 
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
-            if (kv.value_ptr.category == .syllable) {
+            if (kv.value_ptr.isSyllable()) {
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }

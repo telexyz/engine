@@ -21,7 +21,7 @@ TODO:
 [ DONE ]
 
 * Break alphabet-types into have-marks-and-tone vs others
-FIX: why "cp" is categoried as marktone?
+FIX: why "cp" is categoried as alphmark?
 
 * colapse types that have similar _ascii-telex trans_ to create next layer of _ascii-telex types_
 

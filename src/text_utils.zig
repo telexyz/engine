@@ -65,8 +65,8 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         const firt_byte_index = text.transformed_bytes_len;
         text.transformed_bytes_len += 1;
 
-        if (attrs.category == .alphabet or attrs.category == .marktone) {
-            // marktone is alphabet and both count to alphabet_types
+        if (attrs.category == .alphabet or attrs.category == .alphmark) {
+            // alphmark is alphabet and both count to alphabet_types
             // Since token is alphabet, it's alphabet_types' info must existed
             const type_info = text.alphabet_types.getPtr(token).?;
             if (type_info.category == ._none) { // Not transformed yet
@@ -75,15 +75,15 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 const syllable = parsers.parseTokenToGetSyllable(true, printNothing, &char_stream, token);
                 if (syllable.can_be_vietnamese) {
                     // Token is vietnamese syllabe
-                    type_info.category = .syllable;
+                    type_info.category = if (attrs.category == .alphmark) .syllmark else .syllable;
                     // Write ascii-telex transform
                     const syllable_token = saveAsciiTelexTransform(text, char_stream);
                     type_info.transform = syllable_token;
-                    countSyllableAndSyllower(text, syllable_token, type_info.count) catch unreachable;
+                    countSyllableAndSyllower(text, syllable_token, type_info) catch unreachable;
                     token_not_written = false;
                 } else {
                     // For non-syllable, attrs.category can only be
-                    // .alphabet or .marktone
+                    // .alphabet or .alphmark
                     type_info.category = attrs.category;
                 }
             }
@@ -94,7 +94,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 token = type_info.transform;
                 text.transforms[i.*] = token;
             }
-        } // attrs.category == .alphabet or .marktone
+        } // attrs.category == .alphabet or .alphmark
 
         if (token_not_written) {
             // write original token it's is not syllable
@@ -104,7 +104,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
             }
         }
         // Write attrs at the begin of token's ouput stream
-        text.transformed_bytes[firt_byte_index] = @bitCast(u8, attrs.*);
+        text.transformed_bytes[firt_byte_index] = attrs.toByte();
 
         printToken(token, attrs.*); // DEBUG info
     } // END while text.processed_types_count
@@ -127,10 +127,10 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
     }
 }
 
-fn countSyllableAndSyllower(text: *Text, syllable: []const u8, count: u32) !void {
+fn countSyllableAndSyllower(text: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
     // Record and count syllable
-    const gop1 = try text.syllable_types.getOrPutValue(syllable, 0);
-    gop1.value_ptr.* += count;
+    const gop1 = try text.syllable_types.getOrPutValue(syllable, Text.TypeInfo{ .category = type_info.category });
+    gop1.value_ptr.count += type_info.count;
 
     const next = text.syllower_bytes_len + syllable.len;
     const syllower = text.syllower_bytes[text.syllower_bytes_len..next];
@@ -138,8 +138,8 @@ fn countSyllableAndSyllower(text: *Text, syllable: []const u8, count: u32) !void
     for (syllable) |c, i| {
         syllower[i] = c | 0b00100000;
     }
-    const gop2 = try text.syllower_types.getOrPutValue(syllower, 0);
-    gop2.value_ptr.* += count;
+    const gop2 = try text.syllower_types.getOrPutValue(syllower, Text.TypeInfo{ .category = type_info.category });
+    gop2.value_ptr.count += type_info.count;
     text.syllower_bytes_len = next;
 }
 

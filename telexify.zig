@@ -33,36 +33,37 @@ fn initConfigsFromArgs() void {
 }
 
 fn write_out_results1() !void {
-    try TextokOutputHelpers.write_counts_to_file(
+    try TextokOutputHelpers.write_types_to_file(
         text.nonalpha_types,
-        "_output/05-nonalpha_types.txt",
+        "_output/06-nonalpha_types.txt",
     );
 }
 
 fn write_out_results2() !void {
-    try TextokOutputHelpers.write_counts_to_file(
+    try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.syllable_types,
-        "_output/01-syllable_types.txt",
+        "_output/01-syllmark_types.txt",
+        "_output/02-syllable_types.txt",
     );
-    try TextokOutputHelpers.write_counts_to_file(
+    try TextokOutputHelpers.write_types_to_file(
         text.syllower_types,
-        "_output/02-syllower_types.txt",
+        "_output/03-syllower_types.txt",
     );
-    try TextokOutputHelpers.write_alphabet_types_to_files(
+    try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.alphabet_types,
-        "_output/03-marktone_types.txt",
-        "_output/04-alphabet_types.txt",
+        "_output/04-alphmark_types.txt",
+        "_output/05-alphabet_types.txt",
     );
-    // Write sample of final output
-    try TextokOutputHelpers.write_transforms_to_file(
-        text,
-        "_output/06-telexified-666.txt",
-        666_666,
-    );
+    // Write sample of final output to preview
     try TextokOutputHelpers.write_text_tokens_to_file(
         text,
         "_output/07-telexified-777.txt",
         777,
+    );
+    try TextokOutputHelpers.write_transforms_to_file(
+        text,
+        "_output/08-telexified-888.txt",
+        888_888,
     );
     // Final result
     try TextokOutputHelpers.write_transforms_to_file(

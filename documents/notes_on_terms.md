@@ -2,7 +2,7 @@
 
 `syllable`: token là âm tiết tiếng Việt hoàn chỉnh
 
-`marktone`: token ko là âm tiết tiếng Việt, chỉ chứa ký tự trong bảng chữ cái tiếng Việt và phải có ký tự mang dấu hoặc thanh (khả năng cao là tiếng Việt lỗi chính tả, từ vay mượn ...) 
+`alphmark`: token ko là âm tiết tiếng Việt, chỉ chứa ký tự trong bảng chữ cái tiếng Việt và phải có ký tự mang dấu hoặc thanh (khả năng cao là tiếng Việt lỗi chính tả, từ vay mượn ...) 
 (Google tonemark được nhiều cái hay https://www.youtube.com/watch?v=-XN9fyrIG_o)
 
 `alphabet`: token ko là âm tiết tiếng Việt, chỉ chứa ký tự a-zA-Z (phần nhiều là từ nước ngoài)

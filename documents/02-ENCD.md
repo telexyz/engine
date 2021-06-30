@@ -28,7 +28,7 @@ Mã hóa token attrs khi đi cùng ascii/utf8 text (IMPLEMENTED in `text_data_st
         //         2  //  + 0x10    =>       10    + 1 =>             \x0b
         //         3  //  + 0x00,11 => 12       15     => \x0c        \x0f
         syllable = 4, //  + 2-bits  => 16,17,18,19     => \x10\x11\x12\x13
-        marktone = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
+        alphmark = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
         alphabet = 6, //  + 2-bits  => 24,25,26,27     => \x18\x19\x1a\x1b
         nonalpha = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
         // Supplement category ids 8-63

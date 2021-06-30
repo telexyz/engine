@@ -41,7 +41,7 @@ pub const Tokenizer = struct {
 
     const CharTypes = enum {
         alphabet_char, // a..zA..Z
-        marktone_char, // https://vi.wikipedia.org/wiki/Dấu_phụ
+        alphmark_char, // https://vi.wikipedia.org/wiki/Dấu_phụ
         nonalpha_char, // 30%-100%. 91 30% 100%. 30-100% 91. 2017 21/6, 1.148 1&
         space, // ' ' '\t' '\n'
     };
@@ -55,7 +55,7 @@ pub const Tokenizer = struct {
         // is composed of alphabet|nonalpha|... alternatively
         // Later we will break alphabet_token into:
         // * syllable
-        // * marktone
+        // * alphmark
         // And remaining is alphabet (a-zA-Z)
 
         var nonspace_token_start_at: usize = 0;
@@ -64,7 +64,7 @@ pub const Tokenizer = struct {
 
         var in_nonspace_token_zone = true;
         var in_alphabet_token_zone = true;
-        var contains_marktone_char = false;
+        var contains_alphmark_char = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char
         var second_byte: u8 = 0; // second byte of the utf-8 char (if needed)
@@ -144,23 +144,23 @@ pub const Tokenizer = struct {
                         char_bytes_len = 2;
                         second_byte = input_bytes[index + 1];
 
-                        // Rough filter to see if it .marktone_char
+                        // Rough filter to see if it .alphmark_char
                         if (195 <= first_byte and first_byte <= 198 and
                             128 <= second_byte and second_byte <= 189)
                         {
-                            char_type = .marktone_char;
+                            char_type = .alphmark_char;
                         }
                         if ((first_byte == 204 or first_byte == 205) and
                             128 <= second_byte and second_byte <= 163)
                         {
-                            char_type = .marktone_char;
+                            char_type = .alphmark_char;
                         }
                     } else if (first_byte == 225) {
                         char_bytes_len = 3;
                         second_byte = input_bytes[index + 1];
-                        // Rough filter to see if it .marktone_char
+                        // Rough filter to see if it .alphmark_char
                         if (second_byte == 186 or second_byte == 187) {
-                            char_type = .marktone_char;
+                            char_type = .alphmark_char;
                         }
                     } else {
                         char_bytes_len = if (0b1111_0000 <= first_byte and
@@ -183,7 +183,7 @@ pub const Tokenizer = struct {
                     if (in_alphabet_token_zone) {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
-                        const attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .marktone else .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
+                        const attrs: Text.TokenAttributes = .{ .category = if (contains_alphmark_char) .alphmark else .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
                         try text.countToken(token, attrs);
                         if (counting_lines) printToken(token, attrs);
                         //
@@ -243,7 +243,7 @@ pub const Tokenizer = struct {
                     } else {
                         //
                         in_alphabet_token_zone = true;
-                        contains_marktone_char = (char_type == .marktone_char);
+                        contains_alphmark_char = (char_type == .alphmark_char);
                         alphabet_token_start_at = index;
                         nonalpha_token_start_at = next_index;
                     }
@@ -258,7 +258,7 @@ pub const Tokenizer = struct {
                         // Record alphabet
                         const token = input_bytes[alphabet_token_start_at..index];
                         const attrs: Text.TokenAttributes = .{
-                            .category = if (contains_marktone_char) .marktone else .alphabet,
+                            .category = if (contains_alphmark_char) .alphmark else .alphabet,
                             .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
                         };
                         try text.countToken(token, attrs);
@@ -269,7 +269,7 @@ pub const Tokenizer = struct {
                     alphabet_token_start_at = next_index;
                     //
                 } else {
-                    // char_type => .alphabet_char, .marktone_char
+                    // char_type => .alphabet_char, .alphmark_char
                     if (!in_alphabet_token_zone) {
                         // Record nonalpha
                         const token = input_bytes[nonalpha_token_start_at..index];
@@ -281,9 +281,9 @@ pub const Tokenizer = struct {
                         if (counting_lines) printToken(token, attrs);
                         // Reset for alphabet
                         in_alphabet_token_zone = true;
-                        contains_marktone_char = (char_type == .marktone_char);
+                        contains_alphmark_char = (char_type == .alphmark_char);
                     }
-                    if (char_type == .marktone_char) contains_marktone_char = true;
+                    if (char_type == .alphmark_char) contains_alphmark_char = true;
                     nonalpha_token_start_at = next_index;
                 }
             } // End else char_type => .alphabet_char, or .nonalpha_char
@@ -311,7 +311,7 @@ test "Tokenizer" {
     try tknz.segment(&text);
 
     const s1_tokens = "Giá trúng binh quân 13.011 đồng / cp , thu về hơn 1.300 tỷf .";
-    var s1_tkcats = &[15]Text.TokenCategory{ .marktone, .marktone, .alphabet, .marktone, .nonalpha, .marktone, .nonalpha, .alphabet, .nonalpha, .alphabet, .marktone, .marktone, .nonalpha, .marktone, .nonalpha };
+    var s1_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alphabet, .alphmark, .nonalpha, .alphmark, .nonalpha, .alphabet, .nonalpha, .alphabet, .alphmark, .alphmark, .nonalpha, .alphmark, .nonalpha };
     const s1_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .both, .both, .both, .left, .none, .none, .right, .both, .both, .both, .both, .left, .right };
 
     var it = std.mem.split(s1_tokens, " ");
@@ -325,7 +325,7 @@ test "Tokenizer" {
 
     try std.testing.expectEqualStrings("\n", text.tokens[i]);
     const s2_tokens = "Tuyến tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
-    var s2_tkcats = &[15]Text.TokenCategory{ .marktone, .marktone, .alphabet, .nonalpha, .alphabet, .marktone, .marktone, .nonalpha, .alphabet, .marktone, .nonalpha, .marktone, .alphabet, .alphabet, .nonalpha };
+    var s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alphabet, .nonalpha, .alphabet, .alphmark, .alphmark, .nonalpha, .alphabet, .alphmark, .nonalpha, .alphmark, .alphabet, .alphabet, .nonalpha };
     const s2_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
     it = std.mem.split(s2_tokens, " ");
     i += 1;
@@ -371,7 +371,7 @@ test "Tokenizer" {
     text.tokens_number_finalized = true;
     text_utils.telexifyAlphabetTokens(&text);
 
-    s1_tkcats = &[15]Text.TokenCategory{ .syllable, .syllable, .syllable, .syllable, .nonalpha, .syllable, .nonalpha, .alphabet, .nonalpha, .syllable, .syllable, .syllable, .nonalpha, .marktone, .nonalpha };
+    s1_tkcats = &[15]Text.TokenCategory{ .syllable, .syllable, .syllable, .syllable, .nonalpha, .syllable, .nonalpha, .alphabet, .nonalpha, .syllable, .syllable, .syllable, .nonalpha, .alphmark, .nonalpha };
     it = std.mem.split(s1_tokens, " ");
     i = 0;
     while (it.next()) |token| {

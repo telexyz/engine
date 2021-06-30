@@ -22,36 +22,42 @@ pub const TextokOutputHelpers = struct {
         }
     }
 
-    pub fn write_alphabet_types_to_files(
-        alphabet_types: std.StringHashMap(Text.TypeInfo),
-        marktone_filename: []const u8,
-        alphabet_filename: []const u8,
+    pub fn write_mark_vs_norm_types_to_files(
+        types: std.StringHashMap(Text.TypeInfo),
+        typemark_filename: []const u8,
+        typenorm_filename: []const u8,
     ) !void {
-        var alphabet_file = try std.fs.cwd().createFile(alphabet_filename, .{});
-        var marktone_file = try std.fs.cwd().createFile(marktone_filename, .{});
-        defer alphabet_file.close();
-        defer marktone_file.close();
+        var typemark_file = try std.fs.cwd().createFile(typemark_filename, .{});
+        var typenorm_file = try std.fs.cwd().createFile(typenorm_filename, .{});
+
+        defer typemark_file.close();
+        defer typenorm_file.close();
 
         const max_token_len = 30;
         var buffer: [max_token_len + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
-        var it = alphabet_types.iterator();
+        var it = types.iterator();
         while (it.next()) |kv| {
             if (max_token_len < kv.key_ptr.len) {
                 std.debug.print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
+
             const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.count, kv.key_ptr.* });
-            if (kv.value_ptr.category == .marktone) {
-                _ = try marktone_file.writer().write(result);
+
+            if (kv.value_ptr.haveMarkTone()) {
+                _ = try typemark_file.writer().write(result);
             } else {
-                _ = try alphabet_file.writer().write(result);
+                _ = try typenorm_file.writer().write(result);
             }
         }
     }
 
-    pub fn write_counts_to_file(counts: anytype, output_filename: []const u8) !void {
+    pub fn write_types_to_file(
+        types: std.StringHashMap(Text.TypeInfo),
+        output_filename: []const u8,
+    ) !void {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
@@ -59,24 +65,19 @@ pub const TextokOutputHelpers = struct {
         var buffer: [max_token_len + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
-        var it = counts.iterator();
+        var it = types.iterator();
         while (it.next()) |kv| {
             if (max_token_len < kv.key_ptr.len) {
                 std.debug.print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
-            const count = if (comptime @TypeOf(counts) == std.StringHashMap(Text.TypeInfo)) kv.value_ptr.count else kv.value_ptr.*;
+            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.count, kv.key_ptr.* });
 
-            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ count, kv.key_ptr.* });
             _ = try output_file.writer().write(result);
         }
     }
 
-    pub fn write_text_tokens_to_file(
-        text: Text,
-        output_filename: []const u8,
-        max: usize,
-    ) !void {
+    pub fn write_text_tokens_to_file(text: Text, output_filename: []const u8, max: usize) !void {
         var n = text.tokens_number;
         if (max > 0 and n > max) n = max;
         // Open files to write transformed input data (final result)
