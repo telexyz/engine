@@ -14,7 +14,7 @@ const File = std.fs.File;
 const parsers = @import("./src/syllable_parsers.zig");
 const telex_utils = @import("./src/telex_utils.zig");
 const telex_char_stream = @import("./src/telex_char_stream.zig");
-const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexAmTietCharStream;
+const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)

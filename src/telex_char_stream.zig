@@ -10,7 +10,7 @@ pub const CharStreamError = error{
     TooBigToBeSyllable,
 };
 
-pub const Utf8ToAsciiTelexAmTietCharStream = struct {
+pub const Utf8ToAsciiTelexCharStream = struct {
     /// The internal character buffer
     /// Max char of an am_tiet is 10
     /// Let say we support maximum 3 syllables, then need 31 bytes
@@ -34,7 +34,7 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
     is_title_case: bool,
     is_upper_case: bool,
 
-    pub fn new() Utf8ToAsciiTelexAmTietCharStream {
+    pub fn new() Utf8ToAsciiTelexCharStream {
         return .{
             .len = 0,
             .last_char = 0,
@@ -46,7 +46,7 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
             .is_upper_case = true,
         };
     }
-    pub fn reset(self: *Utf8ToAsciiTelexAmTietCharStream) void {
+    pub fn reset(self: *Utf8ToAsciiTelexCharStream) void {
         self.len = 0;
         self.last_char = 0;
         self.tone = 0;
@@ -55,16 +55,16 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
         self.is_title_case = false;
         self.is_upper_case = true;
     }
-    pub fn lastCharIsMarkableVowel(self: *Utf8ToAsciiTelexAmTietCharStream) bool {
+    pub fn lastCharIsMarkableVowel(self: *Utf8ToAsciiTelexCharStream) bool {
         return switch (self.buffer[self.len - 1]) {
             'a', 'e', 'u', 'i', 'o' => true,
             else => false,
         };
     }
-    pub fn hasMarkOrTone(self: Utf8ToAsciiTelexAmTietCharStream) bool {
+    pub fn hasMarkOrTone(self: Utf8ToAsciiTelexCharStream) bool {
         return self.has_mark or self.tone != 0;
     }
-    pub fn toStr(self: *Utf8ToAsciiTelexAmTietCharStream) []const u8 {
+    pub fn toStr(self: *Utf8ToAsciiTelexCharStream) []const u8 {
         // Add tone char at the end if needed
         var n = self.len;
         if (self.tone != 0) {
@@ -84,7 +84,7 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
         return self.buffer[0..n];
     }
 
-    fn pushTelexCode(self: *Utf8ToAsciiTelexAmTietCharStream, telex_code: u10) CharStreamError!void {
+    fn pushTelexCode(self: *Utf8ToAsciiTelexCharStream, telex_code: u10) CharStreamError!void {
         if (telex_code == 0) {
             return CharStreamError.InvalidInputChar;
         }
@@ -120,7 +120,7 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
         }
     }
 
-    pub inline fn pushCharAndFirstByte(self: *Utf8ToAsciiTelexAmTietCharStream, char: u21, first_byte: u8) CharStreamError!void {
+    pub inline fn pushCharAndFirstByte(self: *Utf8ToAsciiTelexCharStream, char: u21, first_byte: u8) CharStreamError!void {
         if (self.len >= MAX_LEN) return CharStreamError.OutOfLength;
 
         // Process can-not-stand-alone char
@@ -174,11 +174,11 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
         try self.pushTelexCode(telex_utils.utf8ToTelexCode(char, first_byte));
     }
 
-    pub inline fn push(self: *Utf8ToAsciiTelexAmTietCharStream, char: u21) CharStreamError!void {
+    pub inline fn push(self: *Utf8ToAsciiTelexCharStream, char: u21) CharStreamError!void {
         try self.pushCharAndFirstByte(char, 0);
     }
 
-    pub inline fn pushByte(self: *Utf8ToAsciiTelexAmTietCharStream, byte: u8, is_upper: bool) CharStreamError!void {
+    pub inline fn pushByte(self: *Utf8ToAsciiTelexCharStream, byte: u8, is_upper: bool) CharStreamError!void {
         if (self.len >= MAX_LEN) return CharStreamError.OutOfLength;
         self.last_char = @intCast(u21, byte);
         if (is_upper) {
@@ -194,7 +194,7 @@ pub const Utf8ToAsciiTelexAmTietCharStream = struct {
 const std = @import("std");
 const testing = std.testing;
 const expect = testing.expect;
-const U2ACharStream = Utf8ToAsciiTelexAmTietCharStream;
+const U2ACharStream = Utf8ToAsciiTelexCharStream;
 
 test "init()" {
     var char_stream = U2ACharStream.new();

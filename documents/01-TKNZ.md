@@ -14,9 +14,9 @@ TODO:
 
 * Handle `Thoọng`: need to conver `oo` to `ooo` before passing to syll-parser
 
-* Test types' counts
-
 [ DONE ]
+
+* Test types' counts
 
 * Reject mixed upper vs lower case syllable, keep only titelized or capitalized sylls
 

@@ -5,7 +5,7 @@ const AmGiua = syllable_data_structs.AmGiua;
 const AmCuoi = syllable_data_structs.AmCuoi;
 const Tone = syllable_data_structs.Tone;
 
-const U2ACharStream = @import("./telex_char_stream.zig").Utf8ToAsciiTelexAmTietCharStream;
+const U2ACharStream = @import("./telex_char_stream.zig").Utf8ToAsciiTelexCharStream;
 
 // Functions can be used as values and are equivalent to pointers.
 // This is like function inteface, any function that can take same input format

@@ -3,7 +3,7 @@ const print = std.debug.print;
 
 const parsers = @import("./syllable_parsers.zig");
 const telex_char_stream = @import("./telex_char_stream.zig");
-const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexAmTietCharStream;
+const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
 inline fn printToken(token: []const u8, attrs: Text.TokenAttributes) void {
