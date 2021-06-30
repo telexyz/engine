@@ -31,9 +31,10 @@ pub const Text = struct {
     // the original form of the input. For example:
     // "vớiiiii...." can be converted to ascii-telex "voowisiiii....",
     // but it not looked right for me. I think it we should keep original form.
+    // Same tokens counted to type, we will save transform in TypeInfo
 
-    // We declare transforms[i] variable for general use-case
-    transforms: [][]const u8 = undefined,
+    // Mapping from a token id to it's type info
+    tokens_type_infos: []*TypeInfo = undefined,
 
     // We'll need transformed_bytes stream as a data store for transforms slices
     // transforms[i] will point to a position in the transformed_bytes stream
@@ -177,8 +178,8 @@ pub const Text = struct {
         self.nonalpha_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
-        // Init transforms list
-        self.transforms = try self.allocator.alloc([]const u8, est_token_num.*);
+        // Init tokens_type_infos list
+        self.tokens_type_infos = try self.allocator.alloc(*TypeInfo, est_token_num.*);
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
@@ -206,8 +207,6 @@ pub const Text = struct {
         // const token = self.input_bytes[token_start..token_end];
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = attrs;
-        // Default, transform to itself :)
-        self.transforms[self.tokens_number] = token;
 
         const gop = if (attrs.category == .nonalpha)
             try self.nonalpha_types.getOrPutValue(token, TypeInfo{})
@@ -215,6 +214,9 @@ pub const Text = struct {
             try self.alphabet_types.getOrPutValue(token, TypeInfo{});
 
         gop.value_ptr.count += 1;
+        gop.value_ptr.transform = token; // Default, transform to itself :)
+        // Save mapping from token to it's type info
+        self.tokens_type_infos[self.tokens_number] = gop.value_ptr;
 
         // increare only when counter is finalized since other threads are watching
         self.tokens_number += 1;

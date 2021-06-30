@@ -55,7 +55,7 @@ fn write_out_results2() !void {
         "_output/05-alphabet_types.txt",
     );
     // Write sample of final output to preview
-    try TextokOutputHelpers.write_text_tokens_to_file(
+    try TextokOutputHelpers.write_text_trans_to_file(
         text,
         "_output/07-telexified-777.txt",
         777,

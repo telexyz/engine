@@ -74,7 +74,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 // Try to convert token to syllable
                 const syllable = parsers.parseTokenToGetSyllable(true, printNothing, &char_stream, token);
                 if (syllable.can_be_vietnamese) {
-                    // Token is vietnamese syllabe
+                    // Token is vietnamese syllable
                     type_info.category = if (attrs.category == .alphmark) .syllmark else .syllable;
                     // Write ascii-telex transform
                     const syllable_token = saveAsciiTelexTransform(text, char_stream);
@@ -88,11 +88,10 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 }
             }
 
-            if (type_info.category == .syllable) {
-                attrs.category = .syllable;
-                // Point token value to it's syllable trans
+            if (type_info.isSyllable()) {
+                attrs.category = type_info.category;
+                // Point token value to it's type trans
                 token = type_info.transform;
-                text.transforms[i.*] = token;
             }
         } // attrs.category == .alphabet or .alphmark
 
