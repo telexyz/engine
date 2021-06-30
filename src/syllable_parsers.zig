@@ -277,10 +277,12 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
         }
     }
     if (am_dau == .gi) {
-        if (am_giua.hasAmDem() and am_giua != .oaw) {
-            print("!!! VIOLATE: am_dau 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng\n ", .{});
-            return false;
-        }
+        // TODO: Tìm thấy từ Gioóc (có thể là tên riêng) trong corpus
+        // => Có nên coi nó là vn syllable ko? Tạm thời bỏ qua luật dưới để coi nó là TV
+        // if (am_giua.hasAmDem() and am_giua != .oaw) {
+        //     print("!!! VIOLATE: am_dau 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng\n ", .{});
+        //     return false;
+        // }
         if (am_giua.startWithIY()) {
             print("!!! VIOLATE: am_dau 'gi' không đi nguyên âm bắt đầu bằng 'i', 'y'\n ", .{});
             return false;
@@ -604,18 +606,20 @@ test "canBeVietnamese() // Edge cases" {
     try expect(canBeVietnamese("") == false);
 }
 
-test "canBeVietnamese() // am_dau gi ko di cung am dem u, o" {
-    try expect(canBeVietnamese("gioaj") == false);
-    try expect(canBeVietnamese("gioas") == false);
-    try expect(canBeVietnamese("giueej") == false);
-    try expect(canBeVietnamese("giuyeen") == false);
-    try expect(canBeVietnamese("giuyeetj") == false);
-    try expect(canBeVietnamese("giuy") == false);
-}
+// test "canBeVietnamese() // am_dau gi ko di cung am dem u, o" {
+//     try expect(canBeVietnamese("gioaj") == false);
+//     try expect(canBeVietnamese("gioas") == false);
+//     try expect(canBeVietnamese("giueej") == false);
+//     try expect(canBeVietnamese("giuyeen") == false);
+//     try expect(canBeVietnamese("giuyeetj") == false);
+//     try expect(canBeVietnamese("giuy") == false);
+// }
 
 test "canBeVietnamese() // Weird cases" {
     // Tiếng đồng bào: Đắk Lắk, Niê, Cơtu
     // Từ mượn: ôtô, căngtin, đôla, Ôliu, côngtơ, bêtông
+
+    try expect(canBeVietnamese("giooocs"));
 
     // 'gi' and 'd' are the same initial part
     // 'g' and 'd' are different

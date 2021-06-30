@@ -71,6 +71,12 @@ fn write_out_results2() !void {
         output_filename,
         0,
     );
+    // More info
+    try TextokOutputHelpers.write_tokens_to_files(
+        text.alphabet_types,
+        "_output/09-alphmark_tokens.txt",
+        "_output/10-alphabet_tokens.txt",
+    );
 }
 
 fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {

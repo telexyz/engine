@@ -2,23 +2,42 @@ const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 
 pub const TextokOutputHelpers = struct {
-    pub fn write_tokens_to_file(tokens_map: std.StringHashMap(void), output_filename: []const u8) !void {
-        var file = try std.fs.cwd().createFile(output_filename, .{});
-        defer file.close();
+    pub fn write_tokens_to_files(
+        types: std.StringHashMap(Text.TypeInfo),
+        typemark_filename: []const u8,
+        typenorm_filename: []const u8,
+    ) !void {
+        var typemark_file = try std.fs.cwd().createFile(typemark_filename, .{});
+        var typenorm_file = try std.fs.cwd().createFile(typenorm_filename, .{});
 
-        var count: usize = 0;
-        var it = tokens_map.iterator();
+        defer typemark_file.close();
+        defer typenorm_file.close();
+
+        var count1: usize = 0;
+        var count2: usize = 0;
+
+        var it = types.iterator();
 
         while (it.next()) |kv| {
             const token = kv.key_ptr.*;
 
-            _ = try file.writer().write(token);
-            count += 1;
-
-            if (@rem(count, 12) == 0)
-                _ = try file.writer().write("\n")
-            else
-                _ = try file.writer().write("   ");
+            if (kv.value_ptr.haveMarkTone()) {
+                //
+                _ = try typemark_file.writer().write(token);
+                count1 += 1;
+                if (@rem(count1, 12) == 0)
+                    _ = try typemark_file.writer().write("\n")
+                else
+                    _ = try typemark_file.writer().write("   ");
+            } else {
+                //
+                _ = try typenorm_file.writer().write(token);
+                count2 += 1;
+                if (@rem(count2, 12) == 0)
+                    _ = try typenorm_file.writer().write("\n")
+                else
+                    _ = try typenorm_file.writer().write("   ");
+            }
         }
     }
 
