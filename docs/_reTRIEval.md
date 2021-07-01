@@ -1,3 +1,9 @@
+PROBLEM: Given a token as a KEY reTRIEval the corespoding value
+
+EXTENSION: Think of is as database (record retrieval), documents (text retrieval), search engine ...
+
+# Perfect-Hash, Trie, FST ...
+
 https://github.com/Tessil/hat-trie
 
 - - -
@@ -37,4 +43,3 @@ To solve this problem, [Aoe1989] reduced the structure into two parallel arrays.
 
 
 WITH THE TWO SEPARATE DATA STRUCTURES, DOUBLE-ARRAY BRANCHES AND SUFFIX-SPOOL TAIL, KEY INSERTION AND DELETION ALGORITHMS MUST BE MODIFIED ACCORDINGLY.
-
