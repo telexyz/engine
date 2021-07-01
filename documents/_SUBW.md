@@ -1,19 +1,6 @@
-# Normalization
-```sh
-zig run telexify.zig -O ReleaseSafe -- _input/corpus/corpus-title.txt _output/telexified/corpus-title.txt
+## YTTM: Fatest BPE | https://github.com/VKCOM/YouTokenToMe
 
-zig run telexify.zig -O ReleaseSafe -- _input/corpus/VNESEcorpus.txt _output/telexified/VNESEcorpus.txt
-
-zig run telexify.zig -O ReleaseSafe -- _input/corpus/VNTQcorpus-big.txt _output/telexified/VNTQcorpus.txt
-
-zig run telexify.zig -- _input/corpus/corpus-title-sample.txt _output/telexified/corpus-title-sample.txt 1000
-
-# spm_normalize --input=_input/corpus/corpus-title.txt --output=_input/corpus/corpus-title-normalied.txt --normalization_rule_tsv=_input/nfkc.tsv
-```
-
-https://github.com/VKCOM/YouTokenToMe
-
-implements fast Byte Pair Encoding (BPE) [Sennrich et al.] much faster in training and tokenization than Hugging Face, fastBPE and SentencePiece. In some test cases, it is 90 times faster. Check out our benchmark results.
+Fastest Byte Pair Encoding (BPE) [Sennrich et al.] much faster in training and tokenization than Hugging Face, fastBPE and SentencePiece. In some test cases, it is 90 times faster. Check out our benchmark results.
 
 Just like in SentencePiece, all space symbols were replaced by meta symbol "▁" (U+2581). It allows sequences of tokens to be converted back to text and for word boundaries to be restored. For example, the phrase Blazingly fast tokenization! can be tokenized into ['▁Bl', 'az', 'ingly', '▁fast', '▁token', 'ization', '!']
 
@@ -21,11 +8,10 @@ Extra features: BPE-dropout (https://arxiv.org/pdf/1910.13267.pdf, 2019)
 
 ```sh
 pip3 install youtokentome
-# Nhanh khủng khiếp!
-yttm bpe --data _output/telexified/corpus-title.txt --model _models/yttm-telexified.model --vocab_size 20000
-yttm encode --model _models/yttm-telexified.model --output_type subword
+# 600MB mất khoảng 15 secs
+ yttm bpe --data _input/corpus/corpus-title.txt --model _models/yttm-utf8.model --vocab_size 20000
+ yttm encode --model _models/yttm-telexified.model --output_type subword
 ```
-
 
 - - -
 
@@ -33,8 +19,6 @@ Byte Pair Encoding is Suboptimal for Language Model Pretraining
 https://arxiv.org/pdf/2004.03720.pdf
 
 Subword Models | https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/slides/cs224n-2019-lecture12-subwords.pdf
-
-RegEx, Text Normalization, Edit Distance | https://web.stanford.edu/~jurafsky/slp3/2.pdf
 
 - - -
 
