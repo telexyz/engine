@@ -1,3 +1,37 @@
+## FLAIR Use Following Libs
+
+## BPEmb: Tokenization-free Pre-trained Subword Embeddings in 275 Languages
+https://bpemb.h-its.org/vi/ | http://www.lrec-conf.org/proceedings/lrec2018/pdf/1049.pdf
+
+BPEmb is a collection of pre-trained subword embeddings in 275 languages, based on Byte-Pair Encoding (BPE) and trained on Wikipedia. Its intended use is as input for neural models in natural language processing.
+
+Byte-Pair Encoding gives a subword segmentation that is often good enough, without requiring tokenization or morphological analysis. In this case the BPE segmentation might be something like melf ord shire.
+
+Pre-trained byte-pair embeddings work surprisingly well, while requiring no tokenization and being much smaller than alternatives: an 11 MB BPEmb English model matches the results of the 6 GB FastText model in our evaluation.
+
+## https://github.com/RaRe-Technologies/gensim
+
+Gensim is a Python library for topic modelling, document indexing and similarity retrieval with large corpora. Target audience is the natural language processing (NLP) and information retrieval (IR) community.
+
+Efficient multicore implementations of popular algorithms, such as online Latent Semantic Analysis (LSA/LSI/SVD), Latent Dirichlet Allocation (LDA), Random Projections (RP), Hierarchical Dirichlet Process (HDP) or word2vec deep learning.
+
+Distributed computing: can run Latent Semantic Analysis and Latent Dirichlet Allocation on a cluster of computers.
+
+## transformers
+. . .
+
+## https://github.com/fnl/syntok
+
+This module provides the Tokenizer class to tokenize input text into words and symbols (value Tokens), prefixed with (possibly empty) spacing strings, while recording their offset positions. The Tokenizer comes with utility static functions, to join hyphenated words across line-breaks, and to reproduce the original string from a sequence of tokens. The Tokenizer considers camelCase words as individual tokens (here: camel and Case) and by default considers underscores and Unicode hyphens inside words as spacing characters (not Token values). It does not split numeric tokens (without letters) if they contain symbols (e.g. maintaining "2018-11-11", "12:30:21", "1_000_000", "1,000.00", or "1..3" all as single tokens) Finally, as it splits English negation contractions (such as "don't") into their root and "not" (here: do and not), it can be configured to refrain from replacing this special "n't" token with "not", and instead emit the actual "n't" value.
+
+## sentencepiece
+
+## wrapper of Japanese Tokenizers https://pypi.org/project/konoha/
+
+## Japanese morphological analysis engine https://pypi.org/project/Janome/
+
+- - - 
+
 1/ A POWERFUL NLP LIBRARY
 
 Flair allows you to apply SoTA NLP models to your text, such as named entity recognition (NER), part-of-speech tagging (PoS), special support for biomedical data, sense disambiguation and classification, with support for a rapidly growing number of languages.
@@ -80,5 +114,5 @@ We don’t think that our findings would generalize to other tasks like classifi
 
 Moreover, in line with Multifit paper, it also shows that *PRACTITIONERS SHOULD THINK TWICE BEFORE WORKING WITH mBERT*. It seems smart to use even simpler monolingual language model instead, when they exist.
 
-Why we switched from Spacy to Flair to anonymize French case law |https://towardsdatascience.com/why-we-switched-from-spacy-to-flair-to-anonymize-french-legal-cases-e7588566825f
+### Why we switched from Spacy to Flair to anonymize French case law |https://towardsdatascience.com/why-we-switched-from-spacy-to-flair-to-anonymize-french-legal-cases-e7588566825f
 
