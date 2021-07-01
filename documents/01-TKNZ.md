@@ -27,7 +27,15 @@ Or using other data structs like trie, ...
 
 ## Data-pipeline
 
+Mảng tokens[i] để trỏ tới input_bytes là 1 sự lãng phí vì 1 con trỏ mất 64 bits (8-bytes), tương đương với 1 chuỗi ascii 8 ký tự. Lượng bộ nhớ này nên dùng để ghi dữ liệu đầu ra theo kiểu tuyến tính (có thể iterate từ đầu tới cuối, có thể iterate chen ngang nhưng ko biết rõ vị trí của tokens[i]).
 
+Cách nghĩ text là 1 chuỗi của tokens là đúng về mặt abstract nhưng khi thể hiện một cách cứng nhắc rằng chuỗi tokens là 1 mảng tokens[i] là chưa thực sự hiểu rõ memory cost cho việc đó.
+
+Cách hình dung tốt hơn là mappings. Text input là 1 mảng bytes, bất kỳ thao tác nào (segment, tokenize, syllablize, BPE ...) đều là 1 phép ánh xạ mảng tuyến tính input bytes thành mảng tuyến tính output bytes.
+
+Đặc tính của mảng tuyến tính là có thể iterate từ đầu tới cuối, có thể iterate chen ngang từ bất kì vị trí bytes nào nhưng ko biết rõ vị trí của tokens[i]. Mảng tuyến tính sử dụng delimiters (\s chẳng hạn), meta-data token_attrs byte chẳng hạn, hoặc ghi trước độ dài của token vào đầu token đó để có thể iterate nhanh hơn là lần từng byte-by-byte.
+
+Do có thể chen ngang nên mảng tuyến tính có thể được cắt nhỏ để xử lý song song, việc merge kết quả thực sự đơn giản, thậm chí chẳng cần merge. Nên cắt và lưu ra nhiều files nhỏ thì tốt hơn là lưu vào 1 file lớn. (dễ quản, dễ xử lý song song ...)
 
 ## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
