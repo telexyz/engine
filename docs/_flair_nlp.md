@@ -14,7 +14,7 @@ Our framework builds directly on PyTorch, making it easy to train your own model
 New: Most Flair sequence tagging models (named entity recognition, part-of-speech tagging etc.) are now hosted on the 🤗 HuggingFace model hub! You can browse models, check detailed information on how they were trained, and even try each model out online!
 
 
-Flair is developed by German, hence it's perf best form German and Dutch 
+Note: Flair is developed by German, it's perf best for German and Dutch 
 (NER models Conll-03 (4-class) 92.31 vs 90.3 Best published).
 
 
@@ -41,6 +41,7 @@ NER can be used to Identify Entities like Organizations, Locations, Persons and 
 
 
 !!! VERY GOOD, THOUGHTFUL, DETAILS ARTICLE !!!
+
 NER algo benchmark: spaCy, Flair, m-BERT and camemBERT on anonymizing French commercial legal cases https://towardsdatascience.com/benchmark-ner-algorithm-d4ab01b2d4c3
 
 We tested 4 algorithms, 2 are Transformer based, 1 is bi-LSTM based, 1 has an original architecture:
