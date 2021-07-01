@@ -1,3 +1,7 @@
+# More Tools and Docs
+http://hoctructuyen123.net/thu-vien-tu-hoc-deep-learning-natural-language-processing-nlp/
+
+
 ## Making text a first-class citizen in TensorFlow
 https://github.com/tensorflow/text
 

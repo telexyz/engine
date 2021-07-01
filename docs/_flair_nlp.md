@@ -1,12 +1,14 @@
-# More Tools and Docs
-http://hoctructuyen123.net/thu-vien-tu-hoc-deep-learning-natural-language-processing-nlp/
+1/ A POWERFUL NLP LIBRARY
 
+Flair allows you to apply SoTA NLP models to your text, such as named entity recognition (NER), part-of-speech tagging (PoS), special support for biomedical data, sense disambiguation and classification, with support for a rapidly growing number of languages.
 
-1/ A powerful NLP library. Flair allows you to apply our state-of-the-art natural language processing (NLP) models to your text, such as named entity recognition (NER), part-of-speech tagging (PoS), special support for biomedical data, sense disambiguation and classification, with support for a rapidly growing number of languages.
+2/ A TEXT EMBEDDING LIBRARY
 
-2/ A text embedding library. Flair has simple interfaces that allow you to use and combine different word and document embeddings, including our proposed Flair embeddings, BERT embeddings and ELMo embeddings.
+Flair has simple interfaces that allow you to use and combine different word and document embeddings, including our proposed Flair embeddings, BERT embeddings and ELMo embeddings.
 
-3/A PyTorch NLP framework. Our framework builds directly on PyTorch, making it easy to train your own models and experiment with new approaches using Flair embeddings and classes.
+3/ A PYTORCH NLP FRAMEWORK
+
+Our framework builds directly on PyTorch, making it easy to train your own models and experiment with new approaches using Flair embeddings and classes.
 
 
 New: Most Flair sequence tagging models (named entity recognition, part-of-speech tagging etc.) are now hosted on the 🤗 HuggingFace model hub! You can browse models, check detailed information on how they were trained, and even try each model out online!
