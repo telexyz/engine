@@ -12,19 +12,54 @@ https://github.com/lamquangminh/EVKey
 https://github.com/tuyenvm/OpenKey 
 
 
-## Code a text tokenizer / a text processor
-
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-### TexTok: A text tokenizer
-
-+ Input: Text files
-
-+ Output: Xem `documents/encoding.md`. OOVs are encoded later using BPE.
-
-Xem `01-TKNZ.md` (xong phrase-1).
+Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ... Hướng này hướng tới SoTA NLP, sử dụng các thư viện đơn giản và hiệu quả như flair để khám phá xem có thể làm gì được với tập dữ liệu tiếng Việt đang có?
 
 [ >>> DONE <<< ]
+
+
+### VieTexTok: A Vietnamese Text Tokenizer
+
+Xem chi tiết `docs/01-TKNZ.md`: Hiện đã xong phrase-1, tách Viet Syllables làm bộ từ vựng chính, tách tokens đi cùng bộ thuộc tính nhúng vào 27 ký tự ascii vô hình để có thể đi kèm token (làm header) trong file text.
+
+Phase-2 dùng `syllower` đã tách làm bộ từ vựng gốc (khoảng 9000 âm tiết viết thường), sau đó áp dụng BPE để xử lý mọi OVV bao gồm `alphmark`, `alphabet` và `nonalpha` bằng cách quy về các `subword units` (dự tính khoảng 9000 từ vựng nữa)
+
+Phase-2 có thể dùng các công cụ có sẵn, dễ dùng như `sentencepiece` hoặc `youtokentome`, hoặc handmade từ đầu, tích hợp chặt chẽ với tknz đang có.
+
+Phase-1 cũng còn rất nhiều ý tưởng cần thực thi hoặc cải tiến:
+1/ Data-struct để lưu và tra cứu vocab, (xem `reTRIEval.md`) với vocab nhỏ khoảng vài chục ngàn từ thì Trie là đủ dùng https://tessil.github.io/2017/06/22/hat-trie.html
+
+2/ Tách text thành các tập nhỏ hơn và sử dụng map-reduce để xử lý song song hoặc phân tán. Cách này cực hiệu quả và có thể sử dụng cả ở những tầng xử lý tiếp theo như indexing, searching, embedding ...
+
+Hiện có ba lựa chọn:
+
+A/ Tiếp tục đào sâu, cải tiến phase-1, handmade phase-2, hoàn thiện tới phase-3 (poss-processing, tách từ sâu hơn nữa, chữa lỗi chính tả ...)
+
+B/ Dừng lại ở đó để đi tiếp theo hướng lưu trữ + Retrieval (encoding, indexing, searching, ... ) Hướng này đi sâu vào ứng dụng tìm kiếm, sử dụng https://justine.lol/redbean/ để viết web app (dùng web interface) rất hay. Hướng này kết quả cuối đã hình dung rõ, chỉ tập trung vào implement cho tốt.
+
+C/ Dừng lại ở đó để đi tiếp theo hướng NLP: Embedding, Tagging, NER, ... Hướng này hướng tới SoTA NLP, sử dụng các thư viện đơn giản và hiệu quả như flair để khám phá xem có thể làm gì được với tập dữ liệu tiếng Việt đang có?
+
+```js
+// Bộ thuộc tính token sau khi tách
+    pub const TokenCategory = enum(u6) {
+        // Dùng được 27 invisible ascii chars, 1-8,11, 12,15-31
+        // 3 main token categoried, used to write to disk as token's attrs
+        syllmark = 0, // âm tiết có dấu hoặc thanh (100% tiếng Việt)
+        syllable = 1, // âm tiết ko dấu ko thanh (dễ nhầm lẫn với tiếng Anh)
+        alphmark = 4, // tokens thuộc bảng chữ cái và có dấu hoặc thanh (từ mượn, dính, từ nước ngoài ko phải tiếng Anh ..)
+        alphabet = 5, // tokens thuộc bảng chữ cái ko dấu ko thanh (~100% tiếng Anh)
+        nonalpha = 6, // tokens thuộc số và các ký tự ko thuộc bảng chữ cái
+    };
+
+    pub const TokenSurroundedBySpaces = enum(u2) {
+        // Use 2-bits to describle
+        none, //  0|0 // bị kẹp cứng bởi 2 tokens khác
+        right, // 0|1 // bên trái là token, bên phải là space
+        left, //  1|0 // bên trái là space, bên phải là token
+        both, //  1|1 // cả hai bên đều là spaces
+    };
+```
 
 TO-TEST: convert syllable to various format and valid them with telex parser.
 
@@ -32,45 +67,10 @@ Hiện tại với mỗi char đầu vào phải switch 3 lần, lần 1 phân b
 
 => 11.8% faster (182182 ms / 206351 ms)
 
-https://leimao.github.io/blog/Byte-Pair-Encoding/
-
-In information theory, byte pair encoding (BPE) or diagram coding is a simple form of data compression in which the most common pair of consecutive bytes of data is replaced with a byte that does not occur within that data. On Wikipedia, there is a very good example of using BPE on a single string. It was also employed in natural language processing models, such as Transformer (trained on standard WMT 2014 English-German dataset) and GPT-2, to tokenize word sequences.
-
-BPE in used https://github.com/google/sentencepiece
-
-> “Sentencepiece, a language-independent subword tokenizer and detokenizer designed for Neural-based text processing” — SentencePiece Paper
-
-
-#### What the diff between Trie and Transducer?
-https://blog.burntsushi.net/transducers
-
-Trie only reuse prefix and have unique ending nodes. So we can assign an unique id number to each end node that mapping 1-1 with a word in dictionary.
-
-Trie is a prefix tree, which requires a common prefix. This makes it suitable for autocomplete or search suggestions. If you need a very fast auto-complete then try my Pruning Radix Trie. https://github.com/wolfgarbe/PruningRadixTrie
-
-Transducers reuse bot prefix and suffix so it smaller than Trie interm of memory but more complicated to implement and can not mapping 1-1 between ending nodes and words.
-
-## [ Telex Engine ] Real-Data Tokenizer / Parser Enhancement
-
-Study and apply techniques, espcically iterators, at https://github.com/ziglang/zig/blob/master/lib/std/mem.zig to improve `real_data_v0.zig`
-
-`real_data_v1.zig` code is more neat than `real_data_v0.zig` but suprisingly run much slower than `v0`, 1.41 times slower (314495 ms (5.24 mins) / 222653 ms (3.71 mins)).
-
-`v0` is a naive implementation, with no interator, no outside function call ...
-
-combine speed of `v0` and coding struct of `v1` to create `v2` that has speed of `v0` but easier to read and extend like `v1`
-
-Final: `real_data_v2.zig` keep naive loop from `v0` and struct from `v1` and remove ad-hoc second try. Result: Simpler and 10% faster 200035 ms (3.33 mins)
-
-=> Speed = 9.6m lines / 200035 ms = 48 lines per ms.
-=> Speed = 578mb / 200035 ms = 2.96kb per ms.
-
-CONCLUSION: Always prefer simple solution. Always avoid adhoc / clever solution !!!
-
 ## [ Telex Engine ] New insights / improvements II
 
-+ `data/_syllables.txt` contains recognized syllables
-+ `data/_oov.txt` contains oov words without second try
++ `_output/result_00../syllables1,2.txt` contains recognized syllables
++ `_output/result_00../oov1,2.txt` contains oov words without second try
 
 While looking at oov.txt (out-of-vocabulary), found a reasonable amount of word that composed of two valid vietnamese syllables:
 đăngký Đăngơ ĐĩaThan đơngiá đơnphải đưalao đưatin đưaTrung đưaTết đườngkỳ đườngphục Đượ đượ đượcca đượcdùng đượcgiao đượcgiải đượcnha đạophòng đạoTPHCM đạoVịnh đạođối Đạtlai Đảngcho ĐảoCôn 
@@ -79,8 +79,8 @@ While looking at oov.txt (out-of-vocabulary), found a reasonable amount of word 
 
 ### RESULTS
 
-+ `data/_syllables1.txt` contains double-syllable words
-+ `data/_oov1.txt` contains oov words after apply second try
++ `_output/result_00../syllables1.txt` contains double-syllable words
++ `_output/result_00../oov1.txt` contains oov words after apply second try
 
 Try: "MẹHàMy" => "MẹHàM|y" => true
 Try: "Mẹnuôi" => "Mẹn|uôi" => true

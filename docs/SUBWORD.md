@@ -1,3 +1,14 @@
+## BPE
+
+https://leimao.github.io/blog/Byte-Pair-Encoding/
+
+In information theory, byte pair encoding (BPE) or diagram coding is a simple form of data compression in which the most common pair of consecutive bytes of data is replaced with a byte that does not occur within that data. On Wikipedia, there is a very good example of using BPE on a single string. It was also employed in natural language processing models, such as Transformer (trained on standard WMT 2014 English-German dataset) and GPT-2, to tokenize word sequences.
+
+BPE in used https://github.com/google/sentencepiece
+
+> “Sentencepiece, a language-independent subword tokenizer and detokenizer designed for Neural-based text processing” — SentencePiece Paper
+
+
 ## YTTM: Fatest BPE | https://github.com/VKCOM/YouTokenToMe
 
 Fastest Byte Pair Encoding (BPE) [Sennrich et al.] much faster in training and tokenization than Hugging Face, fastBPE and SentencePiece. In some test cases, it is 90 times faster. Check out our benchmark results.

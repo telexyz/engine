@@ -2,13 +2,21 @@ PROBLEM: Given a token as a KEY reTRIEval the corespoding value
 
 EXTENSION: Think of is as database (record retrieval), documents (text retrieval), search engine ...
 
-# Perfect-Hash, Trie, FST ...
 
-https://github.com/Tessil/hat-trie
+# Perfect-Hash, Trie, FST ...
+http://stevehanov.ca/blog/?id=119
+
+- - -
+
+https://github.com/Tessil/hat-trie | https://tessil.github.io/2017/06/22/hat-trie.html
+
+HAT-trie: A Cache-conscious Trie-based Data Structure for Strings." (Askitis Nikolas and Sinha Ranjan, 2007
 
 - - -
 
 https://www.s-yata.jp/marisa-trie/docs/readme.en.html
+
+MARISA, Matching Algorithm with Recursively Implemented StorAge, is a space-efficient, fairly fast, and static trie data structure supporting exact match lookup, reverse lookup, common prefix search, and predictive search
 
 ```sh
 git clone https://github.com/s-yata/marisa-trie.git
@@ -41,5 +49,14 @@ The tripple-array structure for implementing trie appears to be well defined, bu
 
 To solve this problem, [Aoe1989] reduced the structure into two parallel arrays. In the double-array structure, the base and next are merged, resulting in only two parallel arrays, namely, base and check.
 
-
 WITH THE TWO SEPARATE DATA STRUCTURES, DOUBLE-ARRAY BRANCHES AND SUFFIX-SPOOL TAIL, KEY INSERTION AND DELETION ALGORITHMS MUST BE MODIFIED ACCORDINGLY.
+
+
+### What the diff between Trie and Transducer?
+https://blog.burntsushi.net/transducers
+
+Trie only reuse prefix and have unique ending nodes. So we can assign an unique id number to each end node that mapping 1-1 with a word in dictionary.
+
+Trie is a prefix tree, which requires a common prefix. This makes it suitable for autocomplete or search suggestions. If you need a very fast auto-complete then try my Pruning Radix Trie. https://github.com/wolfgarbe/PruningRadixTrie
+
+Transducers reuse bot prefix and suffix so it smaller than Trie interm of memory but more complicated to implement and can not mapping 1-1 between ending nodes and words.
