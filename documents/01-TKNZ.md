@@ -25,6 +25,9 @@ Or using other data structs like trie, ...
 
 => Solution-2 is complement to solution-3 since it will speedup each single pileline
 
+## Data-pipeline
+
+
 
 ## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
