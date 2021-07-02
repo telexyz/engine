@@ -110,12 +110,12 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         } // attrs.category == .alphabet or .alphmark
 
         if (token_not_written) {
-            // write original token it's is not syllable
             for (token) |b| {
                 text.transformed_bytes[text.transformed_bytes_len] = b;
                 text.transformed_bytes_len += 1;
             }
         }
+
         // Write attrs at the begin of token's ouput stream
         text.transformed_bytes[firt_byte_index] = attrs.toByte();
 

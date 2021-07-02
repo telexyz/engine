@@ -1,6 +1,8 @@
 const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 
+const max_token_len = 50;
+
 pub const TextokOutputHelpers = struct {
     pub fn write_tokens_to_files(
         types: std.StringHashMap(Text.TypeInfo),
@@ -52,7 +54,6 @@ pub const TextokOutputHelpers = struct {
         defer typemark_file.close();
         defer typenorm_file.close();
 
-        const max_token_len = 30;
         var buffer: [max_token_len + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
@@ -80,7 +81,6 @@ pub const TextokOutputHelpers = struct {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
-        const max_token_len = 30;
         var buffer: [max_token_len + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 

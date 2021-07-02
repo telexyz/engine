@@ -1,22 +1,4 @@
-// The lengthy version of tokenizer is at in-case we need a reference
-// https://github.com/telexyz/telex-engine/blob/04f65c74ec3a0f0b8350fc518faddcf325665de4/src/tokenizer.zig
-
-// For now the bottle neck is at HashMap tokens into types and count
-// By skipping hashing function in text.countToken it took 0.24 mins to segment ~600mb
-// with hashing function on every token it took  0.44 mins (~2x slower)
-
-// Solution-1: Create another thread just for hashing (ad-hoc)
-
-// Solution-2: Improve hashing algorithm ... how?
-// Can use perfect hashing and hash function for short input string
-// Or using other data structs like trie, ...
-
-// Solution-3: Break Text into n-parts and run each part in parallels (no-need to run
-//              text_utils.telexifyAlphabetTokens in a separate thread).
-//              After that merge n-parts' results into one! (map-reduce)
-
-// => Solution-3 is the best choice since it apply a general pattern (map-reduce) that scale very well in both multi-threads, multi-processes or distributed-processes
-// => Solution-2 is complement to solution-3
+// The lengthy version of tokenizer in-case we need a reference to the original version https://github.com/telexyz/telex-engine/blob/04f65c74ec3a0f0b8350fc518faddcf325665de4/src/tokenizer.zig
 
 const std = @import("std");
 const print = std.debug.print;
@@ -111,14 +93,21 @@ pub const Tokenizer = struct {
                 ' ' => {
                     char_type = .space;
                 },
-                '\t' => {
-                    char_type = .space;
-                    // Convert tab to space
-                    first_byte = ' ';
-                },
-                '\n' => { // New line should be treated differently
+                '\n' => {
+                    // New line should be treated differently
                     // It's could be a hint for sentences / phrases break ...
                     char_type = .space;
+                },
+                '\t' => {
+                    char_type = .space;
+                    first_byte = ' '; // Convert to space
+                },
+                194 => {
+                    if (input_bytes[index + 1] == 160) { // &nbsp;
+                        char_bytes_len = 2;
+                        char_type = .space;
+                        first_byte = ' '; // Convert to space
+                    }
                 },
                 else => {
                     // Based on code of zig std lib
@@ -295,7 +284,7 @@ const testing = std.testing;
 
 test "Tokenizer" {
     const input_bytes =
-        \\Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
+        \\Giá       trúng    binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
         \\Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
         \\https://vnexpress.net/cdc-tinh-dong-thap-dong-cua-4299620.html
         \\
@@ -318,8 +307,11 @@ test "Tokenizer" {
     var i: usize = 0;
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.tokens[i]);
+
         try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
-        try testing.expect(s1_surrds[i] == text.tokens_attrs[i].surrounded_by_spaces);
+
+        print("Token: {s}\n", .{token});
+        try testing.expectEqualStrings(@tagName(s1_surrds[i]), @tagName(text.tokens_attrs[i].surrounded_by_spaces));
         i += 1;
     }
 
@@ -332,11 +324,9 @@ test "Tokenizer" {
     var j: usize = 0;
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.tokens[i]);
-        // try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
-        try testing.expect(s2_tkcats[j] == text.tokens_attrs[i].category);
         // print("Token: {s}\n", .{token});
-        // try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_attrs[i].surrounded_by_spaces));
-        try testing.expect(s2_surrds[j] == text.tokens_attrs[i].surrounded_by_spaces);
+        try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
+        try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_attrs[i].surrounded_by_spaces));
         i += 1;
         j += 1;
     }
