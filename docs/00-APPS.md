@@ -1,3 +1,11 @@
+# 3/ Anger-Detector: Nghe âm thanh vào và nhận biết người nói có đang sân không
+
+Bài toán nhận dạng cảm xúc qua tiếng nói
+Dựa vào thanh điệu, dựa vào cường độ, dựa vào từ khóa ...
+
+https://jonathanbgn.com/2021/06/29/illustrated-wav2vec.html
+
+
 # 1/ Gõ nhang TV bằng tự động "Thêm dấu và thanh điệu"
 
 Input: "toi la nguoi vietnam"
