@@ -102,6 +102,14 @@ pub const Tokenizer = struct {
                     char_type = .space;
                     first_byte = ' '; // Convert to space
                 },
+                '\\' => {
+                    if (input_bytes[index + 1] == 'n') {
+                        // Handle "\n" in facebook comments
+                        char_bytes_len = 2;
+                        char_type = .space;
+                        first_byte = ' '; // Convert to space
+                    }
+                },
                 else => {
                     // Based on code of zig std lib
                     // pub fn utf8ByteSequenceLength(first_byte: u8) !u3 {
@@ -127,7 +135,7 @@ pub const Tokenizer = struct {
                         second_byte = input_bytes[index + 1];
 
                         //   or &nbsp;
-                        if (first_byte == 194 and second_byte == 160) { 
+                        if (first_byte == 194 and second_byte == 160) {
                             char_type = .space;
                             first_byte = ' '; // Convert to space
                         }

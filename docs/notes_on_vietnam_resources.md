@@ -3,10 +3,10 @@
 ```sh
 # https://www.geeksforgeeks.org/sed-command-in-linux-unix-with-examples/
 # "content":"ông a để tóc này đẹp hơn nài",
-sed -e 's|.*content\":\"\([^"]+\)|\1|' fb_comments.txt
+sed -e 's|.*content\"\:\"\([^"]*\).*|\1|' corpus/fb_comment_10m > fb_comments.txt
 
 # string>![TEST[Extract this string]>/string>
-sed -e 's|string>!\[TEST\[\(.*\)]>/string>|\1|' file
+sed -e 's|string>!\[TEST\[\(.*\)]>/string>|\1|' test.txt
 
 ```
 
