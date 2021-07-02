@@ -72,10 +72,14 @@ fn write_out_results2() !void {
         0,
     );
     // More info
-    try TextokOutputHelpers.write_tokens_to_files(
+    try TextokOutputHelpers.write_mark_vs_norm_tokens_to_files(
         text.alphabet_types,
         "_output/09-alphmark_tokens.txt",
         "_output/10-alphabet_tokens.txt",
+    );
+    try TextokOutputHelpers.write_tokens_to_file(
+        text.nonalpha_types,
+        "_output/11-nonalpha_tokens.txt",
     );
 }
 

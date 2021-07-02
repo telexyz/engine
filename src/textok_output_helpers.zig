@@ -4,7 +4,7 @@ const Text = @import("./text_data_struct.zig").Text;
 const max_token_len = 50;
 
 pub const TextokOutputHelpers = struct {
-    pub fn write_tokens_to_files(
+    pub fn write_mark_vs_norm_tokens_to_files(
         types: std.StringHashMap(Text.TypeInfo),
         typemark_filename: []const u8,
         typenorm_filename: []const u8,
@@ -40,6 +40,25 @@ pub const TextokOutputHelpers = struct {
                 else
                     _ = try typenorm_file.writer().write("   ");
             }
+        }
+    }
+
+    pub fn write_tokens_to_file(
+        types: std.StringHashMap(Text.TypeInfo),
+        filename: []const u8,
+    ) !void {
+        var file = try std.fs.cwd().createFile(filename, .{});
+        defer file.close();
+
+        var count: usize = 0;
+        var it = types.iterator();
+        while (it.next()) |kv| {
+            _ = try file.writer().write(kv.key_ptr.*);
+            count += 1;
+            if (@rem(count, 12) == 0)
+                _ = try file.writer().write("\n")
+            else
+                _ = try file.writer().write("   ");
         }
     }
 
