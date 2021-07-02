@@ -132,7 +132,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         }
 
         const tone = telex_utils.getToneByte(telex_code);
-        if (tone != 0) {
+        if (tone != 0 and tone != self.tone) {
             if (self.tone == 0) {
                 self.tone = tone;
             } else {
