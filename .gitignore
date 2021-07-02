@@ -5,3 +5,4 @@ zig-out
 _input
 _output
 _models/roberta-case-nguyenvulebinh/model.pt
+cache
