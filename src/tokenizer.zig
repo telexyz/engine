@@ -102,13 +102,6 @@ pub const Tokenizer = struct {
                     char_type = .space;
                     first_byte = ' '; // Convert to space
                 },
-                194 => {
-                    if (input_bytes[index + 1] == 160) { // &nbsp;
-                        char_bytes_len = 2;
-                        char_type = .space;
-                        first_byte = ' '; // Convert to space
-                    }
-                },
                 else => {
                     // Based on code of zig std lib
                     // pub fn utf8ByteSequenceLength(first_byte: u8) !u3 {
@@ -132,6 +125,12 @@ pub const Tokenizer = struct {
                     } else if (0b1100_0000 <= first_byte and first_byte <= 0b1101_1111) {
                         char_bytes_len = 2;
                         second_byte = input_bytes[index + 1];
+
+                        //   or &nbsp;
+                        if (first_byte == 194 and second_byte == 160) { 
+                            char_type = .space;
+                            first_byte = ' '; // Convert to space
+                        }
 
                         // Rough filter to see if it .marktone_char
                         if (195 <= first_byte and first_byte <= 198 and
