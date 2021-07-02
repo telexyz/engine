@@ -1,3 +1,26 @@
+# 4/ Giao diện tương tác bằng ngôn ngữ giữa người và máy (a.k.a chatbot)
+
+KỊCH BẢN TƯƠNG TÁC
+
+User mở App gõ:
+"Đi chợ mất 150k."
+
+App: (tự hiểu đi chợ là mục tiêu dùng)
+"Ok bạn. nhập liệu vào khoản chi, mục tiêu dùng 150k"
+
+User:
+"Lại tiêu hoang 2tr rồi app ơi."
+
+App: (biết cần ghi khoản chi 2tr nhưng chưa biết mục nào nên đặt câu hỏi)
+"Bạn tiêu vào mục gì?
+1. Ăn, 2. Chơi, 3. Mua sắm"
+
+User: (chọn số 3)
+
+App:
+"Bạn vừa mua sắm mất 2tr. Nhiều phết nhỉ. Thủng đáy quỹ ăn chơi tháng này rồi bạn ơi"
+
+
 # 3/ Anger-Detector: Nghe âm thanh vào và nhận biết người nói có đang sân không
 
 Bài toán nhận dạng cảm xúc qua tiếng nói
