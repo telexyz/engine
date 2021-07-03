@@ -14,12 +14,14 @@
 524K `alphabet` 2^19
 524K `nonalpha` 2^19
 
-Xor8 is the recommended default, and has no more than a 0.3% false-positive probability. If you have > 100 million keys, fuse8 may be better.
+### 3rd tries
+
+
 
 ### 2nd tries
 https://github.com/hexops/xorfilter
 
-This is a Zig implementation of Xor Filters and Fuse Filters, which are faster and smaller than Bloom and Cuckoo filters and allow for quickly checking if a key is part of a set.
+`keys` phải biết từ trước, ko online update được :'(
 
 https://lemire.me/blog/2019/12/19/xor-filters-faster-and-smaller-than-bloom-filters
 
