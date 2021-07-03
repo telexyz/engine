@@ -9,14 +9,12 @@ cd zig
 
 mkdir build
 cd build
-cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm) 
+# cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm) 
 # To compile in release mode use the -DCMAKE_BUILD_TYPE=Release flag
-# cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm) -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm) -DCMAKE_BUILD_TYPE=Release
 make install
 ln -s ~/repos/zig/build/bin/zig ~/zig
 ~/zig
-```
-
 ```
 
 ### Useful Zig utils to processing text

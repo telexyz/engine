@@ -2,7 +2,7 @@
 
 rm _output/*.txt
 
-~/zig run telexify.zig -O ReleaseFast -- _input/fb_comments_10m.txt _input/fb_comment_10m_tknz.txt
+~/zig run telexify.zig -O ReleaseFast -- _input/fb_comments_10m.txt _input/fb_comments_10m_tknz.txt
 
 # ~/zig run telexify.zig -O ReleaseFast -- _input/best_vi_translation_train.txt _input/best_vi_translation_train_tknz.txt
 

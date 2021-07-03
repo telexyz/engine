@@ -1,7 +1,13 @@
 PROBLEM: Given a token as a KEY reTRIEval the corespoding value
 
-EXTENSION: Think of is as database (record retrieval), documents (text retrieval), search engine ...
+EXTENSION: Think in context of a database (record retrieval), documents / library (text retrieval), search engine ...
 
+- - -
+
+DAWG: Directed Acyclic Word Graphs | https://jbp.dev/blog/dawg-basics.html
+DAFSA: Deterministic Acyclic Finite State Automaton
+
+- - -
 
 # Perfect-Hash, Trie, FST ...
 http://stevehanov.ca/blog/?id=119
