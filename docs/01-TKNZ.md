@@ -7,7 +7,21 @@
 * Rule #4: Don't try to be clever
 * Rule #5: Prefer simple solution!
 
-## Enhancement !!!
+## Phase-1.1: Insights & Enhancement !!!
+
+### Data-pipeline
+
+Mảng tokens[i] để trỏ tới input_bytes là 1 sự lãng phí vì 1 con trỏ mất 64 bits (8-bytes), tương đương với 1 chuỗi ascii 8 ký tự. Lượng bộ nhớ này nên dùng để ghi dữ liệu đầu ra theo kiểu tuyến tính (có thể iterate từ đầu tới cuối, có thể iterate chen ngang nhưng ko biết rõ vị trí của tokens[i]).
+
+Cách nghĩ text là 1 chuỗi của tokens là đúng về mặt abstract nhưng khi thể hiện một cách cứng nhắc rằng chuỗi tokens là 1 mảng tokens[i] là chưa thực sự hiểu rõ memory cost cho việc đó.
+
+Cách hình dung tốt hơn là mappings. Text input là 1 mảng bytes, bất kỳ thao tác nào (segment, tokenize, syllablize, BPE ...) đều là 1 phép ánh xạ mảng tuyến tính input bytes thành mảng tuyến tính output bytes.
+
+Đặc tính của mảng tuyến tính là có thể iterate từ đầu tới cuối, có thể iterate chen ngang từ bất kì vị trí bytes nào nhưng ko biết rõ vị trí của tokens[i]. Mảng tuyến tính sử dụng delimiters (\s chẳng hạn), meta-data token_attrs byte chẳng hạn, hoặc ghi trước độ dài của token vào đầu token đó để có thể iterate nhanh hơn là lần từng byte-by-byte.
+
+Do có thể chen ngang nên mảng tuyến tính có thể được cắt nhỏ để xử lý song song, việc merge kết quả thực sự đơn giản, thậm chí chẳng cần merge. Nên cắt và lưu ra nhiều files nhỏ thì tốt hơn là lưu vào 1 file lớn. (dễ quản, dễ xử lý song song ...)
+
+### Bottle neck
 
 For now the bottle neck is at HashMap tokens into types and count
 By skipping hashing function in text.countToken it took 0.24 mins to segment ~600mb
@@ -25,17 +39,92 @@ Or using other data structs like trie, ...
 
 => Solution-2 is complement to solution-3 since it will speedup each single pileline
 
-## Data-pipeline
+TRỞ LẠI GỐC RỄ VẤN ĐỀ:
 
-Mảng tokens[i] để trỏ tới input_bytes là 1 sự lãng phí vì 1 con trỏ mất 64 bits (8-bytes), tương đương với 1 chuỗi ascii 8 ký tự. Lượng bộ nhớ này nên dùng để ghi dữ liệu đầu ra theo kiểu tuyến tính (có thể iterate từ đầu tới cuối, có thể iterate chen ngang nhưng ko biết rõ vị trí của tokens[i]).
+HashMap được dùng với tokens để làm xem xem token đang xử lý đã "gặp" hay chưa? Nếu gặp rồi thì tăng count của type tương ứng lên. Sau đó export HashMap keys ra thì được list of types cùng với counts của chúng. Chỉ đơn giản vậy thôi.
 
-Cách nghĩ text là 1 chuỗi của tokens là đúng về mặt abstract nhưng khi thể hiện một cách cứng nhắc rằng chuỗi tokens là 1 mảng tokens[i] là chưa thực sự hiểu rõ memory cost cho việc đó.
+Cả count và types đều ko cần chính xác tuyệt đối vì cuối cùng cái chúng ra dùng là tokens là n-gram, ... và counts dựa trên tập dữ liệu lớn thì chỉ chính xác tuyệt đối là ko cần thiết
 
-Cách hình dung tốt hơn là mappings. Text input là 1 mảng bytes, bất kỳ thao tác nào (segment, tokenize, syllablize, BPE ...) đều là 1 phép ánh xạ mảng tuyến tính input bytes thành mảng tuyến tính output bytes.
+=> Có thể sử dụng bloom-filter (cuckoo-filter) để xem 1 token đã gặp hay chưa?
+=> Có thể sử dụng https://en.wikipedia.org/wiki/Approximate_counting_algorithm để count
 
-Đặc tính của mảng tuyến tính là có thể iterate từ đầu tới cuối, có thể iterate chen ngang từ bất kì vị trí bytes nào nhưng ko biết rõ vị trí của tokens[i]. Mảng tuyến tính sử dụng delimiters (\s chẳng hạn), meta-data token_attrs byte chẳng hạn, hoặc ghi trước độ dài của token vào đầu token đó để có thể iterate nhanh hơn là lần từng byte-by-byte.
+GIẢ SỬ CHÚNG TA CHỈ QUAN TÂM TỚI SYLLABLES
 
-Do có thể chen ngang nên mảng tuyến tính có thể được cắt nhỏ để xử lý song song, việc merge kết quả thực sự đơn giản, thậm chí chẳng cần merge. Nên cắt và lưu ra nhiều files nhỏ thì tốt hơn là lưu vào 1 file lớn. (dễ quản, dễ xử lý song song ...)
+=> Thay vì thực thi trie / fsa, chúng ta cải tiến VietSyllableParser chạy nhanh nhất có thể vì đằng nào cũng phải Parse và sau phi parse với mỗi Syllable ta được 1 `u17` univeral id tương ứng với từng syllower.
+
+QUAY TRỞ LẠI GỐC RỄ VẤN ĐỀ:
+
+Convert `can_be_vietnamese tokens` => `syllower's id` + `attrs`, với các tokens khác giữ nguyên nội dung gốc, chờ xử lý sau ...
+
+Những nice-to-have features khác như types, counts ta xử lý bằng những data struct và algos ko cần độ chính xác tuyệt đối => Prob Data Struct :D
+
+Với cấu trúc 64-bit, usize hay u64 được sử dụng rất nhiều như là pointer value, uid ... Với 64-bit ta đã có thể mã hóa được xấp xỉ 8-chars rồi.
+
+Hoặc với những chuỗi ngắn, có thể sử dụng bitset để đánh dấu xem đã gặp hay chưa. Với chuỗi dài thì dùng bloom filter chẳng hạn.
+
+FINALLY: Bỏ việc count qua 1 bên, ta có thể loại bỏ hoàn toàn việc dùng HashMap khi xử lý token bằng cách:
+
+1/ `syllable tokens` => `syllower's id` + `attrs` rồi đếm `syll_id`
+2/ Với chuỗi ngắn (8-bytes) sử dụng bitset
+3/ Với chuỗi dài sử dụng bloom filter ....
+
+- - -
+
+
+## Phase-2: Subword segmentation
+
+https://everdark.github.io/k9/notebooks/ml/natural_language_understanding/subword_units/subword_units.nb.html#12_probablistic_subword_segmentation
+
+We iterate over every position in a given word. At each end-of-character position, we determine the best segment by finding the one with highest likelihood given the current vocabulary.
+
+we need to have a vocabulary for subwords that can attribute each subword to a probability. We can use BPE to build such vocabulary. For complete coverage we will also include character-level subwords into the vocabulary.
+
+https://everdark.github.io/k9/notebooks/ml/natural_language_understanding/subword_units/subword_units.nb.html#123_em_with_viterbi
+
+Now we know the idea of EM, and we know how to find the optimal segment path by Viterbi, we can put them together to forumlate the optimization task of our probablistic subword segmentation.
+
+* Initialize a large seeding subword vocabulary from the training corpus
+* [Expectation] Estimate each subword probability by the corresponding frequency counts in the vocabulary
+* [Maximization] Use Viterbi to segment the corpus, returning the optimal segments
+* Compute the loss of each new subword from optimal segments
+* Shrink the vocabulary size by dropping the subwords with top X% smallest losses
+* Repeat step 2 to 5 until the vocabulary size reaches a desired number
+
+The loss of a subword in step 4 is the reduction in overall training corpus segment likelihood if that subword is removed from the current vocabulary.
+
+we used BPE to generate the initial vocabulary. Another common choice is to the suffix array algorithm. to generate the common substrings.
+
+
+```js
+Input: "Nguowif", "ơiii", "chaof", "nhes", "!"
+Output: "Nguowif", "owi", "i", "i", "chaof", "nhes", "!"
+```
+After phase-#1, the number of others-tokens is quite small. For above example we need to process token number 3 only!
+
+
+TODO:
+
+* Sử dụng tokens dạng nguyên bản utf8 của vocab để scan OOV types, nhằm tách các thành phần chắc chắn là âm tiết. Chú ý cách phân biệt chữ cái viết hoa vs chữ cái viết thường có thể dùng để làm boundary để tách (xem ví dụ dưới).
+
+* Có nhiều cách tách thì giữ lại thành nhiều dị bản, càng nhiều ứng cử viên tiềm năng càng tốt, cân hết!
+
+* Choose an effective subword tknz algo that suitale for Vi and reuse syllable vocab
+
+```js
+Try: "MẹHàMy" -> "MẹHàM|y" -> true
+Try: "Mẹnuôi" -> "Mẹn|uôi" -> true
+Try: "NgheNh|ìn" -> false
+Try: "Môn|ôlôxốp" -> "Mô|nô|lô|xốp" ?? nên giữ nguyên vì đây là tên riêng
+```
+
+This phase must:
+
+* Re-use syllable vocab to break tokens in meaningful parts
+
+* Combining subword tokenize techniques to obtain best results
+
+
+- - -
 
 ## Phase-1: Space-splitter (space-32, tab-9) and alphabet vs nonalpha splitter
 
@@ -50,8 +139,6 @@ Do có thể chen ngang nên mảng tuyến tính có thể được cắt nhỏ
 * Sort type counts before write to files
 
 __TODOs__:
-
-
 
 [ DONE ]
 
@@ -110,59 +197,7 @@ Output: "Nguowif", "ơiii", "chaof", "nhes", "!"
 
 By doing all of this we respect Rule #1/ that makes "SYLLABLES are FIRST CLASS Citizens" so we can build a syllable vocab, and prepare input data the next phase.
 
-
-## Phase-2: Subword segmentation
-
-https://everdark.github.io/k9/notebooks/ml/natural_language_understanding/subword_units/subword_units.nb.html#12_probablistic_subword_segmentation
-
-We iterate over every position in a given word. At each end-of-character position, we determine the best segment by finding the one with highest likelihood given the current vocabulary.
-
-we need to have a vocabulary for subwords that can attribute each subword to a probability. We can use BPE to build such vocabulary. For complete coverage we will also include character-level subwords into the vocabulary.
-
-https://everdark.github.io/k9/notebooks/ml/natural_language_understanding/subword_units/subword_units.nb.html#123_em_with_viterbi
-
-Now we know the idea of EM, and we know how to find the optimal segment path by Viterbi, we can put them together to forumlate the optimization task of our probablistic subword segmentation.
-
-* Initialize a large seeding subword vocabulary from the training corpus
-* [Expectation] Estimate each subword probability by the corresponding frequency counts in the vocabulary
-* [Maximization] Use Viterbi to segment the corpus, returning the optimal segments
-* Compute the loss of each new subword from optimal segments
-* Shrink the vocabulary size by dropping the subwords with top X% smallest losses
-* Repeat step 2 to 5 until the vocabulary size reaches a desired number
-
-The loss of a subword in step 4 is the reduction in overall training corpus segment likelihood if that subword is removed from the current vocabulary.
-
-we used BPE to generate the initial vocabulary. Another common choice is to the suffix array algorithm. to generate the common substrings.
-
-
-```js
-Input: "Nguowif", "ơiii", "chaof", "nhes", "!"
-Output: "Nguowif", "owi", "i", "i", "chaof", "nhes", "!"
-```
-After phase-#1, the number of others-tokens is quite small. For above example we need to process token number 3 only!
-
-
-TODO:
-
-* Sử dụng tokens dạng nguyên bản utf8 của vocab để scan OOV types, nhằm tách các thành phần chắc chắn là âm tiết. Chú ý cách phân biệt chữ cái viết hoa vs chữ cái viết thường có thể dùng để làm boundary để tách (xem ví dụ dưới).
-
-* Có nhiều cách tách thì giữ lại thành nhiều dị bản, càng nhiều ứng cử viên tiềm năng càng tốt, cân hết!
-
-* Choose an effective subword tknz algo that suitale for Vi and reuse syllable vocab
-
-```js
-Try: "MẹHàMy" -> "MẹHàM|y" -> true
-Try: "Mẹnuôi" -> "Mẹn|uôi" -> true
-Try: "NgheNh|ìn" -> false
-Try: "Môn|ôlôxốp" -> "Mô|nô|lô|xốp" ?? nên giữ nguyên vì đây là tên riêng
-```
-
-This phase must:
-
-* Re-use syllable vocab to break tokens in meaningful parts
-
-* Combining subword tokenize techniques to obtain best results
-
+- - -
 
 ## Phase-3: Everything Else / Post-processing
 
