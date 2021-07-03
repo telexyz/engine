@@ -9,13 +9,25 @@
 
 ## Phase-1.1: Insights & Enhancement !!!
 
- 16K `syllower`
-160K `alphmark`
-512K `alphabet`
-512K `nonalpha`
+ 16K _syllower_ 2^14
+262K `alphmark` 2^18
+524K `alphabet` 2^19
+524K `nonalpha` 2^19
+
+Xor8 is the recommended default, and has no more than a 0.3% false-positive probability. If you have > 100 million keys, fuse8 may be better.
+
+### 2nd tries
+https://github.com/hexops/xorfilter
+
+This is a Zig implementation of Xor Filters and Fuse Filters, which are faster and smaller than Bloom and Cuckoo filters and allow for quickly checking if a key is part of a set.
+
+https://lemire.me/blog/2019/12/19/xor-filters-faster-and-smaller-than-bloom-filters
+
+Xor filters offer better accuracy for a given memory budget. With only 9 bits per entry, you can get a false positive probability much less than 1%.
 
 ### 1st tries
-https://raw.githubusercontent.com/kristoff-it/zig-cuckoofilter/master/src/cuckoofilter.zig
+https://raw.githubusercontent.com/kristoff-it/zig-cuckoofilter/master/src/cuckoofilter.zig => zig 0.5.0, outdated code, compile error
+
 
 ```
 
