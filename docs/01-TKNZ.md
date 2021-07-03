@@ -16,21 +16,15 @@
 
 ### 3rd tries
 
+https://github.com/s-yata/marisa-trie
 
-
-### 2nd tries
-https://github.com/hexops/xorfilter
-
-`keys` phải biết từ trước, ko online update được :'(
-
-https://lemire.me/blog/2019/12/19/xor-filters-faster-and-smaller-than-bloom-filters
-
-Xor filters offer better accuracy for a given memory budget. With only 9 bits per entry, you can get a false positive probability much less than 1%.
-
-### 1st tries
-https://raw.githubusercontent.com/kristoff-it/zig-cuckoofilter/master/src/cuckoofilter.zig => zig 0.5.0, outdated code, compile error
-
-
+```
+libtool: install: /usr/bin/install -c .libs/libmarisa.0.dylib /usr/local/lib/libmarisa.0.dylib
+libtool: install: (cd /usr/local/lib && { ln -s -f libmarisa.0.dylib libmarisa.dylib || { rm -f libmarisa.dylib && ln -s libmarisa.0.dylib libmarisa.dylib; }; })
+libtool: install: /usr/bin/install -c .libs/libmarisa.lai /usr/local/lib/libmarisa.la
+libtool: install: /usr/bin/install -c .libs/libmarisa.a /usr/local/lib/libmarisa.a
+libtool: install: chmod 644 /usr/local/lib/libmarisa.a
+libtool: install: ranlib /usr/local/lib/libmarisa.a
 ```
 
 ### Data-pipeline

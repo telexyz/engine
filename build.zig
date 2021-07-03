@@ -11,10 +11,14 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    const exe = b.addExecutable("telex", "src/main.zig");
+    const exe = b.addExecutable("telexify", "telexify.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
     exe.install();
+
+    exe.addSystemIncludeDir("/usr/local/include");
+    exe.addSystemLibPath("/usr/local/lib");
+    exe.linkSystemLibrary("libmarisa");
 
     const run_cmd = exe.run();
     run_cmd.step.dependOn(b.getInstallStep());
