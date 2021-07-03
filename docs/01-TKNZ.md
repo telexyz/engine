@@ -58,14 +58,12 @@ Convert `can_be_vietnamese tokens` => `syllower's id` + `attrs`, với các toke
 
 Những nice-to-have features khác như types, counts ta xử lý bằng những data struct và algos ko cần độ chính xác tuyệt đối => Prob Data Struct :D
 
-Với cấu trúc 64-bit, usize hay u64 được sử dụng rất nhiều như là pointer value, uid ... Với 64-bit ta đã có thể mã hóa được xấp xỉ 8-chars rồi.
-
 Hoặc với những chuỗi ngắn, có thể sử dụng bitset để đánh dấu xem đã gặp hay chưa. Với chuỗi dài thì dùng bloom filter chẳng hạn.
 
 FINALLY: Bỏ việc count qua 1 bên, ta có thể loại bỏ hoàn toàn việc dùng HashMap khi xử lý token bằng cách:
 
 1/ `syllable tokens` => `syllower's id` + `attrs` rồi đếm `syll_id`
-2/ Với chuỗi ngắn (8-bytes) sử dụng bitset
+2/ Với chuỗi ngắn (5-bytes) sử dụng bitset
 3/ Với chuỗi dài sử dụng bloom filter ....
 
 - - -
