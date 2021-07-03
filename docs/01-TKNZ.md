@@ -9,6 +9,16 @@
 
 ## Phase-1.1: Insights & Enhancement !!!
 
+ 16K `syllower`
+160K `alphmark`
+512K `alphabet`
+512K `nonalpha`
+
+### 1st tries
+https://raw.githubusercontent.com/kristoff-it/zig-cuckoofilter/master/src/cuckoofilter.zig
+
+```
+
 ### Data-pipeline
 
 Mảng tokens[i] để trỏ tới input_bytes là 1 sự lãng phí vì 1 con trỏ mất 64 bits (8-bytes), tương đương với 1 chuỗi ascii 8 ký tự. Lượng bộ nhớ này nên dùng để ghi dữ liệu đầu ra theo kiểu tuyến tính (có thể iterate từ đầu tới cuối, có thể iterate chen ngang nhưng ko biết rõ vị trí của tokens[i]).
