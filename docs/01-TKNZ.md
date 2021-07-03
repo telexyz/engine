@@ -21,6 +21,8 @@ Cách hình dung tốt hơn là mappings. Text input là 1 mảng bytes, bất k
 
 Do có thể chen ngang nên mảng tuyến tính có thể được cắt nhỏ để xử lý song song, việc merge kết quả thực sự đơn giản, thậm chí chẳng cần merge. Nên cắt và lưu ra nhiều files nhỏ thì tốt hơn là lưu vào 1 file lớn. (dễ quản, dễ xử lý song song ...)
 
+Với góc nhìn cả input và output đề là stream như trên hãy tìm hiểu thêm về  https://en.wikipedia.org/wiki/Streaming_algorithm để làm sao cho 1 lần scan data làm được nhiều thứ 1 cách hiệu quả nhất!
+
 ### Bottle neck
 
 For now the bottle neck is at HashMap tokens into types and count
@@ -46,7 +48,7 @@ HashMap được dùng với tokens để làm xem xem token đang xử lý đã
 Cả count và types đều ko cần chính xác tuyệt đối vì cuối cùng cái chúng ra dùng là tokens là n-gram, ... và counts dựa trên tập dữ liệu lớn thì chỉ chính xác tuyệt đối là ko cần thiết
 
 => Có thể sử dụng bloom-filter (cuckoo-filter) để xem 1 token đã gặp hay chưa?
-=> Có thể sử dụng https://en.wikipedia.org/wiki/Approximate_counting_algorithm để count
+=> Có thể sử dụng https://en.wikipedia.org/wiki/Count-distinct_problem để count
 
 GIẢ SỬ CHÚNG TA CHỈ QUAN TÂM TỚI SYLLABLES
 
