@@ -56,15 +56,17 @@ QUAY TRỞ LẠI GỐC RỄ VẤN ĐỀ:
 
 Convert `can_be_vietnamese tokens` => `syllower's id` + `attrs`, với các tokens khác giữ nguyên nội dung gốc, chờ xử lý sau ...
 
-Những nice-to-have features khác như types, counts ta xử lý bằng những data struct và algos ko cần độ chính xác tuyệt đối => Prob Data Struct :D
+Những nice-to-have features khác như types, counts ta xử lý bằng những data struct và algos ko cần độ chính xác tuyệt đối => Prob Data Struct :D 
 
-Hoặc với những chuỗi ngắn, có thể sử dụng bitset để đánh dấu xem đã gặp hay chưa. Với chuỗi dài thì dùng bloom filter chẳng hạn.
+Hoặc là với những token ngắn, có thể sử dụng bitset để đánh dấu xem đã gặp hay chưa. Với token dài thì dùng bloom filter chẳng hạn.
 
 FINALLY: Bỏ việc count qua 1 bên, ta có thể loại bỏ hoàn toàn việc dùng HashMap khi xử lý token bằng cách:
 
 1/ `syllable tokens` => `syllower's id` + `attrs` rồi đếm `syll_id`
-2/ Với chuỗi ngắn (5-bytes) sử dụng bitset
-3/ Với chuỗi dài sử dụng bloom filter ....
+2/ Với token ngắn (5-bytes) sử dụng bitset
+3/ Với token dài sử dụng bloom filter ....
+
+NOTE: Với mỗi token hiện tại ta đã phân loại được xem token đó thuộc bảng chữ cái hay ko và nếu thuộc bảng chữ cái thì có thuần a-z hay không? (`nonalpha` vs `alphamark` vs `alphabet`) Việc phân loại có thể giúp ích cho việc count đỡ tốn sức hơn, ví dụ mã hóa lại hoặc mapping vào 1 tập bits nhỏ hơn, giúp count / filter tốt hơn chẳng hạn.
 
 - - -
 
