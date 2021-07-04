@@ -69,8 +69,8 @@ Hiện tại với mỗi char đầu vào phải switch 3 lần, lần 1 phân b
 
 ## [ Telex Engine ] New insights / improvements II
 
-+ `_output/result_00../syllables1,2.txt` contains recognized syllables
-+ `_output/result_00../oov1,2.txt` contains oov words without second try
++ `output/result_00../syllables1,2.txt` contains recognized syllables
++ `output/result_00../oov1,2.txt` contains oov words without second try
 
 While looking at oov.txt (out-of-vocabulary), found a reasonable amount of word that composed of two valid vietnamese syllables:
 đăngký Đăngơ ĐĩaThan đơngiá đơnphải đưalao đưatin đưaTrung đưaTết đườngkỳ đườngphục Đượ đượ đượcca đượcdùng đượcgiao đượcgiải đượcnha đạophòng đạoTPHCM đạoVịnh đạođối Đạtlai Đảngcho ĐảoCôn 
@@ -79,8 +79,8 @@ While looking at oov.txt (out-of-vocabulary), found a reasonable amount of word 
 
 ### RESULTS
 
-+ `_output/result_00../syllables1.txt` contains double-syllable words
-+ `_output/result_00../oov1.txt` contains oov words after apply second try
++ `output/result_00../syllables1.txt` contains double-syllable words
++ `output/result_00../oov1.txt` contains oov words after apply second try
 
 Try: "MẹHàMy" => "MẹHàM|y" => true
 Try: "Mẹnuôi" => "Mẹn|uôi" => true

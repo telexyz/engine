@@ -35,56 +35,56 @@ fn initConfigsFromArgs() void {
 fn write_out_results1() !void {
     try TextokOutputHelpers.write_types_to_file(
         text.nonalpha_types,
-        "_output/06-nonalpha_types.txt",
+        "output/06-nonalpha_types.txt",
     );
     // Write sample of final output to preview
     try TextokOutputHelpers.write_text_tokens_to_file(
         text,
-        "_output/07-tokens_sample.txt",
+        "output/07-tokens_sample.txt",
         777,
     );
     try TextokOutputHelpers.write_transforms_to_file(
         text,
-        "_output/08-telexified_sample.txt",
+        "output/08-telexified_sample.txt",
         888_888,
     );
     // out-of-size
     try TextokOutputHelpers.write_too_long_tokens_to_file(
         text,
         text.alphabet_too_long_token_ids,
-        "_output/12-alphabet_too_long_tokens.txt",
+        "output/12-alphabet_too_long_tokens.txt",
     );
     try TextokOutputHelpers.write_too_long_tokens_to_file(
         text,
         text.nonalpha_too_long_token_ids,
-        "_output/13-nonalpha_too_long_tokens.txt",
+        "output/13-nonalpha_too_long_tokens.txt",
     );
 }
 
 fn write_out_results2() !void {
     try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.syllable_types,
-        "_output/01-syllmark_types.txt",
-        "_output/02-syllable_types.txt",
+        "output/01-syllmark_types.txt",
+        "output/02-syllable_types.txt",
     );
     try TextokOutputHelpers.write_types_to_file(
         text.syllower_types,
-        "_output/03-syllower_types.txt",
+        "output/03-syllower_types.txt",
     );
     try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.alphabet_types,
-        "_output/04-alphmark_types.txt",
-        "_output/05-alphabet_types.txt",
+        "output/04-alphmark_types.txt",
+        "output/05-alphabet_types.txt",
     );
     // More info
     try TextokOutputHelpers.write_mark_vs_norm_tokens_to_files(
         text.alphabet_types,
-        "_output/09-alphmark_tokens.txt",
-        "_output/10-alphabet_tokens.txt",
+        "output/09-alphmark_tokens.txt",
+        "output/10-alphabet_tokens.txt",
     );
     try TextokOutputHelpers.write_tokens_to_file(
         text.nonalpha_types,
-        "_output/11-nonalpha_tokens.txt",
+        "output/11-nonalpha_tokens.txt",
     );
     // Final result
     try TextokOutputHelpers.write_transforms_to_file(

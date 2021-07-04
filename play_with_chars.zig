@@ -25,7 +25,7 @@ var str = "×÷ ̣ ̂́ ̉ ̂ ̛̣ ̂̃ ̣̂ ̂̉ ̛ ̛̀ ̃ ̛́ ̛̉ ̆̀ ͡ �
 // var str = "АВМСКоНРрЕ|ABMCKoHPpE";
 
 pub fn main() !void {
-    var file = try std.fs.cwd().createFile("_output/play_with_chars.txt", .{});
+    var file = try std.fs.cwd().createFile("output/play_with_chars.txt", .{});
     defer file.close();
     _ = try file.writer().write(str);
 

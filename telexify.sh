@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm _output/*.txt
+rm output/*.txt
 
 ~/zig run telexify.zig -O ReleaseFast -- input/fb_comments_10m.txt input/fb_comments_10m_tknz.txt
 
