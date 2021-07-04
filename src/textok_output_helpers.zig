@@ -2,7 +2,7 @@ const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 
 const max_token_len = 50;
-const max_tokens_per_line = 8;
+const max_tokens_per_line = 10;
 const PAD = "  ";
 
 pub const TextokOutputHelpers = struct {
