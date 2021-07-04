@@ -24,7 +24,7 @@ pub const Text = struct {
     tokens: [][]const u8 = undefined,
     tokens_attrs: []TokenAttributes = undefined,
 
-    // oos = out-of-size
+    // out-of-size tokens
     alphabet_too_long_token_ids: std.ArrayList(usize) = undefined,
     nonalpha_too_long_token_ids: std.ArrayList(usize) = undefined,
 
@@ -220,9 +220,12 @@ pub const Text = struct {
             }
         } else {
             // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
-            try self.nonalpha_too_long_token_ids.append(self.tokens_number);
+            if (attrs.category == .nonalpha)
+                try self.nonalpha_too_long_token_ids.append(self.tokens_number)
+            else
+                try self.alphabet_too_long_token_ids.append(self.tokens_number);
         }
-        // increare only when counter is finalized since other threads are watching
+        // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
     }
 

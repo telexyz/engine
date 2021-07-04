@@ -48,6 +48,17 @@ fn write_out_results1() !void {
         "_output/08-telexified_sample.txt",
         888_888,
     );
+    // out-of-size
+    try TextokOutputHelpers.write_too_long_tokens_to_file(
+        text,
+        text.alphabet_too_long_token_ids,
+        "_output/12-alphabet_too_long_tokens.txt",
+    );
+    try TextokOutputHelpers.write_too_long_tokens_to_file(
+        text,
+        text.nonalpha_too_long_token_ids,
+        "_output/13-nonalpha_too_long_tokens.txt",
+    );
 }
 
 fn write_out_results2() !void {
@@ -75,18 +86,6 @@ fn write_out_results2() !void {
         text.nonalpha_types,
         "_output/11-nonalpha_tokens.txt",
     );
-    // out-of-size
-    try TextokOutputHelpers.write_too_long_tokens_to_file(
-        text,
-        text.alphabet_too_long_token_ids,
-        "_output/12-alphabet_too_long_tokens.txt",
-    );
-    try TextokOutputHelpers.write_too_long_tokens_to_file(
-        text,
-        text.nonalpha_too_long_token_ids,
-        "_output/13-nonalpha_too_long_tokens.txt",
-    );
-
     // Final result
     try TextokOutputHelpers.write_transforms_to_file(
         text,
