@@ -24,6 +24,10 @@ pub const Text = struct {
     tokens: [][]const u8 = undefined,
     tokens_attrs: []TokenAttributes = undefined,
 
+    // oos = out-of-size
+    alphabet_too_long_token_ids: std.ArrayList(usize) = undefined,
+    nonalpha_too_long_token_ids: std.ArrayList(usize) = undefined,
+
     // A token can have multiple transforms:
     // For example ascii_transforms[i] is the ascii-telex transformation of tokens[i]
     // ascii_transforms should be used only if token is a VN syllable for sure,
@@ -48,7 +52,6 @@ pub const Text = struct {
 
     // Use data of input_bytes, pointed by tokens[i]
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
-    // Use data of input_bytes, pointed by tokens[i]
     nonalpha_types: std.StringHashMap(u32) = undefined,
 
     // Use data of transformed_bytes, pointed by transforms[i]
@@ -70,7 +73,7 @@ pub const Text = struct {
     allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
 
-    pub const MAX_TOKEN_LEN = 20;
+    pub const MAX_TOKEN_LEN = 30;
     const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
@@ -177,6 +180,9 @@ pub const Text = struct {
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
+        self.alphabet_too_long_token_ids = std.ArrayList(usize).init(self.allocator);
+        self.nonalpha_too_long_token_ids = std.ArrayList(usize).init(self.allocator);
+
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
         self.transformed_bytes_size = input_bytes_size + input_bytes_size / 10 + BUFF_SIZE;
@@ -212,6 +218,9 @@ pub const Text = struct {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
             }
+        } else {
+            // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
+            try self.nonalpha_too_long_token_ids.append(self.tokens_number);
         }
         // increare only when counter is finalized since other threads are watching
         self.tokens_number += 1;

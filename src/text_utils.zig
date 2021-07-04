@@ -69,52 +69,62 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         const firt_byte_index = text.transformed_bytes_len;
         text.transformed_bytes_len += 1;
 
-        if (attrs.category != .nonalpha and token.len <= U2ACharStream.MAX_LEN) {
+        if (attrs.category != .nonalpha) {
             // count alphabet token
-            const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
-                .count = 0,
-                .category = ._none,
-            }) catch unreachable;
-            gop.value_ptr.count += 1;
-            const type_info = gop.value_ptr;
 
-            // print("\n| Tkn: {s}, {} | ", .{ token, type_info.category }); // DEBUG
-            if (type_info.category == ._none and token.len <= U2ACharStream.MAX_LEN) {
-                // Not transformed and not too long token, then do syllabe parsing
-                char_stream.reset();
-                // Try to convert token to syllable
-                const syllable = parsers.parseTokenToGetSyllable(
-                    true, // strick mode on
-                    printNothing,
-                    &char_stream,
-                    token,
-                );
+            // Reject too long tokens
+            if (token.len > Text.MAX_TOKEN_LEN) {
+                // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
+                text.alphabet_too_long_token_ids.append(i.*) catch unreachable;
+                //
+            } else {
+                //
+                const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+                    .count = 0,
+                    .category = ._none,
+                }) catch unreachable;
+                gop.value_ptr.count += 1;
+                const type_info = gop.value_ptr;
 
-                // print("Alphabet: {s}, {} => is_vn_syllable {}\n", .{ token, attrs.category, syllable.can_be_vietnamese }); // DEBUG
+                // print("\n| Tkn: {s}, {} | ", .{ token, type_info.category }); //DEBUG
+                if (type_info.category == ._none and token.len <= U2ACharStream.MAX_LEN) { // Not transformed and not too long token
+                    char_stream.reset();
+                    // Try to convert token to syllable
+                    const syllable = parsers.parseTokenToGetSyllable(
+                        true, // strict mode on
+                        printNothing,
+                        &char_stream,
+                        token,
+                    );
 
-                if (syllable.can_be_vietnamese) {
-                    // Token is vietnamese syllable
-                    type_info.category = switch (attrs.category) {
-                        .alphmark => .syllmark,
-                        .alphabet => .syllable,
-                        else => unreachable,
-                    };
-                    // Write ascii-telex transform
-                    const syllable_token = saveAsciiTelexTransform(text, char_stream);
-                    type_info.transform = syllable_token;
-                    token_not_written = false;
-                } else {
-                    // For non-syllable, attrs.category can only be
-                    // .alphabet or .alphmark
-                    type_info.category = attrs.category;
+                    // print("Alphabet: {s}, {} => is_vn_syllable {}\n", .{ token, attrs.category, syllable.can_be_vietnamese }); //DEBUG
+
+                    if (syllable.can_be_vietnamese) {
+                        // Token is vietnamese syllable
+                        type_info.category = switch (attrs.category) {
+                            .alphmark => .syllmark,
+                            .alphabet => .syllable,
+                            else => unreachable,
+                        };
+                        // Write ascii-telex transform
+                        const syllable_token = saveAsciiTelexTransform(text, char_stream);
+                        type_info.transform = syllable_token;
+                        token_not_written = false;
+                    } else {
+                        // For non-syllable, attrs.category can only be
+                        // .alphabet or .alphmark
+                        type_info.category = attrs.category;
+                    }
                 }
-            }
 
-            if (type_info.isSyllable()) {
-                attrs.category = type_info.category;
-                // Point token value to it's type trans to write to output stream
-                token = type_info.transform;
-            }
+                if (type_info.isSyllable()) {
+                    // Update token category according to it's type category
+                    // .alphmark => .syllmark, .alphabet => .syllable,
+                    attrs.category = type_info.category;
+                    // Point token value to it's transform to write to output stream
+                    token = type_info.transform;
+                }
+            } // token.len <= Text.MAX_TOKEN_LEN
         } // attrs.category == .alphabet or .alphmark
 
         if (token_not_written) {

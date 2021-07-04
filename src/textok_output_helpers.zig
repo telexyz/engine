@@ -1,11 +1,28 @@
 const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 
-const max_token_len = 50;
-const max_tokens_per_line = 10;
+const MAX_TOKENS_PER_LINE = 10;
 const PAD = "  ";
 
 pub const TextokOutputHelpers = struct {
+    pub fn write_too_long_tokens_to_file(
+        text: Text,
+        token_ids: std.ArrayList(usize),
+        filename: []const u8,
+    ) !void {
+        //
+        var file = try std.fs.cwd().createFile(filename, .{});
+        defer file.close();
+
+        for (token_ids.items) |index, count| {
+            _ = try typenorm_file.writer().write(text.tokens[index]);
+            if (@rem(count, MAX_TOKENS_PER_LINE) == 0)
+                _ = try file.writer().write("\n")
+            else
+                _ = try file.writer().write(PAD);
+        }
+    }
+
     pub fn write_mark_vs_norm_tokens_to_files(
         types: std.StringHashMap(Text.TypeInfo),
         typemark_filename: []const u8,
@@ -29,7 +46,7 @@ pub const TextokOutputHelpers = struct {
                 //
                 _ = try typemark_file.writer().write(token);
                 count1 += 1;
-                if (@rem(count1, max_tokens_per_line) == 0)
+                if (@rem(count1, MAX_TOKENS_PER_LINE) == 0)
                     _ = try typemark_file.writer().write("\n")
                 else
                     _ = try typemark_file.writer().write(PAD);
@@ -37,7 +54,7 @@ pub const TextokOutputHelpers = struct {
                 //
                 _ = try typenorm_file.writer().write(token);
                 count2 += 1;
-                if (@rem(count2, max_tokens_per_line) == 0)
+                if (@rem(count2, MAX_TOKENS_PER_LINE) == 0)
                     _ = try typenorm_file.writer().write("\n")
                 else
                     _ = try typenorm_file.writer().write(PAD);
@@ -57,7 +74,7 @@ pub const TextokOutputHelpers = struct {
         while (it.next()) |kv| {
             _ = try file.writer().write(kv.key_ptr.*);
             count += 1;
-            if (@rem(count, max_tokens_per_line) == 0)
+            if (@rem(count, MAX_TOKENS_PER_LINE) == 0)
                 _ = try file.writer().write("\n")
             else
                 _ = try file.writer().write(PAD);
@@ -75,12 +92,12 @@ pub const TextokOutputHelpers = struct {
         defer typemark_file.close();
         defer typenorm_file.close();
 
-        var buffer: [max_token_len + 15]u8 = undefined;
+        var buffer: [Text.MAX_TOKEN_LEN + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
         var it = types.iterator();
         while (it.next()) |kv| {
-            if (max_token_len < kv.key_ptr.len) {
+            if (Text.MAX_TOKEN_LEN < kv.key_ptr.len) {
                 std.debug.print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
@@ -102,12 +119,12 @@ pub const TextokOutputHelpers = struct {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
-        var buffer: [max_token_len + 15]u8 = undefined;
+        var buffer: [Text.MAX_TOKEN_LEN + 15]u8 = undefined;
         const buff_slice = buffer[0..];
 
         var it = types.iterator();
         while (it.next()) |kv| {
-            if (max_token_len < kv.key_ptr.len) {
+            if (Text.MAX_TOKEN_LEN < kv.key_ptr.len) {
                 std.debug.print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
