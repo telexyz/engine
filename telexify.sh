@@ -10,6 +10,6 @@ rm output/*.txt
 
 # ~/zig run telexify.zig -- input/VNESEcorpus.txt input/VNESEcorpus_tknz.txt
 
-# ~/zig run telexify.zig -O ReleaseSafe -- input/VNTQcorpus-big.txt input/VNTQcorpus_tknz.txt
+# ~/zig run telexify.zig -O ReleaseSafe -- input/VNTQcorpus.txt input/VNTQcorpus_tknz.txt
 
 # zig run telexify.zig -- input/corpus-title-sample.txt input/corpus-title-sample_tknz.txt 1000
