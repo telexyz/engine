@@ -49,7 +49,7 @@ pub const Text = struct {
     // Use data of input_bytes, pointed by tokens[i]
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     // Use data of input_bytes, pointed by tokens[i]
-    nonalpha_types: std.StringHashMap(TypeInfo) = undefined,
+    nonalpha_types: std.StringHashMap(u32) = undefined,
 
     // Use data of transformed_bytes, pointed by transforms[i]
     syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower =
@@ -69,8 +69,10 @@ pub const Text = struct {
 
     allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
+
+    pub const MAX_TOKEN_LEN = 20;
     const AVG_BYTES_PER_TOKEN = 3;
-    const MAX_INPUT_FILE_SIZE = 640 * 1024 * 1024; // 600mb
+    const MAX_INPUT_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
     const BUFF_SIZE = 100; // incase input is small, estimated fail, so need buffer
 
@@ -172,12 +174,12 @@ pub const Text = struct {
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.nonalpha_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
-        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 5 + BUFF_SIZE;
+        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 10 + BUFF_SIZE;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllower...
@@ -196,37 +198,51 @@ pub const Text = struct {
         self.arena.deinit();
     }
 
-    pub fn countToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
+    pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
         // Insert token into a hash_map to know if we seen it before or not
         // const token = self.input_bytes[token_start..token_end];
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = attrs;
 
         // Reject too long tokens
-        if (token.len <= 20) {
-            const type_info = TypeInfo{
-                .transform = token, // Default, transform to itself :)
-                .category = ._none,
-            };
-            const gop = if (attrs.category == .nonalpha)
-                try self.nonalpha_types.getOrPutValue(token, type_info)
-            else
-                try self.alphabet_types.getOrPutValue(token, type_info);
-            gop.value_ptr.count += 1;
+        if (token.len <= MAX_TOKEN_LEN) {
+            // Count nonalpha token only
+            // alphatoken will be counted in syllabling phase
+            if (attrs.category == .nonalpha) {
+                const gop = try self.nonalpha_types.getOrPutValue(token, 0);
+                gop.value_ptr.* += 1;
+            }
         }
         // increare only when counter is finalized since other threads are watching
         self.tokens_number += 1;
     }
 
-    pub fn removeSyllablesFromAlphabetTypes(self: *Text) void {
+    pub fn removeSyllablesFromAlphabetTypes(self: *Text) !void {
         if (!self.tokens_number_finalized) return;
 
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
+                try self.countSyllableAndSyllower(kv.key_ptr.*, kv.value_ptr);
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
+    }
+
+    fn countSyllableAndSyllower(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
+        // Record and count syllable
+        const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
+        gop1.value_ptr.count += type_info.count;
+
+        const next = self.syllower_bytes_len + syllable.len;
+        const syllower = self.syllower_bytes[self.syllower_bytes_len..next];
+        // Convert syllable to lowercase
+        for (syllable) |c, i| {
+            syllower[i] = c | 0b00100000;
+        }
+        const gop2 = try self.syllower_types.getOrPutValue(syllower, TypeInfo{ .category = type_info.category });
+        gop2.value_ptr.count += type_info.count;
+        self.syllower_bytes_len = next;
     }
 };
 
@@ -250,17 +266,17 @@ test "Text" {
         .category = .alphabet,
         .surrounded_by_spaces = .both,
     };
-    try text.countToken(token.?, attrs);
+    try text.recordToken(token.?, attrs);
     try std.testing.expect(text.tokens_number == 1);
     try std.testing.expectEqualStrings(text.tokens[0], "Cả");
 
-    try text.countToken(it.next().?, attrs);
-    try text.countToken(it.next().?, attrs);
+    try text.recordToken(it.next().?, attrs);
+    try text.recordToken(it.next().?, attrs);
 
     const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
 
     while (it.next()) |tkn| {
-        try text.countToken(tkn, attrs);
+        try text.recordToken(tkn, attrs);
     }
 
     thread.wait();

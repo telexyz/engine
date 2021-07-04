@@ -44,7 +44,7 @@ pub const TextokOutputHelpers = struct {
     }
 
     pub fn write_tokens_to_file(
-        types: std.StringHashMap(Text.TypeInfo),
+        types: anytype,
         filename: []const u8,
     ) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
@@ -94,7 +94,7 @@ pub const TextokOutputHelpers = struct {
     }
 
     pub fn write_types_to_file(
-        types: std.StringHashMap(Text.TypeInfo),
+        types: anytype,
         output_filename: []const u8,
     ) !void {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
@@ -109,7 +109,10 @@ pub const TextokOutputHelpers = struct {
                 std.debug.print("TOKEN TOO LONG: {s}\n", .{kv.key_ptr.*});
                 continue;
             }
-            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.count, kv.key_ptr.* });
+
+            const count = comptime if (@TypeOf(types) == std.StringHashMap(Text.TypeInfo)) kv.value_ptr.count else kv.value_ptr.*;
+
+            const result = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ count, kv.key_ptr.* });
 
             _ = try output_file.writer().write(result);
         }

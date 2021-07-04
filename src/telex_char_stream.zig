@@ -15,9 +15,8 @@ pub const CharStreamError = error{
 pub const Utf8ToAsciiTelexCharStream = struct {
     /// The internal character buffer
     /// Max char of an am_tiet is 10
-    /// Let say we support maximum 3 syllables, then need 31 bytes
     /// Now support 1 syllable only!
-    const MAX_LEN = 10;
+    pub const MAX_LEN = 10;
 
     buffer: [MAX_LEN + 1]u8,
 

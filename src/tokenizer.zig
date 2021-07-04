@@ -190,7 +190,7 @@ pub const Tokenizer = struct {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
                         const attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .alphmark else .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
-                        try text.countToken(token, attrs);
+                        try text.recordToken(token, attrs);
                         if (counting_lines) printToken(token, attrs);
                         //
                     } else {
@@ -200,7 +200,7 @@ pub const Tokenizer = struct {
                             .category = .nonalpha,
                             .surrounded_by_spaces = if (nonalpha_token_start_at > nonspace_token_start_at) .right else .both,
                         };
-                        try text.countToken(token, attrs);
+                        try text.recordToken(token, attrs);
                         if (counting_lines) printToken(token, attrs);
                         //
                     }
@@ -215,7 +215,7 @@ pub const Tokenizer = struct {
                         .category = .nonalpha,
                         .surrounded_by_spaces = .none,
                     };
-                    try text.countToken(token, attrs);
+                    try text.recordToken(token, attrs);
                     //
                     if (counting_lines) {
                         printToken(token, attrs);
@@ -267,7 +267,7 @@ pub const Tokenizer = struct {
                             .category = if (contains_marktone_char) .alphmark else .alphabet,
                             .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
                         };
-                        try text.countToken(token, attrs);
+                        try text.recordToken(token, attrs);
                         if (counting_lines) printToken(token, attrs);
                         // Reset for nonalpha
                         in_alphabet_token_zone = false;
@@ -283,7 +283,7 @@ pub const Tokenizer = struct {
                             .category = .nonalpha,
                             .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
                         };
-                        try text.countToken(token, attrs);
+                        try text.recordToken(token, attrs);
                         if (counting_lines) printToken(token, attrs);
                         // Reset for alphabet
                         in_alphabet_token_zone = true;
@@ -294,6 +294,8 @@ pub const Tokenizer = struct {
                 }
             } // End else char_type => .alphabet_char, or .nonalpha_char
         } // End main loop
+        // Notify text that there is no more token
+        text.tokens_number_finalized = true;
     }
 };
 
@@ -376,9 +378,8 @@ test "Tokenizer" {
     try testing.expect(text.processed_tokens_number == 0);
     // print("\ntokens_number: {}\n", .{text.tokens_number});
     try testing.expect(text.tokens_number == 15 + 15 + 19 + 3); // 3 * \n
-    try testing.expect(!text.tokens_number_finalized);
 
-    text.tokens_number_finalized = true;
+    try testing.expect(text.tokens_number_finalized == true);
     text_utils.telexifyAlphabetTokens(&text);
 
     try testing.expect(text.processed_tokens_number == text.tokens_number);

@@ -24,7 +24,7 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 600_000_000; // nanoseconds
+const WAIT_NANOSECS: u64 = 60_000_000; // nanoseconds
 
 pub fn telexifyAlphabetTokens(text: *Text) void {
     @setRuntimeSafety(false);
@@ -39,7 +39,10 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
             // If segmentation end => no more tokens for sure then return
-            if (text.tokens_number_finalized) return;
+            if (text.tokens_number_finalized) {
+                text.removeSyllablesFromAlphabetTypes() catch unreachable;
+                return;
+            }
             // BEGIN waiting for new tokens (all tokens is processed)
             while (sleeps_count < max_sleeps and i.* == text.tokens_number) {
                 std.time.sleep(WAIT_NANOSECS);
@@ -66,12 +69,18 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         const firt_byte_index = text.transformed_bytes_len;
         text.transformed_bytes_len += 1;
 
-        if (attrs.category != .nonalpha and token.len <= 11) {
-            // Get token coresponding type info
-            const type_info = text.alphabet_types.getPtr(token).?;
+        if (attrs.category != .nonalpha and token.len <= U2ACharStream.MAX_LEN) {
+            // count alphabet token
+            const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+                .count = 0,
+                .category = ._none,
+            }) catch unreachable;
+            gop.value_ptr.count += 1;
+            const type_info = gop.value_ptr;
 
             // print("\n| Tkn: {s}, {} | ", .{ token, type_info.category }); // DEBUG
-            if (type_info.category == ._none) { // Not transformed yet
+            if (type_info.category == ._none and token.len <= U2ACharStream.MAX_LEN) {
+                // Not transformed and not too long token, then do syllabe parsing
                 char_stream.reset();
                 // Try to convert token to syllable
                 const syllable = parsers.parseTokenToGetSyllable(
@@ -93,7 +102,6 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                     // Write ascii-telex transform
                     const syllable_token = saveAsciiTelexTransform(text, char_stream);
                     type_info.transform = syllable_token;
-                    countSyllableAndSyllower(text, syllable_token, type_info) catch unreachable;
                     token_not_written = false;
                 } else {
                     // For non-syllable, attrs.category can only be
@@ -128,7 +136,7 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
     text.transformed_bytes_len += 1;
 
     // Show token parsing progress
-    const percent: u64 = if (!text.tokens_number_finalized)
+    const percent: u64 = if (prev_percent.* < 80)
         (100 * text.transformed_bytes_len) / text.transformed_bytes_size
     else
         (100 * token_index) / text.tokens_number;
@@ -138,22 +146,6 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
         if (@rem(percent, 3) == 0)
             std.debug.print("{s}{d}% Syllabling\n", .{ PAD, percent });
     }
-}
-
-fn countSyllableAndSyllower(text: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
-    // Record and count syllable
-    const gop1 = try text.syllable_types.getOrPutValue(syllable, Text.TypeInfo{ .category = type_info.category });
-    gop1.value_ptr.count += type_info.count;
-
-    const next = text.syllower_bytes_len + syllable.len;
-    const syllower = text.syllower_bytes[text.syllower_bytes_len..next];
-    // Convert syllable to lowercase
-    for (syllable) |c, i| {
-        syllower[i] = c | 0b00100000;
-    }
-    const gop2 = try text.syllower_types.getOrPutValue(syllower, Text.TypeInfo{ .category = type_info.category });
-    gop2.value_ptr.count += type_info.count;
-    text.syllower_bytes_len = next;
 }
 
 pub fn saveAsciiTelexTransform(text: *Text, char_stream: U2ACharStream) []const u8 {

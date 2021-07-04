@@ -37,6 +37,17 @@ fn write_out_results1() !void {
         text.nonalpha_types,
         "_output/06-nonalpha_types.txt",
     );
+    // Write sample of final output to preview
+    try TextokOutputHelpers.write_text_tokens_to_file(
+        text,
+        "_output/07-tokens_sample.txt",
+        777,
+    );
+    try TextokOutputHelpers.write_transforms_to_file(
+        text,
+        "_output/08-telexified_sample.txt",
+        888_888,
+    );
 }
 
 fn write_out_results2() !void {
@@ -54,23 +65,6 @@ fn write_out_results2() !void {
         "_output/04-alphmark_types.txt",
         "_output/05-alphabet_types.txt",
     );
-    // Write sample of final output to preview
-    try TextokOutputHelpers.write_text_tokens_to_file(
-        text,
-        "_output/07-tokens_sample.txt",
-        777,
-    );
-    try TextokOutputHelpers.write_transforms_to_file(
-        text,
-        "_output/08-telexified_sample.txt",
-        888_888,
-    );
-    // Final result
-    try TextokOutputHelpers.write_transforms_to_file(
-        text,
-        output_filename,
-        0,
-    );
     // More info
     try TextokOutputHelpers.write_mark_vs_norm_tokens_to_files(
         text.alphabet_types,
@@ -80,6 +74,12 @@ fn write_out_results2() !void {
     try TextokOutputHelpers.write_tokens_to_file(
         text.nonalpha_types,
         "_output/11-nonalpha_tokens.txt",
+    );
+    // Final result
+    try TextokOutputHelpers.write_transforms_to_file(
+        text,
+        output_filename,
+        0,
     );
 }
 
@@ -108,21 +108,21 @@ pub fn main() anyerror!void {
     const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
-
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_results1();
     // Wait for sylabeling thread end
     thread.wait();
-    // Then run one more time to finalize sylabeling process
-    // since there may be some last tokens was skipped before thread end
-    // because sylabeling too fast and timeout before new tokens come
-    // It's a very rare-case happend when the sleep() call fail.
-    text.tokens_number_finalized = true;
-    text_utils.telexifyAlphabetTokens(&text);
+    if (!text.tokens_number_finalized) {
+        // Then run one more time to finalize sylabeling process
+        // since there may be some last tokens was skipped before thread end
+        // because sylabeling too fast and timeout before new tokens come
+        // It's a very rare-case happend when the sleep() call fail.
+        text.tokens_number_finalized = true;
+        text_utils.telexifyAlphabetTokens(&text);
+    }
     const step2_time = showMeTimeLap(step0_time, "Step-2: Token syllabling finish!");
 
     print("\nWriting final results to file ...\n", .{});
-    text.removeSyllablesFromAlphabetTypes();
     try write_out_results2();
 
     _ = showMeTimeLap(step2_time, "Writing final results done!");
