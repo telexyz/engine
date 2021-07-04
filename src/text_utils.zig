@@ -143,7 +143,7 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
 
     if (percent > prev_percent.*) {
         prev_percent.* = percent;
-        if (@rem(percent, 3) == 0)
+        if (@rem(percent, 5) == 0)
             std.debug.print("{s}{d}% Syllabling\n", .{ PAD, percent });
     }
 }

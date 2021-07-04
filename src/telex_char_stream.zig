@@ -62,12 +62,6 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         self.upper_chars_count = 0;
         self.lower_chars_count = 0;
     }
-    pub fn lastCharIsMarkableVowel(self: *Utf8ToAsciiTelexCharStream) bool {
-        return switch (self.buffer[self.len - 1]) {
-            'a', 'e', 'u', 'i', 'o' => true,
-            else => false,
-        };
-    }
     pub fn hasMarkOrTone(self: Utf8ToAsciiTelexCharStream) bool {
         return self.has_mark or self.tone != 0;
     }
@@ -84,7 +78,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             while (i < n) : (i += 1) {
                 self.buffer[i] &= 0b11011111;
             }
-        } else if (self.isTitlied()) {
+        } else if (self.first_char_is_upper) { // self.isTitlied()
             self.buffer[0] &= 0b11011111;
         }
 
@@ -174,8 +168,8 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     pub inline fn pushCharAndFirstByte(self: *Utf8ToAsciiTelexCharStream, char: u21, first_byte: u8) CharStreamError!void {
         if (self.len >= MAX_LEN) return CharStreamError.OverSize;
 
-        // Process can-not-stand-alone char
-        // '̀'768, '́'769, '̂'770, '̃'771, '̆'774, '̉'777, '̣'803, '̀'832, '́'833
+        // Process can-not-stand-alone chars
+        // '̀'768, '́'769, '̂'770, '̃'771, '̆'774, '̉'777, Ư'795, '̣'803, '̀'832, '́'833
         var tone: u8 = 0;
         switch (char) {
             769, 833 => {
@@ -193,21 +187,44 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             803 => {
                 tone = 'j';
             },
-            770 => { //'̂'
-                if (!self.lastCharIsMarkableVowel()) return CharStreamError.MarkCharNotFollowAMarkableVowel;
-                self.buffer[self.len] = self.buffer[self.len - 1];
-                self.len += 1;
-                self.has_mark = true;
-                self.pure_utf8 = false;
-                return;
+            770 => { // â, ê, ô
+                switch (self.buffer[self.len - 1]) {
+                    'a', 'e', 'o' => {
+                        self.buffer[self.len] = self.buffer[self.len - 1];
+                        self.len += 1;
+                        self.has_mark = true;
+                        self.pure_utf8 = false;
+                        return;
+                    },
+                    else => {
+                        return CharStreamError.MarkCharNotFollowAMarkableVowel;
+                    },
+                }
             },
-            774 => { //'̆'
-                if (!self.lastCharIsMarkableVowel()) return CharStreamError.MarkCharNotFollowAMarkableVowel;
-                self.buffer[self.len] = 'w';
-                self.len += 1;
-                self.has_mark = true;
-                self.pure_utf8 = false;
-                return;
+            774 => { // ă
+                if (self.buffer[self.len - 1] == 'a') {
+                    self.buffer[self.len] = 'w';
+                    self.len += 1;
+                    self.has_mark = true;
+                    self.pure_utf8 = false;
+                    return;
+                } else {
+                    return CharStreamError.MarkCharNotFollowAMarkableVowel;
+                }
+            },
+            795 => { // ơ, ư
+                switch (self.buffer[self.len - 1]) {
+                    'u', 'o' => {
+                        self.buffer[self.len] = 'w';
+                        self.len += 1;
+                        self.has_mark = true;
+                        self.pure_utf8 = false;
+                        return;
+                    },
+                    else => {
+                        return CharStreamError.MarkCharNotFollowAMarkableVowel;
+                    },
+                }
             },
             else => {},
         }
@@ -220,7 +237,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 return CharStreamError.MoreThanOneTone;
             }
         }
-        // Record only can-stand-alone char
+        // Record only stand-alone char as last_char
         self.last_char = char;
         try self.pushTelexCode(telex_utils.utf8ToTelexCode(char, first_byte));
     }
