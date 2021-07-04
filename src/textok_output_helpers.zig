@@ -5,21 +5,12 @@ const MAX_TOKENS_PER_LINE = 10;
 const PAD = "  ";
 
 pub const TextokOutputHelpers = struct {
-    pub fn write_too_long_tokens_to_file(
-        text: Text,
-        token_ids: std.ArrayList(usize),
-        filename: []const u8,
-    ) !void {
-        //
+    pub fn write_too_long_tokens_to_file(text: Text, token_ids: std.ArrayList(usize), filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
-
-        for (token_ids.items) |index, count| {
+        for (token_ids.items) |index| {
             _ = try file.writer().write(text.tokens[index]);
-            if (@rem(count, MAX_TOKENS_PER_LINE) == 0)
-                _ = try file.writer().write("\n")
-            else
-                _ = try file.writer().write(PAD);
+            _ = try file.writer().write("\n");
         }
     }
 
