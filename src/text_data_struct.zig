@@ -202,16 +202,18 @@ pub const Text = struct {
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = attrs;
 
-        const type_info = TypeInfo{
-            .transform = token, // Default, transform to itself :)
-            .category = ._none,
-        };
-        const gop = if (attrs.category == .nonalpha)
-            try self.nonalpha_types.getOrPutValue(token, type_info)
-        else
-            try self.alphabet_types.getOrPutValue(token, type_info);
-        gop.value_ptr.count += 1;
-
+        // Reject too long tokens
+        if (token.len <= 20) {
+            const type_info = TypeInfo{
+                .transform = token, // Default, transform to itself :)
+                .category = ._none,
+            };
+            const gop = if (attrs.category == .nonalpha)
+                try self.nonalpha_types.getOrPutValue(token, type_info)
+            else
+                try self.alphabet_types.getOrPutValue(token, type_info);
+            gop.value_ptr.count += 1;
+        }
         // increare only when counter is finalized since other threads are watching
         self.tokens_number += 1;
     }

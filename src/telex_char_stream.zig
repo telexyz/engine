@@ -112,23 +112,23 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         }
 
         if (telex_utils.isUpper(telex_code)) {
-            if (self.strict_mode) {
-                // Reject mixed upper vs lower case syllable,
-                // keep only titelized or capitalized sylls
-                if (!self.isCapitalized())
-                    return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
-            }
+            // if (self.strict_mode) {
+            //     // Reject mixed upper vs lower case syllable,
+            //     // keep only titelized or capitalized sylls
+            //     if (!self.isCapitalized())
+            //         return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
+            // }
             if (self.len == 0) self.first_char_is_upper = true;
             self.upper_chars_count += 1;
             //
         } else {
             self.lower_chars_count += 1;
-            if (self.strict_mode) {
-                // handle lower char in trict mode
-                if (!(self.upper_chars_count == 0 or
-                    (self.upper_chars_count == 1 and self.isTitlied())))
-                    return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
-            }
+            // if (self.strict_mode) {
+            //     // handle lower char in trict mode
+            //     if (!(self.upper_chars_count == 0 or
+            //         (self.upper_chars_count == 1 and self.isTitlied())))
+            //         return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
+            // }
         }
 
         const tone = telex_utils.getToneByte(telex_code);

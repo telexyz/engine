@@ -13,6 +13,7 @@ DAFSA: Deterministic Acyclic Finite State Automaton
 http://stevehanov.ca/blog/?id=119
 
 - - -
+https://github.com/dcjones/hat-trie
 
 https://github.com/Tessil/hat-trie | https://tessil.github.io/2017/06/22/hat-trie.html
 

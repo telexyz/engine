@@ -66,7 +66,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         const firt_byte_index = text.transformed_bytes_len;
         text.transformed_bytes_len += 1;
 
-        if (attrs.category != .nonalpha) {
+        if (attrs.category != .nonalpha and token.len <= 11) {
             // Get token coresponding type info
             const type_info = text.alphabet_types.getPtr(token).?;
 

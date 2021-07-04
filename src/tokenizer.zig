@@ -103,11 +103,21 @@ pub const Tokenizer = struct {
                     first_byte = ' '; // Convert to space
                 },
                 '\\' => {
-                    if (input_bytes[index + 1] == 'n') {
-                        // Handle "\n" in facebook comments
-                        char_bytes_len = 2;
-                        char_type = .space;
-                        first_byte = ' '; // Convert to space
+                    // \r = CR (Carriage Return)
+                    //      → Used as a new line character in Mac OS before X
+                    // \n = LF (Line Feed)
+                    //      → Used as a new line character in Unix/Mac OS X
+                    // \r\n = CR + LF → Used as a new line character in Windows
+                    switch (input_bytes[index + 1]) {
+                        'n', 'r' => {
+                            // Handle "\n" in facebook comments
+                            char_bytes_len = 2;
+                            char_type = .space;
+                            first_byte = ' '; // Convert to space
+                        },
+                        else => {
+                            char_type = .nonalpha_char;
+                        },
                     }
                 },
                 else => {

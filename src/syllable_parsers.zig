@@ -564,6 +564,12 @@ test "canBeVietnamese() // other encode" {
     try expect(syllable.am_giua == .aw);
 }
 
+test "canBeVietnamese() positive fb_comments_10m" {
+    const words_str = "trực trở giữ VỚI cực";
+    var it = std.mem.split(words_str, " ");
+    while (it.next()) |word| try expect(canBeVietnamese(word));
+}
+
 test "canBeVietnamese()" {
     try expect(canBeVietnamese("nghộ") == false);
     try expect(canBeVietnamese("Soọc") == true);
