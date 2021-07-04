@@ -223,7 +223,7 @@ pub const Text = struct {
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
-                try self.countSyllableAndSyllower(kv.key_ptr.*, kv.value_ptr);
+                try self.countSyllableAndSyllower(kv.value_ptr.transform, kv.value_ptr);
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
