@@ -1,5 +1,18 @@
 # Apply
 
+### 3rd tries
+
+https://github.com/s-yata/marisa-trie
+
+```
+libtool: install: /usr/bin/install -c .libs/libmarisa.0.dylib /usr/local/lib/libmarisa.0.dylib
+libtool: install: (cd /usr/local/lib && { ln -s -f libmarisa.0.dylib libmarisa.dylib || { rm -f libmarisa.dylib && ln -s libmarisa.0.dylib libmarisa.dylib; }; })
+libtool: install: /usr/bin/install -c .libs/libmarisa.lai /usr/local/lib/libmarisa.la
+libtool: install: /usr/bin/install -c .libs/libmarisa.a /usr/local/lib/libmarisa.a
+libtool: install: chmod 644 /usr/local/lib/libmarisa.a
+libtool: install: ranlib /usr/local/lib/libmarisa.a
+```
+
 ### 2nd tries
 https://github.com/hexops/xorfilter
 
