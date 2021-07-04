@@ -15,7 +15,7 @@ pub const TextokOutputHelpers = struct {
         defer file.close();
 
         for (token_ids.items) |index, count| {
-            _ = try typenorm_file.writer().write(text.tokens[index]);
+            _ = try file.writer().write(text.tokens[index]);
             if (@rem(count, MAX_TOKENS_PER_LINE) == 0)
                 _ = try file.writer().write("\n")
             else
