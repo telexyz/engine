@@ -2,6 +2,8 @@ const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 
 const max_token_len = 50;
+const max_tokens_per_line = 8;
+const PAD = "  ";
 
 pub const TextokOutputHelpers = struct {
     pub fn write_mark_vs_norm_tokens_to_files(
@@ -27,18 +29,18 @@ pub const TextokOutputHelpers = struct {
                 //
                 _ = try typemark_file.writer().write(token);
                 count1 += 1;
-                if (@rem(count1, 12) == 0)
+                if (@rem(count1, max_tokens_per_line) == 0)
                     _ = try typemark_file.writer().write("\n")
                 else
-                    _ = try typemark_file.writer().write("   ");
+                    _ = try typemark_file.writer().write(PAD);
             } else {
                 //
                 _ = try typenorm_file.writer().write(token);
                 count2 += 1;
-                if (@rem(count2, 12) == 0)
+                if (@rem(count2, max_tokens_per_line) == 0)
                     _ = try typenorm_file.writer().write("\n")
                 else
-                    _ = try typenorm_file.writer().write("   ");
+                    _ = try typenorm_file.writer().write(PAD);
             }
         }
     }
@@ -55,10 +57,10 @@ pub const TextokOutputHelpers = struct {
         while (it.next()) |kv| {
             _ = try file.writer().write(kv.key_ptr.*);
             count += 1;
-            if (@rem(count, 12) == 0)
+            if (@rem(count, max_tokens_per_line) == 0)
                 _ = try file.writer().write("\n")
             else
-                _ = try file.writer().write("   ");
+                _ = try file.writer().write(PAD);
         }
     }
 
