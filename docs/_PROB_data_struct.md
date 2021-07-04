@@ -1,4 +1,6 @@
-# Apply
+# Cuckoo Filter, Count-Min-Log, HyperLogLog
+
+## Cuckoo-Filter => Membership
 
 ### 2nd try
 https://github.com/hexops/xorfilter
@@ -13,21 +15,22 @@ Xor filters offer better accuracy for a given memory budget. With only 9 bits pe
 https://raw.githubusercontent.com/kristoff-it/zig-cuckoofilter/master/src/cuckoofilter.zig => zig 0.5.0, outdated code, compile error
 
 
-# Cuckoo Filter, Count-Min-Log, HyperLogLog
+## Count-Min-Log => Frequency
+https://github.com/seiflotfy/count-min-log/blob/master/log.go
+https://github.com/barrust/count-min-sketch
 
-Cuckoo-Filter => Membership
+## HyperLogLog => `cardinality` "number of elements" (no-use)
 
-Count-Min-Log => Frequency
-
-HyperLogLog => `cardinality` "number of elements"
-
-- - -
-
-https://aras-p.info/blog/2016/08/09/More-Hash-Function-Tests
 
 - - -
 
-https://www.kdnuggets.com/2019/08/count-big-data-probabilistic-data-structures-algorithms.html
+https://highlyscalable.wordpress.com/2012/05/01/probabilistic-structures-web-analytics-data-mining/
+
+Frequency Estimation: Count-Min Sketch
+
+Let’s focus on the following problem statement: there is a set of values with duplicates, it is required to estimate frequency (a number of duplicates) for each value. Estimations for relatively rare values can be imprecise, but frequent values and their absolute frequencies should be determined accurately.
+
+
 
 - - -
 
@@ -48,19 +51,3 @@ PROBABILISTIC DATA STRUCTURES. They compromise precision with quite impressive r
 * Universal identity of data, which leads to automatic deduplication that helps in solving problems like count-distinct, if we design operations as idempotent.
 
 - - -
-
-https://dzone.com/articles/introduction-probabilistic-0
-
-Probabilistic data structures are a group of data structures that are extremely useful for big data and streaming applications. Generally speaking, these data structures use hash functions to randomize and compactly represent a set of items. Collisions are ignored but errors can be well-controlled under certain threshold. Comparing with error-free approaches, these algorithms use much less memory and have constant query time. They usually support union and intersection operations and therefore can be easily parallelized.
-
-- - -
-
-## en.wikipedia.org/wiki/HyperLogLog
-
-The new algorithm makes it possible to estimate cardinalities well beyond 10⁹ with a typical accuracy of 2% while using a memory of only 1.5 kilobytes.
-
-## en.wikipedia.org/wiki/Cuckoo_filter
-
-
-## en.wikipedia.org/wiki/Count–min_sketch
-
