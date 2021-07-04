@@ -14,7 +14,6 @@
 524K `alphabet` 2^19
 524K `nonalpha` 2^19
 
-### 3rd try
 https://andrewkelley.me/post/zig-cc-powerful-drop-in-replacement-gcc-clang.html
 https://github.com/s-yata/marisa-trie
 
