@@ -280,20 +280,22 @@ test "Text" {
     }
 
     thread.wait();
+    text.tokens_number_finalized = true;
     text_utils.telexifyAlphabetTokens(&text);
 
     try std.testing.expect(text.tokens_number == 9);
     try std.testing.expectEqualStrings(text.tokens[7], "nhà");
-    try std.testing.expect(text.alphabet_types.get("nhà").?.count == 2);
-    try std.testing.expect(text.alphabet_types.get("Cả").?.count == 1);
-    try std.testing.expect(text.alphabet_types.get("cả").?.count == 1);
-    try std.testing.expect(text.alphabet_types.get("thử").?.count == 1);
-    try std.testing.expect(text.alphabet_types.get("nghiệm").?.count == 1);
+    try std.testing.expect(text.alphabet_types.get("!").?.count == 1);
+    try std.testing.expect(text.alphabet_types.get("nhé,").?.count == 1);
+    try std.testing.expect(text.alphabet_types.get("ơi,").?.count == 1);
     try std.testing.expect(text.alphabet_types.get("xxx") == null);
-    try std.testing.expect(text.alphabet_types.count() == 8); // nhà => 2
+    try std.testing.expect(text.alphabet_types.count() == 3);
 
+    //  1s 2s  1a  3s  4s     2a   5s 2s  3a
     // "Cả nhà ơi, thử nghiệm nhé, cả nhà !"
-    try std.testing.expect(text.syllable_types.count() == 5); // ơi, nhé, ! not_syllable
+    try std.testing.expect(text.syllable_types.count() == 5);
+    try std.testing.expect(text.syllable_types.get("nhaf").?.count == 2);
     try std.testing.expect(text.syllower_types.count() == 4); // Cả => cả
+    try std.testing.expect(text.syllower_types.get("car").?.count == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }
