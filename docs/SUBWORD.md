@@ -20,7 +20,7 @@ Extra features: BPE-dropout (https://arxiv.org/pdf/1910.13267.pdf, 2019)
 ```sh
 pip3 install youtokentome
 # 600MB mất khoảng 60 secs (15 secs x 4-cpus)
- yttm bpe --data _input/corpus/corpus-title.txt --model _models/yttm-utf8.model --vocab_size 20000
+ yttm bpe --data input/corpus/corpus-title.txt --model _models/yttm-utf8.model --vocab_size 20000
  yttm encode --model _models/yttm-telexified.model --output_type subword
 ```
 
@@ -106,7 +106,7 @@ So what does this all have to do with transformer architectures? How does this a
 ## Train telexified corpus
 
 ```sh
-spm_train --input=_input/corpus/corpus-title-telexified.txt --model_prefix=telexified --num_threads=4
+spm_train --input=input/corpus/corpus-title-telexified.txt --model_prefix=telexified --num_threads=4
 
 # =>
 
@@ -167,7 +167,7 @@ Install the project...
 ```
 
 ```sh sentpiece-usage
-spm_train --input=_input/corpus/corpus-title.txt --model_prefix=vn578mb --vocab_size=15000 --num_threads=4
+spm_train --input=input/corpus/corpus-title.txt --model_prefix=vn578mb --vocab_size=15000 --num_threads=4
 echo "chào mọi người" | spm_encode --model=vn578mb.model
 
 % echo "Hello world." | spm_encode --model=spm.model --output_format=id

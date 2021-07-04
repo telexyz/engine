@@ -2,7 +2,7 @@
 zig-cache
 zig-out
 *.wasm
-_input
-_output
-_models/roberta-case-nguyenvulebinh/model.pt
+input
+output
+models
 cache
