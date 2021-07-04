@@ -3,12 +3,12 @@
 ## Cuckoo-Filter => Membership
 
 ### 2nd try
-https://github.com/hexops/xorfilter
+https://blog.cloudflare.com/when-bloom-filters-dont-bloom/
 
+https://github.com/hexops/xorfilter
 `keys` phải biết từ trước, ko online update được :'(
 
 https://lemire.me/blog/2019/12/19/xor-filters-faster-and-smaller-than-bloom-filters
-
 Xor filters offer better accuracy for a given memory budget. With only 9 bits per entry, you can get a false positive probability much less than 1%.
 
 ### 1st try
