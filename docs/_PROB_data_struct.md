@@ -14,12 +14,15 @@ Xor filters offer better accuracy for a given memory budget. With only 9 bits pe
 ### 1st try
 https://raw.githubusercontent.com/kristoff-it/zig-cuckoofilter/master/src/cuckoofilter.zig => zig 0.5.0, outdated code, compile error
 
-
 ## Count-Min-Log => Frequency
 https://github.com/seiflotfy/count-min-log/blob/master/log.go
 https://github.com/barrust/count-min-sketch
 
 ## HyperLogLog => `cardinality` "number of elements" (no-use)
+
+- - -
+
+https://github.com/ziglang/gotta-go-fast/blob/master/benchmarks/self-hosted-parser/input_dir/bloom_filter.zig
 
 
 - - -
@@ -29,7 +32,6 @@ https://highlyscalable.wordpress.com/2012/05/01/probabilistic-structures-web-ana
 Frequency Estimation: Count-Min Sketch
 
 Let’s focus on the following problem statement: there is a set of values with duplicates, it is required to estimate frequency (a number of duplicates) for each value. Estimations for relatively rare values can be imprecise, but frequent values and their absolute frequencies should be determined accurately.
-
 
 
 - - -
