@@ -5,6 +5,18 @@ const TOKENS_PER_LINE = 10;
 const PAD = "  ";
 
 pub const TextokOutputHelpers = struct {
+    //
+    const TokenInfo = struct {
+        value: []const u8,
+        count: u32,
+        have_marktone: bool = false,
+    };
+
+    fn order_by_count_desc(context: void, a: TokenInfo, b: TokenInfo) bool {
+        _ = context;
+        return a.count > b.count;
+    }
+
     pub fn write_too_long_tokens_to_file(text: Text, token_ids: std.ArrayList(usize), filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
@@ -44,23 +56,36 @@ pub const TextokOutputHelpers = struct {
         const tm_wrt = std.io.bufferedWriter(types_mark_file.writer()).writer();
         const tn_wrt = std.io.bufferedWriter(types_norm_file.writer()).writer();
 
+        // Init
+        var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
+        defer tokens_list.deinit();
+        // Add items
         while (it.next()) |kv| {
-            const token = kv.key_ptr.*;
-            const freq_token = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ kv.value_ptr.count, token });
+            try tokens_list.append(.{
+                .value = kv.key_ptr.*,
+                .count = kv.value_ptr.count,
+                .have_marktone = kv.value_ptr.haveMarkTone(),
+            });
+        }
+        // Sort by count desc
+        std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
 
-            if (kv.value_ptr.haveMarkTone()) {
+        for (tokens_list.items) |token| {
+            const freq_token = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ token.count, token.value });
+
+            if (token.have_marktone) {
                 // write freq and token pair to file
                 _ = try fm_wrt.write(freq_token);
                 // write token to file
                 n1 += 1;
-                _ = try tm_wrt.write(token);
+                _ = try tm_wrt.write(token.value);
                 _ = try tm_wrt.write(if (@rem(n1, TOKENS_PER_LINE) == 0) "\n" else PAD);
             } else {
                 // write freq and token pair to file
                 _ = try fn_wrt.write(freq_token);
                 // write token to file
                 n2 += 1;
-                _ = try tn_wrt.write(token);
+                _ = try tn_wrt.write(token.value);
                 _ = try tn_wrt.write(if (@rem(n2, TOKENS_PER_LINE) == 0) "\n" else PAD);
             }
         }
@@ -75,32 +100,38 @@ pub const TextokOutputHelpers = struct {
         var types_file = try std.fs.cwd().createFile(types_filename, .{});
         defer freqs_file.close();
         defer types_file.close();
+        const freqs_wrt = std.io.bufferedWriter(freqs_file.writer()).writer();
+        const types_wrt = std.io.bufferedWriter(types_file.writer()).writer();
 
         var buffer: [Text.MAX_TOKEN_LEN + 15]u8 = undefined;
         const slice = buffer[0..];
 
-        var n: u32 = 0;
         var it = types.iterator();
-
-        const freqs_wrt = std.io.bufferedWriter(freqs_file.writer()).writer();
-        const types_wrt = std.io.bufferedWriter(types_file.writer()).writer();
-
+        // Init
+        var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
+        defer tokens_list.deinit();
+        // Add items
         while (it.next()) |kv| {
-            // Get token and it's count
-            const token = kv.key_ptr.*;
-            const count = comptime switch (@TypeOf(types)) {
-                std.StringHashMap(Text.TypeInfo) => kv.value_ptr.count,
-                std.StringHashMap(u32) => kv.value_ptr.*,
-                else => unreachable,
-            };
+            try tokens_list.append(.{
+                .value = kv.key_ptr.*,
+                .count = comptime switch (@TypeOf(types)) {
+                    std.StringHashMap(Text.TypeInfo) => kv.value_ptr.count,
+                    std.StringHashMap(u32) => kv.value_ptr.*,
+                    else => unreachable,
+                },
+            });
+        }
+        // Sort by count desc
+        std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
+
+        for (tokens_list.items) |token, i| {
             // write freq and token pair to file
-            const tmp = try std.fmt.bufPrint(slice, "{d:10}  {s}\n", .{ count, token });
+            const tmp = try std.fmt.bufPrint(slice, "{d:10}  {s}\n", .{ token.count, token.value });
             _ = try freqs_wrt.write(tmp);
 
             // write token to file
-            n += 1;
-            _ = try types_wrt.write(token);
-            _ = try types_wrt.write(if (@rem(n, TOKENS_PER_LINE) == 0) "\n" else PAD);
+            _ = try types_wrt.write(token.value);
+            _ = try types_wrt.write(if (@rem(i, TOKENS_PER_LINE) == 0) "\n" else PAD);
         }
     }
 

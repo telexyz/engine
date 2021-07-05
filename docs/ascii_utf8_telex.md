@@ -2,11 +2,17 @@
 
 Tìm hiểu cách nén / giải nén utf-8 hiệu quả, để giảm dung lượng file đầu vào, có thể add vào git repo hoặc / và đọc trực tiếp thông tin từ đó dễ dàng.
 
-https://stackoverflow.com/questions/20064507/text-compression-algorithm
+https://peazip.github.io/maximum-compression-benchmark.html
+
+ZPAQ is the winner in terms of maximum attainable compression, but is slower than other formats. ZPAQ at maximum compression level reached a 19.01% compression ratio versus 21.82% reached by ARC at maximum compression level, the second best result of the benchmark.
+
 
 ```sh
-zpaq a fb_comments_10m.zpaq fb_comments_10m.txt
+zpaq a fb_comments_10m.txt.zpaq fb_comments_10m.txt -m5
+zpaq x fb_comments_10m.txt.zpaq
 ```
+
+https://stackoverflow.com/questions/20064507/text-compression-algorithm
 
 * ZPAQ - Future facing container for PAQ algorithims (created to make the future of PAQ easier) http://mattmahoney.net/dc/zpaqd715.zip (can complied)
 

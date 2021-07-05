@@ -190,7 +190,7 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
-        self.transformed_bytes_size = input_bytes_size / 100 + BUFF_SIZE;
+        self.transformed_bytes_size = input_bytes_size / 50 + BUFF_SIZE;
         if (self.telexified_all_tokens) self.transformed_bytes_size += input_bytes_size;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
