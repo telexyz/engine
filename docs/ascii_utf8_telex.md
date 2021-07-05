@@ -11,6 +11,11 @@ ZPAQ is the winner in terms of maximum attainable compression, but is slower tha
 http://mattmahoney.net/dc/zpaq.html
 
 ```sh
+mkdir zpaq715 && cd zpaq715
+wget http://mattmahoney.net/dc/zpaq715.zip
+unzip zpaq715.zip
+make install
+
 zpaq a fb_comments_10m.txt.zpaq fb_comments_10m.txt -m5
 zpaq x fb_comments_10m.txt.zpaq
 ```
