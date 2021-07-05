@@ -291,13 +291,13 @@ test "Text" {
     try text.recordToken(it.next().?, attrs);
     try text.recordToken(it.next().?, attrs);
 
-    const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
+    const thread = try std.Thread.spawn(.{}, text_utils.telexifyAlphabetTokens, .{&text});
 
     while (it.next()) |tkn| {
         try text.recordToken(tkn, attrs);
     }
 
-    thread.wait();
+    thread.join();
     text.tokens_number_finalized = true;
     text_utils.telexifyAlphabetTokens(&text);
 

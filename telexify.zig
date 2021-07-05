@@ -119,13 +119,13 @@ pub fn main() anyerror!void {
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    const thread = try std.Thread.spawn(text_utils.telexifyAlphabetTokens, &text);
+    const thread = try std.Thread.spawn(.{}, text_utils.telexifyAlphabetTokens, .{&text});
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_samples();
     // Wait for sylabeling thread end
-    thread.wait();
+    thread.join();
     if (!text.tokens_number_finalized) {
         // Then run one more time to finalize sylabeling process
         // since there may be some last tokens was skipped before thread end
