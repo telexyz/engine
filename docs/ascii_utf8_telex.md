@@ -6,24 +6,17 @@ https://peazip.github.io/maximum-compression-benchmark.html
 
 ZPAQ is the winner in terms of maximum attainable compression, but is slower than other formats. ZPAQ at maximum compression level reached a 19.01% compression ratio versus 21.82% reached by ARC at maximum compression level, the second best result of the benchmark.
 
+- - -
+
+http://mattmahoney.net/dc/zpaq.html
 
 ```sh
 zpaq a fb_comments_10m.txt.zpaq fb_comments_10m.txt -m5
 zpaq x fb_comments_10m.txt.zpaq
 ```
 
-https://stackoverflow.com/questions/20064507/text-compression-algorithm
-
-* ZPAQ - Future facing container for PAQ algorithims (created to make the future of PAQ easier) http://mattmahoney.net/dc/zpaqd715.zip (can complied)
-
-* PAQ8PX/PAQ8KX - The most powerful, works with EXE and WAV files as well.
-https://github.com/hxim/paq8px (cannot complied)
-
-* PAQ8PF - Faster (both compression and decompression) and mostly intended for TXT files
-
-https://cs.fit.edu/~mmahoney/compression/#bbb
-
 - - -
+
 Unicode data file compression: achieving 40-70% reduction over gzip alone
 https://devlog.hexops.com/2021/unicode-data-file-compression
 
