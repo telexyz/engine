@@ -33,12 +33,13 @@ fn initConfigsFromArgs() void {
 }
 
 fn write_out_results1() !void {
-    try TextokOutputHelpers.write_types_to_file(
+    try TextokOutputHelpers.write_types_to_files(
         text.nonalpha_types,
-        "output/06-nonalpha_types.txt",
+        "output/06-nonalpha_freqs.txt",
+        "output/14-nonalpha_types.txt",
     );
     // Write sample of final output to preview
-    try TextokOutputHelpers.write_text_tokens_to_file(
+    try TextokOutputHelpers.write_tokens_to_file(
         text,
         "output/07-tokens_sample.txt",
         777,
@@ -48,49 +49,47 @@ fn write_out_results1() !void {
         "output/08-telexified_sample.txt",
         888_888,
     );
-    // out-of-size
-    try TextokOutputHelpers.write_too_long_tokens_to_file(
-        text,
-        text.alphabet_too_long_token_ids,
-        "output/12-alphabet_too_long_tokens.txt",
-    );
-    try TextokOutputHelpers.write_too_long_tokens_to_file(
-        text,
-        text.nonalpha_too_long_token_ids,
-        "output/13-nonalpha_too_long_tokens.txt",
-    );
 }
 
-fn write_out_results2() !void {
-    try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
-        text.syllable_types,
-        "output/01-syllmark_types.txt",
-        "output/02-syllable_types.txt",
-    );
-    try TextokOutputHelpers.write_types_to_file(
+fn write_out_types() !void {
+    // try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
+    //     text.syllable_types,
+    //     "output/01-syllmark_freqs.txt",
+    //     "output/02-syllable_freqs.txt",
+    //     "output/09-syllmark_types.txt",
+    //     "output/10-syllable_types.txt",
+    // );
+    try TextokOutputHelpers.write_types_to_files(
         text.syllower_types,
-        "output/03-syllower_types.txt",
+        "output/03-syllower_freqs.txt",
+        "output/11-syllower_types.txt",
     );
-    try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
-        text.alphabet_types,
-        "output/04-alphmark_types.txt",
-        "output/05-alphabet_types.txt",
-    );
-    // More info
-    try TextokOutputHelpers.write_mark_vs_norm_tokens_to_files(
-        text.alphabet_types,
-        "output/09-alphmark_tokens.txt",
-        "output/10-alphabet_tokens.txt",
-    );
-    try TextokOutputHelpers.write_tokens_to_file(
-        text.nonalpha_types,
-        "output/11-nonalpha_tokens.txt",
-    );
+    // try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
+    //     text.alphabet_types,
+    //     "output/04-alphmark_freqs.txt",
+    //     "output/05-alphabet_freqs.txt",
+    //     "output/12-alphmark_types.txt",
+    //     "output/13-alphabet_types.txt",
+    // );
+}
+
+fn write_out_tokens_and_final() !void {
     // Final result
     try TextokOutputHelpers.write_transforms_to_file(
         text,
         output_filename,
         0,
+    );
+
+    try TextokOutputHelpers.write_too_long_tokens_to_file(
+        text,
+        text.alphabet_too_long_token_ids,
+        "output/09-alphabet_too_long_tokens.txt",
+    );
+    try TextokOutputHelpers.write_too_long_tokens_to_file(
+        text,
+        text.nonalpha_too_long_token_ids,
+        "output/10-nonalpha_too_long_tokens.txt",
     );
 }
 
@@ -110,8 +109,12 @@ pub fn main() anyerror!void {
     print("\nStarted at {}\n", .{start_time});
 
     initConfigsFromArgs();
+    text = .{
+        .init_allocator = std.heap.page_allocator,
+        .telexified_all_tokens = true,
+    };
     tknz = .{ .max_lines = max_lines };
-    text = .{ .init_allocator = std.heap.page_allocator };
+
     try text.initFromFile(input_filename);
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
@@ -133,9 +136,13 @@ pub fn main() anyerror!void {
     }
     const step2_time = showMeTimeLap(step0_time, "Step-2: Token syllabling finish!");
 
-    print("\nWriting final results to file ...\n", .{});
-    try write_out_results2();
+    print("\nWriting types to file ...\n", .{});
+    try write_out_types();
+    const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
 
-    _ = showMeTimeLap(step2_time, "Writing final results done!");
+    print("\nWriting tokens and final transform to file ...\n", .{});
+    try write_out_tokens_and_final();
+    _ = showMeTimeLap(types_time, "Writing tokens and final transform done!");
+
     _ = showMeTimeLap(start_time, "Total");
 }

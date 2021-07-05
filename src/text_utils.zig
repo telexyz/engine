@@ -67,7 +67,8 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
 
         // Reserver first-byte to write token attrs
         const firt_byte_index = text.transformed_bytes_len;
-        text.transformed_bytes_len += 1;
+        if (text.telexified_all_tokens)
+            text.transformed_bytes_len += 1;
 
         if (attrs.category != .nonalpha and token.len <= Text.MAX_TOKEN_LEN) {
             const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
@@ -118,7 +119,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
             }
         } // attrs.category == .alphabet or .alphmark
 
-        if (token_not_written) {
+        if (text.telexified_all_tokens and token_not_written) {
             for (token) |b| {
                 text.transformed_bytes[text.transformed_bytes_len] = b;
                 text.transformed_bytes_len += 1;
@@ -126,16 +127,18 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
         }
 
         // Write attrs at the begin of token's ouput stream
-        text.transformed_bytes[firt_byte_index] = attrs.toByte();
+        if (text.telexified_all_tokens)
+            text.transformed_bytes[firt_byte_index] = attrs.toByte();
 
         // printToken(token, attrs.*); // DEBUG
     } // END while text.processed_tokens_number
 }
 
 fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    text.transformed_bytes[text.transformed_bytes_len] = '\n';
-    text.transformed_bytes_len += 1;
-
+    if (text.telexified_all_tokens) {
+        text.transformed_bytes[text.transformed_bytes_len] = '\n';
+        text.transformed_bytes_len += 1;
+    }
     // Show token parsing progress
     const percent: u64 = if (prev_percent.* < 80)
         (100 * text.transformed_bytes_len) / text.transformed_bytes_size

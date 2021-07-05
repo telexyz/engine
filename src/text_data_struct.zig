@@ -5,6 +5,9 @@ pub const Text = struct {
     // Must be init when text is created
     init_allocator: *std.mem.Allocator,
 
+    // Turn on to write telexified all input data to disk
+    telexified_all_tokens: bool = false,
+
     // Create arena's ArenaAllocator from init_allocator
     arena: std.heap.ArenaAllocator = undefined,
 
@@ -77,7 +80,7 @@ pub const Text = struct {
     const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
-    const BUFF_SIZE = 100; // incase input is small, estimated fail, so need buffer
+    const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
 
     pub const TypeInfo = struct {
         count: u32 = 0,
@@ -186,7 +189,9 @@ pub const Text = struct {
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
-        self.transformed_bytes_size = input_bytes_size + input_bytes_size / 10 + BUFF_SIZE;
+
+        self.transformed_bytes_size = input_bytes_size / 100 + BUFF_SIZE;
+        if (self.telexified_all_tokens) self.transformed_bytes_size += input_bytes_size;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllower...
