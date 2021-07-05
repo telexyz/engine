@@ -32,12 +32,7 @@ fn initConfigsFromArgs() void {
     max_lines = if (args.nextPosix() != null) 1001 else 0;
 }
 
-fn write_out_results1() !void {
-    try TextokOutputHelpers.write_types_to_files(
-        text.nonalpha_types,
-        "output/06-nonalpha_freqs.txt",
-        "output/16-nonalpha_types.txt",
-    );
+fn write_out_samples() !void {
     // Write sample of final output to preview
     try TextokOutputHelpers.write_tokens_to_file(
         text,
@@ -71,6 +66,11 @@ fn write_out_types() !void {
         "output/14-alphmark_types.txt",
         "output/15-alphabet_types.txt",
     );
+    try TextokOutputHelpers.write_types_to_files(
+        text.nonalpha_types,
+        "output/06-nonalpha_freqs.txt",
+        "output/16-nonalpha_types.txt",
+    );
 }
 
 fn write_out_tokens_and_final() !void {
@@ -84,12 +84,12 @@ fn write_out_tokens_and_final() !void {
     try TextokOutputHelpers.write_too_long_tokens_to_file(
         text,
         text.alphabet_too_long_token_ids,
-        "output/09-alphabet_too_long_tokens.txt",
+        "output/09-alphabet_too_long.txt",
     );
     try TextokOutputHelpers.write_too_long_tokens_to_file(
         text,
         text.nonalpha_too_long_token_ids,
-        "output/10-nonalpha_too_long_tokens.txt",
+        "output/10-nonalpha_too_long.txt",
     );
 }
 
@@ -123,7 +123,7 @@ pub fn main() anyerror!void {
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
-    try write_out_results1();
+    try write_out_samples();
     // Wait for sylabeling thread end
     thread.wait();
     if (!text.tokens_number_finalized) {
