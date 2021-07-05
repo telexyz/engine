@@ -34,10 +34,10 @@ fn initConfigsFromArgs() void {
 
 fn write_out_samples() !void {
     // Write sample of final output to preview
-    try TextokOutputHelpers.write_tokens_to_file(
+    try TextokOutputHelpers.write_text_tokens_to_file(
         text,
         "output/07-tokens_sample.txt",
-        777,
+        77_777,
     );
     try TextokOutputHelpers.write_transforms_to_file(
         text,

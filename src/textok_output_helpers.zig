@@ -136,7 +136,7 @@ pub const TextokOutputHelpers = struct {
         }
     }
 
-    pub fn write_tokens_to_file(text: Text, output_filename: []const u8, max: usize) !void {
+    pub fn write_text_tokens_to_file(text: Text, output_filename: []const u8, max: usize) !void {
         var n = text.tokens_number;
         if (max > 0 and n > max) n = max;
         // Open files to write transformed input data (final result)
@@ -144,7 +144,7 @@ pub const TextokOutputHelpers = struct {
         defer output_file.close();
 
         var i: usize = 0;
-        var wrt = std.io.bufferedWriter(output_file.writer()).writer();
+        const wrt = std.io.bufferedWriter(output_file.writer()).writer();
 
         while (i < n) : (i += 1) {
             _ = try wrt.write(text.tokens[i]);
