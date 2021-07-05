@@ -2,6 +2,7 @@ const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 
 const TOKENS_PER_LINE = 10;
+const MAX_FREQ_LEN = 9;
 const PAD = "  ";
 
 pub const TextokOutputHelpers = struct {
@@ -43,7 +44,7 @@ pub const TextokOutputHelpers = struct {
         defer types_mark_file.close();
         defer types_norm_file.close();
 
-        var buffer: [Text.MAX_TOKEN_LEN + 15]u8 = undefined;
+        var buffer: [Text.MAX_TOKEN_LEN + MAX_FREQ_LEN + 1]u8 = undefined;
         const buff_slice = buffer[0..];
 
         // Init 2 counters and the main iterator
@@ -71,7 +72,7 @@ pub const TextokOutputHelpers = struct {
         std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
 
         for (tokens_list.items) |token| {
-            const freq_token = try std.fmt.bufPrint(buff_slice, "{d:10}  {s}\n", .{ token.count, token.value });
+            const freq_token = try std.fmt.bufPrint(buff_slice, "{d} {s}\n", .{ token.count, token.value });
 
             if (token.have_marktone) {
                 // write freq and token pair to file
@@ -103,7 +104,7 @@ pub const TextokOutputHelpers = struct {
         const freqs_wrt = std.io.bufferedWriter(freqs_file.writer()).writer();
         const types_wrt = std.io.bufferedWriter(types_file.writer()).writer();
 
-        var buffer: [Text.MAX_TOKEN_LEN + 15]u8 = undefined;
+        var buffer: [Text.MAX_TOKEN_LEN + MAX_FREQ_LEN + 1]u8 = undefined;
         const slice = buffer[0..];
 
         var it = types.iterator();
@@ -126,7 +127,7 @@ pub const TextokOutputHelpers = struct {
 
         for (tokens_list.items) |token, i| {
             // write freq and token pair to file
-            const tmp = try std.fmt.bufPrint(slice, "{d:10}  {s}\n", .{ token.count, token.value });
+            const tmp = try std.fmt.bufPrint(slice, "{d} {s}\n", .{ token.count, token.value });
             _ = try freqs_wrt.write(tmp);
 
             // write token to file
