@@ -36,7 +36,7 @@ fn write_out_results1() !void {
     try TextokOutputHelpers.write_types_to_files(
         text.nonalpha_types,
         "output/06-nonalpha_freqs.txt",
-        "output/15-nonalpha_types.txt",
+        "output/16-nonalpha_types.txt",
     );
     // Write sample of final output to preview
     try TextokOutputHelpers.write_tokens_to_file(
@@ -56,20 +56,20 @@ fn write_out_types() !void {
         text.syllable_types,
         "output/01-syllmark_freqs.txt",
         "output/02-syllable_freqs.txt",
-        "output/10-syllmark_types.txt",
-        "output/11-syllable_types.txt",
+        "output/11-syllmark_types.txt",
+        "output/12-syllable_types.txt",
     );
     try TextokOutputHelpers.write_types_to_files(
         text.syllower_types,
         "output/03-syllower_freqs.txt",
-        "output/12-syllower_types.txt",
+        "output/13-syllower_types.txt",
     );
     try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.alphabet_types,
         "output/04-alphmark_freqs.txt",
         "output/05-alphabet_freqs.txt",
-        "output/13-alphmark_types.txt",
-        "output/14-alphabet_types.txt",
+        "output/14-alphmark_types.txt",
+        "output/15-alphabet_types.txt",
     );
 }
 
