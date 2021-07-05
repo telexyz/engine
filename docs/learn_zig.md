@@ -7,6 +7,8 @@ cd ~/repos
 git clone https://github.com/ziglang/zig.git
 cd zig
 
+brew install cmake gcc llvm
+
 mkdir build
 cd build
 # cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix llvm) 
