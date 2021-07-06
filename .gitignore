@@ -2,7 +2,4 @@
 zig-cache
 zig-out
 *.wasm
-input
-output
-models
-cache
+data

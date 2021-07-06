@@ -6,7 +6,7 @@
 
 # zig test src/syllable_converters.zig
 
-~/zig test test_against_vn_syllables.zig
+~/zig test src/test_parser_with_real_syllables.zig
 
 ~/zig test src/text_data_struct.zig
 

@@ -1,8 +1,18 @@
 #!/bin/sh
 
-zig build && ./zig-out/bin/telex nguyeenx
-# zig build run # performance test by default
+rm data/0*.txt
+rm data/1*.txt
 
-cd wasm
-zig build-lib vn_telex.zig -target wasm32-freestanding -dynamic -Drelease-fast=true && node vn_test.js
-cd ..
+~/zig build && ./zig-out/bin/telexify data/titles_1k.txt data/titles_1k_tknz.txt
+
+# ~/zig run telexify.zig -O ReleaseFast -- ../corpus/fb_comments_10m.txt ../corpus/fb_comments_10m_tknz.txt
+
+# ~/zig run telexify.zig -O ReleaseFast -- ../corpus/best_vi_translation_train.txt ../corpus/best_vi_translation_train_tknz.txt
+
+# ~/zig run telexify.zig -O ReleaseFast -- ../corpus/corpus-title.txt ../corpus/corpus-title_tknz.txt
+
+# ~/zig run telexify.zig -- ../corpus/VNESEcorpus.txt ../corpus/VNESEcorpus_tknz.txt
+
+# ~/zig run telexify.zig -O ReleaseSafe -- ../corpus/VNTQcorpus.txt ../corpus/VNTQcorpus_tknz.txt
+
+# ~/zig run telexify.zig -- ../corpus/corpus-title-sample.txt ../corpus/corpus-title-sample_tknz.txt 1000

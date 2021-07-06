@@ -36,12 +36,12 @@ fn write_out_samples() !void {
     // Write sample of final output to preview
     try TextokOutputHelpers.write_text_tokens_to_file(
         text,
-        "output/07-tokens_sample.txt",
+        "data/07-tokens_sample.txt",
         77_777,
     );
     try TextokOutputHelpers.write_transforms_to_file(
         text,
-        "output/08-telexified_sample.txt",
+        "data/08-telexified_sample.txt",
         888_888,
     );
 }
@@ -49,27 +49,27 @@ fn write_out_samples() !void {
 fn write_out_types() !void {
     try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.syllable_types,
-        "output/01-syllmark_freqs.txt",
-        "output/02-syllable_freqs.txt",
-        "output/11-syllmark_types.txt",
-        "output/12-syllable_types.txt",
+        "data/01-syllmark_freqs.txt",
+        "data/02-syllable_freqs.txt",
+        "data/11-syllmark_types.txt",
+        "data/12-syllable_types.txt",
     );
     try TextokOutputHelpers.write_types_to_files(
         text.syllower_types,
-        "output/03-syllower_freqs.txt",
-        "output/13-syllower_types.txt",
+        "data/03-syllower_freqs.txt",
+        "data/13-syllower_types.txt",
     );
     try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.alphabet_types,
-        "output/04-alphmark_freqs.txt",
-        "output/05-alphabet_freqs.txt",
-        "output/14-alphmark_types.txt",
-        "output/15-alphabet_types.txt",
+        "data/04-alphmark_freqs.txt",
+        "data/05-alphabet_freqs.txt",
+        "data/14-alphmark_types.txt",
+        "data/15-alphabet_types.txt",
     );
     try TextokOutputHelpers.write_types_to_files(
         text.nonalpha_types,
-        "output/06-nonalpha_freqs.txt",
-        "output/16-nonalpha_types.txt",
+        "data/06-nonalpha_freqs.txt",
+        "data/16-nonalpha_types.txt",
     );
 }
 
@@ -84,12 +84,12 @@ fn write_out_tokens_and_final() !void {
     try TextokOutputHelpers.write_too_long_tokens_to_file(
         text,
         text.alphabet_too_long_token_ids,
-        "output/09-alphabet_too_long.txt",
+        "data/09-alphabet_too_long.txt",
     );
     try TextokOutputHelpers.write_too_long_tokens_to_file(
         text,
         text.nonalpha_too_long_token_ids,
-        "output/10-nonalpha_too_long.txt",
+        "data/10-nonalpha_too_long.txt",
     );
 }
 
