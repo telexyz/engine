@@ -1,15 +1,3 @@
-# Etract Facebook Comments From binhvq Corpus
-
-```sh
-# https://www.geeksforgeeks.org/sed-command-in-linux-unix-with-examples/
-# "content":"ông a để tóc này đẹp hơn nài",
-sed -e 's|.*content\"\:\"\([^"]*\).*|\1|' corpus/fb_comment_10m > fb_comments.txt
-
-# string>![TEST[Extract this string]>/string>
-sed -e 's|string>!\[TEST\[\(.*\)]>/string>|\1|' test.txt
-
-```
-
 # DATA 
 
 https://github.com/vietai/SAT
@@ -24,8 +12,10 @@ https://github.com/binhvq/vietdict106k
 
 # PEOPLE
 
-http://aifirst.ml/
+https://github.com/undertheseanlp
 
-https://vietai.org/
+http://aifirst.ml
 
-https://www.facebook.com/groups/vietnam.data.scientists/
+https://vietai.org
+
+https://www.facebook.com/groups/vietnam.data.scientists
