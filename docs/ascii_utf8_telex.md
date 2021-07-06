@@ -11,9 +11,7 @@ https://devlog.hexops.com/2021/unicode-data-file-compression
 https://www.7-zip.org/download.html
 ```sh
 brew install p7zip
-7z a -mx5 fb_comments_10m.txt.7z fb_comments_10m.txt
-7z a -mx5 corpus-title.txt.7z corpus-title.txt
-7z a -mx5 best_vi_translation_train.txt.7z best_vi_translation_train.txt
+7z a -mx5 fb_comments.txt.7z fb_comments.txt
 ```
 
 - - -
