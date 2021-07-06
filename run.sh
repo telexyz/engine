@@ -3,7 +3,7 @@
 rm data/0*.txt
 rm data/1*.txt
 
-~/zig build && ./zig-out/bin/telexify data/titles_1k.txt data/titles_1k_tknz.txt
+~/zig build && ./zig-out/bin/telexify data/news_titles.txt data/news_titles_tknz.txt
 
 # ~/zig run telexify.zig -O ReleaseFast -- ../corpus/fb_comments_10m.txt ../corpus/fb_comments_10m_tknz.txt
 
