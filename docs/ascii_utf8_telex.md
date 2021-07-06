@@ -7,30 +7,15 @@ https://devlog.hexops.com/2021/unicode-data-file-compression
 
 - - -
 
+## 7z: 22%, tốc độ tốt
+https://www.7-zip.org/download.html
 ```sh
-brew install lz4
-lz4 -3 fb_comments_10m.txt fb_comments_10m.txt.lz4
-lz4 -3 fb_comments_10m_tknz.txt fb_comments_10m_tknz.txt.lz4
-````
-- - -
-
-## ZPAQ: Nhỏ nhưng quá chậm
-
-https://peazip.github.io/maximum-compression-benchmark.html
-
-ZPAQ is the winner in terms of maximum attainable compression, but is slower than other formats. ZPAQ at maximum compression level reached a 19.01% compression ratio versus 21.82% reached by ARC at maximum compression level, the second best result of the benchmark.
-
-http://mattmahoney.net/dc/zpaq.html
-
-```sh
-mkdir zpaq715 && cd zpaq715
-wget http://mattmahoney.net/dc/zpaq715.zip
-unzip zpaq715.zip
-make install
-
-zpaq a fb_comments_10m.txt.zpaq fb_comments_10m.txt -m5
-zpaq x fb_comments_10m.txt.zpaq
+brew install p7zip
+7z a -mx5 fb_comments_10m.txt.7z fb_comments_10m.txt
+7z a -mx5 corpus-title.txt.7z corpus-title.txt
+7z a -mx5 best_vi_translation_train.txt.7z best_vi_translation_train.txt
 ```
+
 - - -
 
 ## Cách dùng displayable ascii chars để mã hóa con số
@@ -165,4 +150,28 @@ Sẽ cải thiện performance nếu làm dc điều trên.
 'ố'3:225:187:145 'ộ'3:225:187:153 'ổ'3:225:187:149 'ỗ'3:225:187:151
 'ớ'3:225:187:155 'ợ'3:225:187:163 'ở'3:225:187:159 'ỡ'3:225:187:161
 'ứ'3:225:187:169 'ự'3:225:187:177 'ử'3:225:187:173 'ữ'3:225:187:175
+```
+
+- - -
+
+## lz4: 40%, rất nhanh
+```sh
+brew install lz4
+lz4 -3 fb_comments_10m.txt fb_comments_10m.txt.lz4
+lz4 -3 fb_comments_10m_tknz.txt fb_comments_10m_tknz.txt.lz4
+````
+
+## ZPAQ: 20% nhưng quá chậm
+https://peazip.github.io/maximum-compression-benchmark.html
+ZPAQ is the winner in terms of maximum attainable compression, but is slower than other formats. ZPAQ at maximum compression level reached a 19.01% compression ratio versus 21.82% reached by ARC at maximum compression level, the second best result of the benchmark.
+http://mattmahoney.net/dc/zpaq.html
+
+```sh
+mkdir zpaq715 && cd zpaq715
+wget http://mattmahoney.net/dc/zpaq715.zip
+unzip zpaq715.zip
+make install
+
+zpaq a fb_comments_10m.txt.zpaq fb_comments_10m.txt -m5
+zpaq x fb_comments_10m.txt.zpaq
 ```
