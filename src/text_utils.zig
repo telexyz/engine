@@ -24,14 +24,14 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 60_000_000; // nanoseconds
+const WAIT_NANOSECS: u64 = 100_000_000; // nanoseconds
 
 pub fn telexifyAlphabetTokens(text: *Text) void {
     @setRuntimeSafety(false);
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
     var prev_percent: u64 = 0;
-    const max_sleeps: u8 = 1;
+    const max_sleeps: u8 = 2;
     var sleeps_count: u8 = 0;
 
     var i: *usize = &text.processed_tokens_number;

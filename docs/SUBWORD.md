@@ -20,8 +20,8 @@ Extra features: BPE-dropout (https://arxiv.org/pdf/1910.13267.pdf, 2019)
 ```sh
 pip3 install youtokentome
 # 600MB mất khoảng 60 secs (15 secs x 4-cpus)
- yttm bpe --data input/corpus/corpus-title.txt --model _models/yttm-utf8.model --vocab_size 20000
- yttm encode --model _models/yttm-telexified.model --output_type subword
+ yttm bpe --data data/news/van_hoa.txt --model _models/van_hoa-utf8.model --vocab_size 20000
+ yttm encode --model _models/van_hoa-utf8.model --output_type subword
 ```
 
 - - -

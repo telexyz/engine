@@ -111,9 +111,9 @@ pub fn main() anyerror!void {
     initConfigsFromArgs();
     text = .{
         .init_allocator = std.heap.page_allocator,
-        .telexified_all_tokens = true,
+        .telexified_all_tokens = max_lines > 0,
     };
-    tknz = .{ .max_lines = max_lines };
+    tknz = .{ .max_lines = 0 };
 
     try text.initFromFile(input_filename);
     defer text.deinit();
