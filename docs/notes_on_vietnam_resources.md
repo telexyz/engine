@@ -12,6 +12,12 @@ https://github.com/binhvq/vietdict106k
 
 # PEOPLE
 
+https://ongxuanhong.wordpress.com/2016/08/27/language-modeling-la-gi/#more-8331
+
+https://www.facebook.com/gdgtensorflowvietnam/
+
+https://github.com/bangoc123/learn-machine-learning-in-two-months
+
 https://github.com/undertheseanlp
 
 http://aifirst.ml
