@@ -1,3 +1,0 @@
-Unigram
-Multigram
-N-gram
