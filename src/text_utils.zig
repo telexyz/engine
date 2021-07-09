@@ -99,20 +99,20 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                         .alphabet => .syllable,
                         else => unreachable,
                     };
-                    // Write ascii-telex transform
-                    const syllable_token = saveAsciiTelexTransform(text, char_stream);
-                    type_info.transform = syllable_token;
-                    token_not_written = false;
                 } else {
                     // For non-syllable, attrs.category can only be
                     // .alphabet or .alphmark
                     type_info.category = attrs.category;
                 }
+
+                // Write ascii-telex transform
+                type_info.transform = saveAsciiTelexTransform(text, char_stream);
+                token_not_written = false;
             }
 
-            if (type_info.isSyllable()) {
+            // if (type_info.isSyllable()) {
+            if (type_info.category != ._none) { // transformed
                 // Update token category according to it's type category
-                // .alphmark => .syllmark, .alphabet => .syllable,
                 attrs.category = type_info.category;
                 // Point token value to it's transform to write to output stream
                 token = type_info.transform;
@@ -128,7 +128,8 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
 
         // Write attrs at the begin of token's ouput stream
         if (text.telexified_all_tokens)
-            text.transformed_bytes[firt_byte_index] = attrs.toByte();
+            text.transformed_bytes[firt_byte_index] = 32; // space
+        // text.transformed_bytes[firt_byte_index] = attrs.toByte();
 
         // printToken(token, attrs.*); // DEBUG
     } // END while text.processed_tokens_number
@@ -157,38 +158,51 @@ pub fn saveAsciiTelexTransform(text: *Text, char_stream: U2ACharStream) []const 
     const bytes_len = &text.transformed_bytes_len;
     const trans_start_at = bytes_len.*;
 
-    if (char_stream.isCapitalized()) {
-        var i: usize = 0;
-        while (i < char_stream.len) : (i += 1) {
-            // Upper case the whole input bytes
-            text.transformed_bytes[bytes_len.*] =
-                char_stream.buffer[i] & 0b11011111;
-            bytes_len.* += 1;
-        }
-        if (char_stream.tone != 0) {
-            text.transformed_bytes[bytes_len.*] =
-                char_stream.tone & 0b11011111;
-            bytes_len.* += 1;
-        }
-    } else {
-        var i: usize = 0;
-        // Upper case the first letter
-        if (char_stream.isTitlied()) {
-            text.transformed_bytes[bytes_len.*] =
-                char_stream.buffer[0] & 0b11011111;
-            bytes_len.* += 1;
-            i = 1; // skip the first byte
-        }
-        // Copy the rest
-        while (i < char_stream.len) {
-            text.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
-            i += 1;
-            bytes_len.* += 1;
-        }
-        if (char_stream.tone != 0) {
-            text.transformed_bytes[bytes_len.*] = char_stream.tone;
-            bytes_len.* += 1;
-        }
+    // if (false char_stream.isCapitalized()) {
+    //     var i: usize = 0;
+    //     while (i < char_stream.len) : (i += 1) {
+    //         // Upper case the whole input bytes
+    //         text.transformed_bytes[bytes_len.*] =
+    //             char_stream.buffer[i] & 0b11011111;
+    //         bytes_len.* += 1;
+    //     }
+    //     if (char_stream.tone != 0) {
+    //         text.transformed_bytes[bytes_len.*] =
+    //             char_stream.tone & 0b11011111;
+    //         bytes_len.* += 1;
+    //     }
+    // } else {
+    //     var i: usize = 0;
+    //     // Upper case the first letter
+    //     if (char_stream.isTitlied()) {
+    //         text.transformed_bytes[bytes_len.*] =
+    //             char_stream.buffer[0] & 0b11011111;
+    //         bytes_len.* += 1;
+    //         i = 1; // skip the first byte
+    //     }
+    //     // Copy the rest
+    //     while (i < char_stream.len) {
+    //         text.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
+    //         i += 1;
+    //         bytes_len.* += 1;
+    //     }
+    //     if (char_stream.tone != 0) {
+    //         text.transformed_bytes[bytes_len.*] = char_stream.tone;
+    //         bytes_len.* += 1;
+    //     }
+    // }
+
+    var i: usize = 0;
+    while (i < char_stream.len) {
+        text.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
+        i += 1;
+        bytes_len.* += 1;
+    }
+    if (char_stream.tone != 0) {
+        text.transformed_bytes[bytes_len.*] = '|';
+        bytes_len.* += 1;
+        text.transformed_bytes[bytes_len.*] = char_stream.tone;
+        bytes_len.* += 1;
     }
     // END Convert input's utf-8 to output's ascii-telex
     return text.transformed_bytes[trans_start_at..bytes_len.*];

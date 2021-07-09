@@ -15,10 +15,8 @@ pub const CharStreamError = error{
 pub const Utf8ToAsciiTelexCharStream = struct {
     /// The internal character buffer
     /// Max char of an am_tiet is 10
-    /// Now support 1 syllable only!
-    pub const MAX_LEN = 10;
-
-    buffer: [MAX_LEN + 1]u8,
+    pub const MAX_LEN = @import("./text_data_struct.zig").Text.MAX_TOKEN_LEN;
+    buffer: [MAX_LEN + 2]u8,
 
     /// Last pushed utf-8 char
     last_char: u21,
@@ -69,6 +67,8 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         // Add tone char at the end if needed
         var n = self.len;
         if (self.tone != 0) {
+            self.buffer[n] = '_';
+            n += 1;
             self.buffer[n] = self.tone;
             n += 1;
         }
@@ -129,7 +129,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             if (self.tone == 0) {
                 self.tone = tone;
             } else {
-                return CharStreamError.MoreThanOneTone;
+                // return CharStreamError.MoreThanOneTone;
             }
         }
 
@@ -263,10 +263,10 @@ test "unrollTone" {
     var char_stream = U2ACharStream.new();
     try char_stream.push('á');
     try expect(char_stream.tone == 's');
-    try testing.expectEqualStrings(char_stream.toStr(), "as");
+    try testing.expectEqualStrings(char_stream.toStr(), "a_s");
 
     try char_stream.push('A');
-    try testing.expectEqualStrings(char_stream.toStr(), "aas");
+    try testing.expectEqualStrings(char_stream.toStr(), "aa_s");
     try expect(!char_stream.isTitlied());
     try expect(!char_stream.isCapitalized());
     try expect(!char_stream.has_mark);

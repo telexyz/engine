@@ -76,7 +76,7 @@ pub const Text = struct {
     allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
 
-    pub const MAX_TOKEN_LEN = 18;
+    pub const MAX_TOKEN_LEN = 20;
     const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
@@ -190,7 +190,7 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
-        self.transformed_bytes_size = input_bytes_size / 50 + BUFF_SIZE;
+        self.transformed_bytes_size = input_bytes_size / 5 + BUFF_SIZE;
         if (self.telexified_all_tokens) self.transformed_bytes_size += input_bytes_size;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
@@ -311,9 +311,9 @@ test "Text" {
 
     //  1s 2s  1a  3s  4s     2a   5s 2s  3a
     // "Cả nhà ơi, thử nghiệm nhé, cả nhà !"
-    try std.testing.expect(text.syllable_types.count() == 5);
-    try std.testing.expect(text.syllable_types.get("nhaf").?.count == 2);
+    try std.testing.expect(text.syllable_types.count() == 4);
+    try std.testing.expect(text.syllable_types.get("nha|f").?.count == 2);
     try std.testing.expect(text.syllower_types.count() == 4); // Cả => cả
-    try std.testing.expect(text.syllower_types.get("car").?.count == 2);
+    try std.testing.expect(text.syllower_types.get("ca|r").?.count == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }
