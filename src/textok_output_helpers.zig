@@ -166,8 +166,8 @@ pub const TextokOutputHelpers = struct {
         // Open files to write transformed input data (final result)
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
-        // var wrt = std.io.bufferedWriter(output_file.writer()).writer();
-        const wrt = output_file.writer();
+        var wrt = std.io.bufferedWriter(output_file.writer()).writer();
+        // const wrt = output_file.writer();
         _ = try wrt.write(text.transformed_bytes[0..n]);
     }
 };
