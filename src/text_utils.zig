@@ -198,12 +198,13 @@ pub fn saveAsciiTelexTransform(text: *Text, char_stream: U2ACharStream) []const 
         i += 1;
         bytes_len.* += 1;
     }
-    if (char_stream.tone != 0) {
-        text.transformed_bytes[bytes_len.*] = '|';
-        bytes_len.* += 1;
-        text.transformed_bytes[bytes_len.*] = char_stream.tone;
-        bytes_len.* += 1;
-    }
+
+    text.transformed_bytes[bytes_len.*] = ' ';
+    bytes_len.* += 1;
+    text.transformed_bytes[bytes_len.*] = '|';
+    bytes_len.* += 1;
+    text.transformed_bytes[bytes_len.*] = if (char_stream.tone != 0) char_stream.tone else 'z';
+    bytes_len.* += 1;
     // END Convert input's utf-8 to output's ascii-telex
     return text.transformed_bytes[trans_start_at..bytes_len.*];
 }

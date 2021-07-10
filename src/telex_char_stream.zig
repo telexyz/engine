@@ -67,8 +67,6 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         // Add tone char at the end if needed
         var n = self.len;
         if (self.tone != 0) {
-            self.buffer[n] = '_';
-            n += 1;
             self.buffer[n] = self.tone;
             n += 1;
         }
@@ -263,10 +261,10 @@ test "unrollTone" {
     var char_stream = U2ACharStream.new();
     try char_stream.push('á');
     try expect(char_stream.tone == 's');
-    try testing.expectEqualStrings(char_stream.toStr(), "a_s");
+    try testing.expectEqualStrings(char_stream.toStr(), "as");
 
     try char_stream.push('A');
-    try testing.expectEqualStrings(char_stream.toStr(), "aa_s");
+    try testing.expectEqualStrings(char_stream.toStr(), "aas");
     try expect(!char_stream.isTitlied());
     try expect(!char_stream.isCapitalized());
     try expect(!char_stream.has_mark);
