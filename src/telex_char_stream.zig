@@ -283,6 +283,24 @@ test "unrollTone" {
     try char_stream.push('ầ') catch |err| expect(err == CharStreamError.MoreThanOneTone);
 }
 
+test "ưo, uơ, ươ => ươ" {
+    var char_stream = U2ACharStream.new();
+    char_stream.strict_mode = true;
+    try char_stream.push('ư');
+    try char_stream.push('o');
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uow");
+
+    char_stream.reset();
+    try char_stream.push('ư');
+    try char_stream.push('ơ');
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uow");
+
+    char_stream.reset();
+    try char_stream.push('u');
+    try char_stream.push('ơ');
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uow");
+}
+
 test "strict_mode" {
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
