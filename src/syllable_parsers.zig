@@ -501,7 +501,7 @@ inline fn _amDau(str: []const u8) AmDau {
         'v' => .v,
         'x' => .x,
 
-        'q' => if (c1 == 'u') AmDau.qu else .q, // q|qu
+        'q' => if (c1 == 'u') AmDau.qu else ._none, // qu
 
         'c' => if (c1 == 'h') AmDau.ch else .c, // c|ch
 

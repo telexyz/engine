@@ -23,7 +23,6 @@ pub const AmDau = enum(u5) {
     m,
     n,
     p,
-    q,
     r,
     s,
     t,
@@ -43,9 +42,9 @@ pub const AmDau = enum(u5) {
     ngh,
     pub fn len(self: AmDau) u8 {
         return switch (@enumToInt(self)) {
-            1...16 => 1,
-            17...27 => 2,
-            28 => 3,
+            1...15 => 1,
+            16...26 => 2,
+            27 => 3,
             else => 0,
         };
     }
@@ -54,7 +53,7 @@ pub const AmDau = enum(u5) {
         if (self.len() == 2 and self != .ng) return true;
         if (self.len() == 1) {
             switch (self) {
-                .c, .d, .g, .k, .n, .p, .q, .t => {
+                .c, .d, .g, .k, .n, .p, .t => {
                     return false;
                 },
                 else => {
