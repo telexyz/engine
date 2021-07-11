@@ -133,6 +133,14 @@ pub const Utf8ToAsciiTelexCharStream = struct {
 
         const buff = telex_utils.getDoubleBytes(telex_code);
 
+        // Convert uwo{w} => uow
+        if (self.buffer[self.len - 1] == 'w' and buff[0] == 'o') {
+            self.buffer[self.len - 1] = 'o';
+            self.buffer[self.len] = 'w';
+            self.len += 1;
+            return;
+        }
+
         if (buff.len == 2) {
             self.has_mark = true;
             if (self.len + buff.len > MAX_LEN) {
@@ -204,6 +212,10 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                         self.len += 1;
                         self.has_mark = true;
                         self.pure_utf8 = false;
+                        return;
+                    },
+                    'w' => {
+                        // Convert uwo{w} => uow already
                         return;
                     },
                     else => {
