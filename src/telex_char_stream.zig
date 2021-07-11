@@ -73,8 +73,8 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     }
 
     pub fn hasVowelMark(self: Utf8ToAsciiTelexCharStream) bool {
-        return self.has_mark and // but not đ (dd)
-            !(self.buffer[0] == 'd' and
+        return self.has_mark and // but not đ (zd)
+            !(self.buffer[0] == 'z' and
             self.buffer[1] == 'd');
     }
 

@@ -271,7 +271,7 @@ test "Text" {
         .init_allocator = std.testing.allocator,
     };
 
-    try text.initFromInputBytes("Cả nhà ơi , thử nghiệm nhé , cả nhà ! TAQs");
+    try text.initFromInputBytes("Cả nhà đơi , thử nghiệm nhé , cả nhà ! TAQs");
     defer text.deinit();
 
     // Text is a struct with very basic function
@@ -310,8 +310,8 @@ test "Text" {
     try std.testing.expect(text.alphabet_types.count() == 3);
 
     // Converted to lowercase => syllable_types == syllower_types
-    //  1s 2s  3s 1a 4s  5s     6s  1a 6s 2s  2a 3a
-    // "Cả nhà ơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
+    //  1s 2s  3s  1a 4s  5s     6s  1a 6s 2s  2a 3a
+    // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
     // std.debug.print("\n{}\n", .{text.syllable_types});
     try std.testing.expect(text.syllable_types.count() == 6);
     try std.testing.expect(text.syllable_types.get("nha |f").?.count == 2);

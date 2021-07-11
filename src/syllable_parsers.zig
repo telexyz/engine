@@ -503,6 +503,8 @@ inline fn _amDau(str: []const u8) AmDau {
 
         'd' => if (c1 == 'd') AmDau.zd else .d, // d|dd
 
+        'z' => if (c1 == 'd') AmDau.zd else ._none,
+
         'g' => switch (c1) {
             // g|gh|gi, "gi" nếu sau có nguyên âm
             'h' => AmDau.gh,

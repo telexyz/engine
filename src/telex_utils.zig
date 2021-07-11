@@ -705,7 +705,7 @@ pub inline fn getCharByte(telex_code: u10) u8 {
 pub inline fn getDoubleBytes(telex_code: u10) []const u8 {
     const am_giua_code = telex_code & 0b0000111111;
     return switch (am_giua_code) {
-        13 => "dd",
+        13 => "zd",
         @enumToInt(syllable_data_structs.AmGiua.az) => "az",
         @enumToInt(syllable_data_structs.AmGiua.ez) => "ez",
         @enumToInt(syllable_data_structs.AmGiua.oz) => "oz", // bông
