@@ -436,7 +436,11 @@ inline fn _amGiua(str: []const u8) AmGiua {
 
     return switch (c0) {
         'u' => switch (c1) { // u|uw|uwa|uwow|ua|uaa|uee|uy|uyee|uya|uoo
-            'a' => if (c2 == 'a' or c2 == 'z') AmGiua.uaz else .ua, // ua|uaa quan,quân
+            'a' => switch (c2) {
+                'a', 'z' => AmGiua.uaz, // uaa quan,quân
+                'w' => .uaw,
+                else => .ua, // ua
+            },
             // 'e' => if (c2 == 'e') AmGiua.uez else .ue, // ue|uee quen,quên
             'e' => AmGiua.uez, // ue{e} => uez
             'w' => switch (c2) {

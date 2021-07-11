@@ -132,7 +132,7 @@ pub const TextokOutputHelpers = struct {
 
             // write token to file
             _ = try types_wrt.write(token.value);
-            _ = try types_wrt.write(if (@rem(i, TOKENS_PER_LINE) == 0) "\n" else PAD);
+            _ = try types_wrt.write(if (@rem(i + 1, TOKENS_PER_LINE) == 0) "\n" else PAD);
         }
     }
 

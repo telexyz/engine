@@ -117,9 +117,9 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         if (buff.len == 2) {
             self.has_mark = true;
 
-            // Convert uwo{w} => uow
-            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and buff[0] == 'o') {
-                self.buffer[self.len - 1] = 'o';
+            // Convert uwo{w} => uow, uwa{w} => uaw
+            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and (buff[0] == 'o' or buff[0] == 'a')) {
+                self.buffer[self.len - 1] = buff[0];
                 self.buffer[self.len] = 'w';
                 self.len += 1;
                 return;
@@ -137,8 +137,8 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             const byte = telex_utils.getCharByte(telex_code);
 
             // Convert uwo{w} => uow
-            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and byte == 'o') {
-                self.buffer[self.len - 1] = 'o';
+            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and (byte == 'o' or byte == 'a')) {
+                self.buffer[self.len - 1] = byte;
                 self.buffer[self.len] = 'w';
                 self.len += 1;
             } else {
@@ -264,9 +264,11 @@ test "unrollTone" {
     try char_stream.push('ầ') catch |err| expect(err == CharStreamError.MoreThanOneTone);
 }
 
-test "ưo, uơ, ươ => ươ" {
+test "ưo, uơ, ươ => uow; ưa, uă, ưă => uaw" {
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
+
+    char_stream.reset();
     try char_stream.push('ư');
     try char_stream.push('o');
     try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uow");
@@ -280,6 +282,22 @@ test "ưo, uơ, ươ => ươ" {
     try char_stream.push('u');
     try char_stream.push('ơ');
     try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uow");
+
+    // ưa, uă, ưă => uaw
+    char_stream.reset();
+    try char_stream.push('ư');
+    try char_stream.push('a');
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uaw");
+
+    char_stream.reset();
+    try char_stream.push('ư');
+    try char_stream.push('ă');
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uaw");
+
+    char_stream.reset();
+    try char_stream.push('u');
+    try char_stream.push('ă');
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uaw");
 }
 
 test "TAQ => taq" {
