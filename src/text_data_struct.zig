@@ -271,7 +271,7 @@ test "Text" {
         .init_allocator = std.testing.allocator,
     };
 
-    try text.initFromInputBytes("Cả nhà ơi, thử nghiệm nhé, cả nhà !");
+    try text.initFromInputBytes("Cả nhà ơi , thử nghiệm nhé , cả nhà ! TAQs");
     defer text.deinit();
 
     // Text is a struct with very basic function
@@ -301,19 +301,21 @@ test "Text" {
     text.tokens_number_finalized = true;
     text_utils.telexifyAlphabetTokens(&text);
 
-    try std.testing.expect(text.tokens_number == 9);
-    try std.testing.expectEqualStrings(text.tokens[7], "nhà");
+    try std.testing.expect(text.tokens_number == 12);
+    try std.testing.expectEqualStrings(text.tokens[9], "nhà");
     try std.testing.expect(text.alphabet_types.get("!").?.count == 1);
-    try std.testing.expect(text.alphabet_types.get("nhé,").?.count == 1);
-    try std.testing.expect(text.alphabet_types.get("ơi,").?.count == 1);
+    try std.testing.expect(text.alphabet_types.get(",").?.count == 2);
+    try std.testing.expect(text.alphabet_types.get("TAQs").?.count == 1);
     try std.testing.expect(text.alphabet_types.get("xxx") == null);
     try std.testing.expect(text.alphabet_types.count() == 3);
 
-    //  1s 2s  1a  3s  4s     2a   5s 2s  3a
-    // "Cả nhà ơi, thử nghiệm nhé, cả nhà !"
-    try std.testing.expect(text.syllable_types.count() == 4);
+    // Converted to lowercase => syllable_types == syllower_types
+    //  1s 2s  3s 1a 4s  5s     6s  1a 6s 2s  2a 3a
+    // "Cả nhà ơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
+    // std.debug.print("\n{}\n", .{text.syllable_types});
+    try std.testing.expect(text.syllable_types.count() == 6);
     try std.testing.expect(text.syllable_types.get("nha |f").?.count == 2);
-    try std.testing.expect(text.syllower_types.count() == 4); // Cả => cả
+    try std.testing.expect(text.syllower_types.count() == 6); // Cả => cả
     try std.testing.expect(text.syllower_types.get("ca |r").?.count == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }

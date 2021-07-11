@@ -109,6 +109,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 // Write ascii-telex transform
                 type_info.transform = saveAsciiTransform(text, char_stream);
                 token_not_written = false;
+                print("char_stream: {s} => {s}\n", .{ token, type_info.transform }); //DEBUG
             }
 
             // if (type_info.isSyllable()) {
@@ -195,7 +196,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
 
     var i: usize = 0;
     while (i < char_stream.len) {
-        text.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
+        text.transformed_bytes[bytes_len.*] = char_stream.buffer[i] | 0b00100000; //lower
         i += 1;
         bytes_len.* += 1;
     }
