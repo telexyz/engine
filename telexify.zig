@@ -55,9 +55,9 @@ fn write_out_types() !void {
         "data/12-syllable_types.txt",
     );
     try TextokOutputHelpers.write_types_to_files(
-        text.syllower_types,
-        "data/03-syllower_freqs.txt",
-        "data/13-syllower_types.txt",
+        text.syl0tone_types,
+        "data/03-syl0tone_freqs.txt",
+        "data/13-syl0tone_types.txt",
     );
     try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.alphabet_types,
