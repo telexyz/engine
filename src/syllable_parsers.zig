@@ -561,15 +561,6 @@ pub export fn testPerformance(n: usize) void {
     }
 }
 
-test "canBeVietnamese() // Auto-repair obvious cases" {
-    try expect(canBeVietnamese("sưòn")); // sườn
-    try expect(canBeVietnamese("tuơ")); // tua
-    try expect(canBeVietnamese("tuơm")); // tươm
-    try expect(canBeVietnamese("tiem")); // tiêm
-    try expect(canBeVietnamese("tiém")); // tiếm
-    try expect(canBeVietnamese("tuyen")); // tuyên
-}
-
 test "canBeVietnamese() // get tone from stream" {
     try expect(canBeVietnamese("quyậts") == false);
 }
@@ -703,6 +694,18 @@ test "iee, yee (uyee), ooo, uee" {
 test "..." {
     try std.testing.expectEqualStrings(utf8ToAmTiet("BÔI"), "booi");
     try std.testing.expectEqualStrings(utf8ToAmTiet("BIÊN"), "bieen");
-    // try std.testing.expectEqualStrings(utf8ToAmTiet(""), "");
     try std.testing.expectEqualStrings(utf8ToAmTiet("CHUẨN"), "chuaanr");
+    // try std.testing.expectEqualStrings(utf8ToAmTiet(""), "");
+}
+
+test "canBeVietnamese() // Auto-repair obvious cases" {
+    try expect(canBeVietnamese("sưòn")); // sườn
+    try expect(canBeVietnamese("suờn")); // sườn
+    try expect(canBeVietnamese("tuơ")); // tua
+    try expect(canBeVietnamese("tuơm")); // tươm
+    try expect(canBeVietnamese("tiem")); // tiêm
+    try expect(canBeVietnamese("tiém")); // tiếm
+    try expect(canBeVietnamese("tuyen")); // tuyên
+    try expect(canBeVietnamese("cuă")); // cưa
+    try expect(canBeVietnamese("cưă")); // cưa
 }

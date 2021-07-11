@@ -185,14 +185,23 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 }
             },
             774 => { // ă
-                if (self.buffer[self.len - 1] == 'a') {
-                    self.buffer[self.len] = 'w';
-                    self.len += 1;
-                    self.has_mark = true;
-                    self.pure_utf8 = false;
-                    return;
-                } else {
-                    return CharStreamError.MarkCharNotFollowAMarkableVowel;
+                switch (self.buffer[self.len - 1]) {
+                    'a' => {
+                        self.buffer[self.len] = 'w';
+                        self.len += 1;
+                        self.has_mark = true;
+                        self.pure_utf8 = false;
+                        return;
+                    },
+                    'w' => {
+                        // Convert uwa{w} => uaw already
+                        self.has_mark = true;
+                        self.pure_utf8 = false;
+                        return;
+                    },
+                    else => {
+                        return CharStreamError.MarkCharNotFollowAMarkableVowel;
+                    },
                 }
             },
             795 => { // ơ, ư
@@ -205,6 +214,8 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                         return;
                     },
                     'w' => {
+                        self.has_mark = true;
+                        self.pure_utf8 = false;
                         // Convert uwo{w} => uow already
                         return;
                     },
