@@ -501,7 +501,7 @@ inline fn _amDau(str: []const u8) AmDau {
 
         'c' => if (c1 == 'h') AmDau.ch else .c, // c|ch
 
-        'd' => if (c1 == 'd') AmDau.dd else .d, // d|dd
+        'd' => if (c1 == 'd') AmDau.zd else .d, // d|dd
 
         'g' => switch (c1) {
             // g|gh|gi, "gi" nếu sau có nguyên âm
@@ -665,14 +665,14 @@ fn strToAmTiet(str: []const u8) []const u8 {
     var buffer: [11]u8 = undefined;
     const buff = buffer[0..];
     var syll = parseAmTietToGetSyllable(false, printNothing, str);
-    return syll.printBuff(buff);
+    return syll.printBuffTelex(buff);
 }
 
 fn utf8ToAmTiet(str: []const u8) []const u8 {
     // return syllableToAmTiet(parseAmTietToGetSyllable(true, printNothing, str));
     var buffer: [11]u8 = undefined;
     const buff = buffer[0..];
-    return parseAmTietToGetSyllable(true, printNothing, str).printBuff(buff);
+    return parseAmTietToGetSyllable(true, printNothing, str).printBuffTelex(buff);
 }
 
 test "iee, yee (uyee), ooo, uee" {

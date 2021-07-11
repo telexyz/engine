@@ -78,7 +78,7 @@ fn idToSyllable(id: u17) Syllable {
 pub fn idToAmTiet(id: u17) []const u8 {
     var buffer: [11]u8 = undefined;
     const buff = buffer[0..];
-    return idToSyllable(id).printBuff(buff);
+    return idToSyllable(id).printBuffTelex(buff);
 }
 
 pub fn syllableToNoMarkSyllable(syllable: Syllable) Syllable {

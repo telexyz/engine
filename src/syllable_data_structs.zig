@@ -30,7 +30,7 @@ pub const AmDau = enum(u5) {
     v,
     x,
     ch,
-    dd,
+    zd,
     gh,
     gi, // dùng như âm d
     kh,
@@ -66,7 +66,7 @@ pub const AmDau = enum(u5) {
     }
     pub fn noMark(self: AmDau) AmDau {
         return switch (self) {
-            .dd => .d,
+            .zd => .d,
             else => self,
         };
     }
@@ -80,7 +80,7 @@ test "Enum AmDau" {
     try expect(AmDau.ngh.len() == 3);
     try expect(AmDau._none.len() == 0);
     try expect(AmDau._none.isSaturated() == false);
-    try expect(AmDau.dd.isSaturated() == true);
+    try expect(AmDau.zd.isSaturated() == true);
 }
 
 /// 2.Vần gồm có 3 phần : âm đệm, âm chính, âm cuối.
@@ -326,9 +326,13 @@ pub const Syllable = packed struct {
         self.can_be_vietnamese = false;
     }
 
-    pub fn printBuff(self: *Syllable, buff: []u8) []const u8 {
+    pub fn printBuffTelex(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
-        const dau = if (self.am_dau == ._none) blank else @tagName(self.am_dau);
+        const dau = switch (self.am_dau) {
+            ._none => blank,
+            .zd => "dd",
+            else => @tagName(self.am_dau),
+        };
         const giua = switch (self.am_giua) {
             ._none => blank,
             .uoz => "uoo",
@@ -365,7 +369,7 @@ pub const Syllable = packed struct {
         const blank = "";
         const dau = switch (self.am_dau) {
             ._none => blank,
-            .dd => "đ",
+            .zd => "đ",
             else => @tagName(self.am_dau),
         };
         const giua = switch (self.tone) {
@@ -585,21 +589,21 @@ test "Syllable's printBuff" {
     var buffer: [15]u8 = undefined;
     const buff = buffer[0..];
 
-    try std.testing.expectEqualStrings(syll.printBuff(buff), "nguwas");
+    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "nguwas");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngứa");
 
     syll.am_giua = .o;
-    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngos");
+    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngos");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngó");
 
     syll.am_giua = .iez;
     syll.am_cuoi = .n;
-    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngieens");
+    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngieens");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngiến");
 
     syll.am_giua = .oz;
     syll.am_cuoi = .n;
     syll.tone = ._none;
-    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngoon");
+    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngoon");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngôn");
 }
