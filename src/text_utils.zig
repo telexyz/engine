@@ -109,7 +109,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 // Write ascii-telex transform
                 type_info.transform = saveAsciiTransform(text, char_stream);
                 token_not_written = false;
-                print("char_stream: {s} => {s}\n", .{ token, type_info.transform }); //DEBUG
+                // print("char_stream: {s} => {s}\n", .{ token, type_info.transform }); //DEBUG
             }
 
             // if (type_info.isSyllable()) {
