@@ -75,28 +75,10 @@ fn idToSyllable(id: u17) Syllable {
     return syllable;
 }
 
-pub fn syllableToAmTiet(syllable: Syllable) []const u8 {
-    const am_dau_str = _noneOrName(AmDau, syllable.am_dau);
-    const am_giua_str = _noneOrName(AmGiua, syllable.am_giua);
-    const am_cuoi_str = _noneOrName(AmCuoi, syllable.am_cuoi);
-    const tone_str = _noneOrName(Tone, syllable.tone);
-
-    // Vietnamese syllable has at most 10 chars, + ending 0 = 11
-    var all_together: [11]u8 = undefined;
-    const all_together_slice = all_together[0..];
-
-    const am_tiet = fmt.bufPrint(all_together_slice, "{s}{s}{s}{s}", .{ am_dau_str, am_giua_str, am_cuoi_str, tone_str }) catch unreachable;
-
-    // print("\nsyllableToAmTiet: '{s}'\n\n", .{am_tiet});
-    return am_tiet;
-}
-
-inline fn _noneOrName(comptime Enum: type, tag: Enum) []const u8 {
-    return if (tag == Enum._none) "" else @tagName(tag);
-}
-
 pub fn idToAmTiet(id: u17) []const u8 {
-    return syllableToAmTiet(idToSyllable(id));
+    var buffer: [11]u8 = undefined;
+    const buff = buffer[0..];
+    return idToSyllable(id).printBuff(buff);
 }
 
 pub fn syllableToNoMarkSyllable(syllable: Syllable) Syllable {

@@ -27,7 +27,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 telex_code = 'a' - 83;
             },
             'â' => {
-                am_giua = .aa;
+                am_giua = .az;
             },
             'ã' => {
                 tone = .x;
@@ -42,7 +42,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 telex_code = 'e' - 83;
             },
             'ê' => {
-                am_giua = .ee;
+                am_giua = .ez;
             },
             'ì' => {
                 tone = .f;
@@ -61,7 +61,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 telex_code = 'o' - 83;
             },
             'ô' => {
-                am_giua = .oo;
+                am_giua = .oz;
             },
             'õ' => {
                 tone = .x;
@@ -91,7 +91,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 upper_code = IS_UPPER;
             },
             'Â' => {
-                am_giua = .aa;
+                am_giua = .az;
                 upper_code = IS_UPPER;
             },
             'Ã' => {
@@ -110,7 +110,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 upper_code = IS_UPPER;
             },
             'Ê' => {
-                am_giua = .ee;
+                am_giua = .ez;
                 upper_code = IS_UPPER;
             },
             'Ì' => {
@@ -134,7 +134,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 upper_code = IS_UPPER;
             },
             'Ô' => {
-                am_giua = .oo;
+                am_giua = .oz;
                 upper_code = IS_UPPER;
             },
             'Õ' => {
@@ -227,23 +227,23 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             },
             'ấ' => {
                 tone = .s;
-                am_giua = .aa;
+                am_giua = .az;
             },
             'ầ' => {
                 tone = .f;
-                am_giua = .aa;
+                am_giua = .az;
             },
             'ẩ' => {
                 tone = .r;
-                am_giua = .aa;
+                am_giua = .az;
             },
             'ẫ' => {
                 tone = .x;
-                am_giua = .aa;
+                am_giua = .az;
             },
             'ậ' => {
                 tone = .j;
-                am_giua = .aa;
+                am_giua = .az;
             },
             'ắ' => {
                 tone = .s;
@@ -279,23 +279,23 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             },
             'ế' => {
                 tone = .s;
-                am_giua = .ee;
+                am_giua = .ez;
             },
             'ề' => {
                 tone = .f;
-                am_giua = .ee;
+                am_giua = .ez;
             },
             'ể' => {
                 tone = .r;
-                am_giua = .ee;
+                am_giua = .ez;
             },
             'ễ' => {
                 tone = .x;
-                am_giua = .ee;
+                am_giua = .ez;
             },
             'ệ' => {
                 tone = .j;
-                am_giua = .ee;
+                am_giua = .ez;
             },
             'ỳ' => {
                 tone = .f;
@@ -359,23 +359,23 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             },
             'ố' => {
                 tone = .s;
-                am_giua = .oo;
+                am_giua = .oz;
             },
             'ồ' => {
                 tone = .f;
-                am_giua = .oo;
+                am_giua = .oz;
             },
             'ổ' => {
                 tone = .r;
-                am_giua = .oo;
+                am_giua = .oz;
             },
             'ỗ' => {
                 tone = .x;
-                am_giua = .oo;
+                am_giua = .oz;
             },
             'ộ' => {
                 tone = .j;
-                am_giua = .oo;
+                am_giua = .oz;
             },
             'ớ' => {
                 tone = .s;
@@ -410,27 +410,27 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             },
             'Ấ' => {
                 tone = .s;
-                am_giua = .aa;
+                am_giua = .az;
                 upper_code = IS_UPPER;
             },
             'Ầ' => {
                 tone = .f;
-                am_giua = .aa;
+                am_giua = .az;
                 upper_code = IS_UPPER;
             },
             'Ẩ' => {
                 tone = .r;
-                am_giua = .aa;
+                am_giua = .az;
                 upper_code = IS_UPPER;
             },
             'Ẫ' => {
                 tone = .x;
-                am_giua = .aa;
+                am_giua = .az;
                 upper_code = IS_UPPER;
             },
             'Ậ' => {
                 tone = .j;
-                am_giua = .aa;
+                am_giua = .az;
                 upper_code = IS_UPPER;
             },
             'Ắ' => {
@@ -475,27 +475,27 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             },
             'Ế' => {
                 tone = .s;
-                am_giua = .ee;
+                am_giua = .ez;
                 upper_code = IS_UPPER;
             },
             'Ề' => {
                 tone = .f;
-                am_giua = .ee;
+                am_giua = .ez;
                 upper_code = IS_UPPER;
             },
             'Ể' => {
                 tone = .r;
-                am_giua = .ee;
+                am_giua = .ez;
                 upper_code = IS_UPPER;
             },
             'Ễ' => {
                 tone = .x;
-                am_giua = .ee;
+                am_giua = .ez;
                 upper_code = IS_UPPER;
             },
             'Ệ' => {
                 tone = .j;
-                am_giua = .ee;
+                am_giua = .ez;
                 upper_code = IS_UPPER;
             },
             'Ỳ' => {
@@ -575,27 +575,27 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             },
             'Ố' => {
                 tone = .s;
-                am_giua = .oo;
+                am_giua = .oz;
                 upper_code = IS_UPPER;
             },
             'Ồ' => {
                 tone = .f;
-                am_giua = .oo;
+                am_giua = .oz;
                 upper_code = IS_UPPER;
             },
             'Ổ' => {
                 tone = .r;
-                am_giua = .oo;
+                am_giua = .oz;
                 upper_code = IS_UPPER;
             },
             'Ỗ' => {
                 tone = .x;
-                am_giua = .oo;
+                am_giua = .oz;
                 upper_code = IS_UPPER;
             },
             'Ộ' => {
                 tone = .j;
-                am_giua = .oo;
+                am_giua = .oz;
                 upper_code = IS_UPPER;
             },
             'Ớ' => {
@@ -668,7 +668,7 @@ test "utf8ToTelexCode()" {
     try expect(getCharByte(utf8ToTelexCode('a', 0)) == 'a');
     try expect(utf8ToTelexCode('A', 0) == 14 + IS_UPPER);
     try expect(utf8ToTelexCode('á', 0) == 14 + (@intCast(u10, @enumToInt(syllable_data_structs.Tone.s)) << 6));
-    try expect(utf8ToTelexCode('ổ', 0) == @enumToInt(syllable_data_structs.AmGiua.oo) + (@intCast(u10, @enumToInt(syllable_data_structs.Tone.r)) << 6));
+    try expect(utf8ToTelexCode('ổ', 0) == @enumToInt(syllable_data_structs.AmGiua.oz) + (@intCast(u10, @enumToInt(syllable_data_structs.Tone.r)) << 6));
 
     var telex_code = utf8ToTelexCode('Ẵ', 0);
     try expect(telex_code == @enumToInt(syllable_data_structs.AmGiua.aw) + (@intCast(u10, @enumToInt(syllable_data_structs.Tone.x)) << 6) + IS_UPPER);
@@ -706,10 +706,10 @@ pub inline fn getDoubleBytes(telex_code: u10) []const u8 {
     const am_giua_code = telex_code & 0b0000111111;
     return switch (am_giua_code) {
         13 => "dd",
-        @enumToInt(syllable_data_structs.AmGiua.aa) => "aa",
+        @enumToInt(syllable_data_structs.AmGiua.az) => "aa",
+        @enumToInt(syllable_data_structs.AmGiua.ez) => "ee",
+        @enumToInt(syllable_data_structs.AmGiua.oz) => "oo", // bông
         @enumToInt(syllable_data_structs.AmGiua.aw) => "aw",
-        @enumToInt(syllable_data_structs.AmGiua.ee) => "ee",
-        @enumToInt(syllable_data_structs.AmGiua.oo) => "oo", // bông
         @enumToInt(syllable_data_structs.AmGiua.ow) => "ow",
         @enumToInt(syllable_data_structs.AmGiua.uw) => "uw",
         else => "",

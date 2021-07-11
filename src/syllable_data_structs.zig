@@ -83,7 +83,7 @@ test "Enum AmDau" {
     try expect(AmDau.dd.isSaturated() == true);
 }
 
-/// 2.Vần gồm có 3 phần : âm đệm, âm chính , âm cuối.
+/// 2.Vần gồm có 3 phần : âm đệm, âm chính, âm cuối.
 /// - Âm đệm được ghi bằng con chữ u và o.
 ///     + Ghi bằng con chữ o khi đứng trước các nguyên âm: a, ă, e.
 ///     + Ghi bằng con chữ u khi đứng trước các nguyên âm y, ê, ơ, â.
@@ -103,48 +103,53 @@ pub const AmGiua = enum(u5) {
     o,
     u,
     y,
-    aa,
-    aw,
-    ee,
-    oo, // bông
-    ow,
-    uw,
+
+    az, // â
+    aw, // ă
+    ez, // ê
+    oz, // ô
+    ow, // ơ
+    uw, // ư
+
     ua,
     ia,
     oa,
     oe,
+    oo, // boong
     uo, // <= 'uoo', 'uow', 'uwow', without mark, 'uo' must followed by z tone
     uy,
-    iee,
-    oaw,
-    ooo, // boong
-    uaa,
-    uee,
-    uoo,
-    uow, // “thuở/thủa” http://repository.ulis.vnu.edu.vn/handle/ULIS_123456789/164
-    uwa,
+    iez, // iê
+    oaw, // oă
+    uaz, // uâ
+    uez, // uê
+    uoz, // uô
+    uaw, // ưa
     uya,
-    yee,
-    uwow,
-    uyee,
+    yez, // yê
+    uow, // ươ
+    uyez, // uyê
+
+    // uow, // “thuở/thủa” => convert to "ủa" ?/
+    // http://repository.ulis.vnu.edu.vn/handle/ULIS_123456789/164
+
     pub fn startWithIY(self: AmGiua) bool {
         return switch (self) {
-            .i, .y, .ia, .iee, .yee => true,
+            .i, .y, .ia, .iez, .yez => true,
             else => false,
         };
     }
     pub fn hasMark(self: AmGiua) bool {
         return switch (self) {
-            .aa, .aw, .ee, .uw, .oo, .ow, .oaw, .uaa, .uee, .uoo, .uow, .uwa, .iee, .yee, .uwow, .uyee => true,
+            .az, .aw, .ez, .uw, .oz, .ow, .oaw, .uaz, .uez, .uoz, .uaw, .iez, .yez, .uyez => true,
             else => false,
         };
     }
     pub fn len(self: AmGiua) u8 {
         return switch (@enumToInt(self)) {
             1...6 => 1,
-            7...18 => 2,
-            19...28 => 3,
-            29, 30 => 4,
+            7...19 => 2,
+            20...27 => 3,
+            28, 29 => 4,
             else => 0,
         };
     }
@@ -171,17 +176,20 @@ pub const AmGiua = enum(u5) {
     }
     pub fn noMark(self: AmGiua) AmGiua {
         return switch (self) {
-            .aa => .a,
+            .az => .a,
             .aw => .a,
-            .ee => .e,
-            .oo => .o,
+            .ez => .e,
+            .oz => .o,
             .ow => .o,
             .uw => .u,
-            .oaw => .ua,
-            .uaa => .ua,
-            .uwa => .ua,
-            .uoo => .uo,
-            .uwow => .uo,
+            .oaw => .oa,
+            .uaz => .ua,
+            .uaw => .ua,
+            .uoz => .uo,
+            .uow => .uo,
+            .iez => .ie,
+            .yez => .ye,
+            .uyez => .uye,
             else => self,
         };
     }
@@ -190,12 +198,12 @@ pub const AmGiua = enum(u5) {
 test "Enum AmGiua" {
     try expect(AmGiua.a.len() == 1);
     try expect(AmGiua.y.len() == 1);
-    try expect(AmGiua.aa.len() == 2);
+    try expect(AmGiua.az.len() == 2);
     try expect(AmGiua.uy.len() == 2);
-    try expect(AmGiua.iee.len() == 3);
-    try expect(AmGiua.yee.len() == 3);
-    try expect(AmGiua.uwow.len() == 4);
-    try expect(AmGiua.uyee.len() == 4);
+    try expect(AmGiua.iez.len() == 3);
+    try expect(AmGiua.yez.len() == 3);
+    try expect(AmGiua.uow.len() == 4);
+    try expect(AmGiua.uyez.len() == 4);
     try expect(AmGiua._none.len() == 0);
 }
 
@@ -318,11 +326,25 @@ pub const Syllable = packed struct {
         self.can_be_vietnamese = false;
     }
 
-    // [ NEED TEST ]
     pub fn printBuff(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
         const dau = if (self.am_dau == ._none) blank else @tagName(self.am_dau);
-        const giua = if (self.am_giua == ._none) blank else @tagName(self.am_giua);
+        const giua = switch (self.am_giua) {
+            ._none => blank,
+            .uoz => "uoo",
+            .uaz => "uaa",
+            .uaw => "uwa",
+            .uez => "uee",
+            .az => "aa",
+            .ez => "ee",
+            .oz => "oo",
+            .oo => "ooo",
+            .iez => "iee",
+            .yez => "yee",
+            .uyez => "uyee",
+            .uow => "uwow",
+            else => @tagName(self.am_giua),
+        };
         const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
         const tone = if (self.tone == ._none) blank else @tagName(self.tone);
 
@@ -354,7 +376,7 @@ pub const Syllable = packed struct {
 test "Syllable's printBuff" {
     var syll = Syllable{
         .am_dau = AmDau.ng,
-        .am_giua = AmGiua.uwa,
+        .am_giua = AmGiua.uaw,
         .am_cuoi = AmCuoi._none,
         .tone = Tone.s,
         .can_be_vietnamese = true,
@@ -368,7 +390,12 @@ test "Syllable's printBuff" {
     syll.am_giua = .o;
     try std.testing.expectEqualStrings(syll.printBuff(buff), "ngos");
 
+    syll.am_giua = .iez;
+    syll.am_cuoi = .n;
+    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngieens");
+
+    syll.am_giua = .oz;
     syll.am_cuoi = .n;
     syll.tone = ._none;
-    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngon");
+    try std.testing.expectEqualStrings(syll.printBuff(buff), "ngoon");
 }

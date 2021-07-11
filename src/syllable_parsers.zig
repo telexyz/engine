@@ -57,13 +57,13 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
     // Handle missing char for bellowing auto-conversion
     // .uyee <= .uye, .iee <= .ie, .yee <= .ye, .uee <= .ue, .uwow <= "uwo"
     switch (syllable.am_giua) {
-        .uyee => {
+        .uyez => {
             if (n > stream.len or stream.buffer[am_dau_len + 3] != 'e') n -= 1;
         },
-        .iee, .yee, .uee => {
+        .iez, .yez, .uez => {
             if (n > stream.len or stream.buffer[am_dau_len + 2] != 'e') n -= 1;
         },
-        .uwow => {
+        .uow => {
             if (n > stream.len or stream.buffer[am_dau_len + 3] != 'w') n -= 1;
         },
         else => {}, // do nothing
@@ -169,14 +169,14 @@ test "pushCharsToSyllable()" {
     try expect(char_stream.tone == 's');
     pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
     try expect(syllable.am_dau == .ngh);
-    try expect(syllable.am_giua == .ee);
+    try expect(syllable.am_giua == .ez);
     try expect(syllable.tone == .s);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('t');
     pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
     try expect(syllable.am_dau == .ngh);
-    try expect(syllable.am_giua == .ee);
+    try expect(syllable.am_giua == .ez);
     try expect(syllable.am_cuoi == .t);
     try expect(syllable.tone == .s);
 
@@ -305,19 +305,19 @@ fn validateBanAmCuoiVan(comptime print: print_op, am_giua: AmGiua, am_cuoi: AmCu
             print("!!! VIOLATE: 'e', 'oe' chỉ đi với bán âm cuối vần 'o'", .{});
             return false;
         },
-        .i, .ee, .iee, .uy, .yee => if (am_cuoi != .u) {
+        .i, .ez, .iez, .uy, .yez => if (am_cuoi != .u) {
             print("!!! VIOLATE: 'i', 'ê', 'iê', 'uy', 'yê' chỉ đi với bán âm cuối vần 'u'", .{});
             return false;
         },
-        .o, .ow, .oo => if (am_cuoi != .i) {
+        .o, .ow, .oz => if (am_cuoi != .i) {
             print("!!! VIOLATE: 'o', 'ơ', 'ô' chỉ đi với bán âm cuối vần 'i'", .{});
             return false;
         },
-        .y, .aw, .ia, .ooo, .ua, .oaw, .uee, .uow, .uwa, .uya, .uyee => if (am_cuoi != ._none) {
+        .y, .aw, .ia, .oo, .ua, .uez, .uaw, .uya, .uyez => if (am_cuoi != ._none) {
             print("!!! VIOLATE: 'y', 'ă', 'ia', 'oo', 'ua', 'oă', 'uê', 'uơ', 'ưa', 'uya', 'uyê' ko đi với bán âm cuối vần nào hết", .{});
             return false;
         },
-        .u, .uoo => if (am_cuoi != .i) {
+        .u, .uoz => if (am_cuoi != .i) {
             print("!!! VIOLATE: 'u', 'uô' chỉ đi với bán âm cuối vần 'i'", .{});
             return false;
         },
@@ -325,11 +325,11 @@ fn validateBanAmCuoiVan(comptime print: print_op, am_giua: AmGiua, am_cuoi: AmCu
             print("!!! VIOLATE: 'oa' ko đi với bán âm cuối vần 'u'", .{});
             return false;
         },
-        .uw, .uwow => if (am_cuoi != .i and am_cuoi != .u) {
+        .uw, .uow => if (am_cuoi != .i and am_cuoi != .u) {
             print("!!! VIOLATE: 'ư', 'ươ' chỉ đi với bán âm cuối vần 'i', 'u'", .{});
             return false;
         },
-        .uaa => if (am_cuoi != .y) {
+        .uaz => if (am_cuoi != .y) {
             print("!!! VIOLATE: 'uâ' chỉ đi với bán âm cuối vần 'y'", .{});
             return false;
         },
@@ -352,12 +352,12 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         return false;
     }
 
-    if (am_giua == .uyee and (am_cuoi == ._none)) {
+    if (am_giua == .uyez and (am_cuoi == ._none)) {
         print("!!! VIOLATE: 'uyê' sau có âm cuối. VD: chuyên\n", .{});
         return false;
     }
 
-    if (am_giua == .yee and ((am_dau != ._none and am_dau != .qu) or am_cuoi == ._none)) {
+    if (am_giua == .yez and ((am_dau != ._none and am_dau != .qu) or am_cuoi == ._none)) {
         print("!!! VIOLATE: 'yê' trước ko có hoặc chỉ đi với 'qu', sau có âm cuối. VD: yêu, quyên\n", .{});
         // 'qu' là sự kết hợp của 'q' và âm đệm 'u' nhằm giảm số lượng mã phải lưu.
         // Tương tự như 'uyee' ... ta ko lưu âm đệm 'u', 'o' mà kết hợp nó với
@@ -371,22 +371,22 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         return false;
     }
 
-    if (am_giua == .iee and (am_dau == ._none or am_cuoi == ._none)) {
+    if (am_giua == .iez and (am_dau == ._none or am_cuoi == ._none)) {
         print("!!! VIOLATE: 'iê' trước có âm đầu, sau có âm cuối. VD: tiên\n", .{});
         return false;
     }
 
-    if (am_giua == .uwow and am_cuoi == ._none) {
+    if (am_giua == .uow and am_cuoi == ._none) {
         print("!!! VIOLATE: 'ươ' sau có âm cuối. VD: mượn\n", .{});
         return false;
     }
 
-    if (am_giua == .uwa and am_cuoi != ._none) {
+    if (am_giua == .uaw and am_cuoi != ._none) {
         print("!!! VIOLATE: 'ưa' sau không có âm cuối. VD: ưa\n", .{});
         return false;
     }
 
-    if (am_giua == .uoo and am_cuoi == ._none) {
+    if (am_giua == .uoz and am_cuoi == ._none) {
         print("!!! VIOLATE: 'uô' sau có âm cuối. VD: muốn\n", .{});
         return false;
     }
@@ -424,44 +424,48 @@ inline fn _amGiua(str: []const u8) AmGiua {
     const c0 = str[0];
     const c1 = if (str.len > 1) str[1] else 0;
     const c2 = if (str.len > 2) str[2] else 0;
-    const c3 = if (str.len > 3) str[3] else 0;
+    // const c3 = if (str.len > 3) str[3] else 0;
 
     return switch (c0) {
-        'u' => switch (c1) { //  u|uw|uwa|uwow|ua|uaa|uee|uy|uyee|uya|uoo
-            'a' => if (c2 == 'a') AmGiua.uaa else .ua, // ua|uaa
-            'e' => if (c2 == 'e') AmGiua.uee else .uee, // ue => uee
-            'w' => if (c2 == 'a') AmGiua.uwa else if (c2 == 'o') // and c3 == 'w'
-                AmGiua.uwow // uwo, uwow => uwow, need to handle uwow len in parser
-            else
-                .uw, // uw|uwow|uwa
+        'u' => switch (c1) { // u|uw|uwa|uwow|ua|uaa|uee|uy|uyee|uya|uoo
+            'a' => if (c2 == 'a') AmGiua.uaz else .ua, // ua|uaa quan,quân
+            // 'e' => if (c2 == 'e') AmGiua.uez else .ue, // ue|uee quen,quên
+            'e' => AmGiua.uez, // ue{e} => uez
+            'w' => switch (c2) {
+                'a' => AmGiua.uaw,
+                'o' => .uow, // uwo{w} => uow, handle uwow len in parser
+                else => .uw, // not uwow|uwa => uw
+            },
             'o' => switch (c2) {
-                'o' => AmGiua.uoo,
-                'w' => .uow,
+                'o' => AmGiua.uoz,
+                'z' => .uoz,
+                'w' => .uow, // tuơm, => tươm, thuở => thủa ??
                 else => .uo, // uoo|uow|uo ('uo' is no-mark)
             },
             'y' => switch (c2) { // uy|uya|uyee
-                'a' => .uya,
-                'e' => if (c3 == 'e') AmGiua.uyee else .uyee, // uye => uyee
+                'a' => AmGiua.uya,
+                'e' => .uyez, // uye{e} => uyez
                 else => .uy,
             },
             else => .u, // u
         },
         'o' => switch (c1) { // o|oo|ooo|ow|oe|oa|oaw
-            'o' => if (c2 == 'o') AmGiua.ooo else .oo, // oo|ooo
+            'o' => .oo, // boong
+            'z' => .oz,
             'w' => .ow,
             'e' => .oe,
             'a' => if (c2 == 'w') AmGiua.oaw else .oa, // oa|oaw
             else => .o,
         },
         'i' => switch (c1) { // i|ia|iee
-            'a' => .ia,
-            'e' => if (c2 == 'e') AmGiua.iee else .iee, // ie => iee
+            'a' => AmGiua.ia,
+            'e' => .iez, // ie{e} => iee
             else => .i,
         },
-        'y' => if (c1 == 'e') AmGiua.yee else .y, // y|ye|yee
-        'e' => if (c1 == 'e') AmGiua.ee else .e, // e|ee
+        'y' => if (c1 == 'e') AmGiua.yez else .y, // y|ye{e}
+        'e' => if (c1 == 'e') AmGiua.ez else .e, // e|ee
         'a' => switch (c1) { // a|aa|aw
-            'a' => AmGiua.aa,
+            'a' => AmGiua.az,
             'w' => .aw,
             else => .a,
         },
@@ -542,10 +546,11 @@ pub export fn testPerformance(n: usize) void {
 }
 
 test "canBeVietnamese() // Auto-repair obvious cases" {
-    try expect(canBeVietnamese("sưòn"));
-    try expect(canBeVietnamese("tuơm")); // do có âm giữa .uow
-    try expect(canBeVietnamese("tiem"));
-    try expect(canBeVietnamese("tiém"));
+    try expect(canBeVietnamese("sưòn")); // sườn
+    try expect(canBeVietnamese("tuơm")); // tươm
+    try expect(canBeVietnamese("tiem")); // tiêm
+    try expect(canBeVietnamese("tiém")); // tiếm
+    try expect(canBeVietnamese("tuyen")); // tuyên
 }
 
 test "canBeVietnamese() // get tone from stream" {
@@ -556,7 +561,7 @@ test "canBeVietnamese() // other encode" {
     var syllable = parseAmTietToGetSyllable(false, printNothing, "mất");
     try expect(syllable.can_be_vietnamese);
     try expect(syllable.am_dau == .m);
-    try expect(syllable.am_giua == .aa);
+    try expect(syllable.am_giua == .az);
     try expect(syllable.am_cuoi == .t);
     try expect(syllable.tone == .s);
 
@@ -628,7 +633,7 @@ test "canBeVietnamese() // Weird cases" {
     // Tiếng đồng bào: Đắk Lắk, Niê, Cơtu
     // Từ mượn: ôtô, căngtin, đôla, Ôliu, côngtơ, bêtông
 
-    try expect(canBeVietnamese("giooocs"));
+    try expect(canBeVietnamese("gioocs"));
 
     // 'gi' and 'd' are the same initial part
     // 'g' and 'd' are different
@@ -645,10 +650,13 @@ test "canBeVietnamese() // No-tone and/or no-mark" {
     try expect(canBeVietnamese("ox") == true);
 }
 
-const syllableToAmTiet = @import("syllable_converters.zig").syllableToAmTiet;
 fn strToAmTiet(str: []const u8) []const u8 {
-    return syllableToAmTiet(parseAmTietToGetSyllable(false, printNothing, str));
+    var buffer: [11]u8 = undefined;
+    const buff = buffer[0..];
+    var syll = parseAmTietToGetSyllable(false, printNothing, str);
+    return syll.printBuff(buff);
 }
+
 fn utf8ToAmTiet(str: []const u8) []const u8 {
     // return syllableToAmTiet(parseAmTietToGetSyllable(true, printNothing, str));
     var buffer: [11]u8 = undefined;
@@ -663,7 +671,6 @@ test "canBeVietnamese() // iee, yee (uyee), ooo, uee" {
     // .yee <= .ye,
     // .uyee <= .uye,
     // .uee <= .ue,
-    // .ooo <= .oo need to process at keyboard input level since we don't know
     // the user is aiming for 'ô' or 'oo' (both need to type double 'o')
     try std.testing.expectEqualStrings(utf8ToAmTiet("toong"), "tooong");
     try std.testing.expectEqualStrings(utf8ToAmTiet("thoọng"), "thooongj");

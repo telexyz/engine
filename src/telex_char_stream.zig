@@ -145,19 +145,6 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         } else {
             // buff.len == 1
             const byte = telex_utils.getCharByte(telex_code);
-
-            if (self.strict_mode) {
-                // Handle `Thoọng`: need to convert `oo` to `ooo` to pass to the parser
-                if (byte == 'o' and self.len > 0 and self.buffer[self.len - 1] == 'o') {
-                    // if (self.hasVowelMark()) {
-                    //     // Handle `oô`, `ôo` are invalid
-                    //     return CharStreamError.InvalidVowels;
-                    // }
-                    self.buffer[self.len] = 'o';
-                    self.len += 1;
-                }
-            }
-
             self.buffer[self.len] = byte;
             self.len += 1;
         }
