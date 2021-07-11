@@ -115,7 +115,7 @@ pub const AmGiua = enum(u5) {
     ia,
     oa,
     oe,
-    oo, // boong
+    ooo, // boong
     uo, // <= 'uoo', 'uow', 'uwow', without mark, 'uo' must followed by z tone
     uy,
     iez, // iê
@@ -157,7 +157,7 @@ pub const AmGiua = enum(u5) {
         if (self.len() == 4 or self.len() == 3) return true;
         if (self.len() == 2) {
             switch (self) {
-                .oa, .oo, .ua, .uo, .uw, .uy => {
+                .oa, .ooo, .ua, .uo, .uw, .uy => {
                     return false;
                 },
                 else => {
@@ -338,7 +338,6 @@ pub const Syllable = packed struct {
             .az => "aa",
             .ez => "ee",
             .oz => "oo",
-            .oo => "ooo",
             .iez => "iee",
             .yez => "yee",
             .uyez => "uyee",
