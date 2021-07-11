@@ -80,7 +80,8 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
             const type_info = gop.value_ptr;
 
             // print("\n| Tkn: {s}, {} | ", .{ token, type_info.category }); //DEBUG
-            if (type_info.category == ._none and token.len <= U2ACharStream.MAX_LEN) { // Not transformed and not too long token
+            if (type_info.category == ._none and token.len <= U2ACharStream.MAX_LEN) {
+                // Not transformed and not too long token
                 char_stream.reset();
                 // Try to convert token to syllable
                 const syllable = parsers.parseTokenToGetSyllable(
@@ -106,7 +107,7 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                 }
 
                 // Write ascii-telex transform
-                type_info.transform = saveAsciiTelexTransform(text, char_stream);
+                type_info.transform = saveAsciiTransform(text, char_stream);
                 token_not_written = false;
             }
 
@@ -153,7 +154,7 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
     }
 }
 
-pub fn saveAsciiTelexTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
+pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     // Convert input's utf-8 to output's ascii-telex
     const bytes_len = &text.transformed_bytes_len;
     const trans_start_at = bytes_len.*;

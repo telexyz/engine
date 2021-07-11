@@ -133,16 +133,17 @@ pub const Utf8ToAsciiTelexCharStream = struct {
 
         const buff = telex_utils.getDoubleBytes(telex_code);
 
-        // Convert uwo{w} => uow
-        if (self.buffer[self.len - 1] == 'w' and buff[0] == 'o') {
-            self.buffer[self.len - 1] = 'o';
-            self.buffer[self.len] = 'w';
-            self.len += 1;
-            return;
-        }
-
         if (buff.len == 2) {
             self.has_mark = true;
+
+            // Convert uwo{w} => uow
+            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and buff[0] == 'o') {
+                self.buffer[self.len - 1] = 'o';
+                self.buffer[self.len] = 'w';
+                self.len += 1;
+                return;
+            }
+
             if (self.len + buff.len > MAX_LEN) {
                 return CharStreamError.OverSize;
             }
@@ -153,8 +154,16 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         } else {
             // buff.len == 1
             const byte = telex_utils.getCharByte(telex_code);
-            self.buffer[self.len] = byte;
-            self.len += 1;
+
+            // Convert uwo{w} => uow
+            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and byte == 'o') {
+                self.buffer[self.len - 1] = 'o';
+                self.buffer[self.len] = 'w';
+                self.len += 1;
+            } else {
+                self.buffer[self.len] = byte;
+                self.len += 1;
+            }
         }
     }
 

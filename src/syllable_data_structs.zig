@@ -361,6 +361,207 @@ pub const Syllable = packed struct {
         return buff[0..n];
     }
 
+    pub fn printBuffUtf8(self: *Syllable, buff: []u8) []const u8 {
+        const blank = "";
+        const dau = switch (self.am_dau) {
+            ._none => blank,
+            .dd => "đ",
+            else => @tagName(self.am_dau),
+        };
+        const giua = switch (self.tone) {
+            ._none => switch (self.am_giua) {
+                ._none => blank,
+                .oaw => "oă",
+                .aw => "ă",
+                .uw => "ư",
+                .ow => "ơ",
+                .uoz => "uô",
+                .uaz => "uâ",
+                .uaw => "ưa",
+                .uez => "uê",
+                .az => "â",
+                .ez => "ê",
+                .oz => "ô",
+                .iez => "iê",
+                .yez => "yê",
+                .uyez => "uyê",
+                .uow => "ươ",
+                .ooo => "oo",
+                else => @tagName(self.am_giua),
+            },
+            .s => switch (self.am_giua) {
+                ._none => blank,
+                .oaw => "oắ",
+                .aw => "ắ",
+                .uw => "ứ",
+                .ow => "ớ",
+                .uoz => "uố",
+                .uaz => "uấ",
+                .uaw => "ứa",
+                .uez => "uế",
+                .az => "ấ",
+                .ez => "ế",
+                .oz => "ố",
+                .iez => "iế",
+                .yez => "yế",
+                .uyez => "uyế",
+                .uow => "ướ",
+                .a => "á",
+                .e => "é",
+                .i => "í",
+                .u => "ú",
+                .y => "ý",
+                .o => "ó",
+                .ua => "úa",
+                .ia => "ía",
+                .oa => "oá",
+                .oe => "oé",
+                .ooo => "oó",
+                .uy => "uý",
+                else => @tagName(self.am_giua),
+            },
+            .f => switch (self.am_giua) {
+                ._none => blank,
+                .oaw => "oằ",
+                .aw => "ằ",
+                .uw => "ừ",
+                .ow => "ờ",
+                .uoz => "uồ",
+                .uaz => "uầ",
+                .uaw => "ừa",
+                .uez => "uề",
+                .az => "ầ",
+                .ez => "ề",
+                .oz => "ồ",
+                .iez => "iề",
+                .yez => "yề",
+                .uyez => "uyề",
+                .uow => "ườ",
+                .a => "à",
+                .e => "è",
+                .i => "ì",
+                .u => "ù",
+                .y => "ỳ",
+                .o => "ò",
+                .ua => "ùa",
+                .ia => "ìa",
+                .oa => "oà",
+                .oe => "oè",
+                .ooo => "oò",
+                .uy => "uỳ",
+                else => @tagName(self.am_giua),
+            },
+            .r => switch (self.am_giua) {
+                ._none => blank,
+                .oaw => "oẳ",
+                .aw => "ẳ",
+                .uw => "ử",
+                .ow => "ở",
+                .uoz => "uổ",
+                .uaz => "uẩ",
+                .uaw => "ửa",
+                .uez => "uể",
+                .az => "ẩ",
+                .ez => "ể",
+                .oz => "ổ",
+                .iez => "iể",
+                .yez => "yể",
+                .uyez => "uyể",
+                .uow => "ưở",
+                .a => "ả",
+                .e => "ẻ",
+                .i => "ỉ",
+                .u => "ủ",
+                .y => "ỷ",
+                .o => "ỏ",
+                .ua => "ủa",
+                .ia => "ỉa",
+                .oa => "oả",
+                .oe => "oẻ",
+                .ooo => "oỏ",
+                .uy => "uỷ",
+                else => @tagName(self.am_giua),
+            },
+            .x => switch (self.am_giua) {
+                ._none => blank,
+                .oaw => "oẵ",
+                .aw => "ẵ",
+                .uw => "ữ",
+                .ow => "ỡ",
+                .uoz => "uỗ",
+                .uaz => "uẫ",
+                .uaw => "ữa",
+                .uez => "uễ",
+                .az => "ẫ",
+                .ez => "ễ",
+                .oz => "ỗ",
+                .iez => "iễ",
+                .yez => "yễ",
+                .uyez => "uyễ",
+                .uow => "ưỡ",
+                .a => "ã",
+                .e => "ẽ",
+                .i => "ĩ",
+                .u => "ũ",
+                .y => "ỹ",
+                .o => "õ",
+                .ua => "ũa",
+                .ia => "ĩa",
+                .oa => "oã",
+                .oe => "oẽ",
+                .ooo => "oõ",
+                .uy => "uỹ",
+                else => @tagName(self.am_giua),
+            },
+            .j => switch (self.am_giua) {
+                ._none => blank,
+                .oaw => "oặ",
+                .aw => "ặ",
+                .uw => "ự",
+                .ow => "ợ",
+                .uoz => "uộ",
+                .uaz => "uậ",
+                .uaw => "ựa",
+                .uez => "uệ",
+                .az => "ậ",
+                .ez => "ệ",
+                .oz => "ộ",
+                .iez => "iệ",
+                .yez => "yệ",
+                .uyez => "uyệ",
+                .uow => "ượ",
+                .a => "ạ",
+                .e => "ẹ",
+                .i => "ị",
+                .u => "ụ",
+                .y => "ỵ",
+                .o => "ọ",
+                .ua => "ụa",
+                .ia => "ịa",
+                .oa => "oạ",
+                .oe => "oẹ",
+                .ooo => "oọ",
+                .uy => "uỵ",
+                else => @tagName(self.am_giua),
+            },
+        };
+
+        const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
+
+        std.debug.assert(buff.len >= dau.len + giua.len + cuoi.len);
+
+        var n: usize = 0;
+        const parts: [3][]const u8 = .{ dau, giua, cuoi };
+
+        for (parts) |s| {
+            for (s) |b| {
+                buff[n] = b;
+                n += 1;
+            }
+        }
+        return buff[0..n];
+    }
+
     pub fn len(self: Syllable) u8 {
         return self.am_dau.len() + self.am_giua.len() + self.am_cuoi.len() + self.tone.len();
     }
@@ -381,20 +582,24 @@ test "Syllable's printBuff" {
         .can_be_vietnamese = true,
     };
 
-    var buffer: [11]u8 = undefined;
+    var buffer: [15]u8 = undefined;
     const buff = buffer[0..];
 
     try std.testing.expectEqualStrings(syll.printBuff(buff), "nguwas");
+    try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngứa");
 
     syll.am_giua = .o;
     try std.testing.expectEqualStrings(syll.printBuff(buff), "ngos");
+    try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngó");
 
     syll.am_giua = .iez;
     syll.am_cuoi = .n;
     try std.testing.expectEqualStrings(syll.printBuff(buff), "ngieens");
+    try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngiến");
 
     syll.am_giua = .oz;
     syll.am_cuoi = .n;
     syll.tone = ._none;
     try std.testing.expectEqualStrings(syll.printBuff(buff), "ngoon");
+    try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngôn");
 }
