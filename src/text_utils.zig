@@ -196,7 +196,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
 
     var i: usize = 0;
     while (i < char_stream.len) {
-        text.transformed_bytes[bytes_len.*] = char_stream.buffer[i] | 0b00100000; //lower
+        text.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
         i += 1;
         bytes_len.* += 1;
     }

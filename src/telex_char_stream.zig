@@ -63,25 +63,6 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     pub fn hasMarkOrTone(self: Utf8ToAsciiTelexCharStream) bool {
         return self.has_mark or self.tone != 0;
     }
-    pub fn toStr(self: *Utf8ToAsciiTelexCharStream) []const u8 {
-        // Add tone char at the end if needed
-        var n = self.len;
-        if (self.tone != 0) {
-            self.buffer[n] = self.tone;
-            n += 1;
-        }
-
-        if (self.isCapitalized()) {
-            var i: usize = 0;
-            while (i < n) : (i += 1) {
-                self.buffer[i] &= 0b11011111;
-            }
-        } else if (self.first_char_is_upper) { // self.isTitlied()
-            self.buffer[0] &= 0b11011111;
-        }
-
-        return self.buffer[0..n];
-    }
 
     pub fn isCapitalized(self: Utf8ToAsciiTelexCharStream) bool {
         return self.lower_chars_count == 0;
@@ -269,10 +250,10 @@ test "unrollTone" {
     var char_stream = U2ACharStream.new();
     try char_stream.push('á');
     try expect(char_stream.tone == 's');
-    try testing.expectEqualStrings(char_stream.toStr(), "as");
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "a");
 
     try char_stream.push('A');
-    try testing.expectEqualStrings(char_stream.toStr(), "aas");
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "aa");
     try expect(!char_stream.isTitlied());
     try expect(!char_stream.isCapitalized());
     try expect(!char_stream.has_mark);
@@ -301,6 +282,15 @@ test "ưo, uơ, ươ => ươ" {
     try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uow");
 }
 
+test "TAQ => taq" {
+    var char_stream = U2ACharStream.new();
+    char_stream.strict_mode = true;
+    try char_stream.push('T');
+    try char_stream.push('A');
+    try char_stream.push('Q');
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "taq");
+}
+
 test "strict_mode" {
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
@@ -312,6 +302,7 @@ test "strict_mode" {
     try testing.expect(char_stream.upper_chars_count == 1);
     char_stream.push('D') catch |err|
         try testing.expect(err == CharStreamError.UpperCharButNeitherCapitalizedNorTitlized);
+    try testing.expect(char_stream.buffer[char_stream.len - 1] == 'd');
     //
     char_stream.reset();
     try char_stream.push('E');

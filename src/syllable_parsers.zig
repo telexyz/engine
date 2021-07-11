@@ -126,7 +126,7 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
         'x' => syllable.tone = .x,
         'j' => syllable.tone = .j,
         else => {
-            print("!!! VIOLATE: \"{s}\" is not toneable\n", .{stream.toStr()});
+            print("!!! VIOLATE: \"{s}{c}\" is not toneable\n", .{ stream.buffer[0..stream.len], stream.tone });
             syllable.can_be_vietnamese = false;
             return;
         },
