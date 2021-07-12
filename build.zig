@@ -16,9 +16,9 @@ pub fn build(b: *std.build.Builder) void {
     exe.setBuildMode(mode);
     exe.install();
 
-    exe.addSystemIncludeDir("/usr/local/include");
+    // exe.addSystemIncludeDir("/usr/local/include");
     // exe.addSystemLibPath("/usr/local/lib");
-    exe.linkSystemLibrary("libmarisa");
+    // exe.linkSystemLibrary("libmarisa");
 
     const run_cmd = exe.run();
     run_cmd.step.dependOn(b.getInstallStep());
