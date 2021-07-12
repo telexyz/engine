@@ -155,17 +155,6 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
 
 pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     const trans_start_at = text.transformed_bytes_len;
-    // Nước => ^|nuoc|ws, VIỆT => ^^viet|zj, đầy => day|dzf
-    if (char_stream.first_char_is_upper) {
-        //
-        text.transformed_bytes[text.transformed_bytes_len] = '^';
-        text.transformed_bytes_len += 1;
-
-        text.transformed_bytes[text.transformed_bytes_len] =
-            if (char_stream.isCapitalized()) '^' else '|';
-        text.transformed_bytes_len += 1;
-    }
-
     const am_dau_is_zd = (char_stream.buffer[0] == 'z');
     var byte: u8 = 0;
     var mark: u8 = 0;
@@ -185,21 +174,31 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         text.transformed_bytes_len += 1;
     }
 
-    if (am_dau_is_zd or mark != 0 or char_stream.tone != 0) {
-        //
+    if (char_stream.first_char_is_upper or am_dau_is_zd or
+        mark != 0 or char_stream.tone != 0)
+    {
         text.transformed_bytes[text.transformed_bytes_len] = '|';
         text.transformed_bytes_len += 1;
     }
+    // Nước => nuoc|, VIỆT => viet|, đầy => day|d
     if (am_dau_is_zd) {
         text.transformed_bytes[text.transformed_bytes_len] = 'd';
         text.transformed_bytes_len += 1;
     }
+    // Nước => nuoc|w, VIỆT => viet|z, đầy => day|dz
     if (mark != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
         text.transformed_bytes_len += 1;
     }
+    // Nước => nuoc|ws, VIỆT => viet|zj, đầy => day|dzf
     if (char_stream.tone != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = char_stream.tone;
+        text.transformed_bytes_len += 1;
+    }
+    // Nước => nuoc|ws^, VIỆT => viet|zj#, đầy => day|dzf
+    if (char_stream.first_char_is_upper) {
+        text.transformed_bytes[text.transformed_bytes_len] =
+            if (char_stream.isCapitalized()) '#' else '^';
         text.transformed_bytes_len += 1;
     }
     return text.transformed_bytes[trans_start_at..text.transformed_bytes_len];
