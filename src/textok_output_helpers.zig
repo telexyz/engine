@@ -50,9 +50,9 @@ pub const TextokOutputHelpers = struct {
         var it = types.iterator();
         // Init 4 writers
         const fm_wrt = std.io.bufferedWriter(freqs_mktn_file.writer()).writer();
-        const fn_wrt = std.io.bufferedWriter(freqs_0m0t_file.writer()).writer();
+        const f0_wrt = std.io.bufferedWriter(freqs_0m0t_file.writer()).writer();
         const tm_wrt = std.io.bufferedWriter(types_mktn_file.writer()).writer();
-        const tn_wrt = std.io.bufferedWriter(types_0m0t_file.writer()).writer();
+        const t0_wrt = std.io.bufferedWriter(types_0m0t_file.writer()).writer();
 
         // Init
         var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
@@ -78,11 +78,11 @@ pub const TextokOutputHelpers = struct {
                 _ = try tm_wrt.write(if (@rem(n1, TOKENS_PER_LINE) == 0) "\n" else PAD);
             } else {
                 // write freq and token pair to file
-                _ = try fn_wrt.print("{d} {s}\n", .{ token.count, token.value });
+                _ = try f0_wrt.print("{d} {s}\n", .{ token.count, token.value });
                 // write token to file
                 n2 += 1;
-                _ = try tn_wrt.write(token.value);
-                _ = try tn_wrt.write(if (@rem(n2, TOKENS_PER_LINE) == 0) "\n" else PAD);
+                _ = try t0_wrt.write(token.value);
+                _ = try t0_wrt.write(if (@rem(n2, TOKENS_PER_LINE) == 0) "\n" else PAD);
             }
         }
     }
