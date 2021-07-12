@@ -4,4 +4,6 @@ rm data/0*.txt
 rm data/1*.txt
 
 ~/zig build -Drelease-fast=true
-./zig-out/bin/telexify data/news_titles.txt data/news_titles_tknz.txt ON
+# ./zig-out/bin/telexify data/news_titles.txt data/news_titles_tknz.txt
+./zig-out/bin/telexify ../corpus/vietai_sat.txt data/vietai_sat_tknz.txt
+
