@@ -94,6 +94,29 @@ test "Enum AmDau" {
 /// Trong Tiếng Việt, nguyên âm nào cũng có thể làm âm chính của tiếng.
 /// - Các nguyên âm đơn: (11 nguyên âm ghi ở trên)
 /// - Các nguyên âm đôi : Có 3 nguyên âm đôi và được tách thành 8 nguyên âm sau:
+
+// pub const AmGiua0 = enum(u5) {
+//     // 19 no-mark vowels
+//     a,
+//     e,
+//     i,
+//     o,
+//     u,
+//     y,
+//     ua, // ua, uâ, ưa
+//     ia,
+//     oa, // oa, oă
+//     oe,
+//     oo, // boong
+//     uo, // <= uoz, uow, uwow
+//     uy,
+//     ie, // iê
+//     ue, // uê
+//     ye, // yê
+//     uya,
+//     uye, // uyê
+// };
+
 pub const AmGiua = enum(u5) {
     _none,
     a,
