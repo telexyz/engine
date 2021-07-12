@@ -47,24 +47,24 @@ fn write_out_samples() !void {
 }
 
 fn write_out_types() !void {
-    try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
+    try TextokOutputHelpers.write_mktn_vs_0m0t_types_to_files(
         text.syllable_types,
-        "data/01-syllmark_freqs.txt",
-        "data/02-syllable_freqs.txt",
-        "data/11-syllmark_types.txt",
-        "data/12-syllable_types.txt",
+        "data/01-syllmktn_freqs.txt",
+        "data/02-syll0m0t_freqs.txt",
+        "data/11-syllmktn_types.txt",
+        "data/12-syll0m0t_types.txt",
     );
     try TextokOutputHelpers.write_types_to_files(
         text.syllow00_types,
         "data/03-syllow00_freqs.txt",
         "data/13-syllow00_types.txt",
     );
-    try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
+    try TextokOutputHelpers.write_mktn_vs_0m0t_types_to_files(
         text.alphabet_types,
-        "data/04-alphmark_freqs.txt",
-        "data/05-alphabet_freqs.txt",
-        "data/14-alphmark_types.txt",
-        "data/15-alphabet_types.txt",
+        "data/04-alphmktn_freqs.txt",
+        "data/05-alph0m0t_freqs.txt",
+        "data/14-alphmktn_types.txt",
+        "data/15-alph0m0t_types.txt",
     );
     try TextokOutputHelpers.write_types_to_files(
         text.nonalpha_types,

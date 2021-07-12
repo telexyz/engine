@@ -26,6 +26,7 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 const PAD = "                 ";
 const WAIT_NANOSECS: u64 = 100_000_000; // nanoseconds
 
+// Todo: convert &#xA9; to utf8 https://mothereff.in/html-entities
 pub fn telexifyAlphabetTokens(text: *Text) void {
     @setRuntimeSafety(false);
     var char_stream = U2ACharStream.new();

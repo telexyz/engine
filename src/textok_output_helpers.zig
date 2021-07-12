@@ -28,31 +28,31 @@ pub const TextokOutputHelpers = struct {
         }
     }
 
-    pub fn write_mark_vs_norm_types_to_files(
+    pub fn write_mktn_vs_0m0t_types_to_files(
         types: std.StringHashMap(Text.TypeInfo),
-        freqs_mark_filename: []const u8,
-        freqs_norm_filename: []const u8,
-        types_mark_filename: []const u8,
-        types_norm_filename: []const u8,
+        freqs_mktn_filename: []const u8,
+        freqs_0m0t_filename: []const u8,
+        types_mktn_filename: []const u8,
+        types_0m0t_filename: []const u8,
     ) !void {
-        var freqs_mark_file = try std.fs.cwd().createFile(freqs_mark_filename, .{});
-        var freqs_norm_file = try std.fs.cwd().createFile(freqs_norm_filename, .{});
-        var types_mark_file = try std.fs.cwd().createFile(types_mark_filename, .{});
-        var types_norm_file = try std.fs.cwd().createFile(types_norm_filename, .{});
-        defer freqs_mark_file.close();
-        defer freqs_norm_file.close();
-        defer types_mark_file.close();
-        defer types_norm_file.close();
+        var freqs_mktn_file = try std.fs.cwd().createFile(freqs_mktn_filename, .{});
+        var freqs_0m0t_file = try std.fs.cwd().createFile(freqs_0m0t_filename, .{});
+        var types_mktn_file = try std.fs.cwd().createFile(types_mktn_filename, .{});
+        var types_0m0t_file = try std.fs.cwd().createFile(types_0m0t_filename, .{});
+        defer freqs_mktn_file.close();
+        defer freqs_0m0t_file.close();
+        defer types_mktn_file.close();
+        defer types_0m0t_file.close();
 
         // Init 2 counters and the main iterator
         var n1: u32 = 0;
         var n2: u32 = 0;
         var it = types.iterator();
         // Init 4 writers
-        const fm_wrt = std.io.bufferedWriter(freqs_mark_file.writer()).writer();
-        const fn_wrt = std.io.bufferedWriter(freqs_norm_file.writer()).writer();
-        const tm_wrt = std.io.bufferedWriter(types_mark_file.writer()).writer();
-        const tn_wrt = std.io.bufferedWriter(types_norm_file.writer()).writer();
+        const fm_wrt = std.io.bufferedWriter(freqs_mktn_file.writer()).writer();
+        const fn_wrt = std.io.bufferedWriter(freqs_0m0t_file.writer()).writer();
+        const tm_wrt = std.io.bufferedWriter(types_mktn_file.writer()).writer();
+        const tn_wrt = std.io.bufferedWriter(types_0m0t_file.writer()).writer();
 
         // Init
         var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
