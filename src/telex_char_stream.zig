@@ -9,7 +9,6 @@ pub const CharStreamError = error{
     MarkIsNotFromUtf8,
     TooBigToBeSyllable,
     MarkCharNotFollowAMarkableVowel,
-    UpperCharButNeitherCapitalizedNorTitlized,
 };
 
 pub const Utf8ToAsciiTelexCharStream = struct {
@@ -84,23 +83,11 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         }
 
         if (telex_utils.isUpper(telex_code)) {
-            // if (self.strict_mode) {
-            //     // Reject mixed upper vs lower case syllable,
-            //     // keep only titelized or capitalized sylls
-            //     if (!self.isCapitalized())
-            //         return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
-            // }
             if (self.len == 0) self.first_char_is_upper = true;
             self.upper_chars_count += 1;
             //
         } else {
             self.lower_chars_count += 1;
-            // if (self.strict_mode) {
-            //     // handle lower char in trict mode
-            //     if (!(self.upper_chars_count == 0 or
-            //         (self.upper_chars_count == 1 and self.isTitlied())))
-            //         return CharStreamError.UpperCharButNeitherCapitalizedNorTitlized;
-            // }
         }
 
         const tone = telex_utils.getToneByte(telex_code);
@@ -108,7 +95,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             if (self.tone == 0) {
                 self.tone = tone;
             } else {
-                // return CharStreamError.MoreThanOneTone;
+                return CharStreamError.MoreThanOneTone;
             }
         }
 
@@ -329,8 +316,7 @@ test "strict_mode" {
     try testing.expect(char_stream.upper_chars_count == 1);
     try char_stream.push('e');
     try testing.expect(char_stream.upper_chars_count == 1);
-    char_stream.push('D') catch |err|
-        try testing.expect(err == CharStreamError.UpperCharButNeitherCapitalizedNorTitlized);
+    try char_stream.push('D');
     try testing.expect(char_stream.buffer[char_stream.len - 1] == 'd');
     //
     char_stream.reset();
@@ -344,15 +330,11 @@ test "strict_mode" {
     try testing.expect(char_stream.upper_chars_count == 3);
     try char_stream.push('Ă');
     try testing.expect(char_stream.upper_chars_count == 4);
-    char_stream.push('d') catch |err|
-        try testing.expect(err == CharStreamError.UpperCharButNeitherCapitalizedNorTitlized);
-    //
+    try char_stream.push('d');
     //
     char_stream.reset();
     try char_stream.push('ẽ');
-    char_stream.push('D') catch |err|
-        try testing.expect(err == CharStreamError.UpperCharButNeitherCapitalizedNorTitlized);
-    //
+    try char_stream.push('D');
     char_stream.reset();
     try char_stream.push('ô');
     char_stream.push('o') catch |err|

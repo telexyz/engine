@@ -44,9 +44,6 @@ pub const TextokOutputHelpers = struct {
         defer types_mark_file.close();
         defer types_norm_file.close();
 
-        var buffer: [Text.MAX_TOKEN_LEN + MAX_FREQ_LEN + 1]u8 = undefined;
-        const buff_slice = buffer[0..];
-
         // Init 2 counters and the main iterator
         var n1: u32 = 0;
         var n2: u32 = 0;
@@ -72,18 +69,16 @@ pub const TextokOutputHelpers = struct {
         std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
 
         for (tokens_list.items) |token| {
-            const freq_token = try std.fmt.bufPrint(buff_slice, "{d} {s}\n", .{ token.count, token.value });
-
             if (token.have_marktone) {
                 // write freq and token pair to file
-                _ = try fm_wrt.write(freq_token);
+                _ = try fm_wrt.print("{d} {s}\n", .{ token.count, token.value });
                 // write token to file
                 n1 += 1;
                 _ = try tm_wrt.write(token.value);
                 _ = try tm_wrt.write(if (@rem(n1, TOKENS_PER_LINE) == 0) "\n" else PAD);
             } else {
                 // write freq and token pair to file
-                _ = try fn_wrt.write(freq_token);
+                _ = try fn_wrt.print("{d} {s}\n", .{ token.count, token.value });
                 // write token to file
                 n2 += 1;
                 _ = try tn_wrt.write(token.value);
@@ -104,14 +99,11 @@ pub const TextokOutputHelpers = struct {
         const freqs_wrt = std.io.bufferedWriter(freqs_file.writer()).writer();
         const types_wrt = std.io.bufferedWriter(types_file.writer()).writer();
 
-        var buffer: [Text.MAX_TOKEN_LEN + MAX_FREQ_LEN + 1]u8 = undefined;
-        const slice = buffer[0..];
-
-        var it = types.iterator();
         // Init
         var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
         defer tokens_list.deinit();
         // Add items
+        var it = types.iterator();
         while (it.next()) |kv| {
             try tokens_list.append(.{
                 .value = kv.key_ptr.*,
@@ -127,9 +119,7 @@ pub const TextokOutputHelpers = struct {
 
         for (tokens_list.items) |token, i| {
             // write freq and token pair to file
-            const tmp = try std.fmt.bufPrint(slice, "{d} {s}\n", .{ token.count, token.value });
-            _ = try freqs_wrt.write(tmp);
-
+            _ = try freqs_wrt.print("{d} {s}\n", .{ token.count, token.value });
             // write token to file
             _ = try types_wrt.write(token.value);
             _ = try types_wrt.write(if (@rem(i + 1, TOKENS_PER_LINE) == 0) "\n" else PAD);

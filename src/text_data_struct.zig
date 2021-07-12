@@ -59,11 +59,11 @@ pub const Text = struct {
 
     // Use data of transformed_bytes, pointed by transforms[i]
     syllable_types: std.StringHashMap(TypeInfo) = undefined, //   syllable.toLower - tone
-    syl0tone_types: std.StringHashMap(TypeInfo) = undefined, // = syl0tone
-    // Data buffer for syl0tone_types
-    syl0tone_bytes: []u8 = undefined,
-    syl0tone_bytes_size: usize = undefined,
-    syl0tone_bytes_len: usize = 0,
+    syll0m0t_types: std.StringHashMap(TypeInfo) = undefined, // = syll0m0t
+    // Data buffer for syll0m0t_types
+    syll0m0t_bytes: []u8 = undefined,
+    syll0m0t_bytes_size: usize = undefined,
+    syll0m0t_bytes_len: usize = 0,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
@@ -195,14 +195,14 @@ pub const Text = struct {
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllower...
-        self.syl0tone_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syl0tone_bytes_size = TEXT_DICT_FILE_SIZE;
-        self.syl0tone_bytes = try self.allocator.alloc(u8, self.syl0tone_bytes_size);
+        self.syll0m0t_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.syll0m0t_bytes_size = TEXT_DICT_FILE_SIZE;
+        self.syll0m0t_bytes = try self.allocator.alloc(u8, self.syll0m0t_bytes_size);
 
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
         self.transformed_bytes_len = 0;
-        self.syl0tone_bytes_len = 0;
+        self.syll0m0t_bytes_len = 0;
     }
     pub fn deinit(self: *Text) void {
         // Since we use ArenaAllocator, simply deinit arena itself to
@@ -219,7 +219,7 @@ pub const Text = struct {
         // Reject too long tokens
         if (token.len <= MAX_TOKEN_LEN) {
             // Count nonalpha token only
-            // alphatoken will be counted in syllabling phase
+            // alphatoken will be counted in parsing phase
             if (attrs.category == .nonalpha) {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
@@ -241,29 +241,31 @@ pub const Text = struct {
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
-                try self.countSyllableAndSyl0tone(kv.value_ptr.transform, kv.value_ptr);
+                try self.countSyllableAndsyll0m0t(kv.value_ptr.transform, kv.value_ptr);
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
     }
 
-    fn countSyllableAndSyl0tone(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
+    fn countSyllableAndsyll0m0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
         // Record and count syllable
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
 
-        var next = self.syl0tone_bytes_len;
-        // Convert syllable to syl0tone
-        for (syllable) |c| {
-            if (c == ' ') break; // don't copy tone (tiến) tiezn |s => tiezn
-            self.syl0tone_bytes[next] = c; // | 0b00100000; // lower
+        var next = self.syll0m0t_bytes_len;
+        // Convert syllable to syll0m0t
+
+        const slice = if (syllable[0] == '^') syllable[2..] else syllable;
+        for (slice) |byte| {
+            if (byte == '|') break; // don't copy marktone (tiến) tien|zs => tien
+            self.syll0m0t_bytes[next] = byte; // | 0b00100000; // lower
             next += 1;
         }
 
-        const syl0tone = self.syl0tone_bytes[self.syl0tone_bytes_len..next];
-        self.syl0tone_bytes_len = next;
+        const syll0m0t = self.syll0m0t_bytes[self.syll0m0t_bytes_len..next];
+        self.syll0m0t_bytes_len = next;
 
-        const gop2 = try self.syl0tone_types.getOrPutValue(syl0tone, TypeInfo{ .category = type_info.category });
+        const gop2 = try self.syll0m0t_types.getOrPutValue(syll0m0t, TypeInfo{ .category = type_info.category });
         gop2.value_ptr.count += type_info.count;
     }
 };
@@ -316,9 +318,9 @@ test "Text" {
     //  1s 2s  3s  1a 4s  5s     6s  1a 1s 2s  2a 3a
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
     // std.debug.print("\n{}\n", .{text.syllable_types});
-    try std.testing.expect(text.syllable_types.count() == 6); // Cả => cả
-    try std.testing.expect(text.syllable_types.get("nha |f").?.count == 2);
-    try std.testing.expect(text.syl0tone_types.count() == 6); // Cả => cả
-    try std.testing.expect(text.syl0tone_types.get("ca").?.count == 2);
+    try std.testing.expect(text.syllable_types.count() == 7); // Cả != cả
+    try std.testing.expect(text.syllable_types.get("nha|f").?.count == 2);
+    try std.testing.expect(text.syll0m0t_types.count() == 6); // Cả => cả
+    try std.testing.expect(text.syll0m0t_types.get("ca").?.count == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }

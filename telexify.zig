@@ -55,9 +55,9 @@ fn write_out_types() !void {
         "data/12-syllable_types.txt",
     );
     try TextokOutputHelpers.write_types_to_files(
-        text.syl0tone_types,
-        "data/03-syl0tone_freqs.txt",
-        "data/13-syl0tone_types.txt",
+        text.syll0m0t_types,
+        "data/03-syll0m0t_freqs.txt",
+        "data/13-syll0m0t_types.txt",
     );
     try TextokOutputHelpers.write_mark_vs_norm_types_to_files(
         text.alphabet_types,
@@ -134,7 +134,7 @@ pub fn main() anyerror!void {
         text.tokens_number_finalized = true;
         text_utils.telexifyAlphabetTokens(&text);
     }
-    const step2_time = showMeTimeLap(step0_time, "Step-2: Token syllabling finish!");
+    const step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
 
     print("\nWriting types to file ...\n", .{});
     try write_out_types();

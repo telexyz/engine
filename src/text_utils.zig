@@ -100,20 +100,19 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
                         .alphabet => .syllable,
                         else => unreachable,
                     };
+                    // Write ascii-telex transform
+                    type_info.transform = saveAsciiTransform(text, char_stream);
+                    token_not_written = false;
+                    // print("char_stream: {s} => {s}\n", .{ token, type_info.transform }); //DEBUG
                 } else {
                     // For non-syllable, attrs.category can only be
                     // .alphabet or .alphmark
                     type_info.category = attrs.category;
                 }
-
-                // Write ascii-telex transform
-                type_info.transform = saveAsciiTransform(text, char_stream);
-                token_not_written = false;
-                // print("char_stream: {s} => {s}\n", .{ token, type_info.transform }); //DEBUG
             }
 
-            // if (type_info.isSyllable()) {
-            if (type_info.category != ._none) { // transformed
+            if (type_info.isSyllable()) {
+                // if (type_info.category != ._none) {
                 // Update token category according to it's type category
                 attrs.category = type_info.category;
                 // Point token value to it's transform to write to output stream
@@ -128,7 +127,6 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
             }
         }
 
-        // Write attrs at the begin of token's ouput stream
         if (text.telexified_all_tokens)
             text.transformed_bytes[firt_byte_index] = 32; // space
         // text.transformed_bytes[firt_byte_index] = attrs.toByte();
@@ -151,63 +149,58 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
     if (percent > prev_percent.*) {
         prev_percent.* = percent;
         if (@rem(percent, 5) == 0)
-            std.debug.print("{s}{d}% Syllabling\n", .{ PAD, percent });
+            std.debug.print("{s}{d}% Parsing\n", .{ PAD, percent });
     }
 }
 
 pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
-    // Convert input's utf-8 to output's ascii-telex
-    const bytes_len = &text.transformed_bytes_len;
-    const trans_start_at = bytes_len.*;
+    const trans_start_at = text.transformed_bytes_len;
+    // Nước => ^|nuoc|ws, VIỆT => ^^viet|zj, đầy => day|dzf
+    if (char_stream.first_char_is_upper) {
+        //
+        text.transformed_bytes[text.transformed_bytes_len] = '^';
+        text.transformed_bytes_len += 1;
 
-    // if (false char_stream.isCapitalized()) {
-    //     var i: usize = 0;
-    //     while (i < char_stream.len) : (i += 1) {
-    //         // Upper case the whole input bytes
-    //         text.transformed_bytes[bytes_len.*] =
-    //             char_stream.buffer[i] & 0b11011111;
-    //         bytes_len.* += 1;
-    //     }
-    //     if (char_stream.tone != 0) {
-    //         text.transformed_bytes[bytes_len.*] =
-    //             char_stream.tone & 0b11011111;
-    //         bytes_len.* += 1;
-    //     }
-    // } else {
-    //     var i: usize = 0;
-    //     // Upper case the first letter
-    //     if (char_stream.isTitlied()) {
-    //         text.transformed_bytes[bytes_len.*] =
-    //             char_stream.buffer[0] & 0b11011111;
-    //         bytes_len.* += 1;
-    //         i = 1; // skip the first byte
-    //     }
-    //     // Copy the rest
-    //     while (i < char_stream.len) {
-    //         text.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
-    //         i += 1;
-    //         bytes_len.* += 1;
-    //     }
-    //     if (char_stream.tone != 0) {
-    //         text.transformed_bytes[bytes_len.*] = char_stream.tone;
-    //         bytes_len.* += 1;
-    //     }
-    // }
+        text.transformed_bytes[text.transformed_bytes_len] =
+            if (char_stream.isCapitalized()) '^' else '|';
+        text.transformed_bytes_len += 1;
+    }
+
+    const am_dau_is_zd = (char_stream.buffer[0] == 'z');
+    var byte: u8 = 0;
+    var mark: u8 = 0;
 
     var i: usize = 0;
-    while (i < char_stream.len) {
-        text.transformed_bytes[bytes_len.*] = char_stream.buffer[i];
-        i += 1;
-        bytes_len.* += 1;
+    if (am_dau_is_zd) i += 1;
+    while (i < char_stream.len) : (i += 1) {
+        byte = char_stream.buffer[i];
+        if (byte == 'w' or byte == 'z') {
+            if (mark != 0 and mark != byte) {
+                std.debug.print("DUPMARK: {s}\n", .{char_stream.buffer[0..char_stream.len]}); //DEBUG
+            }
+            mark = byte;
+            continue;
+        }
+        text.transformed_bytes[text.transformed_bytes_len] = byte;
+        text.transformed_bytes_len += 1;
+    }
+
+    if (am_dau_is_zd or mark != 0 or char_stream.tone != 0) {
+        //
+        text.transformed_bytes[text.transformed_bytes_len] = '|';
+        text.transformed_bytes_len += 1;
+    }
+    if (am_dau_is_zd) {
+        text.transformed_bytes[text.transformed_bytes_len] = 'd';
+        text.transformed_bytes_len += 1;
+    }
+    if (mark != 0) {
+        text.transformed_bytes[text.transformed_bytes_len] = mark;
+        text.transformed_bytes_len += 1;
     }
     if (char_stream.tone != 0) {
-        text.transformed_bytes[bytes_len.*] = ' ';
-        bytes_len.* += 1;
-        text.transformed_bytes[bytes_len.*] = '|';
-        bytes_len.* += 1;
-        text.transformed_bytes[bytes_len.*] = char_stream.tone;
-        bytes_len.* += 1;
+        text.transformed_bytes[text.transformed_bytes_len] = char_stream.tone;
+        text.transformed_bytes_len += 1;
     }
-    // END Convert input's utf-8 to output's ascii-telex
-    return text.transformed_bytes[trans_start_at..bytes_len.*];
+    return text.transformed_bytes[trans_start_at..text.transformed_bytes_len];
 }
