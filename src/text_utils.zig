@@ -200,7 +200,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     if (char_stream.first_char_is_upper) {
         text.transformed_bytes[text.transformed_bytes_len] = '^';
         text.transformed_bytes_len += 1;
-        if (char_stream.isCapitalized()) {
+        if (char_stream.isUpper()) {
             text.transformed_bytes[text.transformed_bytes_len] = '^';
             text.transformed_bytes_len += 1;
         }

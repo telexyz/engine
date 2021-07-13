@@ -63,11 +63,11 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         return self.has_mark or self.tone != 0;
     }
 
-    pub fn isCapitalized(self: Utf8ToAsciiTelexCharStream) bool {
+    pub fn isUpper(self: Utf8ToAsciiTelexCharStream) bool {
         return self.lower_chars_count == 0;
     }
 
-    pub fn isTitlied(self: Utf8ToAsciiTelexCharStream) bool {
+    pub fn isCapitalized(self: Utf8ToAsciiTelexCharStream) bool {
         return self.upper_chars_count == 1 and self.first_char_is_upper;
     }
 
@@ -252,8 +252,8 @@ test "unrollTone" {
 
     try char_stream.push('A');
     try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "aa");
-    try expect(!char_stream.isTitlied());
     try expect(!char_stream.isCapitalized());
+    try expect(!char_stream.isUpper());
     try expect(!char_stream.has_mark);
 
     try char_stream.push('ô');
