@@ -132,10 +132,12 @@ pub fn parseTokens(text: *Text) void {
             prev_token_is_vi = true;
         } else {
             if (prev_token_is_vi and !(token[0] == '.' and token.len == 1)) {
-                for (UNK) |b| {
-                    text.transformed_bytes[text.transformed_bytes_len] = b;
-                    text.transformed_bytes_len += 1;
-                }
+                // for (UNK) |b| {
+                //     text.transformed_bytes[text.transformed_bytes_len] = b;
+                //     text.transformed_bytes_len += 1;
+                // }
+                text.transformed_bytes[text.transformed_bytes_len] = '|';
+                text.transformed_bytes_len += 1;
                 text.transformed_bytes[text.transformed_bytes_len] = 32; // space
                 text.transformed_bytes_len += 1;
             }
@@ -193,7 +195,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     }
 
     if (mark != 0 or char_stream.tone != 0) {
-        text.transformed_bytes[text.transformed_bytes_len] = '|';
+        text.transformed_bytes[text.transformed_bytes_len] = '_';
         text.transformed_bytes_len += 1;
     }
     // Nước => ^nuoc|w, ^^VIỆT => viet|z, đầy => dday|z

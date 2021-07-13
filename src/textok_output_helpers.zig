@@ -86,7 +86,7 @@ pub const TextokOutputHelpers = struct {
                     // double check marktone for syllable
                     const n = token.value.len;
                     if (n > 2 and
-                        (token.value[n - 2] == '|' or token.value[n - 3] == '|'))
+                        (token.value[n - 2] == '_' or token.value[n - 3] == '_'))
                     {
                         continue;
                     }

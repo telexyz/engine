@@ -5,6 +5,8 @@ rm data/1*.txt
 rm data/*tknz.txt
 
 ~/zig build -Drelease-fast=true
+# cp zig-out/bin/telexify ~/repos/telexyz/news-corpus/bin/
+
 ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt # warm up
 # ./zig-out/bin/telexify ../corpus/vietai_sat.txt data/tknz.txt
 # ./zig-out/bin/telexify ~/repos/phap/corpus/all.txt data/tknz.txt

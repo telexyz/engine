@@ -261,7 +261,7 @@ pub const Text = struct {
         switch (slice[slice.len - 1]) {
             // remove tone "|[sfrxj]"
             's', 'f', 'r', 'x', 'j' => {
-                slice = if (slice[slice.len - 2] == '|')
+                slice = if (slice[slice.len - 2] == '_')
                     slice[0 .. slice.len - 2]
                 else
                     slice[0 .. slice.len - 1];
