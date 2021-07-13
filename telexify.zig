@@ -121,18 +121,17 @@ pub fn main() anyerror!void {
     const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
+
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_samples();
-    // Wait for sylabeling thread end
-    thread.join();
-    if (!text.tokens_number_finalized) {
-        // Then run one more time to finalize sylabeling process
-        // since there may be some last tokens was skipped before thread end
-        // because sylabeling too fast and timeout before new tokens come
-        // It's a very rare-case happend when the sleep() call fail.
-        text.tokens_number_finalized = true;
-        text_utils.parseTokens(&text);
-    }
+    thread.join(); // Wait for sylabeling thread end
+
+    // Then run one more time to finalize sylabeling process
+    // since there may be some last tokens was skipped before thread end
+    // because sylabeling too fast and timeout before new tokens come
+    // It's a very rare-case happend when the sleep() call fail.
+    text.tokens_number_finalized = true;
+    text_utils.parseTokens(&text);
     const step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
 
     print("\nWriting types to file ...\n", .{});
