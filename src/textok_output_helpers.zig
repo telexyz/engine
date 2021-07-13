@@ -84,11 +84,11 @@ pub const TextokOutputHelpers = struct {
             if (!token.have_marktone) {
                 if (token.is_syllable) {
                     // double check marktone for syllable
-                    const n = token.value.len;
-                    if (n > 2 and
-                        (token.value[n - 2] == '_' or token.value[n - 3] == '_'))
-                    {
-                        continue;
+                    switch (token.value[token.value.len - 1]) {
+                        's', 'f', 'r', 'x', 'j', 'w', 'z' => {
+                            continue;
+                        },
+                        else => {},
                     }
                 }
                 // write freq and token pair to file

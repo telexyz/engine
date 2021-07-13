@@ -187,7 +187,7 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
-        var tsize = input_bytes_size + input_bytes_size / 3 + BUFF_SIZE;
+        var tsize = input_bytes_size + input_bytes_size / 5 + BUFF_SIZE;
         self.transformed_bytes = try self.allocator.alloc(u8, tsize);
         self.transformed_bytes_size = tsize;
 
@@ -261,10 +261,7 @@ pub const Text = struct {
         switch (slice[slice.len - 1]) {
             // remove tone "|[sfrxj]"
             's', 'f', 'r', 'x', 'j' => {
-                slice = if (slice[slice.len - 2] == '_')
-                    slice[0 .. slice.len - 2]
-                else
-                    slice[0 .. slice.len - 1];
+                slice = slice[0 .. slice.len - 1];
             },
             else => {},
         }

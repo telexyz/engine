@@ -194,10 +194,6 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         text.transformed_bytes_len += 1;
     }
 
-    if (mark != 0 or char_stream.tone != 0) {
-        text.transformed_bytes[text.transformed_bytes_len] = '_';
-        text.transformed_bytes_len += 1;
-    }
     // Nước => ^nuoc|w, ^^VIỆT => viet|z, đầy => dday|z
     if (mark != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
