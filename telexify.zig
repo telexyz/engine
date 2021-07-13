@@ -111,7 +111,7 @@ pub fn main() anyerror!void {
     initConfigsFromArgs();
     text = .{
         .init_allocator = std.heap.page_allocator,
-        .telexified_all_tokens = true,
+        .telexified_all_tokens = false,
     };
     tknz = .{ .max_lines = max_lines };
 
@@ -119,21 +119,21 @@ pub fn main() anyerror!void {
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    const thread = try std.Thread.spawn(.{}, text_utils.telexifyAlphabetTokens, .{&text});
+    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_samples();
     // Wait for sylabeling thread end
     thread.join();
-    if (!text.tokens_number_finalized) {
+    // if (!text.tokens_number_finalized) {
         // Then run one more time to finalize sylabeling process
         // since there may be some last tokens was skipped before thread end
         // because sylabeling too fast and timeout before new tokens come
         // It's a very rare-case happend when the sleep() call fail.
         text.tokens_number_finalized = true;
-        text_utils.telexifyAlphabetTokens(&text);
-    }
+        text_utils.parseTokens(&text);
+    // }
     const step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
 
     print("\nWriting types to file ...\n", .{});
@@ -142,7 +142,7 @@ pub fn main() anyerror!void {
 
     print("\nWriting tokens and final transform to file ...\n", .{});
     try write_out_tokens_and_final();
-    _ = showMeTimeLap(types_time, "Writing tokens and final transform done!");
 
+    _ = showMeTimeLap(types_time, "Writing tokens and final transform done!");
     _ = showMeTimeLap(start_time, "Total");
 }

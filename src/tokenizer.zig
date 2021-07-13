@@ -374,13 +374,13 @@ test "Tokenizer" {
         j += 1;
     }
 
-    // Second passes, telexifyAlphabetTokens
+    // Second passes, parseTokens
     try testing.expect(text.processed_tokens_number == 0);
     // print("\ntokens_number: {}\n", .{text.tokens_number});
     try testing.expect(text.tokens_number == 15 + 15 + 19 + 3); // 3 * \n
 
     try testing.expect(text.tokens_number_finalized == true);
-    text_utils.telexifyAlphabetTokens(&text);
+    text_utils.parseTokens(&text);
 
     try testing.expect(text.processed_tokens_number == text.tokens_number);
 

@@ -78,7 +78,7 @@ pub const Text = struct {
 
     pub const MAX_TOKEN_LEN = 15;
     const AVG_BYTES_PER_TOKEN = 3;
-    const MAX_INPUT_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+    const MAX_INPUT_FILE_SIZE = 3 * 1024 * 1024 * 1024; // 3GB
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
     const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
 
@@ -216,20 +216,22 @@ pub const Text = struct {
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = attrs;
 
-        // Reject too long tokens
-        if (token.len <= MAX_TOKEN_LEN) {
-            // Count nonalpha token only
-            // alphatoken will be counted in parsing phase
-            if (attrs.category == .nonalpha) {
-                const gop = try self.nonalpha_types.getOrPutValue(token, 0);
-                gop.value_ptr.* += 1;
+        if (self.telexified_all_tokens) {
+            // Reject too long tokens
+            if (token.len <= MAX_TOKEN_LEN) {
+                // Count nonalpha token only
+                // alphatoken will be counted in parsing phase
+                if (attrs.category == .nonalpha) {
+                    const gop = try self.nonalpha_types.getOrPutValue(token, 0);
+                    gop.value_ptr.* += 1;
+                }
+            } else {
+                // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
+                if (attrs.category == .nonalpha)
+                    try self.nonalpha_too_long_token_ids.append(self.tokens_number)
+                else
+                    try self.alphabet_too_long_token_ids.append(self.tokens_number);
             }
-        } else {
-            // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
-            if (attrs.category == .nonalpha)
-                try self.nonalpha_too_long_token_ids.append(self.tokens_number)
-            else
-                try self.alphabet_too_long_token_ids.append(self.tokens_number);
         }
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
@@ -301,7 +303,7 @@ test "Text" {
     try text.recordToken(it.next().?, attrs);
     try text.recordToken(it.next().?, attrs);
 
-    const thread = try std.Thread.spawn(.{}, text_utils.telexifyAlphabetTokens, .{&text});
+    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
 
     while (it.next()) |tkn| {
         try text.recordToken(tkn, attrs);
@@ -309,7 +311,7 @@ test "Text" {
 
     thread.join();
     text.tokens_number_finalized = true;
-    text_utils.telexifyAlphabetTokens(&text);
+    text_utils.parseTokens(&text);
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.tokens[9], "nhà");

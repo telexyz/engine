@@ -24,10 +24,10 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 100_000_000; // nanoseconds
+const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
 
 // Todo: convert &#xA9; to utf8 https://mothereff.in/html-entities
-pub fn telexifyAlphabetTokens(text: *Text) void {
+pub fn parseTokens(text: *Text) void {
     @setRuntimeSafety(false);
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
@@ -58,19 +58,39 @@ pub fn telexifyAlphabetTokens(text: *Text) void {
 
         // Init token shortcuts
         var token = text.tokens[i.*];
+        //  and token's attributes shortcut
+        var attrs = &text.tokens_attrs[i.*];
+
+        // Share load with segmenter while not have to telexified_all_tokens
+        if (!text.telexified_all_tokens) {
+            // Reject too long tokens
+            if (token.len <= Text.MAX_TOKEN_LEN) {
+                // Count nonalpha token only
+                // alphatoken will be counted in parsing phase
+                if (attrs.category == .nonalpha) {
+                    const gop = text.nonalpha_types.getOrPutValue(token, 0) catch unreachable;
+                    gop.value_ptr.* += 1;
+                }
+            } else {
+                // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
+                if (attrs.category == .nonalpha)
+                    text.nonalpha_too_long_token_ids.append(text.tokens_number) catch unreachable
+                else
+                    text.alphabet_too_long_token_ids.append(text.tokens_number) catch unreachable;
+            }
+        }
+
         if (token[0] == '\n') {
             recordNewLineTokenAndShowProgress(text, i.*, &prev_percent);
             continue;
         }
-        //  and token's attributes shortcut
-        var attrs = &text.tokens_attrs[i.*];
-        var token_not_written = true;
 
+        var token_not_written = true;
         // Reserver first-byte to write token attrs
         const firt_byte_index = text.transformed_bytes_len;
-        if (text.telexified_all_tokens)
-            text.transformed_bytes_len += 1;
+        if (text.telexified_all_tokens) text.transformed_bytes_len += 1;
 
+        // Parse alphabet token to get syllables
         if (attrs.category != .nonalpha and token.len <= Text.MAX_TOKEN_LEN) {
             const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
                 .count = 0,
