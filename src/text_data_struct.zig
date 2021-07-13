@@ -5,9 +5,6 @@ pub const Text = struct {
     // Must be init when text is created
     init_allocator: *std.mem.Allocator,
 
-    // Turn on to write telexified all input data to disk
-    telexified_all_tokens: bool = false,
-
     // Create arena's ArenaAllocator from init_allocator
     arena: std.heap.ArenaAllocator = undefined,
 
@@ -190,9 +187,9 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
-        self.transformed_bytes_size = input_bytes_size / 3 + BUFF_SIZE;
-        if (self.telexified_all_tokens) self.transformed_bytes_size += input_bytes_size;
-        self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
+        var tsize = input_bytes_size + BUFF_SIZE;
+        self.transformed_bytes = try self.allocator.alloc(u8, tsize);
+        self.transformed_bytes_size = tsize;
 
         // Init syllower...
         self.syllow0t_types = std.StringHashMap(TypeInfo).init(self.allocator);
@@ -216,23 +213,21 @@ pub const Text = struct {
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = attrs;
 
-        // if (self.telexified_all_tokens) {
-            // Reject too long tokens
-            if (token.len <= MAX_TOKEN_LEN) {
-                // Count nonalpha token only
-                // alphatoken will be counted in parsing phase
-                if (attrs.category == .nonalpha) {
-                    const gop = try self.nonalpha_types.getOrPutValue(token, 0);
-                    gop.value_ptr.* += 1;
-                }
-            } else {
-                // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
-                if (attrs.category == .nonalpha)
-                    try self.nonalpha_too_long_token_ids.append(self.tokens_number)
-                else
-                    try self.alphabet_too_long_token_ids.append(self.tokens_number);
+        // Reject too long tokens
+        if (token.len <= MAX_TOKEN_LEN) {
+            // Count nonalpha token only
+            // alphatoken will be counted in parsing phase
+            if (attrs.category == .nonalpha) {
+                const gop = try self.nonalpha_types.getOrPutValue(token, 0);
+                gop.value_ptr.* += 1;
             }
-        // }
+        } else {
+            // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
+            if (attrs.category == .nonalpha)
+                try self.nonalpha_too_long_token_ids.append(self.tokens_number)
+            else
+                try self.alphabet_too_long_token_ids.append(self.tokens_number);
+        }
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
     }
@@ -254,23 +249,27 @@ pub const Text = struct {
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
 
-        var next = self.syllow0t_bytes_len;
         // Convert syllable to syllow0t
+        var next = self.syllow0t_bytes_len;
 
         var slice = if (syllable[0] == '^')
-                if (syllable[1] == '^') syllable[2..] else syllable[1..]
-            else syllable;
+            // Remove case notions
+            if (syllable[1] == '^') syllable[2..] else syllable[1..]
+        else
+            syllable;
 
-        switch(slice[slice.len - 1]) {
+        switch (slice[slice.len - 1]) {
             // remove tone "|[sfrxj]"
-            's','f','r','x','j' => { 
-                slice =  if (slice[slice.len - 2] == '|')
-                    slice[0..slice.len - 2] else slice[0..slice.len - 1];
+            's', 'f', 'r', 'x', 'j' => {
+                slice = if (slice[slice.len - 2] == '|')
+                    slice[0 .. slice.len - 2]
+                else
+                    slice[0 .. slice.len - 1];
             },
-            else => { },
+            else => {},
         }
+
         for (slice) |byte| {
-            // if (byte == '|') break; // don't copy marktone (tiến) tien|zs => tien
             self.syllow0t_bytes[next] = byte;
             next += 1;
         }
@@ -278,8 +277,7 @@ pub const Text = struct {
         const syllow0t = self.syllow0t_bytes[self.syllow0t_bytes_len..next];
         self.syllow0t_bytes_len = next;
 
-        const gop2 = try self.syllow0t_types.getOrPutValue(syllow0t, 
-            TypeInfo{ .category = type_info.category });
+        const gop2 = try self.syllow0t_types.getOrPutValue(syllow0t, TypeInfo{ .category = type_info.category });
         gop2.value_ptr.count += type_info.count;
     }
 };

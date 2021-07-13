@@ -24,6 +24,7 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 const PAD = "                 ";
+const UNK = "UNK";
 const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
 
 // Todo: convert &#xA9; to utf8 https://mothereff.in/html-entities
@@ -34,6 +35,7 @@ pub fn parseTokens(text: *Text) void {
     var prev_percent: u64 = 0;
     const max_sleeps: u8 = 2;
     var sleeps_count: u8 = 0;
+    var prev_token_is_vi = true;
 
     var i: *usize = &text.processed_tokens_number;
     while (i.* <= text.tokens_number) : (i.* += 1) {
@@ -61,34 +63,13 @@ pub fn parseTokens(text: *Text) void {
         //  and token's attributes shortcut
         var attrs = &text.tokens_attrs[i.*];
 
-        // Share load with segmenter while not have to telexified_all_tokens
-        // if (!text.telexified_all_tokens) {
-        //     // Reject too long tokens
-        //     if (token.len <= Text.MAX_TOKEN_LEN) {
-        //         // Count nonalpha token only
-        //         // alphatoken will be counted in parsing phase
-        //         if (attrs.category == .nonalpha) {
-        //             const gop = text.nonalpha_types.getOrPutValue(token, 0) catch unreachable;
-        //             gop.value_ptr.* += 1;
-        //         }
-        //     } else {
-        //         // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
-        //         if (attrs.category == .nonalpha)
-        //             text.nonalpha_too_long_token_ids.append(text.tokens_number) catch unreachable
-        //         else
-        //             text.alphabet_too_long_token_ids.append(text.tokens_number) catch unreachable;
-        //     }
-        // }
-
         if (token[0] == '\n') {
             recordNewLineTokenAndShowProgress(text, i.*, &prev_percent);
+            prev_token_is_vi = true;
             continue;
         }
 
         var token_not_written = true;
-        // Reserver first-byte to write token attrs
-        const first_byte_index = text.transformed_bytes_len;
-        if (text.telexified_all_tokens) text.transformed_bytes_len += 1;
 
         // Parse alphabet token to get syllables
         if (attrs.category != .nonalpha and token.len <= Text.MAX_TOKEN_LEN) {
@@ -124,7 +105,6 @@ pub fn parseTokens(text: *Text) void {
                     // Write ascii-telex transform
                     type_info.transform = saveAsciiTransform(text, char_stream);
                     token_not_written = false;
-                    // print("char_stream: {s} => {s}\n", .{ token, type_info.transform }); //DEBUG
                 } else {
                     // For non-syllable, attrs.category can only be
                     // .alphabet or .alphmark
@@ -133,7 +113,6 @@ pub fn parseTokens(text: *Text) void {
             }
 
             if (type_info.isSyllable()) {
-                // if (type_info.category != ._none) {
                 // Update token category according to it's type category
                 attrs.category = type_info.category;
                 // Point token value to it's transform to write to output stream
@@ -141,26 +120,37 @@ pub fn parseTokens(text: *Text) void {
             }
         } // attrs.category == .alphabet or .alphmark
 
-        if (text.telexified_all_tokens and token_not_written) {
-            for (token) |b| {
-                text.transformed_bytes[text.transformed_bytes_len] = b;
+        if (attrs.isSyllable()) {
+            if (token_not_written) {
+                for (token) |b| {
+                    text.transformed_bytes[text.transformed_bytes_len] = b;
+                    text.transformed_bytes_len += 1;
+                }
+            }
+            text.transformed_bytes[text.transformed_bytes_len] = 32; // space
+            text.transformed_bytes_len += 1;
+            prev_token_is_vi = true;
+        } else {
+            if (prev_token_is_vi and !(token[0] == '.' and token.len == 1)) {
+                for (UNK) |b| {
+                    text.transformed_bytes[text.transformed_bytes_len] = b;
+                    text.transformed_bytes_len += 1;
+                }
+                text.transformed_bytes[text.transformed_bytes_len] = 32; // space
                 text.transformed_bytes_len += 1;
             }
+            prev_token_is_vi = false;
         }
 
-        if (text.telexified_all_tokens) 
-            text.transformed_bytes[first_byte_index] = 32; // space
-            // text.transformed_bytes[first_byte_index] = attrs.toByte();
-
+        // text.transformed_bytes[first_byte_index] = attrs.toByte();
         // printToken(token, attrs.*); // DEBUG
     } // END while text.processed_tokens_number
 }
 
 fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    if (text.telexified_all_tokens) {
-        text.transformed_bytes[text.transformed_bytes_len] = '\n';
-        text.transformed_bytes_len += 1;
-    }
+    text.transformed_bytes[text.transformed_bytes_len] = '\n';
+    text.transformed_bytes_len += 1;
+
     // Show token parsing progress
     const percent: u64 = if (prev_percent.* < 80)
         (100 * text.transformed_bytes_len) / text.transformed_bytes_size
@@ -202,20 +192,17 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         text.transformed_bytes_len += 1;
     }
 
-    if (mark != 0 or char_stream.tone != 0)
-    {
+    if (mark != 0 or char_stream.tone != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = '|';
         text.transformed_bytes_len += 1;
     }
     // Nước => ^nuoc|w, ^^VIỆT => viet|z, đầy => dday|z
-    if (mark != 0) 
-    {
+    if (mark != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
         text.transformed_bytes_len += 1;
     }
     // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => zday|zf
-    if (char_stream.tone != 0)
-    {
+    if (char_stream.tone != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = char_stream.tone;
         text.transformed_bytes_len += 1;
     }

@@ -111,7 +111,6 @@ pub fn main() anyerror!void {
     initConfigsFromArgs();
     text = .{
         .init_allocator = std.heap.page_allocator,
-        .telexified_all_tokens = false,
     };
     tknz = .{ .max_lines = max_lines };
 
@@ -126,14 +125,14 @@ pub fn main() anyerror!void {
     try write_out_samples();
     // Wait for sylabeling thread end
     thread.join();
-    // if (!text.tokens_number_finalized) {
+    if (!text.tokens_number_finalized) {
         // Then run one more time to finalize sylabeling process
         // since there may be some last tokens was skipped before thread end
         // because sylabeling too fast and timeout before new tokens come
         // It's a very rare-case happend when the sleep() call fail.
         text.tokens_number_finalized = true;
         text_utils.parseTokens(&text);
-    // }
+    }
     const step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
 
     print("\nWriting types to file ...\n", .{});
