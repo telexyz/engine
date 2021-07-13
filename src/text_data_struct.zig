@@ -255,7 +255,10 @@ pub const Text = struct {
         var next = self.syllow00_bytes_len;
         // Convert syllable to syllow00
 
-        const slice = if (syllable[0] == '^') syllable[2..] else syllable;
+        var slice = if (syllable[0] == '^')
+                if (syllable[1] == '^') syllable[2..] else syllable[1..]
+            else syllable;
+
         for (slice) |byte| {
             if (byte == '|') break; // don't copy marktone (tiến) tien|zs => tien
             self.syllow00_bytes[next] = byte; // | 0b00100000; // lower
@@ -265,7 +268,8 @@ pub const Text = struct {
         const syllow00 = self.syllow00_bytes[self.syllow00_bytes_len..next];
         self.syllow00_bytes_len = next;
 
-        const gop2 = try self.syllow00_types.getOrPutValue(syllow00, TypeInfo{ .category = type_info.category });
+        const gop2 = try self.syllow00_types.getOrPutValue(syllow00, 
+            TypeInfo{ .category = type_info.category });
         gop2.value_ptr.count += type_info.count;
     }
 };
