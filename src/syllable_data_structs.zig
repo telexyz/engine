@@ -82,6 +82,7 @@ test "Enum AmDau" {
     try expect(AmDau.zd.isSaturated() == true);
 }
 
+/// https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=12
 /// 2.Vần gồm có 3 phần : âm đệm, âm chính, âm cuối.
 /// - Âm đệm được ghi bằng con chữ u và o.
 ///     + Ghi bằng con chữ o khi đứng trước các nguyên âm: a, ă, e.
@@ -93,29 +94,20 @@ test "Enum AmDau" {
 ///     + sau g: goá (1 từ)
 /// Trong Tiếng Việt, nguyên âm nào cũng có thể làm âm chính của tiếng.
 /// - Các nguyên âm đơn: (11 nguyên âm ghi ở trên)
-/// - Các nguyên âm đôi : Có 3 nguyên âm đôi và được tách thành 8 nguyên âm sau:
-
-// pub const AmGiua0 = enum(u5) {
-//     // 19 no-mark vowels
-//     a,
-//     e,
-//     i,
-//     o,
-//     u,
-//     y,
-//     ua, // ua, uâ, ưa
-//     ia,
-//     oa, // oa, oă
-//     oe,
-//     oo, // boong
-//     uo, // <= uoz, uow, uwow
-//     uy,
-//     ie, // iê
-//     ue, // uê
-//     ye, // yê
-//     uya,
-//     uye, // uyê
-// };
+/// - Các nguyên âm đôi: Có 3 nguyên âm đôi và được tách thành 8 nguyên âm sau:
+// * iê:
+// Ghi bằng ia khi phía trước không có âm đệm và phía sau không có âm cuối (VD: mía, tia, kia,...)
+// Ghi bằng yê khi phía trước có âm đệm hoặc không có âm nào, phía sau có âm cuối (VD: yêu, chuyên,...)
+// Ghi bằng ya khi phía trước có âm đệm và phía sau không có âm cuối (VD: khuya,...)
+// Ghi bằng iê khi phía trước có phụ âm đầu, phía sau có âm cuối (VD: tiên, kiến,...)
+// 
+// + uơ:
+// Ghi bằng ươ khi sau nó có âm cuối ( VD: mượn,...)
+// Ghi bằng ưa khi phía sau nó không có âm cuối (VD: mưa,...)
+// 
+// + uô:
+// Ghi bằng uô khi sau nó có âm cuối (VD: muốn,...)
+// Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
 
 pub const AmGiua = enum(u5) {
     _none,
