@@ -73,7 +73,7 @@ fn write_out_types() !void {
     );
 }
 
-fn write_out_tokens_and_final() !void {
+fn write_out_final() !void {
     // Final result
     try TextokOutputHelpers.write_transforms_to_file(
         text,
@@ -139,9 +139,9 @@ pub fn main() anyerror!void {
     try write_out_types();
     const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
 
-    print("\nWriting tokens and final transform to file ...\n", .{});
-    try write_out_tokens_and_final();
+    print("\nWriting tokenized results to file ...\n", .{});
+    try write_out_final();
 
-    _ = showMeTimeLap(types_time, "Writing tokens and final transform done!");
+    _ = showMeTimeLap(types_time, "Writing tokenized results done!");
     _ = showMeTimeLap(start_time, "Total");
 }
