@@ -59,11 +59,11 @@ pub const Text = struct {
 
     // Use data of transformed_bytes, pointed by transforms[i]
     syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower-mark-tone
-    syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllow00
-    // Data buffer for syllow00_types
-    syllow00_bytes: []u8 = undefined,
-    syllow00_bytes_size: usize = undefined,
-    syllow00_bytes_len: usize = 0,
+    syllow0t_types: std.StringHashMap(TypeInfo) = undefined, // = syllow0t
+    // Data buffer for syllow0t_types
+    syllow0t_bytes: []u8 = undefined,
+    syllow0t_bytes_size: usize = undefined,
+    syllow0t_bytes_len: usize = 0,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
@@ -195,14 +195,14 @@ pub const Text = struct {
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllower...
-        self.syllow00_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllow00_bytes_size = TEXT_DICT_FILE_SIZE;
-        self.syllow00_bytes = try self.allocator.alloc(u8, self.syllow00_bytes_size);
+        self.syllow0t_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.syllow0t_bytes_size = TEXT_DICT_FILE_SIZE;
+        self.syllow0t_bytes = try self.allocator.alloc(u8, self.syllow0t_bytes_size);
 
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
         self.transformed_bytes_len = 0;
-        self.syllow00_bytes_len = 0;
+        self.syllow0t_bytes_len = 0;
     }
     pub fn deinit(self: *Text) void {
         // Since we use ArenaAllocator, simply deinit arena itself to
@@ -216,7 +216,7 @@ pub const Text = struct {
         self.tokens[self.tokens_number] = token;
         self.tokens_attrs[self.tokens_number] = attrs;
 
-        if (self.telexified_all_tokens) {
+        // if (self.telexified_all_tokens) {
             // Reject too long tokens
             if (token.len <= MAX_TOKEN_LEN) {
                 // Count nonalpha token only
@@ -232,7 +232,7 @@ pub const Text = struct {
                 else
                     try self.alphabet_too_long_token_ids.append(self.tokens_number);
             }
-        }
+        // }
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
     }
@@ -243,34 +243,42 @@ pub const Text = struct {
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
-                try self.countSyllableAndsyllow00(kv.value_ptr.transform, kv.value_ptr);
+                try self.countSyllableAndsyllow0t(kv.value_ptr.transform, kv.value_ptr);
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
     }
 
-    fn countSyllableAndsyllow00(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
+    fn countSyllableAndsyllow0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
         // Record and count syllable
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
 
-        var next = self.syllow00_bytes_len;
-        // Convert syllable to syllow00
+        var next = self.syllow0t_bytes_len;
+        // Convert syllable to syllow0t
 
         var slice = if (syllable[0] == '^')
                 if (syllable[1] == '^') syllable[2..] else syllable[1..]
             else syllable;
 
+        switch(slice[slice.len - 1]) {
+            // remove tone "|[sfrxj]"
+            's','f','r','x','j' => { 
+                slice =  if (slice[slice.len - 2] == '|')
+                    slice[0..slice.len - 2] else slice[0..slice.len - 1];
+            },
+            else => { },
+        }
         for (slice) |byte| {
-            if (byte == '|') break; // don't copy marktone (tiến) tien|zs => tien
-            self.syllow00_bytes[next] = byte; // | 0b00100000; // lower
+            // if (byte == '|') break; // don't copy marktone (tiến) tien|zs => tien
+            self.syllow0t_bytes[next] = byte;
             next += 1;
         }
 
-        const syllow00 = self.syllow00_bytes[self.syllow00_bytes_len..next];
-        self.syllow00_bytes_len = next;
+        const syllow0t = self.syllow0t_bytes[self.syllow0t_bytes_len..next];
+        self.syllow0t_bytes_len = next;
 
-        const gop2 = try self.syllow00_types.getOrPutValue(syllow00, 
+        const gop2 = try self.syllow0t_types.getOrPutValue(syllow0t, 
             TypeInfo{ .category = type_info.category });
         gop2.value_ptr.count += type_info.count;
     }
@@ -326,7 +334,7 @@ test "Text" {
     // std.debug.print("\n{}\n", .{text.syllable_types});
     try std.testing.expect(text.syllable_types.count() == 7); // Cả != cả
     try std.testing.expect(text.syllable_types.get("nha|f").?.count == 2);
-    try std.testing.expect(text.syllow00_types.count() == 6); // Cả => cả
-    try std.testing.expect(text.syllow00_types.get("ca").?.count == 2);
+    try std.testing.expect(text.syllow0t_types.count() == 6); // Cả => cả
+    try std.testing.expect(text.syllow0t_types.get("ca").?.count == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }

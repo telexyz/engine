@@ -62,23 +62,23 @@ pub fn parseTokens(text: *Text) void {
         var attrs = &text.tokens_attrs[i.*];
 
         // Share load with segmenter while not have to telexified_all_tokens
-        if (!text.telexified_all_tokens) {
-            // Reject too long tokens
-            if (token.len <= Text.MAX_TOKEN_LEN) {
-                // Count nonalpha token only
-                // alphatoken will be counted in parsing phase
-                if (attrs.category == .nonalpha) {
-                    const gop = text.nonalpha_types.getOrPutValue(token, 0) catch unreachable;
-                    gop.value_ptr.* += 1;
-                }
-            } else {
-                // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
-                if (attrs.category == .nonalpha)
-                    text.nonalpha_too_long_token_ids.append(text.tokens_number) catch unreachable
-                else
-                    text.alphabet_too_long_token_ids.append(text.tokens_number) catch unreachable;
-            }
-        }
+        // if (!text.telexified_all_tokens) {
+        //     // Reject too long tokens
+        //     if (token.len <= Text.MAX_TOKEN_LEN) {
+        //         // Count nonalpha token only
+        //         // alphatoken will be counted in parsing phase
+        //         if (attrs.category == .nonalpha) {
+        //             const gop = text.nonalpha_types.getOrPutValue(token, 0) catch unreachable;
+        //             gop.value_ptr.* += 1;
+        //         }
+        //     } else {
+        //         // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
+        //         if (attrs.category == .nonalpha)
+        //             text.nonalpha_too_long_token_ids.append(text.tokens_number) catch unreachable
+        //         else
+        //             text.alphabet_too_long_token_ids.append(text.tokens_number) catch unreachable;
+        //     }
+        // }
 
         if (token[0] == '\n') {
             recordNewLineTokenAndShowProgress(text, i.*, &prev_percent);
@@ -87,7 +87,7 @@ pub fn parseTokens(text: *Text) void {
 
         var token_not_written = true;
         // Reserver first-byte to write token attrs
-        const firt_byte_index = text.transformed_bytes_len;
+        const first_byte_index = text.transformed_bytes_len;
         if (text.telexified_all_tokens) text.transformed_bytes_len += 1;
 
         // Parse alphabet token to get syllables
@@ -148,9 +148,9 @@ pub fn parseTokens(text: *Text) void {
             }
         }
 
-        if (text.telexified_all_tokens)
-            text.transformed_bytes[firt_byte_index] = 32; // space
-        // text.transformed_bytes[firt_byte_index] = attrs.toByte();
+        if (text.telexified_all_tokens) 
+            text.transformed_bytes[first_byte_index] = 32; // space
+            // text.transformed_bytes[first_byte_index] = attrs.toByte();
 
         // printToken(token, attrs.*); // DEBUG
     } // END while text.processed_tokens_number
