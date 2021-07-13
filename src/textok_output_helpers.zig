@@ -35,28 +35,29 @@ pub const TextokOutputHelpers = struct {
         types_mktn_filename: []const u8,
         types_0m0t_filename: []const u8,
     ) !void {
-        var freqs_mktn_file = try std.fs.cwd().createFile(freqs_mktn_filename, .{});
-        var freqs_0m0t_file = try std.fs.cwd().createFile(freqs_0m0t_filename, .{});
-        var types_mktn_file = try std.fs.cwd().createFile(types_mktn_filename, .{});
-        var types_0m0t_file = try std.fs.cwd().createFile(types_0m0t_filename, .{});
-        defer freqs_mktn_file.close();
-        defer freqs_0m0t_file.close();
-        defer types_mktn_file.close();
-        defer types_0m0t_file.close();
+        var fm_file = try std.fs.cwd().createFile(freqs_mktn_filename, .{});
+        var f0_file = try std.fs.cwd().createFile(freqs_0m0t_filename, .{});
+        var tm_file = try std.fs.cwd().createFile(types_mktn_filename, .{});
+        var t0_file = try std.fs.cwd().createFile(types_0m0t_filename, .{});
+        defer fm_file.close();
+        defer f0_file.close();
+        defer tm_file.close();
+        defer t0_file.close();
 
         // Init 2 counters and the main iterator
         var n1: u32 = 0;
         var n2: u32 = 0;
         var it = types.iterator();
         // Init 4 writers
-        const fm_wrt = std.io.bufferedWriter(freqs_mktn_file.writer()).writer();
-        const f0_wrt = std.io.bufferedWriter(freqs_0m0t_file.writer()).writer();
-        const tm_wrt = std.io.bufferedWriter(types_mktn_file.writer()).writer();
-        const t0_wrt = std.io.bufferedWriter(types_0m0t_file.writer()).writer();
+        var fm_wrt = std.io.bufferedWriter(fm_file.writer());
+        var f0_wrt = std.io.bufferedWriter(f0_file.writer());
+        var tm_wrt = std.io.bufferedWriter(tm_file.writer());
+        var t0_wrt = std.io.bufferedWriter(t0_file.writer());
 
-        // Init
+        // Init a list of token and it's count
         var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
         defer tokens_list.deinit();
+
         // Add items
         while (it.next()) |kv| {
             try tokens_list.append(.{
@@ -71,20 +72,25 @@ pub const TextokOutputHelpers = struct {
         for (tokens_list.items) |token| {
             if (token.have_marktone) {
                 // write freq and token pair to file
-                _ = try fm_wrt.print("{d} {s}\n", .{ token.count, token.value });
-                // write token to file
+                _ = try fm_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
                 n1 += 1;
-                _ = try tm_wrt.write(token.value);
-                _ = try tm_wrt.write(if (@rem(n1, TOKENS_PER_LINE) == 0) "\n" else PAD);
+                // write token to file
+                const pad = if (@rem(n1, TOKENS_PER_LINE) == 0) "\n" else PAD;
+                _ = try tm_wrt.writer().print("{s}{s}", .{token.value, pad});
             } else {
                 // write freq and token pair to file
-                _ = try f0_wrt.print("{d} {s}\n", .{ token.count, token.value });
-                // write token to file
+                _ = try f0_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
                 n2 += 1;
-                _ = try t0_wrt.write(token.value);
-                _ = try t0_wrt.write(if (@rem(n2, TOKENS_PER_LINE) == 0) "\n" else PAD);
+                // write token to file
+                const pad = if (@rem(n2, TOKENS_PER_LINE) == 0) "\n" else PAD;
+                _ = try t0_wrt.writer().print("{s}{s}", .{token.value, pad});
             }
         }
+
+        try fm_wrt.flush();
+        try f0_wrt.flush();
+        try tm_wrt.flush();
+        try t0_wrt.flush();
     }
 
     pub fn write_types_to_files(
@@ -96,12 +102,14 @@ pub const TextokOutputHelpers = struct {
         var types_file = try std.fs.cwd().createFile(types_filename, .{});
         defer freqs_file.close();
         defer types_file.close();
-        const freqs_wrt = std.io.bufferedWriter(freqs_file.writer()).writer();
-        const types_wrt = std.io.bufferedWriter(types_file.writer()).writer();
 
-        // Init
+        var freqs_wrt = std.io.bufferedWriter(freqs_file.writer());
+        var types_wrt = std.io.bufferedWriter(types_file.writer());
+
+        // Init list
         var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
         defer tokens_list.deinit();
+
         // Add items
         var it = types.iterator();
         while (it.next()) |kv| {
@@ -114,16 +122,20 @@ pub const TextokOutputHelpers = struct {
                 },
             });
         }
+
         // Sort by count desc
         std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
 
         for (tokens_list.items) |token, i| {
             // write freq and token pair to file
-            _ = try freqs_wrt.print("{d} {s}\n", .{ token.count, token.value });
+            _ = try freqs_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
             // write token to file
-            _ = try types_wrt.write(token.value);
-            _ = try types_wrt.write(if (@rem(i + 1, TOKENS_PER_LINE) == 0) "\n" else PAD);
+            const pad = if (@rem(i + 1, TOKENS_PER_LINE) == 0) "\n" else PAD;
+            _ = try types_wrt.writer().print("{s}{s}", .{token.value, pad});
         }
+
+        try freqs_wrt.flush();
+        try types_wrt.flush();
     }
 
     pub fn write_text_tokens_to_file(text: Text, output_filename: []const u8, max: usize) !void {
@@ -134,16 +146,17 @@ pub const TextokOutputHelpers = struct {
         defer output_file.close();
 
         var i: usize = 0;
-        const wrt = std.io.bufferedWriter(output_file.writer()).writer();
+        var wrt = std.io.bufferedWriter(output_file.writer());
 
         while (i < n) : (i += 1) {
-            _ = try wrt.write(text.tokens[i]);
+            _ = try wrt.writer().write(text.tokens[i]);
 
             const attrs = text.tokens_attrs[i];
             if (attrs.surrounded_by_spaces == .both or
                 attrs.surrounded_by_spaces == .right)
-                _ = try wrt.write(" ");
+                _ = try wrt.writer().write(" ");
         }
+        try wrt.flush();
     }
 
     pub fn write_transforms_to_file(
@@ -156,8 +169,8 @@ pub const TextokOutputHelpers = struct {
         // Open files to write transformed input data (final result)
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
-        var wrt = std.io.bufferedWriter(output_file.writer()).writer();
-        // const wrt = output_file.writer();
-        _ = try wrt.write(text.transformed_bytes[0..n]);
+        var wrt = std.io.bufferedWriter(output_file.writer());
+        _ = try wrt.writer().write(text.transformed_bytes[0..n]);
+        try wrt.flush();
     }
 };
