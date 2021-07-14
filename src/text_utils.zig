@@ -24,7 +24,7 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 const PAD = "                 ";
-const UNK = '|';
+const UNK = '#';
 const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
 
 // Todo: convert &#xA9; to utf8 https://mothereff.in/html-entities
@@ -167,7 +167,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     var byte: u8 = 0;
     var mark: u8 = 0;
 
-    // Nước => ^nuoc, VIỆT => ^^viet, đầy => zday
+    // Nước => ^nuoc, VIỆT => ^^viet, đầy => zday, con => con
     if (char_stream.first_char_is_upper) {
         text.transformed_bytes[text.transformed_bytes_len] = '^';
         text.transformed_bytes_len += 1;
@@ -190,12 +190,15 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         text.transformed_bytes_len += 1;
     }
 
-    // Nước => ^nuoc|w, ^^VIỆT => viet|z, đầy => dday|z
+    text.transformed_bytes[text.transformed_bytes_len] = '|';
+    text.transformed_bytes_len += 1;
+
+    // Nước => ^nuoc|w, ^^VIỆT => viet|z, đầy => dday|z, con => con|
     if (mark != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
         text.transformed_bytes_len += 1;
     }
-    // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf
+    // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, , con => con|
     if (char_stream.tone != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = char_stream.tone;
         text.transformed_bytes_len += 1;
