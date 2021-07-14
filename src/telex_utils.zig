@@ -167,7 +167,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             'ă' => {
                 am_giua = .aw;
             },
-            'đ' => {
+            'đ', 'ð' => { // 'ð'.upper => 'Ð'
                 telex_code = 13;
             },
             'ĩ' => {
@@ -188,7 +188,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 am_giua = .aw;
                 upper_code = IS_UPPER;
             },
-            'Đ' => {
+            'Đ', 'Ð' => {
                 telex_code = 13;
                 upper_code = IS_UPPER;
             },
