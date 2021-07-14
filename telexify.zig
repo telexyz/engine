@@ -2,7 +2,7 @@ const std = @import("std");
 const print = std.debug.print;
 
 const Text = @import("./src/text_data_struct.zig").Text;
-const TextokOutputHelpers = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
+const TextokOutput = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 const text_utils = @import("./src/text_utils.zig");
 
@@ -34,12 +34,12 @@ fn initConfigsFromArgs() void {
 
 fn write_out_samples() !void {
     // Write sample of final output to preview
-    try TextokOutputHelpers.write_text_tokens_to_file(
+    try TextokOutput.write_text_tokens_to_file(
         text,
         "data/07-tokens_sample.txt",
         77_777,
     );
-    try TextokOutputHelpers.write_transforms_to_file(
+    try TextokOutput.write_transforms_to_file(
         text,
         "data/08-telexified_sample.txt",
         888_888,
@@ -47,26 +47,26 @@ fn write_out_samples() !void {
 }
 
 fn write_out_types() !void {
-    try TextokOutputHelpers.write_mktn_vs_0m0t_types_to_files(
+    try TextokOutput.write_mktn_vs_0m0t_types_to_files(
         text.syllable_types,
-        "data/01-syllable_freqs.txt",
+        "data/01-syllmark_freqs.txt",
         "data/02-syll0m0t_freqs.txt",
-        "data/11-syllable_types.txt",
+        "data/11-syllmark_types.txt",
         "data/12-syll0m0t_types.txt",
     );
-    try TextokOutputHelpers.write_types_to_files(
+    try TextokOutput.write_types_to_files(
         text.syllow0t_types,
         "data/03-syllow0t_freqs.txt",
         "data/13-syllow0t_types.txt",
     );
-    try TextokOutputHelpers.write_mktn_vs_0m0t_types_to_files(
+    try TextokOutput.write_mktn_vs_0m0t_types_to_files(
         text.alphabet_types,
-        "data/04-alphabet_freqs.txt",
+        "data/04-alphmark_freqs.txt",
         "data/05-alph0m0t_freqs.txt",
-        "data/14-alphabet_types.txt",
+        "data/14-alphmark_types.txt",
         "data/15-alph0m0t_types.txt",
     );
-    try TextokOutputHelpers.write_types_to_files(
+    try TextokOutput.write_types_to_files(
         text.nonalpha_types,
         "data/06-nonalpha_freqs.txt",
         "data/16-nonalpha_types.txt",
@@ -74,23 +74,18 @@ fn write_out_types() !void {
 }
 
 fn write_out_final() !void {
-    // Final result
-    try TextokOutputHelpers.write_transforms_to_file(
-        text,
-        output_filename,
-        0,
-    );
-
-    try TextokOutputHelpers.write_too_long_tokens_to_file(
+    try TextokOutput.write_too_long_tokens_to_file(
         text,
         text.alphabet_too_long_token_ids,
         "data/09-alphabet_too_long.txt",
     );
-    try TextokOutputHelpers.write_too_long_tokens_to_file(
+    try TextokOutput.write_too_long_tokens_to_file(
         text,
         text.nonalpha_too_long_token_ids,
         "data/10-nonalpha_too_long.txt",
     );
+    // Final result
+    try TextokOutput.write_transforms_to_file(text, output_filename, 0);
 }
 
 fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {

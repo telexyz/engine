@@ -24,7 +24,7 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 const PAD = "                 ";
-const UNK = "UNK";
+const UNK = '|';
 const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
 
 // Todo: convert &#xA9; to utf8 https://mothereff.in/html-entities
@@ -132,11 +132,7 @@ pub fn parseTokens(text: *Text) void {
             prev_token_is_vi = true;
         } else {
             if (prev_token_is_vi and !(token[0] == '.' and token.len == 1)) {
-                // for (UNK) |b| {
-                //     text.transformed_bytes[text.transformed_bytes_len] = b;
-                //     text.transformed_bytes_len += 1;
-                // }
-                text.transformed_bytes[text.transformed_bytes_len] = '|';
+                text.transformed_bytes[text.transformed_bytes_len] = UNK;
                 text.transformed_bytes_len += 1;
                 text.transformed_bytes[text.transformed_bytes_len] = 32; // space
                 text.transformed_bytes_len += 1;
@@ -199,7 +195,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
         text.transformed_bytes_len += 1;
     }
-    // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => zday|zf
+    // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf
     if (char_stream.tone != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = char_stream.tone;
         text.transformed_bytes_len += 1;

@@ -72,31 +72,22 @@ pub const TextokOutputHelpers = struct {
         // Sort by count desc
         std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
 
-        var pad: []const u8 = undefined;
         for (tokens_list.items) |token| {
-            // write freq and token pair to file
-            _ = try fm_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
-            n1 += 1;
-            // write token to file
-            pad = if (@rem(n1, TOKENS_PER_LINE) == 0) "\n" else PAD;
-            _ = try tm_wrt.writer().print("{s}{s}", .{ token.value, pad });
-
             if (!token.have_marktone) {
                 if (token.is_syllable) {
                     // double check marktone for syllable
                     switch (token.value[token.value.len - 1]) {
                         's', 'f', 'r', 'x', 'j', 'w', 'z' => {
+                            // have marktone
+                            try writeToken(token, &fm_wrt, &tm_wrt, &n1);
                             continue;
                         },
                         else => {},
                     }
                 }
-                // write freq and token pair to file
-                _ = try f0_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
-                n2 += 1;
-                // write token to file
-                pad = if (@rem(n2, TOKENS_PER_LINE) == 0) "\n" else PAD;
-                _ = try t0_wrt.writer().print("{s}{s}", .{ token.value, pad });
+                try writeToken(token, &f0_wrt, &t0_wrt, &n2);
+            } else {
+                try writeToken(token, &fm_wrt, &tm_wrt, &n1);
             }
         }
 
@@ -104,6 +95,15 @@ pub const TextokOutputHelpers = struct {
         try f0_wrt.flush();
         try tm_wrt.flush();
         try t0_wrt.flush();
+    }
+
+    fn writeToken(token: TokenInfo, freqs_wrt: anytype, types_wrt: anytype, count: *u32) !void {
+        // write freq and token pair to file
+        _ = try freqs_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
+        count.* += 1;
+        // write token to file
+        const pad = if (@rem(count.*, TOKENS_PER_LINE) == 0) "\n" else PAD;
+        _ = try types_wrt.writer().print("{s}{s}", .{ token.value, pad });
     }
 
     pub fn write_types_to_files(
