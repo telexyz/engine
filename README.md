@@ -20,7 +20,7 @@ Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ...
 [ >>> DONE <<< ]
 
 
-### VieTexTok: A Vietnamese Text Tokenizer
+### VieTok: A Vietnamese Text Tokenizer
 
 Xem chi tiết `docs/01-TKNZ.md`: Hiện đã xong phrase-1, tách Viet Syllables làm bộ từ vựng chính, tách tokens đi cùng bộ thuộc tính nhúng vào 27 ký tự ascii vô hình để có thể đi kèm token (làm header) trong file text.
 
