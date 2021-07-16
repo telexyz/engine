@@ -8,13 +8,14 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 [ QUESTION ] Làm thế nào để giảm thiểu sự nhầm lẫn khi gõ tiếng Anh lẫn lộn với tiếng Việt ???
 
 [ Gõ Tiếng Việt MacOS ]
-https://github.com/lamquangminh/EVKey
 https://github.com/tuyenvm/OpenKey 
 
+* Gõ nhanh âm đầu: cc => ch, gg => gi, kk => kh, nn => ng
+* Gõ nhanh âm cuối: g => ng, h => nh, k => ch
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ... Hướng này hướng tới SoTA NLP, sử dụng các thư viện đơn giản và hiệu quả như flair để khám phá xem có thể làm gì được với tập dữ liệu tiếng Việt đang có?
+Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ... 
 
 [ >>> DONE <<< ]
 
@@ -38,7 +39,7 @@ A/ Tiếp tục đào sâu, cải tiến phase-1, handmade phase-2, hoàn thiệ
 
 B/ Dừng lại ở đó để đi tiếp theo hướng lưu trữ + Retrieval (encoding, indexing, searching, ... ) Hướng này đi sâu vào ứng dụng tìm kiếm, sử dụng https://justine.lol/redbean/ để viết web app (dùng web interface) rất hay. Hướng này kết quả cuối đã hình dung rõ, chỉ tập trung vào implement cho tốt.
 
-C/ Dừng lại ở đó để đi tiếp theo hướng NLP: Embedding, Tagging, NER, ... Hướng này hướng tới SoTA NLP, sử dụng các thư viện đơn giản và hiệu quả như flair để khám phá xem có thể làm gì được với tập dữ liệu tiếng Việt đang có?
+C/ Dừng lại ở đó để đi tiếp theo hướng NLP: Embedding, Tagging, NER, ... Hướng này hướng tới SOTA NLP, sử dụng các thư viện đơn giản và hiệu quả như để khám phá xem có thể làm gì được với tập dữ liệu tiếng Việt đang có?
 
 ```js
 // Bộ thuộc tính token sau khi tách
