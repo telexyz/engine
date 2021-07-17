@@ -4,10 +4,10 @@ rm data/0*.txt
 rm data/1*.txt
 rm data/*tknz.txt
 
-~/zig build -Drelease-fast=true
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt # warm up
-
+~/zig build -Drelease-safe=true
 cp ./zig-out/bin/telexify ~/nlp
+
+~/nlp/telexify data/news_titles.txt data/tknz.txt # warm up
 # ~/nlp/telexify ../data/news_titles.txt data/tknz.txt
 # ~/nlp/telexify ../data/vietai_sat.txt data/tknz.txt
 
