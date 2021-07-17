@@ -98,10 +98,10 @@ pub const Tokenizer = struct {
                     // It's could be a hint for sentences / phrases break ...
                     char_type = .space;
                 },
-                '\t' => {
-                    char_type = .space;
-                    first_byte = ' '; // Convert to space
-                },
+                // '\t' => {
+                //     char_type = .space;
+                //     first_byte = ' '; // Convert to space
+                // },
                 '\\' => {
                     // \r = CR (Carriage Return)
                     //      → Used as a new line character in Mac OS before X

@@ -77,7 +77,7 @@ pub const Text = struct {
     // Used to estimate (maximum) tokens_number
 
     pub const MAX_TOKEN_LEN = 15;
-    const AVG_BYTES_PER_TOKEN = 3;
+    const AVG_BYTES_PER_TOKEN = 2;
     const MAX_INPUT_FILE_SIZE = 3 * 1024 * 1024 * 1024; // 3GB
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
     const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
@@ -195,7 +195,7 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
-        var tsize = input_bytes_size + input_bytes_size / 5 + BUFF_SIZE;
+        var tsize = input_bytes_size + input_bytes_size / 4 + BUFF_SIZE;
         self.transformed_bytes = try self.allocator.alloc(u8, tsize);
         self.transformed_bytes_size = tsize;
 
