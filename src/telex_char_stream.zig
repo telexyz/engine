@@ -64,11 +64,11 @@ pub const Utf8ToAsciiTelexCharStream = struct {
     }
 
     pub fn isUpper(self: Utf8ToAsciiTelexCharStream) bool {
-        return self.lower_chars_count == 0;
+        return self.len > 1 and self.lower_chars_count == 0;
     }
 
     pub fn isCapitalized(self: Utf8ToAsciiTelexCharStream) bool {
-        return self.upper_chars_count == 1 and self.first_char_is_upper;
+        return self.first_char_is_upper;
     }
 
     pub fn hasVowelMark(self: Utf8ToAsciiTelexCharStream) bool {

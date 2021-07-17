@@ -198,7 +198,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
         text.transformed_bytes_len += 1;
     }
-    // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, , con => con|
+    // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, con => con|
     if (char_stream.tone != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = char_stream.tone;
         text.transformed_bytes_len += 1;

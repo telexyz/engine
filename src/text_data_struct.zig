@@ -252,11 +252,9 @@ pub const Text = struct {
         // Convert syllable to syllow0t
         var next = self.syllow0t_bytes_len;
 
-        var slice = if (syllable[0] == '^')
-            // Remove case notions
-            if (syllable[1] == '^') syllable[2..] else syllable[1..]
-        else
-            syllable;
+        var skip: u8 = if (syllable[0] == '^') 1 else 0;
+        if (syllable[1] == '^') skip = 2;
+        var slice = syllable[skip..];
 
         switch (slice[slice.len - 1]) {
             // remove tone "|[sfrxj]"
@@ -326,10 +324,10 @@ test "Text" {
 
     //  1s 2s  3s  1a 4s  5s     6s  1a 1s 2s  2a 3a
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
-    // std.debug.print("\n{}\n", .{text.syllable_types});
+    // std.debug.print("\n{}\n", .{text.syllow0t_types.get("ca")});
     try std.testing.expect(text.syllable_types.count() == 7); // Cả != cả
     try std.testing.expect(text.syllable_types.get("nha|f").?.count == 2);
     try std.testing.expect(text.syllow0t_types.count() == 6); // Cả => cả
-    try std.testing.expect(text.syllow0t_types.get("ca").?.count == 2);
+    try std.testing.expect(text.syllow0t_types.get("ca|").?.count == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }
