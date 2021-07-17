@@ -2,6 +2,9 @@ const std = @import("std");
 const File = std.fs.File;
 
 pub const Text = struct {
+    // Keep origin data as-much-as-possible
+    keep_origin_amap: bool = false,
+
     // Must be init when text is created
     init_allocator: *std.mem.Allocator,
 
@@ -99,6 +102,11 @@ pub const Text = struct {
     pub const TokenAttributes = packed struct {
         surrounded_by_spaces: TokenSurroundedBySpaces,
         category: TokenCategory,
+
+        pub fn spaceAfter(self: TokenAttributes) bool {
+            return self.surrounded_by_spaces == .right or
+                self.surrounded_by_spaces == .both;
+        }
 
         pub fn isSyllable(self: TokenAttributes) bool {
             return self.category == .syllmark or self.category == .syllable;

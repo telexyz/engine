@@ -12,7 +12,7 @@ var text: Text = undefined;
 
 var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
-var max_lines: usize = undefined;
+var keep_origin_amap: bool = undefined;
 
 fn initConfigsFromArgs() void {
     // Advance the iterator since we want to ignore the binary name.
@@ -29,7 +29,7 @@ fn initConfigsFromArgs() void {
         std.os.exit(1);
     };
     // Optional, get max_lines from args
-    max_lines = if (args.nextPosix() != null) 1001 else 0;
+    keep_origin_amap = args.nextPosix() != null;
 }
 
 fn write_out_samples() !void {
@@ -104,10 +104,12 @@ pub fn main() anyerror!void {
     print("\nStarted at {}\n", .{start_time});
 
     initConfigsFromArgs();
+
+    tknz = .{ .max_lines = 0 };
     text = .{
         .init_allocator = std.heap.page_allocator,
+        .keep_origin_amap = keep_origin_amap,
     };
-    tknz = .{ .max_lines = max_lines };
 
     try text.initFromFile(input_filename);
     defer text.deinit();

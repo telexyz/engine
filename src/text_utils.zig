@@ -70,7 +70,6 @@ pub fn parseTokens(text: *Text) void {
         }
 
         var token_not_written = true;
-
         // Parse alphabet token to get syllables
         if (attrs.category != .nonalpha and token.len <= Text.MAX_TOKEN_LEN) {
             const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
@@ -120,6 +119,7 @@ pub fn parseTokens(text: *Text) void {
             }
         } // attrs.category == .alphabet or .alphmark
 
+        // Write data out
         if (attrs.isSyllable()) {
             if (token_not_written) {
                 for (token) |b| {
@@ -127,10 +127,18 @@ pub fn parseTokens(text: *Text) void {
                     text.transformed_bytes_len += 1;
                 }
             }
-            text.transformed_bytes[text.transformed_bytes_len] = 32; // space
-            text.transformed_bytes_len += 1;
+            if (!text.keep_origin_amap) {
+                text.transformed_bytes[text.transformed_bytes_len] = 32; // space
+                text.transformed_bytes_len += 1;
+            }
             prev_token_is_vi = true;
-        } else {
+        } else if (text.keep_origin_amap) {
+            // write original bytes
+            for (token) |b| {
+                text.transformed_bytes[text.transformed_bytes_len] = b;
+                text.transformed_bytes_len += 1;
+            }
+        } else { // replace not-syllable token by '# '
             if (prev_token_is_vi and !(token[0] == '.' and token.len == 1)) {
                 text.transformed_bytes[text.transformed_bytes_len] = UNK;
                 text.transformed_bytes_len += 1;
@@ -140,14 +148,25 @@ pub fn parseTokens(text: *Text) void {
             prev_token_is_vi = false;
         }
 
+        if (text.keep_origin_amap and attrs.spaceAfter()) {
+            // Write spacing as it is
+            text.transformed_bytes[text.transformed_bytes_len] = 32; // space
+            text.transformed_bytes_len += 1;
+        }
+
         // text.transformed_bytes[first_byte_index] = attrs.toByte();
         // printToken(token, attrs.*); // DEBUG
     } // END while text.processed_tokens_number
 }
 
 fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    text.transformed_bytes[text.transformed_bytes_len] = '\n';
-    text.transformed_bytes_len += 1;
+    const prev_is_space = text.transformed_bytes[text.transformed_bytes_len - 1] == 32;
+    if (prev_is_space) {
+        text.transformed_bytes[text.transformed_bytes_len - 1] = '\n';
+    } else {
+        text.transformed_bytes[text.transformed_bytes_len] = '\n';
+        text.transformed_bytes_len += 1;
+    }
 
     // Show token parsing progress
     const percent: u64 = if (prev_percent.* < 80)
