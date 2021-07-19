@@ -51,7 +51,7 @@ pub const NGram = struct {
     bi_gram_counts: BiTriGramCount = undefined,
     tri_gram_counts: BiTriGramCount = undefined,
 
-    const MIN_COUNT = 10;
+    pub const MIN_COUNT = 30;
 
     pub fn init(self: *NGram, allocator: *std.mem.Allocator) void {
         self.bi_gram_counts = BiTriGramCount.init(allocator);
@@ -116,6 +116,7 @@ pub fn writeGramCounts(grams: BiTriGramCount, filename: []const u8) !void {
     // Add items
     var it = grams.iterator();
     while (it.next()) |kv| {
+        if (kv.value_ptr.* < NGram.MIN_COUNT) continue;
         try grams_list.append(.{
             .value = kv.key_ptr.*,
             .count = kv.value_ptr.*,

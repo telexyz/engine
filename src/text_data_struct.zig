@@ -183,13 +183,13 @@ pub const Text = struct {
         self.input_bytes = input_bytes;
 
         const input_bytes_size = self.input_bytes.len;
-        var est_token_num = &self.estimated_tokens_number;
-        est_token_num.* = input_bytes_size / AVG_BYTES_PER_TOKEN + BUFF_SIZE;
+        var tokens_num = &self.estimated_tokens_number;
+        tokens_num.* = input_bytes_size / AVG_BYTES_PER_TOKEN + BUFF_SIZE;
 
         // Init token list
-        self.tokens = try self.allocator.alloc([]const u8, est_token_num.*);
-        self.tokens_attrs = try self.allocator.alloc(TokenAttributes, est_token_num.*);
-        self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, est_token_num.*);
+        self.tokens = try self.allocator.alloc([]const u8, tokens_num.*);
+        self.tokens_attrs = try self.allocator.alloc(TokenAttributes, tokens_num.*);
+        self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
