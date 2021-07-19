@@ -6,7 +6,7 @@ rm data/*tknz.txt
 
 ~/zig build -Drelease-safe=true
 cp ./zig-out/bin/telexify ~/nlp
-
+~/nlp/telexify src/RDR.js src/RDR.xyz.js on
 ~/nlp/telexify data/news_titles.txt data/tknz.txt # warm up
 # ~/nlp/telexify ../data/news_titles.txt data/tknz.txt
 # ~/nlp/telexify ../data/vietai_sat.txt data/tknz.txt

@@ -100,11 +100,11 @@ test "Enum AmDau" {
 // Ghi bằng yê khi phía trước có âm đệm hoặc không có âm nào, phía sau có âm cuối (VD: yêu, chuyên,...)
 // Ghi bằng ya khi phía trước có âm đệm và phía sau không có âm cuối (VD: khuya,...)
 // Ghi bằng iê khi phía trước có phụ âm đầu, phía sau có âm cuối (VD: tiên, kiến,...)
-// 
+//
 // + uơ:
 // Ghi bằng ươ khi sau nó có âm cuối ( VD: mượn,...)
 // Ghi bằng ưa khi phía sau nó không có âm cuối (VD: mưa,...)
-// 
+//
 // + uô:
 // Ghi bằng uô khi sau nó có âm cuối (VD: muốn,...)
 // Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
@@ -143,8 +143,9 @@ pub const AmGiua = enum(u5) {
     uow, // ươ
     uyez, // uyê
 
-    // uow, // “thuở/thủa” => convert to "ủa" ?/
+    // uow, // “thuở/thủa” => convert to "ủa" nếu muốn chuẩn hoá
     // http://repository.ulis.vnu.edu.vn/handle/ULIS_123456789/164
+    // Về việc hiển thị và bộ gõ thì ko cần convert vì thuở sẽ ko đi cùng âm cuối, và ngược lại ươ ko đứng riêng mà cần âm cuối đi kèm.
 
     pub fn startWithIY(self: AmGiua) bool {
         return switch (self) {
@@ -154,7 +155,7 @@ pub const AmGiua = enum(u5) {
     }
     pub fn hasMark(self: AmGiua) bool {
         return switch (self) {
-            .az, .aw, .ez, .uw, .oz, .ow, .oaw, .uaz, .uez, .uoz, .uaw, .iez, .yez, .uyez => true,
+            .az, .aw, .ez, .uw, .oz, .ow, .oaw, .uaz, .uez, .uow, .uoz, .uaw, .iez, .yez, .uyez => true,
             else => false,
         };
     }
