@@ -1,6 +1,9 @@
 const std = @import("std");
 const File = std.fs.File;
 
+const syllable_data_structs = @import("./syllable_data_structs.zig");
+const Syllable = syllable_data_structs.Syllable;
+
 pub const Text = struct {
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = false,
@@ -25,6 +28,7 @@ pub const Text = struct {
     // (normally input byte are readed from a text file, corpus.txt for example)
     // Each tokens[i] slice will point to the original input_bytes
     tokens: [][]const u8 = undefined,
+    syllable_ids: []Syllable.UniqueId = undefined,
     tokens_attrs: []TokenAttributes = undefined,
 
     // out-of-size tokens
@@ -86,9 +90,11 @@ pub const Text = struct {
         count: u32 = 0,
         transform: []const u8 = undefined,
         category: TokenCategory = ._none,
+        syllable_id: Syllable.UniqueId = 0,
 
         pub fn isSyllable(self: TypeInfo) bool {
-            return self.category == .syllmark or self.category == .syllable;
+            return self.syllable_id > 0;
+            // return self.category == .syllmark or self.category == .syllable;
         }
 
         pub fn haveMarkTone(self: TypeInfo) bool {
@@ -183,6 +189,7 @@ pub const Text = struct {
         // Init token list
         self.tokens = try self.allocator.alloc([]const u8, est_token_num.*);
         self.tokens_attrs = try self.allocator.alloc(TokenAttributes, est_token_num.*);
+        self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, est_token_num.*);
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);

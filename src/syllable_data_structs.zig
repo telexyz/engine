@@ -322,7 +322,16 @@ pub const Syllable = packed struct {
     am_cuoi: AmCuoi,
     tone: Tone,
     can_be_vietnamese: bool,
-    // buffer: [11]u8 = undefined,
+
+    pub const UniqueId = u18; // @bitSizeOf(Syllable);
+
+    pub fn toId(self: Syllable) UniqueId {
+        return @bitCast(UniqueId, self);
+    }
+
+    pub fn newFromId(id: UniqueId) Syllable {
+        return @bitCast(Syllable, id);
+    }
 
     pub fn new() Syllable {
         return .{

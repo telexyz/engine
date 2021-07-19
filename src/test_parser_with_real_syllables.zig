@@ -35,10 +35,18 @@ test "all(-most) vn syllables in UPPERCASE" {
     const buff = buffer[0..];
 
     var it = std.mem.split(words_str, " ");
+    var syll: parsers.Syllable = undefined;
+    var syllId: parsers.Syllable.UniqueId = undefined;
+    var revertedSyll: parsers.Syllable = undefined;
+
     while (it.next()) |am_tiet| {
         // std.debug.print("\n{s}", .{word});
-        var syll = parsers.parseAmTietToGetSyllable(false, print, am_tiet);
+        syll = parsers.parseAmTietToGetSyllable(false, print, am_tiet);
         try expect(syll.can_be_vietnamese);
         try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), am_tiet);
+
+        syllId = syll.toId();
+        revertedSyll = parsers.Syllable.newFromId(syllId);
+        try std.testing.expectEqualStrings(revertedSyll.printBuffUtf8(buff), am_tiet);
     }
 }

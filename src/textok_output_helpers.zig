@@ -22,11 +22,12 @@ pub const TextokOutputHelpers = struct {
     pub fn write_too_long_tokens_to_file(text: Text, token_ids: std.ArrayList(usize), filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
-        var wrt = std.io.bufferedWriter(file.writer()).writer();
+        var wrt = std.io.bufferedWriter(file.writer());
         for (token_ids.items) |index| {
-            _ = try wrt.write(text.tokens[index]);
-            _ = try wrt.write("\n");
+            _ = try wrt.writer().write(text.tokens[index]);
+            _ = try wrt.writer().write("\n");
         }
+        try wrt.flush();
     }
 
     pub fn write_mktn_vs_0m0t_types_to_files(

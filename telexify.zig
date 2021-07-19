@@ -5,10 +5,12 @@ const Text = @import("./src/text_data_struct.zig").Text;
 const TextokOutput = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 const text_utils = @import("./src/text_utils.zig");
+const n_gram = @import("./src/n_gram.zig");
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
 var text: Text = undefined;
+var gram: n_gram.NGram = undefined;
 
 var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
@@ -115,7 +117,7 @@ pub fn main() anyerror!void {
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
 
@@ -135,9 +137,17 @@ pub fn main() anyerror!void {
     try write_out_types();
     const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
 
+    print("\nParse and write bi,tri-grams ...\n", .{});
+    gram = .{};
+    gram.init(std.heap.page_allocator);
+    defer gram.deinit();
+    try gram.parse(text);
+    try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
+    try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
+    const grams_time = showMeTimeLap(types_time, "Parse and write bi,tri-grams done!");
+
     print("\nWriting tokenized results to file ...\n", .{});
     try write_out_final();
-
-    _ = showMeTimeLap(types_time, "Writing tokenized results done!");
+    _ = showMeTimeLap(grams_time, "Writing tokenized results done!");
     _ = showMeTimeLap(start_time, "Total");
 }

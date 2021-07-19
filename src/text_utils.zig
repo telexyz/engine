@@ -101,6 +101,7 @@ pub fn parseTokens(text: *Text) void {
                         .alphabet => .syllable,
                         else => unreachable,
                     };
+                    type_info.syllable_id = syllable.toId();
                     // Write ascii-telex transform
                     type_info.transform = saveAsciiTransform(text, char_stream);
                     token_not_written = false;
@@ -116,6 +117,7 @@ pub fn parseTokens(text: *Text) void {
                 attrs.category = type_info.category;
                 // Point token value to it's transform to write to output stream
                 token = type_info.transform;
+                text.syllable_ids[i.*] = type_info.syllable_id;
             }
         } // attrs.category == .alphabet or .alphmark
 
