@@ -141,11 +141,11 @@ pub fn main() anyerror!void {
     gram = .{};
     gram.init(std.heap.page_allocator);
     defer gram.deinit();
-    // try gram.parse(text);
+    try gram.parse(text);
     const grams_time = showMeTimeLap(types_time, "Parse bi,tri-grams done!");
 
-    // try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
-    // try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
+    try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
+    try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
     const write_time = showMeTimeLap(grams_time, "Write bi,tri-grams done!");
 
     print("\nWriting tokenized results to file ...\n", .{});
