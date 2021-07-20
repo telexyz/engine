@@ -255,6 +255,7 @@ pub fn parseTokenToGetSyllable(
         // Check #1: Filter out ascii-telex syllable like:
         // car => cả, beer => bể ...
         if (char_stream.tone == 0 and syllable.tone != ._none) {
+            print("Don't accept ascii tone: car => cả, beer => bể ...\n", .{});
             syllable.can_be_vietnamese = false;
             return syllable;
         }
@@ -262,13 +263,20 @@ pub fn parseTokenToGetSyllable(
         // Check #2: Filter out ascii-telex syllable like:
         // awn => ăn, doo => dô
         if (syllable.am_giua.hasMark() and !char_stream.has_mark) {
+            print("Don't accept ascii mark: awn => ăn, doo => dô\n", .{});
             syllable.can_be_vietnamese = false;
             return syllable;
         }
 
-        // Check #3: Filter out prefix look like syllable but it's not:
+        // Check #3: Filter out suffix look like syllable but it's not:
         // Mộtd, cuốiiii ...
         if (char_stream.len > syllable.len()) {
+            if (syllable.am_giua == .ua and
+                char_stream.buffer[char_stream.len - 3] == 'u' and
+                char_stream.buffer[char_stream.len - 2] == 'o' and
+                char_stream.buffer[char_stream.len - 1] == 'w') return syllable;
+            print("Don't accept redundant suffix: Mộtd, cuốiiii ...\n", .{});
+            // print("{s} => {}\n", .{ char_stream.buffer[0..char_stream.len], syllable });
             syllable.can_be_vietnamese = false;
             return syllable;
         }

@@ -5,18 +5,19 @@ const converters = @import("./syllable_converters.zig");
 
 fn print(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
+        // if (true)
         std.debug.print(fmt_str, args);
 }
 
 inline fn canBeVi(word: []const u8) bool {
     // print("\n\nword: '{s}'\n", .{ word });
-    return parsers.parseAmTietToGetSyllable(false, print, word).can_be_vietnamese;
+    return parsers.parseAmTietToGetSyllable(true, print, word).can_be_vietnamese;
 }
 
 const expect = @import("std").testing.expect;
 
 test "vn syllables special cases" {
-    const words: []const []const u8 = &.{ "uở", "huơ", "khuơ", "HUƠ", "KHUƠ" }; // hua, khua
+    const words: []const []const u8 = &.{ "uở", "hươ", "huơ", "khuơ", "HUƠ", "KHUƠ" }; // hua, khua
     for (words) |word| try expect(canBeVi(word));
 
     // try expect(canBeVi("têt")); ??
