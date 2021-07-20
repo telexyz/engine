@@ -92,7 +92,7 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
     print("am_cuoi: \"{s}\" => {s}\n", .{ part3, syllable.am_cuoi });
 
     if (!validateNguyenAm(print, syllable.am_dau, syllable.am_giua, syllable.am_cuoi) or
-        !validateBanAmCuoiVan(print, syllable.am_giua, syllable.am_cuoi))
+        !validateBanAmCuoiVan(print, syllable.am_dau, syllable.am_giua, syllable.am_cuoi))
     {
         syllable.can_be_vietnamese = false;
         return;
@@ -300,7 +300,7 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
 }
 
 // - 2 bán âm cuối vần : i (y), u (o)
-fn validateBanAmCuoiVan(comptime print: print_op, am_giua: AmGiua, am_cuoi: AmCuoi) bool {
+fn validateBanAmCuoiVan(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am_cuoi: AmCuoi) bool {
     switch (am_cuoi) {
         .o, .u, .i, .y => {},
         else => {
@@ -322,6 +322,7 @@ fn validateBanAmCuoiVan(comptime print: print_op, am_giua: AmGiua, am_cuoi: AmCu
             return false;
         },
         .y, .aw, .ia, .ooo, .ua, .uez, .uaw, .uya, .uyez => if (am_cuoi != ._none) {
+            if (am_dau == .qu and am_giua == .y) return true;
             print("!!! VIOLATE: 'y', 'ă', 'ia', 'oo', 'ua', 'oă', 'uê', 'uơ', 'ưa', 'uya', 'uyê' ko đi với bán âm cuối vần nào hết", .{});
             return false;
         },
@@ -544,8 +545,8 @@ fn canBeVietnamese(am_tiet: []const u8) bool {
 }
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
-    // if (true)
-    if (false)
+    if (true)
+        // if (false)
         std.debug.print(fmt_str, args);
 }
 
@@ -587,6 +588,8 @@ test "canBeVietnamese() positive fb_comments_10m" {
 }
 
 test "canBeVietnamese()" {
+    try expect(canBeVietnamese("quýt") == true);
+    try expect(canBeVietnamese("quýu") == true);
     try expect(canBeVietnamese("nghộ") == false);
     try expect(canBeVietnamese("Soọc") == true);
     try expect(canBeVietnamese("CÉCI") == false);
