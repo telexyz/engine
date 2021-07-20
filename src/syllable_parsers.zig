@@ -545,8 +545,8 @@ fn canBeVietnamese(am_tiet: []const u8) bool {
 }
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
-    if (true)
-        // if (false)
+    // if (true)
+    if (false)
         std.debug.print(fmt_str, args);
 }
 
@@ -588,6 +588,7 @@ test "canBeVietnamese() positive fb_comments_10m" {
 }
 
 test "canBeVietnamese()" {
+    try expect(canBeVietnamese("huơ") == true);
     try expect(canBeVietnamese("quýt") == true);
     try expect(canBeVietnamese("quýu") == true);
     try expect(canBeVietnamese("nghộ") == false);
