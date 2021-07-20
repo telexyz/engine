@@ -1,4 +1,10 @@
-## Vietnamese Telex Input Method and Everything Related
+# Vietnamese Telex Input Method and Everything Related
+
+## Inspire
+
+https://en.wikipedia.org/wiki/Microsoft_SwiftKey
+
+https://medium.com/@curiousNupur/how-does-swiftkey-predict-your-next-keystrokes-b048ef67267d
 
 ## Cải tiến bộ gõ telex
 
