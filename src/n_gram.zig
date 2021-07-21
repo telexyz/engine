@@ -3,13 +3,42 @@
 
 const std = @import("std");
 
+const Text = @import("./text_data_struct.zig").Text;
 const syllable_data_structs = @import("./syllable_data_structs.zig");
 const Syllable = syllable_data_structs.Syllable;
-const Text = @import("./text_data_struct.zig").Text;
+const BLANK: Syllable.UniqueId = 0;
+
+const GramTrie = struct {
+    const Key = Syllable.UniqueId;
+    const Node = struct {
+        key: Key,
+        count: u32 = 0,
+        children: []*Node = &[_]*Node{},
+
+        fn add(self: Node, child: Node) void {
+            var children: [self.children.len + 1]*Node = undefined;
+            std.mem.copy(*Node, &children, self.children ++ [_]*Node{child});
+        }
+
+        fn get(self: *const Node, key: Key) ?*Node {
+            for (self.children) |child| {
+                if (child.key == key) return &child;
+            }
+            return null;
+        }
+    };
+
+    root: Node = .{ .key = BLANK },
+
+    pub fn getOrPut(self: *Self, keys: []const Key) u32 {
+        //
+        _ = self;
+        _ = keys[0];
+        return 0;
+    }
+};
 
 const Gram = packed struct {
-    const BLANK: Syllable.UniqueId = 0;
-
     s0: Syllable.UniqueId = BLANK,
     s1: Syllable.UniqueId = BLANK,
     s2: Syllable.UniqueId = BLANK,
