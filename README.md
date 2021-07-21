@@ -19,11 +19,25 @@ https://github.com/tuyenvm/OpenKey
 * Gõ nhanh âm đầu: cc => ch, gg => gi, kk => kh, nn => ng
 * Gõ nhanh âm cuối: g => ng, h => nh, k => ch
 
+
+### Beyond tknz
+
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ... 
+A/ Tiếp tục đào sâu, cải tiến phase-1, handmade phase-2, hoàn thiện tới phase-3 (poss-processing, tách từ sâu hơn nữa, chữa lỗi chính tả ...)
+
+Bài toán sequence tagging yêu cầu phải matching với từ điển, việc truy vấn ngược token khi chưa sử dụng DB, chưa mapping token <=> Id coi như phải đọc lại dữ liệu từ đầu.
+
+Trước khi làm matching cần cài đặt trie để mapping token <=> Id
+https://www.s-yata.jp/marisa-trie/docs/readme.en.html
+
+Sau đó dùng DB https://github.com/lithdew/lmdb-zig để lưu dữ liệu một cách có cấu trúc, có hệ thống, để dễ sử dụng lại, dễ truy vấn, trích xuất ... hơn ...
 
 [ >>> DONE <<< ]
+
+Thấy cần quay lại cải tiến nền tảng vì phần tknz, tagging, dictionary matching mà làm ko kỹ thì phần tiếp theo cũng ko cải thiện mấy. => Quay lại A/
+
+Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ... 
 
 
 ### VieTok: A Vietnamese Text Tokenizer
@@ -31,8 +45,7 @@ Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ...
 Xem chi tiết `docs/01-TKNZ.md`: Hiện đã xong phrase-1, tách Viet Syllables làm bộ từ vựng chính, tách tokens đi cùng bộ thuộc tính nhúng vào 27 ký tự ascii vô hình để có thể đi kèm token (làm header) trong file text.
 
 Phase-2 dùng `syllower` đã tách làm bộ từ vựng gốc (khoảng 9000 âm tiết viết thường), sau đó áp dụng BPE để xử lý mọi OVV bao gồm `alphmark`, `alphabet` và `nonalpha` bằng cách quy về các `subword units` (dự tính khoảng 9000 từ vựng nữa)
-
-Phase-2 có thể dùng các công cụ có sẵn, dễ dùng như `sentencepiece` hoặc `youtokentome`, hoặc handmade từ đầu, tích hợp chặt chẽ với tknz đang có.
+https://github.com/telexyz/fastBPE
 
 Phase-1 cũng còn rất nhiều ý tưởng cần thực thi hoặc cải tiến:
 1/ Data-struct để lưu và tra cứu vocab, (xem `reTRIEval.md`) với vocab nhỏ khoảng vài chục ngàn từ thì Trie là đủ dùng https://tessil.github.io/2017/06/22/hat-trie.html

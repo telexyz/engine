@@ -51,7 +51,7 @@ pub const NGram = struct {
     bi_gram_counts: BiTriGramCount = undefined,
     tri_gram_counts: BiTriGramCount = undefined,
 
-    pub const MIN_COUNT = 30;
+    pub const MIN_COUNT = 0;
 
     pub fn init(self: *NGram, allocator: *std.mem.Allocator) void {
         self.bi_gram_counts = BiTriGramCount.init(allocator);
@@ -70,24 +70,32 @@ pub const NGram = struct {
         if (!text.tokens_number_finalized) return Error.TextNotFinalized;
         _ = self;
 
+        // var buffer: [16 * 3]u8 = undefined;
+        // const buff = buffer[0..];
+
         var bi_tri_gram: BiTriGram = .{};
-        var n = text.tokens.len;
+        var n = text.tokens_number;
         var i: usize = 0;
 
         while (i < n) : (i += 1) {
+            //
             const is_syllable = text.tokens_attrs[i].isSyllable();
+
+            // if (is_syllable) std.debug.print("{s} ", .{text.tokens[i]}) else std.debug.print("\n", .{}); //OK
 
             bi_tri_gram.s0 = bi_tri_gram.s1;
             bi_tri_gram.s1 = bi_tri_gram.s2;
             bi_tri_gram.s2 = if (is_syllable) text.syllable_ids[i] else BiTriGram.BLANK;
 
             if (bi_tri_gram.isTriSyllables()) {
+                // std.debug.print(" |{s}| ", .{bi_tri_gram.printToBuffUtf8(buff)}); //OK
                 const gop = try self.tri_gram_counts.getOrPutValue(bi_tri_gram, 0);
                 gop.value_ptr.* += 1;
             }
 
             bi_tri_gram.s0 = BiTriGram.BLANK;
             if (bi_tri_gram.isBiSyllables()) {
+                // std.debug.print(" |{s}| ", .{bi_tri_gram.printToBuffUtf8(buff)});//OK
                 const gop = try self.bi_gram_counts.getOrPutValue(bi_tri_gram, 0);
                 gop.value_ptr.* += 1;
             }
