@@ -137,17 +137,17 @@ pub fn main() anyerror!void {
     try write_out_types();
     const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
 
-    print("\nParse and write bi,tri-grams ...\n", .{});
+    print("\nParse and write bi,tri,four_gram ...\n", .{});
     gram = .{};
     gram.init(std.heap.page_allocator);
     defer gram.deinit();
     try gram.parse(text);
-    const grams_time = showMeTimeLap(types_time, "Parse bi,tri-grams done!");
+    const grams_time = showMeTimeLap(types_time, "Parse bi,tri,four_gram done!");
 
     try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
     try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
     try n_gram.writeGramCounts(gram.four_gram_counts, "data/19-four_gram.txt");
-    const write_time = showMeTimeLap(grams_time, "Write bi,tri-grams done!");
+    const write_time = showMeTimeLap(grams_time, "Write bi,tri,four_gram done!");
 
     print("\nWriting tokenized results to file ...\n", .{});
     try write_out_final();

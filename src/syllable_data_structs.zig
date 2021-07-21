@@ -317,11 +317,14 @@ test "Enum Tone.isHarsh" {
 }
 
 pub const Syllable = packed struct {
-    am_dau: AmDau,
-    am_giua: AmGiua,
-    am_cuoi: AmCuoi,
-    tone: Tone,
-    can_be_vietnamese: bool,
+    can_be_vietnamese: bool, // 1 bit
+    am_dau: AmDau, //           5 bits
+    am_giua: AmGiua, //         5 bits
+    am_cuoi: AmCuoi, //         4 bits
+    tone: Tone, //              3 bits
+    //                         - - - -
+    //                   Total 18 bits
+    // 2^17 = 131k not syllable tokens
 
     pub const UniqueId = u18; // @bitSizeOf(Syllable);
 

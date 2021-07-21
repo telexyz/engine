@@ -1,5 +1,5 @@
-// https://kheafield.com/code/kenlm
-// http://www.cs.jhu.edu/~phi
+// https://kheafield.com/code/kenlm | https://github.com/marian-nmt/marian-dev
+// http://www.cs.jhu.edu/~phi | http://mt-class.org/jhu/syllabus.html
 
 const std = @import("std");
 
@@ -89,9 +89,6 @@ pub const NGram = struct {
         if (!text.tokens_number_finalized) return Error.TextNotFinalized;
         _ = self;
 
-        // var buffer: [18 * 4]u8 = undefined;
-        // const buff = buffer[0..];
-
         var gram: Gram = .{};
         var n = text.tokens_number;
         var i: usize = 0;
@@ -100,21 +97,17 @@ pub const NGram = struct {
             //
             const is_syllable = text.tokens_attrs[i].isSyllable();
 
-            // if (is_syllable) std.debug.print("{s} ", .{text.tokens[i]}) else std.debug.print("\n", .{}); //OK
-
             gram.s1 = gram.s2;
             gram.s2 = gram.s3;
             gram.s3 = if (is_syllable) text.syllable_ids[i] else Gram.BLANK;
 
             if (gram.isFourGram()) {
-                // std.debug.print(" |{s}| ", .{gram.printToBuffUtf8(buff)}); //OK
                 const gop = try self.four_gram_counts.getOrPutValue(gram, 0);
                 gop.value_ptr.* += 1;
             }
 
             gram.s0 = Gram.BLANK;
             if (gram.isTriGram()) {
-                // std.debug.print(" |{s}| ", .{gram.printToBuffUtf8(buff)}); //OK
                 const gop = try self.tri_gram_counts.getOrPutValue(gram, 0);
                 gop.value_ptr.* += 1;
             }
@@ -122,7 +115,6 @@ pub const NGram = struct {
             const temp = gram.s1;
             gram.s1 = Gram.BLANK;
             if (gram.isBiGram()) {
-                // std.debug.print(" |{s}| ", .{gram.printToBuffUtf8(buff)});//OK
                 const gop = try self.bi_gram_counts.getOrPutValue(gram, 0);
                 gop.value_ptr.* += 1;
             }
@@ -142,7 +134,7 @@ fn order_by_count_desc(context: void, a: GramInfo, b: GramInfo) bool {
 }
 
 pub fn writeGramCounts(grams: GramCount, filename: []const u8) !void {
-    var buffer: [18 * 4]u8 = undefined;
+    var buffer: [13 * 5]u8 = undefined;
     const buff = buffer[0..];
 
     // Init list

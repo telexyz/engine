@@ -8,7 +8,7 @@
 # ~/zig build -Drelease-safe=true
 cp ./zig-out/bin/telexify ~/nlp
 ~/nlp/telexify data/news_titles.txt data/tknz.txt # warm up
-# ~/nlp/telexify ../data/news_titles.txt data/tknz.txt
+~/nlp/telexify ../data/news_titles.txt data/tknz.txt
 # ~/nlp/telexify ../data/vietai_sat.txt data/tknz.txt
 
 # rm data/vocab data/codes data/tknz.bpe.txt
