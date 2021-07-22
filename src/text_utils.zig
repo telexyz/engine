@@ -24,7 +24,6 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 const PAD = "                 ";
-const UNK = '#';
 const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
 
 // Todo: convert &#xA9; to utf8 https://mothereff.in/html-entities
@@ -64,8 +63,9 @@ pub fn parseTokens(text: *Text) void {
         var attrs = &text.tokens_attrs[i.*];
 
         if (token[0] == '\n') {
-            recordNewLineTokenAndShowProgress(text, i.*, &prev_percent);
-            prev_token_is_vi = true;
+            recordNewline(text);
+            showProgress(text, i.*, &prev_percent);
+            prev_token_is_vi = false;
             continue;
         }
 
@@ -123,6 +123,7 @@ pub fn parseTokens(text: *Text) void {
 
         // Write data out
         if (attrs.isSyllable()) {
+            //
             if (token_not_written) {
                 for (token) |b| {
                     text.transformed_bytes[text.transformed_bytes_len] = b;
@@ -134,19 +135,15 @@ pub fn parseTokens(text: *Text) void {
                 text.transformed_bytes_len += 1;
             }
             prev_token_is_vi = true;
+            //
         } else if (text.keep_origin_amap) {
             // write original bytes
             for (token) |b| {
                 text.transformed_bytes[text.transformed_bytes_len] = b;
                 text.transformed_bytes_len += 1;
             }
-        } else { // replace not-syllable token by '# '
-            if (prev_token_is_vi and !(token[0] == '.' and token.len == 1)) {
-                text.transformed_bytes[text.transformed_bytes_len] = UNK;
-                text.transformed_bytes_len += 1;
-                text.transformed_bytes[text.transformed_bytes_len] = 32; // space
-                text.transformed_bytes_len += 1;
-            }
+        } else {
+            if (prev_token_is_vi) recordNewline(text);
             prev_token_is_vi = false;
         }
 
@@ -161,16 +158,35 @@ pub fn parseTokens(text: *Text) void {
     } // END while text.processed_tokens_number
 }
 
-fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    const prev_is_space = text.transformed_bytes[text.transformed_bytes_len - 1] == 32;
-    if (prev_is_space) {
-        text.transformed_bytes[text.transformed_bytes_len - 1] = '\n';
-    } else {
-        text.transformed_bytes[text.transformed_bytes_len] = '\n';
-        text.transformed_bytes_len += 1;
-    }
+inline fn recordNewline(text: *Text) void {
+    var n = text.transformed_bytes_len - 1;
+    var byte: u8 = undefined;
 
-    // Show token parsing progress
+    while (n >= 0) {
+        // Find first non-space byte
+        byte = text.transformed_bytes[n];
+        if (byte != 32 and byte != '\n') break;
+        n -= 1;
+    }
+    text.transformed_bytes_len = n + 1;
+
+    if (!text.keep_origin_amap) {
+        // Remove single syllable line (no use for bi,tri .. gram)
+        while (n >= 0) {
+            byte = text.transformed_bytes[n];
+            if (byte == 32) break;
+            if (byte == '\n') {
+                text.transformed_bytes_len = n;
+                break;
+            }
+            n -= 1;
+        }
+    }
+    text.transformed_bytes[text.transformed_bytes_len] = '\n';
+    text.transformed_bytes_len += 1;
+}
+
+inline fn showProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
     const percent: u64 = if (prev_percent.* < 80)
         (100 * text.transformed_bytes_len) / text.transformed_bytes_size
     else
@@ -178,7 +194,7 @@ fn recordNewLineTokenAndShowProgress(text: *Text, token_index: usize, prev_perce
 
     if (percent > prev_percent.*) {
         prev_percent.* = percent;
-        if (@rem(percent, 5) == 0)
+        if (@rem(percent, 3) == 0)
             std.debug.print("{s}{d}% Parsing\n", .{ PAD, percent });
     }
 }

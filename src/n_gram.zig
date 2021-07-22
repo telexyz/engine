@@ -43,20 +43,25 @@ const Gram = packed struct {
     s1: Syllable.UniqueId = BLANK,
     s2: Syllable.UniqueId = BLANK,
     s3: Syllable.UniqueId = BLANK,
+    s4: Syllable.UniqueId = BLANK,
 
+    fn isFiveGram(self: Gram) bool {
+        return self.s0 != BLANK and self.s1 != BLANK and self.s2 != BLANK and
+            self.s3 != BLANK and self.s4 != BLANK;
+    }
     fn isFourGram(self: Gram) bool {
-        return self.s0 != BLANK and self.s1 != BLANK and
-            self.s2 != BLANK and self.s3 != BLANK;
+        return self.s1 != BLANK and self.s2 != BLANK and
+            self.s3 != BLANK and self.s4 != BLANK;
     }
 
     fn isTriGram(self: Gram) bool {
-        return self.s1 != BLANK and
-            self.s2 != BLANK and self.s3 != BLANK;
+        return self.s2 != BLANK and
+            self.s3 != BLANK and self.s4 != BLANK;
     }
 
     fn isBiGram(self: Gram) bool {
         return true and
-            self.s2 != BLANK and self.s3 != BLANK;
+            self.s3 != BLANK and self.s4 != BLANK;
     }
 
     pub fn printToBuffUtf8(self: Gram, buffer: []u8) []const u8 {
@@ -77,14 +82,21 @@ const Gram = packed struct {
             n += 1;
         }
 
+        if (self.s2 != BLANK) {
+            buff = buffer[n..];
+            n += Syllable.newFromId(self.s2).printBuffUtf8(buff).len;
+            buffer[n] = 32;
+            n += 1;
+        }
+
         buff = buffer[n..];
-        n += Syllable.newFromId(self.s2).printBuffUtf8(buff).len;
+        n += Syllable.newFromId(self.s3).printBuffUtf8(buff).len;
 
         buffer[n] = 32;
         n += 1;
 
         buff = buffer[n..];
-        n += Syllable.newFromId(self.s3).printBuffUtf8(buff).len;
+        n += Syllable.newFromId(self.s4).printBuffUtf8(buff).len;
 
         return buffer[0..n];
     }
@@ -96,18 +108,21 @@ pub const NGram = struct {
     bi_gram_counts: GramCount = undefined,
     tri_gram_counts: GramCount = undefined,
     four_gram_counts: GramCount = undefined,
+    five_gram_counts: GramCount = undefined,
 
-    pub const MIN_COUNT = 0;
+    pub const MIN_COUNT = 10;
 
     pub fn init(self: *NGram, allocator: *std.mem.Allocator) void {
         self.bi_gram_counts = GramCount.init(allocator);
         self.tri_gram_counts = GramCount.init(allocator);
         self.four_gram_counts = GramCount.init(allocator);
+        self.five_gram_counts = GramCount.init(allocator);
     }
 
     pub fn deinit(self: *NGram) void {
         self.bi_gram_counts.deinit();
         self.tri_gram_counts.deinit();
+        self.four_gram_counts.deinit();
         self.four_gram_counts.deinit();
     }
 
@@ -121,33 +136,43 @@ pub const NGram = struct {
         var gram: Gram = .{};
         var n = text.tokens_number;
         var i: usize = 0;
+        var prev_s1: Syllable.UniqueId = BLANK;
+        var prev_s2: Syllable.UniqueId = BLANK;
 
         while (i < n) : (i += 1) {
             //
             const is_syllable = text.tokens_attrs[i].isSyllable();
 
-            gram.s1 = gram.s2;
+            gram.s0 = prev_s1; // s1 := s2
+            gram.s1 = prev_s2; // s1 := s2
             gram.s2 = gram.s3;
-            gram.s3 = if (is_syllable) text.syllable_ids[i] else Gram.BLANK;
+            gram.s3 = gram.s4;
+            gram.s4 = if (is_syllable) text.syllable_ids[i] else BLANK;
 
+            if (gram.isFiveGram()) {
+                const gop = try self.five_gram_counts.getOrPutValue(gram, 0);
+                gop.value_ptr.* += 1;
+            }
+
+            gram.s0 = BLANK;
             if (gram.isFourGram()) {
                 const gop = try self.four_gram_counts.getOrPutValue(gram, 0);
                 gop.value_ptr.* += 1;
             }
 
-            gram.s0 = Gram.BLANK;
+            prev_s1 = gram.s1;
+            gram.s1 = BLANK;
             if (gram.isTriGram()) {
                 const gop = try self.tri_gram_counts.getOrPutValue(gram, 0);
                 gop.value_ptr.* += 1;
             }
 
-            const temp = gram.s1;
-            gram.s1 = Gram.BLANK;
+            prev_s2 = gram.s2;
+            gram.s2 = BLANK;
             if (gram.isBiGram()) {
                 const gop = try self.bi_gram_counts.getOrPutValue(gram, 0);
                 gop.value_ptr.* += 1;
             }
-            gram.s0 = temp; // s0 := s1
         }
     }
 };
