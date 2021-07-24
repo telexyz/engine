@@ -8,7 +8,7 @@ rm data/*tknz.txt
 ~/zig build -Drelease-fast=true
 # ~/zig build -Drelease-safe=true
 cp ./zig-out/bin/telexify ~/nlp
-~/nlp/telexify data/news_titles.txt data/tknz.txt # warm up
+~/nlp/telexify data/news_titles.txt data/tknz.txt spare # warm up
 # ~/nlp/telexify ../results/news_titles.aa ../results/news_titles.aa.xyz
 
 # Windows cross-platform build

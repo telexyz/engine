@@ -6,7 +6,8 @@ const Syllable = syllable_data_structs.Syllable;
 
 pub const Text = struct {
     // Keep origin data as-much-as-possible
-    keep_origin_amap: bool = false,
+    keep_origin_amap: bool = true,
+    convert_mode: u8 = 1, // dense
 
     // Must be init when text is created
     init_allocator: *std.mem.Allocator,

@@ -14,7 +14,8 @@ var gram: n_gram.NGram = undefined;
 
 var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
-var keep_origin_amap: bool = undefined;
+var keep_origin_amap: bool = true;
+var convert_mode: u8 = 1; // dense
 
 fn initConfigsFromArgs() void {
     // Advance the iterator since we want to ignore the binary name.
@@ -31,7 +32,16 @@ fn initConfigsFromArgs() void {
         std.os.exit(1);
     };
     // Optional, get max_lines from args
-    keep_origin_amap = args.nextPosix() != null;
+    const temp = args.nextPosix();
+    if (temp != null) {
+        keep_origin_amap = false;
+        if (temp.?[0] == 'd') convert_mode = 1;
+        if (temp.?[0] == 's') convert_mode = 2;
+        if (convert_mode == 0) {
+            std.debug.warn("expected convert_mode is dense|spare\n", .{});
+            std.os.exit(1);
+        }
+    }
 }
 
 fn write_out_samples() !void {
@@ -111,6 +121,7 @@ pub fn main() anyerror!void {
     text = .{
         .init_allocator = std.heap.page_allocator,
         .keep_origin_amap = keep_origin_amap,
+        .convert_mode = convert_mode,
     };
 
     try text.initFromFile(input_filename);
@@ -136,19 +147,19 @@ pub fn main() anyerror!void {
     print("\nWriting types to file ...\n", .{});
     try write_out_types();
     const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
-    // const write_time = types_time;
+    const write_time = types_time;
 
-    print("\nParse and write n-gram ...\n", .{});
-    gram = .{};
-    gram.init(std.heap.page_allocator);
-    defer gram.deinit();
-    try gram.parse(text);
-    const grams_time = showMeTimeLap(types_time, "Parse n-gram done!");
-    try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
-    try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
-    try n_gram.writeGramCounts(gram.four_gram_counts, "data/19-four_gram.txt");
-    try n_gram.writeGramCounts(gram.five_gram_counts, "data/20-five_gram.txt");
-    const write_time = showMeTimeLap(grams_time, "Write n-gram done!");
+    // print("\nParse and write n-gram ...\n", .{});
+    // gram = .{};
+    // gram.init(std.heap.page_allocator);
+    // defer gram.deinit();
+    // try gram.parse(text);
+    // const grams_time = showMeTimeLap(types_time, "Parse n-gram done!");
+    // try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
+    // try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
+    // try n_gram.writeGramCounts(gram.four_gram_counts, "data/19-four_gram.txt");
+    // try n_gram.writeGramCounts(gram.five_gram_counts, "data/20-five_gram.txt");
+    // const write_time = showMeTimeLap(grams_time, "Write n-gram done!");
 
     print("\nWriting tokenized results to file ...\n", .{});
     try write_out_final();

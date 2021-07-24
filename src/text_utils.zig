@@ -204,8 +204,8 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     var byte: u8 = 0;
     var mark: u8 = 0;
 
-    // Nước => ^nuoc, VIỆT => ^^viet, đầy => zday, con => con
-    if (char_stream.first_char_is_upper) {
+    // 1: Nước => ^nuoc, VIỆT => ^^viet, đầy =>  dday, con => con
+    if (text.convert_mode == 1 and char_stream.first_char_is_upper) {
         text.transformed_bytes[text.transformed_bytes_len] = '^';
         text.transformed_bytes_len += 1;
         if (char_stream.isUpper()) {
@@ -213,7 +213,19 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
             text.transformed_bytes_len += 1;
         }
     }
+
     var i: usize = 0;
+    // 2: Nước =>  nuoc, VIỆT =>   viet, đầy => d day, con => con
+    if (text.convert_mode == 2 and char_stream.buffer[0] == 'd' and
+        char_stream.buffer[1] == 'd')
+    {
+        text.transformed_bytes[text.transformed_bytes_len] = 'd';
+        text.transformed_bytes_len += 1;
+        text.transformed_bytes[text.transformed_bytes_len] = 32;
+        text.transformed_bytes_len += 1;
+        i = 1;
+    }
+
     while (i < char_stream.len) : (i += 1) {
         byte = char_stream.buffer[i];
         if (byte == 'w' or (byte == 'z' and i > 0)) {
@@ -227,18 +239,29 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         text.transformed_bytes_len += 1;
     }
 
-    text.transformed_bytes[text.transformed_bytes_len] = '|';
+    text.transformed_bytes[text.transformed_bytes_len] = switch (text.convert_mode) {
+        1 => '|',
+        2 => 32,
+        else => unreachable,
+    };
     text.transformed_bytes_len += 1;
 
-    // Nước => ^nuoc|w, ^^VIỆT => viet|z, đầy => dday|z, con => con|
+    // 1: Nước => ^nuoc|w, VIỆT => ^^viet|z, đầy => dday|z, con => con|
+    // 2: Nước =>  nuoc w, VIỆT =>   viet z, đầy =>d day z, con => con
     if (mark != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
         text.transformed_bytes_len += 1;
     }
-    // Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, con => con|
+    // 1: Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, con => con|
+    // 2: Nước =>  nuoc ws, VIỆT =>   viet zj, đầy =>d day zf, con => con
     if (char_stream.tone != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = char_stream.tone;
         text.transformed_bytes_len += 1;
+    }
+    if (text.convert_mode == 2 and
+        text.transformed_bytes[text.transformed_bytes_len - 1] == 32)
+    { // remove unecessary space for no-mark no-tone syllable
+        text.transformed_bytes_len -= 1;
     }
     return text.transformed_bytes[trans_start_at..text.transformed_bytes_len];
 }
