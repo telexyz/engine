@@ -109,7 +109,7 @@ pub const NGram = struct {
     four_gram_counts: GramCount = undefined,
     five_gram_counts: GramCount = undefined,
 
-    pub const MIN_COUNT = 10;
+    pub const MIN_COUNT = 3;
 
     pub fn init(self: *NGram, allocator: *std.mem.Allocator) void {
         self.bi_gram_counts = GramCount.init(allocator);

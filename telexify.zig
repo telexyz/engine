@@ -136,19 +136,19 @@ pub fn main() anyerror!void {
     print("\nWriting types to file ...\n", .{});
     try write_out_types();
     const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
-    const write_time = types_time;
+    // const write_time = types_time;
 
-    // print("\nParse and write n-gram ...\n", .{});
-    // gram = .{};
-    // gram.init(std.heap.page_allocator);
-    // defer gram.deinit();
-    // try gram.parse(text);
-    // const grams_time = showMeTimeLap(types_time, "Parse n-gram done!");
-    // try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
-    // try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
-    // try n_gram.writeGramCounts(gram.four_gram_counts, "data/19-four_gram.txt");
-    // try n_gram.writeGramCounts(gram.five_gram_counts, "data/20-five_gram.txt");
-    // const write_time = showMeTimeLap(grams_time, "Write n-gram done!");
+    print("\nParse and write n-gram ...\n", .{});
+    gram = .{};
+    gram.init(std.heap.page_allocator);
+    defer gram.deinit();
+    try gram.parse(text);
+    const grams_time = showMeTimeLap(types_time, "Parse n-gram done!");
+    try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
+    try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
+    try n_gram.writeGramCounts(gram.four_gram_counts, "data/19-four_gram.txt");
+    try n_gram.writeGramCounts(gram.five_gram_counts, "data/20-five_gram.txt");
+    const write_time = showMeTimeLap(grams_time, "Write n-gram done!");
 
     print("\nWriting tokenized results to file ...\n", .{});
     try write_out_final();
