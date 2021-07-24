@@ -124,11 +124,11 @@ pub fn main() anyerror!void {
         .convert_mode = convert_mode,
     };
 
+    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     try text.initFromFile(input_filename);
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
 

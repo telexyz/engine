@@ -133,18 +133,21 @@ pub fn parseTokens(text: *Text) void {
             if (!text.keep_origin_amap) {
                 text.transformed_bytes[text.transformed_bytes_len] = 32; // space
                 text.transformed_bytes_len += 1;
-            }
-            prev_token_is_vi = true;
-            //
-        } else if (text.keep_origin_amap) {
-            // write original bytes
-            for (token) |b| {
-                text.transformed_bytes[text.transformed_bytes_len] = b;
-                text.transformed_bytes_len += 1;
+                prev_token_is_vi = true;
             }
         } else {
-            if (prev_token_is_vi) recordNewline(text);
-            prev_token_is_vi = false;
+            // not syllable
+            if (text.keep_origin_amap) {
+                // write original bytes
+                for (token) |b| {
+                    text.transformed_bytes[text.transformed_bytes_len] = b;
+                    text.transformed_bytes_len += 1;
+                }
+            } else {
+                // !text.keep_origin_amap
+                if (prev_token_is_vi) recordNewline(text);
+                prev_token_is_vi = false;
+            }
         }
 
         if (text.keep_origin_amap and attrs.spaceAfter()) {
@@ -170,18 +173,6 @@ inline fn recordNewline(text: *Text) void {
     }
     text.transformed_bytes_len = n + 1;
 
-    if (!text.keep_origin_amap) {
-        // Remove single syllable line (no use for bi,tri .. gram)
-        while (n >= 0) {
-            byte = text.transformed_bytes[n];
-            if (byte == 32) break;
-            if (byte == '\n') {
-                text.transformed_bytes_len = n;
-                break;
-            }
-            n -= 1;
-        }
-    }
     text.transformed_bytes[text.transformed_bytes_len] = '\n';
     text.transformed_bytes_len += 1;
 }
