@@ -159,30 +159,30 @@ test "pushCharsToSyllable()" {
     var syllable = Syllable.new();
 
     try char_stream.push('n');
-    pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
+    pushCharsToSyllable(printNothing, &char_stream, &syllable);
     try expect(syllable.am_dau == .n);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('g');
-    pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
+    pushCharsToSyllable(printNothing, &char_stream, &syllable);
     try expect(syllable.am_dau == .ng);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('h');
-    pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
+    pushCharsToSyllable(printNothing, &char_stream, &syllable);
     try expect(syllable.am_dau == .ngh);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('ế');
     try expect(char_stream.tone == 's');
-    pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
+    pushCharsToSyllable(printNothing, &char_stream, &syllable);
     try expect(syllable.am_dau == .ngh);
     try expect(syllable.am_giua == .ez);
     try expect(syllable.tone == .s);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('t');
-    pushCharsToSyllable(std.debug.print, &char_stream, &syllable);
+    pushCharsToSyllable(printNothing, &char_stream, &syllable);
     try expect(syllable.am_dau == .ngh);
     try expect(syllable.am_giua == .ez);
     try expect(syllable.am_cuoi == .t);

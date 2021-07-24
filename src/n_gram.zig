@@ -1,5 +1,4 @@
-// https://kheafield.com/code/kenlm | https://github.com/marian-nmt/marian-dev
-// http://www.cs.jhu.edu/~phi | http://mt-class.org/jhu/syllabus.html
+// REF https://kheafield.com/code/kenlm
 
 const std = @import("std");
 
