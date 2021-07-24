@@ -204,18 +204,23 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     var byte: u8 = 0;
     var mark: u8 = 0;
 
-    // 1: Nước => ^nuoc, VIỆT => ^^viet, đầy =>  dday, con => con
-    if (text.convert_mode == 1 and char_stream.first_char_is_upper) {
+    // 1: Nước =>  ^nuoc, VIỆT =>  ^^viet
+    if (char_stream.first_char_is_upper) {
         text.transformed_bytes[text.transformed_bytes_len] = '^';
         text.transformed_bytes_len += 1;
         if (char_stream.isUpper()) {
             text.transformed_bytes[text.transformed_bytes_len] = '^';
             text.transformed_bytes_len += 1;
         }
+        // 2: Nước => ^ nuoc, VIỆT => ^^ viet
+        if (text.convert_mode == 2) {
+            text.transformed_bytes[text.transformed_bytes_len] = 32;
+            text.transformed_bytes_len += 1;
+        }
     }
 
     var i: usize = 0;
-    // 2: Nước =>  nuoc, VIỆT =>   viet, đầy => d day, con => con
+    // 2: đầy => d day, con => con
     if (text.convert_mode == 2 and char_stream.buffer[0] == 'd' and
         char_stream.buffer[1] == 'd')
     {
@@ -246,8 +251,8 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
     };
     text.transformed_bytes_len += 1;
 
-    // 1: Nước => ^nuoc|w, VIỆT => ^^viet|z, đầy => dday|z, con => con|
-    // 2: Nước =>  nuoc w, VIỆT =>   viet z, đầy =>d day z, con => con
+    // 1: Nước =>  ^nuoc|w, VIỆT =>  ^^viet|z, đầy =>  dday|z, con => con|
+    // 2: Nước => ^ nuoc w, VIỆT => ^^ viet z, đầy => d day z, con => con
     if (mark != 0) {
         text.transformed_bytes[text.transformed_bytes_len] = mark;
         text.transformed_bytes_len += 1;

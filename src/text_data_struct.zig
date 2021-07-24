@@ -266,22 +266,19 @@ pub const Text = struct {
         gop1.value_ptr.count += type_info.count;
 
         // Convert syllable to syllow0t
+        var i: u8 = if (syllable[0] == '^') 1 else 0;
+        if (i == 1 and (syllable[1] == '^' or syllable[1] == 32)) i = 2;
+        if (i == 2 and syllable[2] == 32) i = 3;
+
+        var n = syllable.len - 1;
+        n = switch (syllable[n]) {
+            's', 'f', 'r', 'x', 'j' => n, // remove tone "[sfrxj]"
+            else => n + 1,
+        };
+
         var next = self.syllow0t_bytes_len;
-
-        var skip: u8 = if (syllable[0] == '^') 1 else 0;
-        if (syllable[1] == '^') skip = 2;
-        var slice = syllable[skip..];
-
-        switch (slice[slice.len - 1]) {
-            // remove tone "|[sfrxj]"
-            's', 'f', 'r', 'x', 'j' => {
-                slice = slice[0 .. slice.len - 1];
-            },
-            else => {},
-        }
-
-        for (slice) |byte| {
-            self.syllow0t_bytes[next] = byte;
+        while (i < n) : (i += 1) {
+            self.syllow0t_bytes[next] = syllable[i];
             next += 1;
         }
 
