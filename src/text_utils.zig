@@ -32,7 +32,7 @@ pub fn parseTokens(text: *Text) void {
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
     var prev_percent: u64 = 0;
-    const max_sleeps: u8 = 2;
+    const max_sleeps: u8 = 30;
     var sleeps_count: u8 = 0;
     var prev_token_is_vi = true;
 
