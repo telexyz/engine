@@ -360,13 +360,21 @@ pub const Syllable = packed struct {
             .zd => "dd",
             .ngh => "ng",
             .gh => "g",
+            .gi => "d",
             else => @tagName(self.am_dau),
         };
         const giua = switch (self.am_giua) {
             .ooo => "oo",
+            .yez => "iez",
+            .uyez => "uiez",
+            .y => "i",
             else => @tagName(self.am_giua),
         };
-        const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
+        const cuoi = switch (self.am_cuoi) {
+            // tao tau tai tay
+            ._none => blank,
+            else => @tagName(self.am_cuoi),
+        };
 
         var n: usize = 0;
 
@@ -378,17 +386,15 @@ pub const Syllable = packed struct {
                 buff[n] = byte;
                 n += 1;
             }
+            buff[n] = 32;
+            n += 1;
         }
 
         // giua
         if (giua.len > 0) {
-            if (buff[n - 1] == 'u') { // qu => q u
-                buff[n - 1] = 32;
-                buff[n] = 'u';
-                n += 1;
-            } else {
-                buff[n] = 32;
-                n += 1;
+            if (n > 1 and buff[n - 2] == 'u') { // qu => q u
+                buff[n - 2] = 32;
+                buff[n - 1] = 'u';
             }
             for (giua) |byte| {
                 buff[n] = byte;
@@ -717,4 +723,25 @@ test "Syllable's printBuff" {
 
     syll.am_dau = .gh;
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_g oo ng");
+
+    syll.am_dau = ._none;
+    syll.am_giua = .yez;
+    syll.am_cuoi = .u;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "iez u");
+
+    syll.am_giua = .y;
+    syll.am_cuoi = ._none;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "i");
+
+    syll.am_dau = ._none;
+    syll.am_giua = .yez;
+    syll.am_cuoi = .u;
+    syll.tone = .s;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "iez u s");
+
+    syll.am_dau = .qu;
+    syll.am_giua = .yez;
+    syll.am_cuoi = .n;
+    syll.tone = .f;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_q uiez n f");
 }
