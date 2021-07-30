@@ -130,7 +130,7 @@ pub const AmGiua = enum(u5) {
     oa,
     oe,
     ooo, // boong
-    uo, // <= 'uoo', 'uow', 'uwow', without mark, 'uo' must followed by z tone
+    uo, // <= 'uoz', 'uow' without mark
     uy,
     iez, // iê
     oaw, // oă
@@ -360,11 +360,13 @@ pub const Syllable = packed struct {
             .zd => "dd",
             else => @tagName(self.am_dau),
         };
-        const giua = @tagName(self.am_giua);
+        const giua = switch (self.am_giua) {
+            .ooo => "oo",
+            else => @tagName(self.am_giua),
+        };
         const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
 
         var n: usize = 0;
-        // var mark: u8 = 0;
 
         // dau
         if (dau.len > 0) {
@@ -378,16 +380,16 @@ pub const Syllable = packed struct {
 
         // giua
         if (giua.len > 0) {
-            buff[n] = 32;
-            n += 1;
-            var last = giua.len - 1;
-            // if (giua[last] == 'w' or giua[last] == 'z') {
-            //     mark = giua[last];
-            //     last -= 1;
-            // }
-            var i: u8 = 0;
-            while (i <= last) : (i += 1) {
-                buff[n] = giua[i];
+            if (buff[n - 1] == 'u') { // qu => q u
+                buff[n - 1] = 32;
+                buff[n] = 'u';
+                n += 1;
+            } else {
+                buff[n] = 32;
+                n += 1;
+            }
+            for (giua) |byte| {
+                buff[n] = byte;
                 n += 1;
             }
         }
@@ -401,14 +403,6 @@ pub const Syllable = packed struct {
                 n += 1;
             }
         }
-
-        // mark
-        // if (mark != 0) {
-        //     buff[n] = 32;
-        //     n += 1;
-        //     buff[n] = mark;
-        //     n += 1;
-        // }
 
         // tone
         if (self.tone != ._none) {
@@ -708,4 +702,14 @@ test "Syllable's printBuff" {
     try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngoon");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngôn");
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng oz n");
+
+    syll.am_dau = .qu;
+    syll.am_giua = .a;
+    syll.am_cuoi = .n;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_q ua n");
+
+    syll.am_dau = .b;
+    syll.am_giua = .ooo;
+    syll.am_cuoi = .ng;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_b oo ng");
 }
