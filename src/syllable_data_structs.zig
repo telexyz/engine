@@ -358,6 +358,8 @@ pub const Syllable = packed struct {
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "dd",
+            .ngh => "ng",
+            .gh => "g",
             else => @tagName(self.am_dau),
         };
         const giua = switch (self.am_giua) {
@@ -708,8 +710,11 @@ test "Syllable's printBuff" {
     syll.am_cuoi = .n;
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_q ua n");
 
-    syll.am_dau = .b;
+    syll.am_dau = .ngh;
     syll.am_giua = .ooo;
     syll.am_cuoi = .ng;
-    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_b oo ng");
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng oo ng");
+
+    syll.am_dau = .gh;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_g oo ng");
 }
