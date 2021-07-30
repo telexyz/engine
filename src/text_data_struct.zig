@@ -32,7 +32,7 @@ pub const Text = struct {
     recored_byte_addr: usize = undefined,
     tokens_skip: []u8 = undefined,
     tokens_len: []u8 = undefined,
-    // syllable_ids: []Syllable.UniqueId = undefined,
+    syllable_ids: []Syllable.UniqueId = undefined,
     tokens_attrs: []TokenAttributes = undefined,
 
     // out-of-size tokens
@@ -197,7 +197,7 @@ pub const Text = struct {
         self.tokens_skip = try self.allocator.alloc(u8, tokens_num.*);
         self.tokens_len = try self.allocator.alloc(u8, tokens_num.*);
         self.tokens_attrs = try self.allocator.alloc(TokenAttributes, tokens_num.*);
-        // self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
+        self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);

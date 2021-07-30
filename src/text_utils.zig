@@ -123,9 +123,9 @@ pub fn parseTokens(text: *Text) void {
                 attrs.category = type_info.category;
                 // Point token value to it's transform to write to output stream
                 token = type_info.transform;
-                // text.syllable_ids[i.*] = type_info.syllable_id;
+                text.syllable_ids[i.*] = type_info.syllable_id;
             }
-        } // attrs.category == .alphabet or .alphmark
+        } // END attrs.category == .alphabet or .alphmark
 
         // Write data out
         if (attrs.isSyllable()) {
