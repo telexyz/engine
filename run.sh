@@ -9,7 +9,7 @@ rm data/*tknz.txt
 # ~/zig build
 cp ./zig-out/bin/telexify ~/bin
 cp ./zig-out/bin/telexify ~/repos/results/bin
-~/bin/telexify data/news_titles.txt data/tknz.txt d n # warm up
+~/bin/telexify data/news_titles.txt data/tknz.txt parts ngram # warm up
 # ~/bin/telexify ../results/news_titles.aa ../results/news_titles.aa.xyz
 
 # Windows cross-platform build

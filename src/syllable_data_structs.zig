@@ -353,6 +353,62 @@ pub const Syllable = packed struct {
         self.can_be_vietnamese = false;
     }
 
+    pub fn printBuffParts(self: *Syllable, buff: []u8) []const u8 {
+        const blank = "";
+        const dau = switch (self.am_dau) {
+            ._none => blank,
+            .zd => "dd",
+            else => @tagName(self.am_dau),
+        };
+        const giua = @tagName(self.am_giua);
+        const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
+
+        var n: usize = 0;
+        var mark: u8 = '0';
+
+        if (dau.len > 0) {
+            buff[n] = '_';
+            n += 1;
+            for (dau) |byte| {
+                buff[n] = byte;
+                n += 1;
+            }
+        }
+
+        if (giua.len > 0) {
+            buff[n] = 32;
+            n += 1;
+            var last = giua.len - 1;
+            if (giua[last] == 'w' or giua[last] == 'z') {
+                mark = giua[last];
+                last -= 1;
+            }
+            var i: u8 = 0;
+            while (i <= last) : (i += 1) {
+                buff[n] = giua[i];
+                n += 1;
+            }
+        }
+
+        if (cuoi.len > 0) {
+            buff[n] = 32;
+            n += 1;
+            for (cuoi) |byte| {
+                buff[n] = byte;
+                n += 1;
+            }
+        }
+
+        // mark+tone
+        buff[n] = 32;
+        n += 1;
+        buff[n] = mark;
+        n += 1;
+        buff[n] = if (self.tone == ._none) '0' else @tagName(self.tone)[0];
+
+        return buff[0 .. n + 1];
+    }
+
     pub fn printBuffTelex(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
         const dau = switch (self.am_dau) {
@@ -618,19 +674,27 @@ test "Syllable's printBuff" {
 
     try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "nguwas");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngứa");
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng ua ws");
 
     syll.am_giua = .o;
     try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngos");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngó");
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng o 0s");
 
     syll.am_giua = .iez;
     syll.am_cuoi = .n;
     try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngieens");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngiến");
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng ie n zs");
+
+    syll.am_giua = .o;
+    syll.tone = ._none;
+    syll.am_cuoi = ._none;
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng o 00");
 
     syll.am_giua = .oz;
     syll.am_cuoi = .n;
-    syll.tone = ._none;
     try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngoon");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngôn");
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng o n z0");
 }

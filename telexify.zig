@@ -36,10 +36,14 @@ fn initConfigsFromArgs() void {
     var temp = args.nextPosix();
     if (temp != null) {
         keep_origin_amap = false;
-        if (temp.?[0] == 'd') convert_mode = 1;
-        if (temp.?[0] == 's') convert_mode = 2;
+        convert_mode = switch (temp.?[0]) {
+            'd' => 1,
+            's' => 2,
+            'p' => 3,
+            else => 0,
+        };
         if (convert_mode == 0) {
-            std.debug.warn("expected convert_mode is dense|spare\n", .{});
+            std.debug.warn("expected convert_mode is dense|spare|parts\n", .{});
             std.os.exit(1);
         }
     }

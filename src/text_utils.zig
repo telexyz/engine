@@ -91,7 +91,7 @@ pub fn parseTokens(text: *Text) void {
                 // Not transformed and not too long token
                 char_stream.reset();
                 // Try to convert token to syllable
-                const syllable = parsers.parseTokenToGetSyllable(
+                var syllable = parsers.parseTokenToGetSyllable(
                     true, // strict mode on
                     printNothing,
                     &char_stream,
@@ -108,8 +108,23 @@ pub fn parseTokens(text: *Text) void {
                         else => unreachable,
                     };
                     type_info.syllable_id = syllable.toId();
-                    // Write ascii-telex transform
-                    type_info.transform = saveAsciiTransform(text, char_stream);
+
+                    // Write ascii transform
+
+                    if (text.convert_mode == 3) {
+                        if (char_stream.first_char_is_upper) {
+                            text.transformed_bytes[text.transformed_bytes_len] = '^';
+                            text.transformed_bytes_len += 1;
+                            text.transformed_bytes[text.transformed_bytes_len] = ' ';
+                            text.transformed_bytes_len += 1;
+                        }
+                        var buff = text.transformed_bytes[text.transformed_bytes_len..];
+                        type_info.transform = syllable.printBuffParts(buff);
+                        text.transformed_bytes_len += type_info.transform.len;
+                    } else {
+                        type_info.transform = saveAsciiTransform(text, char_stream);
+                    }
+
                     token_not_written = false;
                 } else {
                     // For non-syllable, attrs.category can only be
