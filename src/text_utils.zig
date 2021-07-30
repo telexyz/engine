@@ -32,11 +32,14 @@ pub fn parseTokens(text: *Text) void {
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
     var prev_percent: u64 = 0;
-    const max_sleeps: u8 = 30;
+    const max_sleeps: u8 = 20;
     var sleeps_count: u8 = 0;
     var prev_token_is_vi = true;
 
-    var i: *usize = &text.processed_tokens_number;
+    var i: *usize = &text.parsed_tokens_number;
+    var next: *usize = &text.parsed_input_bytes;
+    var curr: usize = undefined;
+
     while (i.* <= text.tokens_number) : (i.* += 1) {
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
@@ -58,9 +61,12 @@ pub fn parseTokens(text: *Text) void {
         }
 
         // Init token shortcuts
-        var token = text.tokens[i.*];
+        curr = next.* + text.tokens_skip[i.*];
+        next.* = curr + text.tokens_len[i.*];
+        var token = text.input_bytes[curr..next.*];
         //  and token's attributes shortcut
         var attrs = &text.tokens_attrs[i.*];
+        // printToken(token, attrs.*); // DEBUG
 
         if (token[0] == '\n') {
             recordNewline(text);
@@ -117,7 +123,7 @@ pub fn parseTokens(text: *Text) void {
                 attrs.category = type_info.category;
                 // Point token value to it's transform to write to output stream
                 token = type_info.transform;
-                text.syllable_ids[i.*] = type_info.syllable_id;
+                // text.syllable_ids[i.*] = type_info.syllable_id;
             }
         } // attrs.category == .alphabet or .alphmark
 
@@ -143,10 +149,11 @@ pub fn parseTokens(text: *Text) void {
                     text.transformed_bytes[text.transformed_bytes_len] = b;
                     text.transformed_bytes_len += 1;
                 }
-            } else {
-                // !text.keep_origin_amap
-                if (prev_token_is_vi) recordNewline(text);
-                prev_token_is_vi = false;
+            } else { // text.keep_origin_amap == false
+                if (!(token.len == 1 and token[0] == '_')) {
+                    if (prev_token_is_vi) recordNewline(text);
+                    prev_token_is_vi = false;
+                }
             }
         }
 
@@ -158,7 +165,7 @@ pub fn parseTokens(text: *Text) void {
 
         // text.transformed_bytes[first_byte_index] = attrs.toByte();
         // printToken(token, attrs.*); // DEBUG
-    } // END while text.processed_tokens_number
+    } // END while text.parsed_tokens_number
 }
 
 inline fn recordNewline(text: *Text) void {
@@ -178,7 +185,7 @@ inline fn recordNewline(text: *Text) void {
 }
 
 inline fn showProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    const percent: u64 = if (prev_percent.* < 80)
+    const percent: u64 = if (prev_percent.* < 66)
         (100 * text.transformed_bytes_len) / text.transformed_bytes_size
     else
         (100 * token_index) / text.tokens_number;

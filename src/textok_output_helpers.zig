@@ -19,12 +19,12 @@ pub const TextokOutputHelpers = struct {
         return a.count > b.count;
     }
 
-    pub fn write_too_long_tokens_to_file(text: Text, token_ids: std.ArrayList(usize), filename: []const u8) !void {
+    pub fn write_too_long_tokens_to_file(tokens: std.ArrayList([]const u8), filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
         var wrt = std.io.bufferedWriter(file.writer());
-        for (token_ids.items) |index| {
-            _ = try wrt.writer().write(text.tokens[index]);
+        for (tokens.items) |token| {
+            _ = try wrt.writer().write(token);
             _ = try wrt.writer().write("\n");
         }
         try wrt.flush();
@@ -161,9 +161,14 @@ pub const TextokOutputHelpers = struct {
 
         var i: usize = 0;
         var wrt = std.io.bufferedWriter(output_file.writer());
+        var curr: usize = 0;
+        var next: usize = 0;
 
         while (i < n) : (i += 1) {
-            _ = try wrt.writer().write(text.tokens[i]);
+            curr = next;
+            next = curr + text.tokens_len[i];
+            const token = text.input_bytes[curr..next];
+            _ = try wrt.writer().write(token);
 
             const attrs = text.tokens_attrs[i];
             if (attrs.surrounded_by_spaces == .both or

@@ -87,13 +87,11 @@ fn write_out_types() !void {
 
 fn write_out_final() !void {
     try TextokOutput.write_too_long_tokens_to_file(
-        text,
-        text.alphabet_too_long_token_ids,
+        text.alphabet_too_long_tokens,
         "data/09-alphabet_too_long.txt",
     );
     try TextokOutput.write_too_long_tokens_to_file(
-        text,
-        text.nonalpha_too_long_token_ids,
+        text.nonalpha_too_long_tokens,
         "data/10-nonalpha_too_long.txt",
     );
     // Final result

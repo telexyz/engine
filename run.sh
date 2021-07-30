@@ -6,10 +6,11 @@ rm data/2*.txt
 rm data/*tknz.txt
 
 ~/zig build -Drelease-fast=true
-# ~/zig build -Drelease-safe=true
-cp ./zig-out/bin/telexify ~/nlp
-~/nlp/telexify data/news_titles.txt data/tknz.txt spare # warm up
-# ~/nlp/telexify ../results/news_titles.aa ../results/news_titles.aa.xyz
+# ~/zig build
+cp ./zig-out/bin/telexify ~/bin
+cp ./zig-out/bin/telexify ~/repos/results/bin
+~/bin/telexify data/news_titles.txt data/tknz.txt d # warm up
+# ~/bin/telexify ../results/news_titles.aa ../results/news_titles.aa.xyz
 
 # Windows cross-platform build
 # Wine Is Not an Emulator: translates Windows API calls into POSIX calls on-the-fly

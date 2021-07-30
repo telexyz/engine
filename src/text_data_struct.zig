@@ -28,20 +28,23 @@ pub const Text = struct {
     // A toke is a slice of []const u8, that point to the original input bytes
     // (normally input byte are readed from a text file, corpus.txt for example)
     // Each tokens[i] slice will point to the original input_bytes
-    tokens: [][]const u8 = undefined,
-    syllable_ids: []Syllable.UniqueId = undefined,
+
+    recored_byte_addr: usize = undefined,
+    tokens_skip: []u8 = undefined,
+    tokens_len: []u8 = undefined,
+    // syllable_ids: []Syllable.UniqueId = undefined,
     tokens_attrs: []TokenAttributes = undefined,
 
     // out-of-size tokens
-    alphabet_too_long_token_ids: std.ArrayList(usize) = undefined,
-    nonalpha_too_long_token_ids: std.ArrayList(usize) = undefined,
+    alphabet_too_long_tokens: std.ArrayList([]const u8) = undefined,
+    nonalpha_too_long_tokens: std.ArrayList([]const u8) = undefined,
 
     // A token can have multiple transforms:
     // For example ascii_transforms[i] is the ascii-telex transformation of tokens[i]
     // ascii_transforms should be used only if token is a VN syllable for sure,
     // other use-case should be considered carefully since we may loose
     // the original form of the input. For example:
-    // "vớiiiii...." can be converted to ascii-telex "voowisiiii....",
+    // "vớiiiii...." can be converted to ascii-telex "vowisiiii....",
     // but it not looked right for me. I think it we should keep original form.
     // Same tokens counted to type, we will save transform in TypeInfo
 
@@ -72,19 +75,21 @@ pub const Text = struct {
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_number: usize = undefined,
+
     // Start the text with empty tokens list, hence tokens_number = 0
     tokens_number: usize = 0,
-    processed_tokens_number: usize = 0,
-    // To skip sleep time
+
+    parsed_input_bytes: usize = 0,
+    parsed_tokens_number: usize = 0,
     tokens_number_finalized: bool = false,
 
     allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
 
-    pub const MAX_TOKEN_LEN = 11;
+    pub const MAX_TOKEN_LEN = 16;
     const AVG_BYTES_PER_TOKEN = 2;
-    const MAX_INPUT_FILE_SIZE = 3 * 1024 * 1024 * 1024; // 3GB
-    const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1mb
+    const MAX_INPUT_FILE_SIZE = 1024 * 1024 * 1024; // 1Gb
+    const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
     const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
 
     pub const TypeInfo = struct {
@@ -182,23 +187,25 @@ pub const Text = struct {
     pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {
         self.initAllocatorIfNeeded();
         self.input_bytes = input_bytes;
+        self.recored_byte_addr = @ptrToInt(input_bytes.ptr);
 
         const input_bytes_size = self.input_bytes.len;
         var tokens_num = &self.estimated_tokens_number;
         tokens_num.* = input_bytes_size / AVG_BYTES_PER_TOKEN + BUFF_SIZE;
 
         // Init token list
-        self.tokens = try self.allocator.alloc([]const u8, tokens_num.*);
+        self.tokens_skip = try self.allocator.alloc(u8, tokens_num.*);
+        self.tokens_len = try self.allocator.alloc(u8, tokens_num.*);
         self.tokens_attrs = try self.allocator.alloc(TokenAttributes, tokens_num.*);
-        self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
+        // self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
-        self.alphabet_too_long_token_ids = std.ArrayList(usize).init(self.allocator);
-        self.nonalpha_too_long_token_ids = std.ArrayList(usize).init(self.allocator);
+        self.alphabet_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
+        self.nonalpha_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
@@ -222,14 +229,33 @@ pub const Text = struct {
         // free all allocated memories
         self.arena.deinit();
     }
-
+    pub fn getToken(self: Text, n: usize) []const u8 {
+        if (n < self.tokens_number) {
+            var i: usize = 0;
+            var curr: usize = 0;
+            var next: usize = 0;
+            while (i <= n) : (i += 1) {
+                curr = next + self.tokens_skip[i];
+                next = curr + self.tokens_len[i];
+            }
+            return self.input_bytes[curr..next];
+        } else {
+            unreachable;
+        }
+    }
     pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
-        // Insert token into a hash_map to know if we seen it before or not
-        // const token = self.input_bytes[token_start..token_end];
-        self.tokens[self.tokens_number] = token;
+        const tkn_addr = @ptrToInt(token.ptr);
+        var skip_len = tkn_addr - self.recored_byte_addr;
+        self.recored_byte_addr = tkn_addr + token.len;
+
+        if (skip_len < 256 and token.len < 256) {
+            self.tokens_skip[self.tokens_number] = @intCast(u8, skip_len);
+            self.tokens_len[self.tokens_number] = @intCast(u8, token.len);
+        } else {
+            unreachable;
+        }
         self.tokens_attrs[self.tokens_number] = attrs;
 
-        // Reject too long tokens
         if (token.len <= MAX_TOKEN_LEN) {
             // Count nonalpha token only
             // alphatoken will be counted in parsing phase
@@ -238,11 +264,12 @@ pub const Text = struct {
                 gop.value_ptr.* += 1;
             }
         } else {
+            // Reject too long tokens
             // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
             if (attrs.category == .nonalpha)
-                try self.nonalpha_too_long_token_ids.append(self.tokens_number)
+                try self.nonalpha_too_long_tokens.append(token)
             else
-                try self.alphabet_too_long_token_ids.append(self.tokens_number);
+                try self.alphabet_too_long_tokens.append(token);
         }
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
@@ -301,7 +328,7 @@ test "Text" {
     defer text.deinit();
 
     // Text is a struct with very basic function
-    // It's up to tokenizer to split the text and assign value to tokens[i]
+    // It's up to tokenizer to split the text and assign value to tokens
     // Here is the simplest tokenizer based on space delimiter
     // std.mem.tokenize is a Zig standard library function to deal with byte stream
     var it = std.mem.tokenize(text.input_bytes, " ");
@@ -312,7 +339,7 @@ test "Text" {
     };
     try text.recordToken(token.?, attrs);
     try std.testing.expect(text.tokens_number == 1);
-    try std.testing.expectEqualStrings(text.tokens[0], "Cả");
+    try std.testing.expectEqualStrings(text.getToken(0), "Cả");
 
     try text.recordToken(it.next().?, attrs);
     try text.recordToken(it.next().?, attrs);
@@ -322,13 +349,14 @@ test "Text" {
     while (it.next()) |tkn| {
         try text.recordToken(tkn, attrs);
     }
+    text.tokens_number_finalized = true;
 
     thread.join();
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
 
     try std.testing.expect(text.tokens_number == 12);
-    try std.testing.expectEqualStrings(text.tokens[9], "nhà");
+    try std.testing.expectEqualStrings(text.getToken(9), "nhà");
     try std.testing.expect(text.alphabet_types.get("!").?.count == 1);
     try std.testing.expect(text.alphabet_types.get(",").?.count == 2);
     try std.testing.expect(text.alphabet_types.get("TAQs").?.count == 1);

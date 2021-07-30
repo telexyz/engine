@@ -325,7 +325,7 @@ test "Tokenizer" {
     var it = std.mem.split(s1_tokens, " ");
     var i: usize = 0;
     while (it.next()) |token| {
-        try testing.expectEqualStrings(token, text.tokens[i]);
+        try testing.expectEqualStrings(token, text.getToken(i));
 
         try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
 
@@ -334,7 +334,7 @@ test "Tokenizer" {
         i += 1;
     }
 
-    try std.testing.expectEqualStrings("\n", text.tokens[i]);
+    try std.testing.expectEqualStrings("\n", text.getToken(i));
     const s2_tokens = "Tuyến tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
     var s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alphabet, .nonalpha, .alphabet, .alphmark, .alphmark, .nonalpha, .alphabet, .alphmark, .nonalpha, .alphmark, .alphabet, .alphabet, .nonalpha };
     const s2_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
@@ -342,7 +342,7 @@ test "Tokenizer" {
     i += 1;
     var j: usize = 0;
     while (it.next()) |token| {
-        try testing.expectEqualStrings(token, text.tokens[i]);
+        try testing.expectEqualStrings(token, text.getToken(i));
         // print("Token: {s}\n", .{token});
         try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
         try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_attrs[i].surrounded_by_spaces));
@@ -350,13 +350,13 @@ test "Tokenizer" {
         j += 1;
     }
 
-    try std.testing.expectEqualStrings("\n", text.tokens[i]);
+    try std.testing.expectEqualStrings("\n", text.getToken(i));
     const s3_tokens = "https :// vnexpress . net / cdc - tinh - dong - thap - dong - cua -4299620. html";
     it = std.mem.split(s3_tokens, " ");
     i += 1;
     j = 0;
     while (it.next()) |token| {
-        try testing.expectEqualStrings(token, text.tokens[i]);
+        try testing.expectEqualStrings(token, text.getToken(i));
         const surrounded_by_spaces = text.tokens_attrs[i].surrounded_by_spaces;
         switch (j) {
             0 => try testing.expect(surrounded_by_spaces == .left),
@@ -375,28 +375,28 @@ test "Tokenizer" {
     }
 
     // Second passes, parseTokens
-    try testing.expect(text.processed_tokens_number == 0);
+    try testing.expect(text.parsed_tokens_number == 0);
     // print("\ntokens_number: {}\n", .{text.tokens_number});
     try testing.expect(text.tokens_number == 15 + 15 + 19 + 3); // 3 * \n
 
     try testing.expect(text.tokens_number_finalized == true);
     text_utils.parseTokens(&text);
 
-    try testing.expect(text.processed_tokens_number == text.tokens_number);
+    try testing.expect(text.parsed_tokens_number == text.tokens_number);
 
     // Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
     s1_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .syllable, .syllmark, .nonalpha, .syllmark, .nonalpha, .alphabet, .nonalpha, .syllable, .syllmark, .syllmark, .nonalpha, .syllmark, .nonalpha };
     it = std.mem.split(s1_tokens, " ");
     i = 0;
     while (it.next()) |token| {
-        try testing.expectEqualStrings(token, text.tokens[i]);
+        try testing.expectEqualStrings(token, text.getToken(i));
         // print("Token: {s}\n", .{token}); //DEBUG
         try testing.expectEqualStrings(@tagName(s1_tkcats[i]), @tagName(text.tokens_attrs[i].category));
         // try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
         i += 1;
     }
 
-    try std.testing.expectEqualStrings("\n", text.tokens[i]);
+    try std.testing.expectEqualStrings("\n", text.getToken(i));
 
     // Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
     s2_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .alphabet, .nonalpha, .syllable, .syllmark, .syllmark, .nonalpha, .syllable, .syllmark, .nonalpha, .syllmark, .alphabet, .alphabet, .nonalpha };
@@ -404,7 +404,7 @@ test "Tokenizer" {
     i += 1;
     j = 0;
     while (it.next()) |token| {
-        try testing.expectEqualStrings(token, text.tokens[i]);
+        try testing.expectEqualStrings(token, text.getToken(i));
         // print("Token: {s}\n", .{token}); //DEBUG
         try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
         // try testing.expect(s2_tkcats[j] == text.tokens_attrs[i].category);
