@@ -1,7 +1,6 @@
 const std = @import("std");
 
 const parsers = @import("./syllable_parsers.zig");
-const converters = @import("./syllable_converters.zig");
 
 fn print(comptime fmt_str: []const u8, args: anytype) void {
     if (false)

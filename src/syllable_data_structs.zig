@@ -191,25 +191,6 @@ pub const AmGiua = enum(u5) {
             else => false,
         };
     }
-    pub fn noMark(self: AmGiua) AmGiua {
-        return switch (self) {
-            .az => .a,
-            .aw => .a,
-            .ez => .e,
-            .oz => .o,
-            .ow => .o,
-            .uw => .u,
-            .oaw => .oa,
-            .uaz => .ua,
-            .uaw => .ua,
-            .uoz => .uo,
-            .uow => .uo,
-            .iez => .ie,
-            .yez => .ye,
-            .uyez => .uye,
-            else => self,
-        };
-    }
 };
 
 test "Enum AmGiua" {
