@@ -348,27 +348,23 @@ pub const Syllable = packed struct {
     }
 
     pub fn newFromId(id: UniqueId) Syllable {
-        var act: u18 = @truncate(u6, id); // am_cuoi+tone is last 6-bits value
-        var am_cuoi: u18 = undefined;
-        var tone: u18 = undefined;
-
-        if (act < 54) {
-            tone = @rem(act, 6);
-            am_cuoi = act / 6;
+        var x = id >> 6;
+        var syllable = Syllable{
+            .am_dau = @intToEnum(AmDau, @truncate(u5, x >> 5)),
+            .am_giua = @intToEnum(AmGiua, @truncate(u5, x)),
+            .can_be_vietnamese = true,
+            .am_cuoi = ._none,
+            .tone = ._none,
+        };
+        x = @truncate(u6, id); // am_cuoi + tone is last 6-bits value
+        if (x < 54) {
+            syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 6));
+            syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 6)));
         } else { // unpacking
-            act -= 54;
-            tone = @rem(act, 2) + 4;
-            am_cuoi = act / 2 + 9;
+            x -= 54;
+            syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 2 + 9));
+            syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 2) + 4));
         }
-
-        var syllable = Syllable.new();
-        act = id >> 6;
-        syllable.can_be_vietnamese = true;
-        syllable.am_dau = @intToEnum(AmDau, @truncate(u5, act >> 5));
-        syllable.am_giua = @intToEnum(AmGiua, @truncate(u5, act));
-        syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, am_cuoi));
-        syllable.tone = @intToEnum(Tone, @truncate(u3, tone));
-
         return syllable;
     }
 
