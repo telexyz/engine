@@ -193,30 +193,30 @@ pub fn writeGramCounts(grams: GramCount, filename: []const u8) !void {
 
 const text_utils = @import("./text_utils.zig");
 
-// test "ngram" {
-//     var gram: NGram = .{};
-//     gram.init(std.heap.page_allocator);
-//     defer gram.deinit();
+test "ngram" {
+    var gram: NGram = .{};
+    gram.init(std.heap.page_allocator);
+    defer gram.deinit();
 
-//     var text = Text{
-//         .init_allocator = std.testing.allocator,
-//     };
-//     try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs");
-//     defer text.deinit();
+    var text = Text{
+        .init_allocator = std.testing.allocator,
+    };
+    try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs");
+    defer text.deinit();
 
-//     var it = std.mem.tokenize(text.input_bytes, " ");
-//     var attrs: Text.TokenAttributes = .{
-//         .category = .alphabet,
-//         .surrounded_by_spaces = .both,
-//     };
-//     while (it.next()) |tkn| {
-//         try text.recordToken(tkn, attrs);
-//     }
+    var it = std.mem.tokenize(text.input_bytes, " ");
+    var attrs: Text.TokenAttributes = .{
+        .category = .alphabet,
+        .surrounded_by_spaces = .both,
+    };
+    while (it.next()) |tkn| {
+        try text.recordToken(tkn, attrs);
+    }
 
-//     text.tokens_number_finalized = true;
-//     text_utils.parseTokens(&text);
-//     try gram.parse(text);
-// }
+    text.tokens_number_finalized = true;
+    text_utils.parseTokens(&text);
+    try gram.parse(text);
+}
 
 const GramTrie = struct {
     const Key = Syllable.UniqueId;
@@ -227,7 +227,7 @@ const GramTrie = struct {
         count: u32 = 0,
         children: Children = undefined,
 
-        fn getOrPut(self: *Node, key: Key, allocator: *std.mem.Allocator) !*Node {
+        fn getOrPutThenCout(self: *Node, key: Key, allocator: *std.mem.Allocator) !*Node {
             var temp = self.children.get(key);
             var node = if (temp != null) temp.? else try allocator.create(Node);
 
@@ -262,7 +262,7 @@ const GramTrie = struct {
         for (keys) |key| {
             std.debug.print("key={d}, ", .{key});
             if (key == BLANK) break;
-            curr_node = try curr_node.getOrPut(key, allocator);
+            curr_node = try curr_node.getOrPutThenCout(key, allocator);
         }
         std.debug.print("count={d}\n", .{curr_node.count});
         return curr_node.count;
