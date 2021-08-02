@@ -79,20 +79,23 @@ pub const NGram = struct {
     four_gram_counts: GramCount = undefined,
     five_gram_counts: GramCount = undefined,
 
+    arena: std.heap.ArenaAllocator = undefined,
+    allocator: *std.mem.Allocator = undefined,
+
     pub const MIN_COUNT = 3;
 
-    pub fn init(self: *NGram, allocator: *std.mem.Allocator) void {
-        self.bi_gram_counts = GramCount.init(allocator);
-        self.tri_gram_counts = GramCount.init(allocator);
-        self.four_gram_counts = GramCount.init(allocator);
-        self.five_gram_counts = GramCount.init(allocator);
+    pub fn init(self: *NGram, init_allocator: *std.mem.Allocator) void {
+        self.arena = std.heap.ArenaAllocator.init(init_allocator);
+        self.allocator = &self.arena.allocator;
+
+        self.bi_gram_counts = GramCount.init(self.allocator);
+        self.tri_gram_counts = GramCount.init(self.allocator);
+        self.four_gram_counts = GramCount.init(self.allocator);
+        self.five_gram_counts = GramCount.init(self.allocator);
     }
 
     pub fn deinit(self: *NGram) void {
-        self.bi_gram_counts.deinit();
-        self.tri_gram_counts.deinit();
-        self.four_gram_counts.deinit();
-        self.four_gram_counts.deinit();
+        self.arena.deinit();
     }
 
     pub const Error = error{
@@ -195,7 +198,7 @@ const text_utils = @import("./text_utils.zig");
 
 test "ngram" {
     var gram: NGram = .{};
-    gram.init(std.heap.page_allocator);
+    gram.init(std.testing.allocator);
     defer gram.deinit();
 
     var text = Text{
