@@ -7,36 +7,6 @@ const syllable_data_structs = @import("./syllable_data_structs.zig");
 const Syllable = syllable_data_structs.Syllable;
 const BLANK: Syllable.UniqueId = 0;
 
-const GramTrie = struct {
-    const Key = Syllable.UniqueId;
-    const Node = struct {
-        key: Key,
-        count: u32 = 0,
-        children: []*Node = &[_]*Node{},
-
-        fn add(self: Node, child: Node) void {
-            var children: [self.children.len + 1]*Node = undefined;
-            std.mem.copy(*Node, &children, self.children ++ [_]*Node{child});
-        }
-
-        fn get(self: *const Node, key: Key) ?*Node {
-            for (self.children) |child| {
-                if (child.key == key) return &child;
-            }
-            return null;
-        }
-    };
-
-    root: Node = .{ .key = BLANK },
-
-    pub fn getOrPut(self: *Self, keys: []const Key) u32 {
-        //
-        _ = self;
-        _ = keys[0];
-        return 0;
-    }
-};
-
 const Gram = packed struct {
     s0: Syllable.UniqueId = BLANK,
     s1: Syllable.UniqueId = BLANK,
@@ -142,7 +112,7 @@ pub const NGram = struct {
             //
             const is_syllable = text.tokens_attrs[i].isSyllable();
 
-            gram.s0 = prev_s1; // s1 := s2
+            gram.s0 = prev_s1; // s0 := s1
             gram.s1 = prev_s2; // s1 := s2
             gram.s2 = gram.s3;
             gram.s3 = gram.s4;
@@ -223,27 +193,87 @@ pub fn writeGramCounts(grams: GramCount, filename: []const u8) !void {
 
 const text_utils = @import("./text_utils.zig");
 
-test "ngram" {
-    var gram: NGram = .{};
-    gram.init(std.heap.page_allocator);
-    defer gram.deinit();
+// test "ngram" {
+//     var gram: NGram = .{};
+//     gram.init(std.heap.page_allocator);
+//     defer gram.deinit();
 
-    var text = Text{
-        .init_allocator = std.testing.allocator,
-    };
-    try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs");
-    defer text.deinit();
+//     var text = Text{
+//         .init_allocator = std.testing.allocator,
+//     };
+//     try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs");
+//     defer text.deinit();
 
-    var it = std.mem.tokenize(text.input_bytes, " ");
-    var attrs: Text.TokenAttributes = .{
-        .category = .alphabet,
-        .surrounded_by_spaces = .both,
+//     var it = std.mem.tokenize(text.input_bytes, " ");
+//     var attrs: Text.TokenAttributes = .{
+//         .category = .alphabet,
+//         .surrounded_by_spaces = .both,
+//     };
+//     while (it.next()) |tkn| {
+//         try text.recordToken(tkn, attrs);
+//     }
+
+//     text.tokens_number_finalized = true;
+//     text_utils.parseTokens(&text);
+//     try gram.parse(text);
+// }
+
+const GramTrie = struct {
+    const Key = Syllable.UniqueId;
+    const Children = std.AutoHashMap(Key, *Node);
+
+    const Node = struct {
+        key: Key = undefined,
+        count: u32 = 0,
+        children: Children = undefined,
+
+        fn getOrPut(self: *Node, key: Key, allocator: *std.mem.Allocator) !*Node {
+            var temp = self.children.get(key);
+            var node = if (temp != null) temp.? else try allocator.create(Node);
+
+            if (node.count == 0) { // newly created
+                node.key = key;
+                node.children = Children.init(allocator);
+                node.count = 1;
+                try self.children.put(key, node);
+            } else {
+                node.count += 1;
+            }
+
+            return node;
+        }
     };
-    while (it.next()) |tkn| {
-        try text.recordToken(tkn, attrs);
+
+    root: Node = .{ .key = BLANK },
+
+    arena: std.heap.ArenaAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator),
+
+    pub fn init(self: *GramTrie) void {
+        self.root.children = Children.init(&self.arena.allocator);
     }
 
-    text.tokens_number_finalized = true;
-    text_utils.parseTokens(&text);
-    try gram.parse(text);
+    pub fn deinit(self: *GramTrie) void {
+        self.arena.deinit();
+    }
+
+    pub fn count(self: *GramTrie, keys: []const Key) !u32 {
+        var curr_node = &self.root;
+        const allocator = &self.arena.allocator;
+        for (keys) |key| {
+            std.debug.print("key={d}, ", .{key});
+            if (key == BLANK) break;
+            curr_node = try curr_node.getOrPut(key, allocator);
+        }
+        std.debug.print("count={d}\n", .{curr_node.count});
+        return curr_node.count;
+    }
+};
+
+test "GramTrie" {
+    var gt: GramTrie = .{};
+    gt.init();
+    defer gt.deinit();
+
+    std.debug.print("\nGramTrie:\n", .{});
+    _ = try gt.count(&.{ 5, 1, 2 });
 }
