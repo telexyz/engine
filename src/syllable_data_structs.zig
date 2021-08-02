@@ -229,24 +229,24 @@ test "Enum AmGiua" {
 /// - 2 bán âm cuối vần : i (y), u (o)
 pub const AmCuoi = enum(u4) {
     // 13 âm cuối
-    _none,
+    _none, // 0
     i,
     y,
     u,
     o,
     m,
     n,
+    ng, // 7
+    nh,
+    ch, // 9
+    c,
     p,
     t,
-    c,
-    ch,
-    ng,
-    nh,
     pub fn len(self: AmCuoi) u8 {
         return switch (@enumToInt(self)) {
-            1...9 => 1,
-            10, 11, 12 => 2,
-            else => 0,
+            0 => 0,
+            7...9 => 2,
+            else => 1,
         };
     }
     pub fn isSaturated(self: AmCuoi) bool {
@@ -282,10 +282,10 @@ test "Enum AmCuoi.len" {
 pub const Tone = enum(u3) {
     // 6 thanh
     _none,
-    s,
     f,
     r,
     x,
+    s,
     j,
     pub fn len(self: Tone) u8 {
         return if (self == ._none) 0 else 1;
@@ -321,23 +321,55 @@ test "Enum Tone.isHarsh" {
 }
 
 pub const Syllable = packed struct {
-    can_be_vietnamese: bool, // 1 bit
     am_dau: AmDau, //           5 bits
     am_giua: AmGiua, //         5 bits
     am_cuoi: AmCuoi, //         4 bits
     tone: Tone, //              3 bits
+    can_be_vietnamese: bool, // 1 bit
     //                         - - - -
     //                   Total 18 bits
-    // 2^17 = 131k not syllable tokens
 
-    pub const UniqueId = u18; // @bitSizeOf(Syllable);
+    pub const UniqueId = u16;
 
     pub fn toId(self: Syllable) UniqueId {
-        return @bitCast(UniqueId, self);
+        const id =
+            (@intCast(UniqueId, @enumToInt(self.am_dau)) << 11) | // u5 + u11
+            (@intCast(UniqueId, @enumToInt(self.am_giua)) << 6); // u5 + u6
+
+        const am_cuoi = @intCast(UniqueId, @enumToInt(self.am_cuoi));
+        const tone = @intCast(UniqueId, @enumToInt(self.tone));
+
+        const act = if (am_cuoi < 9)
+            am_cuoi * 6 + tone
+        else // packing
+            54 + (am_cuoi - 9) * 2 + (tone - 4);
+
+        return id + act;
     }
 
     pub fn newFromId(id: UniqueId) Syllable {
-        return @bitCast(Syllable, id);
+        var act: u18 = @truncate(u6, id); // am_cuoi+tone is last 6-bits value
+        var am_cuoi: u18 = undefined;
+        var tone: u18 = undefined;
+
+        if (act < 54) {
+            tone = @rem(act, 6);
+            am_cuoi = act / 6;
+        } else { // unpacking
+            act -= 54;
+            tone = @rem(act, 2) + 4;
+            am_cuoi = act / 2 + 9;
+        }
+
+        var syllable = Syllable.new();
+        act = id >> 6;
+        syllable.can_be_vietnamese = true;
+        syllable.am_dau = @intToEnum(AmDau, @truncate(u5, act >> 5));
+        syllable.am_giua = @intToEnum(AmGiua, @truncate(u5, act));
+        syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, am_cuoi));
+        syllable.tone = @intToEnum(Tone, @truncate(u3, tone));
+
+        return syllable;
     }
 
     pub fn new() Syllable {

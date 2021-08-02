@@ -8,7 +8,7 @@ rm data/*tknz.txt
 ~/zig build -Drelease-fast=true
 # ~/zig build
 cp ./zig-out/bin/telexify ~/bin
-cp ./zig-out/bin/telexify ~/repos/results/bin
+# cp ./zig-out/bin/telexify ~/repos/results/bin
 ~/bin/telexify data/news_titles.txt data/tknz.txt parts ngram # warm up
 # ~/bin/telexify ../results/news_titles.aa ../results/news_titles.aa.xyz
 

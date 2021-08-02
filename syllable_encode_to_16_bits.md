@@ -50,8 +50,25 @@ Thay thế `a y => ah i`, `az y => az i`
 
 => 62 slots to store `am_cuoi + tone` combinations (__lucky :D__)
 
-0000 000
-0001 001
-.... ...
-1100 101
+```js
+    var act // am_cuoi (0-12) + tone (0-5)
+    if (am_cuoi < 9)
+      act = am_cuoi * 6 + tone // 0..53 (8*6 + 5)
+    else
+      // packing
+      act = 54 + (am_cuoi-9)*2 + (tone-4) // 54..61 (54 + 3*2 + 1)
+```
 
+### Final results
+
+Total: 16-bits
+
+    // 28 đầu           5-bits (dư 4-slots)
+    // 30 giữa          5-bits (dư 2-slots)
+    // 62 cuối + tone   6-bits (dư 2-slots)
+
+Tổng số slots `65_536 = 2^16`
+Số slots dùng `52_080 = 28*30*62`
+Số slots dư   `13_456 = 4*32*64 + 28*2*64 + 28*30*2` đủ để chưa OOV (dùng BPE)
+
+Như vậy chỉ cần `16-bits` là đủ để chứa `vocab` tiếng Việt viết thường (lowercase)
