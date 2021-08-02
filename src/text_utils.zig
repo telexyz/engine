@@ -60,12 +60,15 @@ pub fn parseTokens(text: *Text) void {
             sleeps_count = 0;
         }
 
-        // Init token shortcuts
         curr = next.* + text.tokens_skip[i.*];
         next.* = curr + text.tokens_len[i.*];
+
+        // Init token shortcuts
         var token = text.input_bytes[curr..next.*];
+
         //  and token's attributes shortcut
         var attrs = &text.tokens_attrs[i.*];
+
         // printToken(token, attrs.*); // DEBUG
 
         if (token[0] == '\n') {

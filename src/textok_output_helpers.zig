@@ -165,7 +165,7 @@ pub const TextokOutputHelpers = struct {
         var next: usize = 0;
 
         while (i < n) : (i += 1) {
-            curr = next;
+            curr = next + text.tokens_skip[i];
             next = curr + text.tokens_len[i];
             const token = text.input_bytes[curr..next];
             _ = try wrt.writer().write(token);
