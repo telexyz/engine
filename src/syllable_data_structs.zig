@@ -12,6 +12,7 @@ const fmt = std.fmt;
 /// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x.
 /// - 11 nguyên âm: i, e, ê, ư, u, o, ô, ơ, a, ă, â.
 pub const AmDau = enum(u5) {
+    // 28 âm đầu
     _none,
     b,
     c,
@@ -110,6 +111,7 @@ test "Enum AmDau" {
 // Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
 
 pub const AmGiua = enum(u5) {
+    // 30 âm giữa
     _none,
     a,
     e,
@@ -226,16 +228,17 @@ test "Enum AmGiua" {
 /// - Các phụ âm cuối vần : p, t, c (ch), m, n, ng (nh)
 /// - 2 bán âm cuối vần : i (y), u (o)
 pub const AmCuoi = enum(u4) {
+    // 13 âm cuối
     _none,
-    c,
-    m,
-    n,
-    p,
-    t,
     i,
     y,
     u,
     o,
+    m,
+    n,
+    p,
+    t,
+    c,
     ch,
     ng,
     nh,
@@ -277,6 +280,7 @@ test "Enum AmCuoi.len" {
 }
 
 pub const Tone = enum(u3) {
+    // 6 thanh
     _none,
     s,
     f,
