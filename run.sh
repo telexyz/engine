@@ -12,6 +12,7 @@ rm data/*tknz.txt
 
 ~/zig build
 ~/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram # warm up
+~/zig run src/play_with_chars.zig
 
 # - - - - - - - - - - - - - - 
 # Windows cross-platform build
