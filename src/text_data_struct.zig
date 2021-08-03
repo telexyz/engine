@@ -211,6 +211,7 @@ pub const Text = struct {
         // begining to store it's attribute so we need more memory than input_bytes
 
         var tsize = input_bytes_size + input_bytes_size / 4 + BUFF_SIZE;
+        if (self.convert_mode == 3) tsize += input_bytes_size / 3;
         self.transformed_bytes = try self.allocator.alloc(u8, tsize);
         self.transformed_bytes_size = tsize;
 

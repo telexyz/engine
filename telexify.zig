@@ -168,7 +168,6 @@ pub fn main() anyerror!void {
         try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
         try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
         try n_gram.writeGramCounts(gram.four_gram_counts, "data/19-four_gram.txt");
-        try n_gram.writeGramCounts(gram.five_gram_counts, "data/20-five_gram.txt");
         _ = showMeTimeLap(grams_time, "Write n-gram done!");
     }
 
