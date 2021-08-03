@@ -160,6 +160,7 @@ pub fn main() anyerror!void {
 
     if (parse_n_grams) {
         print("\nParse and write n-gram ...\n", .{});
+        text.free_input_output(); // free as much ram as possible
         gram = .{};
         gram.init(std.heap.page_allocator);
         defer gram.deinit();

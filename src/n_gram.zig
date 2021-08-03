@@ -71,7 +71,6 @@ pub const NGram = struct {
     };
     pub fn parse(self: *NGram, text: Text) !void {
         if (!text.tokens_number_finalized) return Error.TextNotFinalized;
-        _ = self;
 
         var gram: FourGram = .{};
         var n = text.tokens_number;

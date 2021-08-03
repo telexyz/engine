@@ -225,6 +225,10 @@ pub const Text = struct {
         self.transformed_bytes_len = 0;
         self.syllow0t_bytes_len = 0;
     }
+    pub fn free_input_output(self: *Text) void {
+        self.allocator.free(self.input_bytes);
+        self.allocator.free(self.transformed_bytes);
+    }
     pub fn deinit(self: *Text) void {
         // Since we use ArenaAllocator, simply deinit arena itself to
         // free all allocated memories
