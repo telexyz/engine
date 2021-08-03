@@ -12,25 +12,22 @@ const FourGram = packed struct {
     s3: Syllable.UniqueId = BLANK,
 
     pub fn printBuffUtf8(self: FourGram, buff: []u8) []const u8 {
-        var n: usize = 0;
-
-        n += Syllable.newFromId(self.s0).printBuffUtf8(buff[n..]).len;
+        var n = Syllable.newFromId(self.s0).printBuffUtf8(buff).len;
         buff[n] = 32;
         n += 1;
-
         n += Syllable.newFromId(self.s1).printBuffUtf8(buff[n..]).len;
-        buff[n] = 32;
-        n += 1;
 
         if (self.s2 != BLANK) {
-            n += Syllable.newFromId(self.s2).printBuffUtf8(buff[n..]).len;
             buff[n] = 32;
             n += 1;
+            n += Syllable.newFromId(self.s2).printBuffUtf8(buff[n..]).len;
         }
 
-        if (self.s3 != BLANK)
+        if (self.s3 != BLANK) {
+            buff[n] = 32;
+            n += 1;
             n += Syllable.newFromId(self.s3).printBuffUtf8(buff[n..]).len;
-
+        }
         return buff[0..n];
     }
 };
