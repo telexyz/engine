@@ -165,8 +165,6 @@ pub fn main() anyerror!void {
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
 
-        try gram.parseAndWriteBiGram(text, "data/17-bi_gram.txt");
-
         const thread1 = try std.Thread.spawn(
             .{},
             NGram.parseAndWriteTriGram,
@@ -178,6 +176,8 @@ pub fn main() anyerror!void {
             NGram.parseAndWriteFourGram,
             .{ &gram, text, "data/19-four_gram.txt" },
         );
+
+        try gram.parseAndWriteBiGram(text, "data/17-bi_gram.txt");
 
         thread1.join();
         thread2.join();
