@@ -5,12 +5,12 @@ const Text = @import("./src/text_data_struct.zig").Text;
 const TextokOutput = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 const text_utils = @import("./src/text_utils.zig");
-const n_gram = @import("./src/n_gram.zig");
+const NGram = @import("./src/n_gram.zig").NGram;
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
 var text: Text = undefined;
-var gram: n_gram.NGram = undefined;
+var gram: NGram = undefined;
 
 var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
@@ -130,7 +130,7 @@ pub fn main() anyerror!void {
         .convert_mode = convert_mode,
     };
 
-    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     try text.initFromFile(input_filename);
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
@@ -164,12 +164,25 @@ pub fn main() anyerror!void {
         gram = .{};
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
-        try gram.parse(text);
-        const grams_time = showMeTimeLap(write_time, "Parse n-gram done!");
-        try n_gram.writeGramCounts(gram.bi_gram_counts, "data/17-bi_gram.txt");
-        try n_gram.writeGramCounts(gram.tri_gram_counts, "data/18-tri_gram.txt");
-        try n_gram.writeGramCounts(gram.four_gram_counts, "data/19-four_gram.txt");
-        _ = showMeTimeLap(grams_time, "Write n-gram done!");
+
+        try gram.parseAndWriteBiGram(text, "data/17-bi_gram.txt");
+
+        const thread1 = try std.Thread.spawn(
+            .{},
+            NGram.parseAndWriteTriGram,
+            .{ &gram, text, "data/18-tri_gram.txt" },
+        );
+
+        const thread2 = try std.Thread.spawn(
+            .{},
+            NGram.parseAndWriteFourGram,
+            .{ &gram, text, "data/19-four_gram.txt" },
+        );
+
+        thread1.join();
+        thread2.join();
+
+        _ = showMeTimeLap(write_time, "Parse and write n-gram done!");
     }
 
     _ = showMeTimeLap(start_time, "Total");

@@ -66,6 +66,54 @@ pub const NGram = struct {
     pub const Error = error{
         TextNotFinalized,
     };
+
+    pub fn parseAndWriteBiGram(self: *NGram, text: Text, filename: []const u8) !void {
+        if (!text.tokens_number_finalized) return Error.TextNotFinalized;
+        var gram = BiGram{ .s0 = BLANK, .s1 = BLANK };
+        var n = text.tokens_number;
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            gram.s0 = gram.s1;
+            gram.s1 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
+            if (gram.s0 == BLANK or gram.s1 == BLANK) continue;
+            const gop = try self.bi_gram_counts.getOrPutValue(gram, 0);
+            gop.value_ptr.* += 1;
+        }
+        try writeGramCounts(self.bi_gram_counts, filename);
+    }
+
+    pub fn parseAndWriteTriGram(self: *NGram, text: Text, filename: []const u8) void {
+        var gram = TriGram{ .s0 = BLANK, .s1 = BLANK, .s2 = BLANK };
+        var n = text.tokens_number;
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            gram.s0 = gram.s1;
+            gram.s1 = gram.s2;
+            gram.s2 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
+            if (gram.s0 == BLANK or gram.s1 == BLANK or gram.s2 == BLANK) continue;
+            const gop = self.tri_gram_counts.getOrPutValue(gram, 0) catch unreachable;
+            gop.value_ptr.* += 1;
+        }
+        writeGramCounts(self.tri_gram_counts, filename) catch unreachable;
+    }
+
+    pub fn parseAndWriteFourGram(self: *NGram, text: Text, filename: []const u8) void {
+        var gram: FourGram = .{};
+        var n = text.tokens_number;
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            gram.s0 = gram.s1;
+            gram.s1 = gram.s2;
+            gram.s2 = gram.s3;
+            gram.s3 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
+            if (gram.s0 == BLANK or gram.s1 == BLANK) continue;
+            if (gram.s2 == BLANK or gram.s3 == BLANK) continue;
+            const gop = self.four_gram_counts.getOrPutValue(gram, 0) catch unreachable;
+            gop.value_ptr.* += 1;
+        }
+        writeGramCounts(self.four_gram_counts, filename) catch unreachable;
+    }
+
     pub fn parse(self: *NGram, text: Text) !void {
         if (!text.tokens_number_finalized) return Error.TextNotFinalized;
 
@@ -179,7 +227,7 @@ test "ngram" {
     var text = Text{
         .init_allocator = std.testing.allocator,
     };
-    try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs cả nhà");
+    try text.initFromInputBytes("Cả nhà nhà nhà nhà nhà nhà nhà nhà nhà đơi thử nghiệm nhé , cả nhà ! TAQs cả nhà");
     defer text.deinit();
 
     var it = std.mem.tokenize(text.input_bytes, " ");
@@ -193,6 +241,11 @@ test "ngram" {
 
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
+
+    try gram.parseAndWriteBiGram(text, "data/temp2.txt");
+    gram.parseAndWriteTriGram(text, "data/temp3.txt");
+    gram.parseAndWriteFourGram(text, "data/temp4.txt");
+
     try gram.parse(text);
     try writeGramCounts(gram.bi_gram_counts, "data/temp.txt");
 }
