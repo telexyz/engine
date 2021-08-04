@@ -92,10 +92,12 @@ fn write_out_final() !void {
     try TextokOutput.write_too_long_tokens_to_file(
         text.alphabet_too_long_tokens,
         "data/09-alphabet_too_long.txt",
+        "data/08-alphmark_too_long.txt",
     );
     try TextokOutput.write_too_long_tokens_to_file(
         text.nonalpha_too_long_tokens,
         "data/10-nonalpha_too_long.txt",
+        "data/temp.txt",
     );
     // Final result
     try text_utils.writeTransformsToFile(&text, output_filename);

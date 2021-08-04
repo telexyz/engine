@@ -19,15 +19,43 @@ pub const TextokOutputHelpers = struct {
         return a.count > b.count;
     }
 
-    pub fn write_too_long_tokens_to_file(tokens: std.ArrayList([]const u8), filename: []const u8) !void {
+    pub fn write_too_long_tokens_to_file(
+        tokens: std.ArrayList([]const u8),
+        filename: []const u8,
+        filename2: []const u8,
+    ) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
         var wrt = std.io.bufferedWriter(file.writer());
+
+        var file2 = try std.fs.cwd().createFile(filename2, .{});
+        defer file2.close();
+        var wrt2 = std.io.bufferedWriter(file2.writer());
+
+        const lookForMarkTone = (filename2.len > 18);
+        var is_marktone = false;
+
         for (tokens.items) |token| {
-            _ = try wrt.writer().write(token);
-            _ = try wrt.writer().write("\n");
+            if (lookForMarkTone) {
+                for (token) |byte| {
+                    if (byte < 'A' or byte > 'z') {
+                        is_marktone = true;
+                        break;
+                    }
+                }
+            }
+
+            if (is_marktone) {
+                _ = try wrt2.writer().write(token);
+                _ = try wrt2.writer().write("\n");
+                is_marktone = false;
+            } else {
+                _ = try wrt.writer().write(token);
+                _ = try wrt.writer().write("\n");
+            }
         }
         try wrt.flush();
+        try wrt2.flush();
     }
 
     pub fn write_mktn_vs_0m0t_types_to_files(
