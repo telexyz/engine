@@ -170,7 +170,7 @@ pub fn parseTokens(text: *Text) void {
 }
 
 inline fn showProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    const n = if (prev_percent.* < 50) text.estimated_tokens_number else text.tokens_number;
+    const n = if (prev_percent.* < 50) (text.estimated_tokens_number + 3 * text.tokens_number) / 4 else text.tokens_number;
     const percent = (100 * token_index) / n;
     if (percent > prev_percent.*) {
         prev_percent.* = percent;
