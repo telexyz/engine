@@ -266,9 +266,9 @@ pub const Text = struct {
             if (attrs.category == .nonalpha) {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
-            } else if (token.len > U2ACharStream.MAX_LEN) {
-                // Log token that don't need to parse to find syllable
-                const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+            } else if (token.len <= U2ACharStream.MAX_LEN) {
+                // Log token type that can be syllable
+                const gop = try self.syllabet_types.getOrPutValue(token, Text.TypeInfo{
                     .count = 0,
                     .category = ._none,
                 });

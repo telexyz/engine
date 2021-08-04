@@ -114,18 +114,20 @@ pub fn parseTokens(text: *Text) void {
 
         // Parse alphabet and not too long token only
         if (attrs.category == .nonalpha) continue;
-        if (text.tokens_len[i.*] > U2ACharStream.MAX_LEN) continue;
 
         // Init token shortcuts
         var token = text.input_bytes[curr..next.*];
 
-        // Log token type
-        const gop = text.syllabet_types.getOrPutValue(token, Text.TypeInfo{
-            .count = 0,
-            .category = ._none,
-        }) catch unreachable;
-        const type_info = gop.value_ptr;
-        type_info.count += 1;
+        if (token.len > U2ACharStream.MAX_LEN) {
+            const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+                .count = 0,
+                .category = ._none,
+            }) catch unreachable;
+            gop.value_ptr.count += 1;
+            continue;
+        }
+
+        const type_info = text.syllabet_types.getPtr(token).?;
 
         if (type_info.category == ._none) {
             // Not transformed yet
