@@ -56,9 +56,9 @@ pub const Tokenizer = struct {
         const input_bytes = text.input_bytes;
         const bytes_len = input_bytes.len;
 
-        const five_percents = bytes_len / 20;
+        const ten_percents = bytes_len / 10;
         var percents: u8 = 0;
-        var percents_threshold = five_percents;
+        var percents_threshold = ten_percents;
 
         var lines_count: usize = 0;
         const counting_lines: bool = self.max_lines > 0;
@@ -225,9 +225,9 @@ pub const Tokenizer = struct {
                     }
                     // Show progress ...
                     if (index > percents_threshold) {
-                        percents += 5;
+                        percents += 10;
                         print("Segmenting {d}%\n", .{percents});
-                        percents_threshold += five_percents;
+                        percents_threshold += ten_percents;
                     }
                 }
                 // END char_type => .space

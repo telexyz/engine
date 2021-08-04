@@ -10,7 +10,7 @@ inline fn showProgress(text: *Text, prev_percent: *usize) void {
     const percent = (100 * text.parsed_input_bytes) / text.input_bytes.len;
     if (percent > prev_percent.*) {
         prev_percent.* = percent;
-        if (@rem(percent, 5) == 0)
+        if (@rem(percent, 10) == 0)
             std.debug.print("{s}{d}% Parsing\n", .{ PAD, percent });
     }
 }
@@ -71,7 +71,7 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
 // TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
 const PAD = "                 ";
 const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
-const M_WAIT_NANOSECS: u64 = 100_000_000; // nanoseconds
+const M_WAIT_NANOSECS: u64 = 120_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false);
@@ -110,7 +110,7 @@ pub fn parseTokens(text: *Text) void {
         }
 
         // Better wait to syllabet_types be finalized
-        if (i.* > text.tokens_number - 5) std.time.sleep(M_WAIT_NANOSECS);
+        if (5 + i.* > text.tokens_number) std.time.sleep(M_WAIT_NANOSECS);
 
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;

@@ -116,9 +116,9 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
 
 pub fn main() anyerror!void {
     const start_time = std.time.milliTimestamp();
-    print("\nStarted at {}\n", .{start_time});
 
     initConfigsFromArgs();
+    print("\nStart tokenize {s} at {}\n", .{ input_filename, start_time });
 
     tknz = .{ .max_lines = 0 };
     text = .{
@@ -168,7 +168,7 @@ pub fn main() anyerror!void {
             .{ &gram, text, "data/19-four_gram.txt" },
         );
 
-        print("\nWriting tokenized results to file ...\n", .{});
+        print("\nWriting tokenized results to {s} ...\n", .{output_filename});
         try write_out_final();
         _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 
@@ -179,7 +179,7 @@ pub fn main() anyerror!void {
         //
     } else {
         //
-        print("\nWriting tokenized results to file ...\n", .{});
+        print("\nWriting tokenized results to {s} ...\n", .{output_filename});
         try write_out_final();
         step3_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
     }
