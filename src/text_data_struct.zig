@@ -30,8 +30,8 @@ pub const Text = struct {
     // Each tokens[i] slice will point to the original input_bytes
 
     recored_byte_addr: usize = undefined,
-    tokens_skip: []u8 = undefined,
-    tokens_len: []u8 = undefined,
+    tokens_skip: []u16 = undefined,
+    tokens_len: []u16 = undefined,
     syllable_ids: []Syllable.UniqueId = undefined,
     tokens_attrs: []TokenAttributes = undefined,
 
@@ -80,9 +80,9 @@ pub const Text = struct {
     allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
 
-    pub const MAX_TOKEN_LEN = 16;
+    pub const MAX_TOKEN_LEN = 20;
     const AVG_BYTES_PER_TOKEN = 3;
-    const MAX_INPUT_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2Gb
+    const MAX_INPUT_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
     const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
 
@@ -188,8 +188,8 @@ pub const Text = struct {
         tokens_num.* = input_bytes_size / AVG_BYTES_PER_TOKEN + BUFF_SIZE;
 
         // Init token list
-        self.tokens_skip = try self.allocator.alloc(u8, tokens_num.*);
-        self.tokens_len = try self.allocator.alloc(u8, tokens_num.*);
+        self.tokens_skip = try self.allocator.alloc(u16, tokens_num.*);
+        self.tokens_len = try self.allocator.alloc(u16, tokens_num.*);
         self.tokens_attrs = try self.allocator.alloc(TokenAttributes, tokens_num.*);
         self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
 
@@ -244,10 +244,15 @@ pub const Text = struct {
         var skip_len = tkn_addr - self.recored_byte_addr;
         self.recored_byte_addr = tkn_addr + token.len;
 
-        if (skip_len < 256 and token.len < 256) {
-            self.tokens_skip[self.tokens_number] = @intCast(u8, skip_len);
-            self.tokens_len[self.tokens_number] = @intCast(u8, token.len);
+        if (skip_len < 65536 and token.len < 65536) {
+            self.tokens_skip[self.tokens_number] = @intCast(u16, skip_len);
+            self.tokens_len[self.tokens_number] = @intCast(u16, token.len);
         } else {
+            std.debug.print("\n !!!! OUT OF skip_len {d} OR token.len {d} !!!!\n{s}\n", .{
+                skip_len,
+                token.len,
+                token,
+            });
             unreachable;
         }
         self.tokens_attrs[self.tokens_number] = attrs;
@@ -258,6 +263,12 @@ pub const Text = struct {
             if (attrs.category == .nonalpha) {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
+            } else {
+                const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+                    .count = 0,
+                    .category = ._none,
+                });
+                gop.value_ptr.count += 1;
             }
         } else {
             // Reject too long tokens

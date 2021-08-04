@@ -3,17 +3,20 @@
 rm data/0*.txt
 rm data/1*.txt
 
-~/zig build -Drelease-fast=true
-# ~/zig build -Drelease-safe=true
+# ~/zig build -Drelease-fast=true
+~/zig build -Drelease-safe=true
 
 # cp ./zig-out/bin/telexify ~/repos/results/bin
 cp ./zig-out/bin/telexify ~/bin
 
-# ~/bin/telexify data/news_titles.txt data/tknz.txt dense ngram # warm up
-~/bin/telexify ~/repos/results/news_titles.txt data/news_titles.dense.xyz dense ngram
+~/bin/telexify data/news_titles.txt data/tknz.txt dense ngram # test run
+# ~/bin/telexify ~/repos/data/news_titles.txt ~/repos/data/news_titles.dense.xyz dense ngram
+# ~/bin/telexify ~/repos/data/fb_comments.txt ~/repos/data/fb_comments.dense.xyz dense ngram
+# ~/bin/telexify ~/repos/data/vietai_sat.txt ~/repos/data/vietai_sat.dense.xyz dense ngram
+# ~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
 
 # ~/zig build
-# ~/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram # warm up
+# ~/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram
 # ~/zig run src/play_with_chars.zig
 
 # - - - - - - - - - - - - - - 

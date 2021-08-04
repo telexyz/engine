@@ -107,18 +107,11 @@ pub fn parseTokens(text: *Text) void {
             continue;
         }
 
-        // Parse alphabet token to get syllables
-        if (attrs.category != .nonalpha and token.len <= Text.MAX_TOKEN_LEN) {
-            const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
-                .count = 0,
-                .category = ._none,
-            }) catch unreachable;
+        // Parse alphabet token and not too long to get syllables
+        if (attrs.category != .nonalpha and token.len <= U2ACharStream.MAX_LEN) {
+            const type_info = text.alphabet_types.getPtr(token).?;
 
-            gop.value_ptr.count += 1;
-            const type_info = gop.value_ptr;
-
-            if (type_info.category == ._none and token.len <= U2ACharStream.MAX_LEN) {
-                // Not transformed and not too long token
+            if (type_info.category == ._none) { // Not transformed yet
                 char_stream.reset();
                 // Try to convert token to syllable
                 var syllable = parsers.parseTokenToGetSyllable(

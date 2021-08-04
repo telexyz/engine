@@ -13,8 +13,8 @@ pub const CharStreamError = error{
 
 pub const Utf8ToAsciiTelexCharStream = struct {
     /// The internal character buffer
-    /// Max char of an am_tiet is 10
-    pub const MAX_LEN = @import("./text_data_struct.zig").Text.MAX_TOKEN_LEN;
+    /// Max bytes of an am_tiet is 10
+    pub const MAX_LEN = 10; // nguyễng // ễ took 3-bytes
     buffer: [MAX_LEN + 2]u8,
 
     /// Last pushed utf-8 char
@@ -158,6 +158,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 tone = 'j';
             },
             770 => { // â, ê, ô
+                if (self.len == 0) return CharStreamError.MarkCharNotFollowAMarkableVowel;
                 switch (self.buffer[self.len - 1]) {
                     'a', 'e', 'o' => {
                         self.buffer[self.len] = self.buffer[self.len - 1];
@@ -172,6 +173,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 }
             },
             774 => { // ă
+                if (self.len == 0) return CharStreamError.MarkCharNotFollowAMarkableVowel;
                 switch (self.buffer[self.len - 1]) {
                     'a' => {
                         self.buffer[self.len] = 'w';
@@ -192,6 +194,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 }
             },
             795 => { // ơ, ư
+                if (self.len == 0) return CharStreamError.MarkCharNotFollowAMarkableVowel;
                 switch (self.buffer[self.len - 1]) {
                     'u', 'o' => {
                         self.buffer[self.len] = 'w';

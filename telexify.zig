@@ -127,10 +127,12 @@ pub fn main() anyerror!void {
         .convert_mode = convert_mode,
     };
 
-    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     try text.initFromFile(input_filename);
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
+
+    // Init parser thread just before you run tknz.segment so it can catch up :)
+    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
 
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
