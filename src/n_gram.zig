@@ -67,35 +67,6 @@ pub const NGram = struct {
         TextNotFinalized,
     };
 
-    pub fn parseAndWriteBiGram(self: *NGram, text: Text, filename: []const u8) void {
-        var gram = BiGram{ .s0 = BLANK, .s1 = BLANK };
-        var n = text.tokens_number;
-        var i: usize = 0;
-        while (i < n) : (i += 1) {
-            gram.s0 = gram.s1;
-            gram.s1 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
-            if (gram.s0 == BLANK or gram.s1 == BLANK) continue;
-            const gop = self.bi_gram_counts.getOrPutValue(gram, 0) catch unreachable;
-            gop.value_ptr.* += 1;
-        }
-        writeGramCounts(self.bi_gram_counts, filename) catch unreachable;
-    }
-
-    pub fn parseAndWriteTriGram(self: *NGram, text: Text, filename: []const u8) void {
-        var gram = TriGram{ .s0 = BLANK, .s1 = BLANK, .s2 = BLANK };
-        var n = text.tokens_number;
-        var i: usize = 0;
-        while (i < n) : (i += 1) {
-            gram.s0 = gram.s1;
-            gram.s1 = gram.s2;
-            gram.s2 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
-            if (gram.s0 == BLANK or gram.s1 == BLANK or gram.s2 == BLANK) continue;
-            const gop = self.tri_gram_counts.getOrPutValue(gram, 0) catch unreachable;
-            gop.value_ptr.* += 1;
-        }
-        writeGramCounts(self.tri_gram_counts, filename) catch unreachable;
-    }
-
     pub fn parseAndWriteFourGram(self: *NGram, text: Text, filename: []const u8) void {
         var gram: FourGram = .{};
         var n = text.tokens_number;
@@ -113,39 +84,32 @@ pub const NGram = struct {
         writeGramCounts(self.four_gram_counts, filename) catch unreachable;
     }
 
-    pub fn parse(self: *NGram, text: Text) !void {
-        if (!text.tokens_number_finalized) return Error.TextNotFinalized;
-
-        var gram: FourGram = .{};
+    pub fn parseAndWriteBiTriGram(
+        self: *NGram,
+        text: Text,
+        bi_filename: []const u8,
+        tri_filename: []const u8,
+    ) void {
+        var gram: TriGram = .{ .s0 = BLANK, .s1 = BLANK, .s2 = BLANK };
         var n = text.tokens_number;
         var i: usize = 0;
-
-        const attrs = text.tokens_attrs;
-        const syids = text.syllable_ids;
 
         while (i < n) : (i += 1) {
             gram.s0 = gram.s1;
             gram.s1 = gram.s2;
-            gram.s2 = gram.s3;
-            gram.s3 = if (attrs[i].isSyllable()) syids[i] else BLANK;
+            gram.s2 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
 
-            if (gram.s2 != BLANK and gram.s3 != BLANK) { // bi-gram
-                const bigram = BiGram{ .s0 = gram.s2, .s1 = gram.s3 };
-                const gop2 = try self.bi_gram_counts.getOrPutValue(bigram, 0);
-                gop2.value_ptr.* += 1;
+            if (gram.s1 == BLANK or gram.s2 == BLANK) continue;
+            const bigram = BiGram{ .s0 = gram.s1, .s1 = gram.s2 };
+            const gop2 = self.bi_gram_counts.getOrPutValue(bigram, 0) catch unreachable;
+            gop2.value_ptr.* += 1;
 
-                if (gram.s1 != BLANK) { // tri-gram
-                    const trigram = TriGram{ .s0 = gram.s1, .s1 = gram.s2, .s2 = gram.s3 };
-                    const gop3 = try self.tri_gram_counts.getOrPutValue(trigram, 0);
-                    gop3.value_ptr.* += 1;
-
-                    if (gram.s0 != BLANK) { // fourth-gram
-                        const gop4 = try self.four_gram_counts.getOrPutValue(gram, 0);
-                        gop4.value_ptr.* += 1;
-                    }
-                } // tri-gram
-            }
+            if (gram.s0 == BLANK) continue;
+            const gop3 = self.tri_gram_counts.getOrPutValue(gram, 0) catch unreachable;
+            gop3.value_ptr.* += 1;
         } // while
+        writeGramCounts(self.bi_gram_counts, bi_filename) catch unreachable;
+        writeGramCounts(self.tri_gram_counts, tri_filename) catch unreachable;
     }
 };
 
@@ -241,10 +205,6 @@ test "ngram" {
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
 
-    gram.parseAndWriteBiGram(text, "data/temp2.txt");
-    gram.parseAndWriteTriGram(text, "data/temp3.txt");
     gram.parseAndWriteFourGram(text, "data/temp4.txt");
-
-    try gram.parse(text);
-    try writeGramCounts(gram.bi_gram_counts, "data/temp.txt");
+    gram.parseAndWriteBiTriGram(text, "data/temp2.txt", "data/temp3.txt");
 }

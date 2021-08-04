@@ -163,9 +163,12 @@ pub fn parseTokens(text: *Text) void {
 }
 
 inline fn showProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    const n = if (prev_percent.* < 50) (text.estimated_tokens_number + 3 * text.tokens_number) / 4 else text.tokens_number;
+    const p = prev_percent.*;
+    const b = text.estimated_tokens_number + text.tokens_number;
+    const x = text.tokens_number;
+    const n = if (p < 30) b / 2 else if (p < 60) (b + x) / 3 else if (p < 80) (b + 4 * x) / 6 else x;
     const percent = (100 * token_index) / n;
-    if (percent > prev_percent.*) {
+    if (percent > p) {
         prev_percent.* = percent;
         if (@rem(percent, 3) == 0)
             std.debug.print("{s}{d}% Parsing\n", .{ PAD, percent });

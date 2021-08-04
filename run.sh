@@ -9,11 +9,12 @@ rm data/1*.txt
 # cp ./zig-out/bin/telexify ~/repos/results/bin
 cp ./zig-out/bin/telexify ~/bin
 
-~/bin/telexify data/news_titles.txt data/tknz.txt dense ngram # test run
+# ~/bin/telexify data/news_titles.txt data/tknz.txt dense ngram # test run
 # ~/bin/telexify ~/repos/data/news_titles.txt ~/repos/data/news_titles.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/fb_comments.txt ~/repos/data/fb_comments.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vietai_sat.txt ~/repos/data/vietai_sat.dense.xyz dense ngram
-# ~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
+# ~/bin/telexify ~/repos/data/vi_wiki_all.txt ~/repos/data/vi_wiki_all.dense.xyz dense ngram
+~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
 
 # ~/zig build
 # ~/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram

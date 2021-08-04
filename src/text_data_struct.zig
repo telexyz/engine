@@ -84,7 +84,7 @@ pub const Text = struct {
     const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 1536 * 1024 * 1024; // 1.5Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
-    const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
+    const BUFF_SIZE = 256; // incase input is small, estimated fail, so need buffer
 
     pub const TypeInfo = struct {
         count: u32 = 0,
@@ -361,6 +361,7 @@ test "Text" {
     thread.join();
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
+    try text.removeSyllablesFromAlphabetTypes();
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nhà");

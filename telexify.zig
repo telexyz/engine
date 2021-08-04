@@ -156,16 +156,10 @@ pub fn main() anyerror!void {
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
 
-        const thread0 = try std.Thread.spawn(
-            .{},
-            NGram.parseAndWriteBiGram,
-            .{ &gram, text, "data/17-bi_gram.txt" },
-        );
-
         const thread1 = try std.Thread.spawn(
             .{},
-            NGram.parseAndWriteTriGram,
-            .{ &gram, text, "data/18-tri_gram.txt" },
+            NGram.parseAndWriteBiTriGram,
+            .{ &gram, text, "data/17-bi_gram.txt", "data/18-tri_gram.txt" },
         );
 
         const thread2 = try std.Thread.spawn(
@@ -178,7 +172,6 @@ pub fn main() anyerror!void {
         try write_out_final();
         _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 
-        thread0.join();
         thread1.join();
         thread2.join();
 
