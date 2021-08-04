@@ -177,20 +177,4 @@ pub const TextokOutputHelpers = struct {
         }
         try wrt.flush();
     }
-
-    pub fn write_transforms_to_file(
-        text: Text,
-        output_filename: []const u8,
-        max: usize,
-    ) !void {
-        var n = text.transformed_bytes_len;
-        // std.debug.print("transformed_bytes_len={}", .{n});
-        if (max > 0 and n > max) n = max;
-        // Open files to write transformed input data (final result)
-        var output_file = try std.fs.cwd().createFile(output_filename, .{});
-        defer output_file.close();
-        var wrt = std.io.bufferedWriter(output_file.writer());
-        _ = try wrt.writer().write(text.transformed_bytes[0..n]);
-        try wrt.flush();
-    }
 };

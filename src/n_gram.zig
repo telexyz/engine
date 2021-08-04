@@ -67,8 +67,7 @@ pub const NGram = struct {
         TextNotFinalized,
     };
 
-    pub fn parseAndWriteBiGram(self: *NGram, text: Text, filename: []const u8) !void {
-        if (!text.tokens_number_finalized) return Error.TextNotFinalized;
+    pub fn parseAndWriteBiGram(self: *NGram, text: Text, filename: []const u8) void {
         var gram = BiGram{ .s0 = BLANK, .s1 = BLANK };
         var n = text.tokens_number;
         var i: usize = 0;
@@ -76,10 +75,10 @@ pub const NGram = struct {
             gram.s0 = gram.s1;
             gram.s1 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
             if (gram.s0 == BLANK or gram.s1 == BLANK) continue;
-            const gop = try self.bi_gram_counts.getOrPutValue(gram, 0);
+            const gop = self.bi_gram_counts.getOrPutValue(gram, 0) catch unreachable;
             gop.value_ptr.* += 1;
         }
-        try writeGramCounts(self.bi_gram_counts, filename);
+        writeGramCounts(self.bi_gram_counts, filename) catch unreachable;
     }
 
     pub fn parseAndWriteTriGram(self: *NGram, text: Text, filename: []const u8) void {
@@ -242,7 +241,7 @@ test "ngram" {
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
 
-    try gram.parseAndWriteBiGram(text, "data/temp2.txt");
+    gram.parseAndWriteBiGram(text, "data/temp2.txt");
     gram.parseAndWriteTriGram(text, "data/temp3.txt");
     gram.parseAndWriteFourGram(text, "data/temp4.txt");
 

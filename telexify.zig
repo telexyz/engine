@@ -57,12 +57,7 @@ fn write_out_samples() !void {
     try TextokOutput.write_text_tokens_to_file(
         text,
         "data/07-tokens_sample.txt",
-        77_777,
-    );
-    try TextokOutput.write_transforms_to_file(
-        text,
-        "data/08-telexified_sample.txt",
-        888_888,
+        777_777,
     );
 }
 
@@ -103,7 +98,7 @@ fn write_out_final() !void {
         "data/10-nonalpha_too_long.txt",
     );
     // Final result
-    try TextokOutput.write_transforms_to_file(text, output_filename, 0);
+    try text_utils.writeTransformsToFile(&text, output_filename);
 }
 
 fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
@@ -154,16 +149,17 @@ pub fn main() anyerror!void {
     try write_out_types();
     const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
 
-    print("\nWriting tokenized results to file ...\n", .{});
-    try write_out_final();
-    const write_time = showMeTimeLap(types_time, "Writing tokenized results done!");
-
     if (parse_n_grams) {
         print("\nParse and write n-gram ...\n", .{});
-        text.free_input_output(); // free as much ram as possible
         gram = .{};
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
+
+        const thread0 = try std.Thread.spawn(
+            .{},
+            NGram.parseAndWriteBiGram,
+            .{ &gram, text, "data/17-bi_gram.txt" },
+        );
 
         const thread1 = try std.Thread.spawn(
             .{},
@@ -177,12 +173,21 @@ pub fn main() anyerror!void {
             .{ &gram, text, "data/19-four_gram.txt" },
         );
 
-        try gram.parseAndWriteBiGram(text, "data/17-bi_gram.txt");
+        print("\nWriting tokenized results to file ...\n", .{});
+        try write_out_final();
+        const write_time = showMeTimeLap(types_time, "Writing tokenized results done!");
 
+        thread0.join();
         thread1.join();
         thread2.join();
 
         _ = showMeTimeLap(write_time, "Parse and write n-gram done!");
+        //
+    } else {
+        //
+        print("\nWriting tokenized results to file ...\n", .{});
+        try write_out_final();
+        _ = showMeTimeLap(types_time, "Writing tokenized results done!");
     }
 
     _ = showMeTimeLap(start_time, "Total");

@@ -48,15 +48,9 @@ pub const Text = struct {
     // but it not looked right for me. I think it we should keep original form.
     // Same tokens counted to type, we will save transform in TypeInfo
 
-    // We'll need transformed_bytes stream as a data store for transforms slices
-    // transforms[i] will point to a position in the transformed_bytes stream
-    transformed_bytes: []u8 = undefined,
-
-    // Allocated size, estimated based on input_bytes.len
-    transformed_bytes_size: usize = undefined,
-
-    // Actually used, started with 0
-    transformed_bytes_len: usize = 0,
+    // Data buffer for syllable_types
+    syllable_bytes: []u8 = undefined,
+    syllable_bytes_len: usize = 0,
 
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
@@ -68,9 +62,9 @@ pub const Text = struct {
     // Use data of transformed_bytes, pointed by transforms[i]
     syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower-mark-tone
     syllow0t_types: std.StringHashMap(TypeInfo) = undefined, // = syllow0t
+
     // Data buffer for syllow0t_types
     syllow0t_bytes: []u8 = undefined,
-    syllow0t_bytes_size: usize = undefined,
     syllow0t_bytes_len: usize = 0,
 
     // Try to predict maxium number of token to alloc mememory in advance
@@ -87,8 +81,8 @@ pub const Text = struct {
     // Used to estimate (maximum) tokens_number
 
     pub const MAX_TOKEN_LEN = 16;
-    const AVG_BYTES_PER_TOKEN = 2;
-    const MAX_INPUT_FILE_SIZE = 1024 * 1024 * 1024; // 1Gb
+    const AVG_BYTES_PER_TOKEN = 3;
+    const MAX_INPUT_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
     const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
 
@@ -210,20 +204,17 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
-        var tsize = input_bytes_size + input_bytes_size / 4 + BUFF_SIZE;
-        if (self.convert_mode == 3) tsize += input_bytes_size / 3;
-        self.transformed_bytes = try self.allocator.alloc(u8, tsize);
-        self.transformed_bytes_size = tsize;
+        // Init syllable...
+        self.syllable_bytes = try self.allocator.alloc(u8, 3 * TEXT_DICT_FILE_SIZE);
+        self.syllable_bytes_len = 0;
 
         // Init syllower...
         self.syllow0t_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllow0t_bytes_size = TEXT_DICT_FILE_SIZE;
-        self.syllow0t_bytes = try self.allocator.alloc(u8, self.syllow0t_bytes_size);
+        self.syllow0t_bytes = try self.allocator.alloc(u8, TEXT_DICT_FILE_SIZE);
+        self.syllow0t_bytes_len = 0;
 
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
-        self.transformed_bytes_len = 0;
-        self.syllow0t_bytes_len = 0;
     }
     pub fn free_input_output(self: *Text) void {
         self.allocator.free(self.input_bytes);
