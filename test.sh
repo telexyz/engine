@@ -1,5 +1,7 @@
 #!/bin/sh
 
+./clean.sh
+
 ~/zig test src/test_parser_with_real_syllables.zig
 
 ~/zig test src/syllable_data_structs.zig

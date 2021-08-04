@@ -4,6 +4,9 @@ const File = std.fs.File;
 const syllable_data_structs = @import("./syllable_data_structs.zig");
 const Syllable = syllable_data_structs.Syllable;
 
+const telex_char_stream = @import("./telex_char_stream.zig");
+const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
+
 pub const Text = struct {
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = true,
@@ -263,7 +266,8 @@ pub const Text = struct {
             if (attrs.category == .nonalpha) {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
-            } else {
+            } else if (token.len > U2ACharStream.MAX_LEN) {
+                // Log token that don't need to parse to find syllable
                 const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
                     .count = 0,
                     .category = ._none,
@@ -271,8 +275,7 @@ pub const Text = struct {
                 gop.value_ptr.count += 1;
             }
         } else {
-            // Reject too long tokens
-            // std.debug.print("TOKEN TOO LONG: {s}\n", .{token});
+            // Log too long tokens
             if (attrs.category == .nonalpha)
                 try self.nonalpha_too_long_tokens.append(token)
             else

@@ -31,8 +31,8 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
 
         // Write data out
         if (attrs.isSyllable()) {
-            const gop = text.alphabet_types.get(token);
-            _ = try writer.write(gop.?.transform);
+            const type_ptr = text.alphabet_types.getPtr(token);
+            _ = try writer.write(type_ptr.?.transform);
 
             if (!text.keep_origin_amap) {
                 _ = try writer.write(" ");
@@ -61,9 +61,9 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
     try text.removeSyllablesFromAlphabetTypes();
 }
 
+// TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
 const PAD = "                 ";
 const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
-// Todo: convert &#xA9; to utf8 https://mothereff.in/html-entities
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false);
@@ -97,68 +97,80 @@ pub fn parseTokens(text: *Text) void {
         curr = next.* + text.tokens_skip[i.*];
         next.* = curr + text.tokens_len[i.*];
 
-        // Init token shortcuts
-        var token = text.input_bytes[curr..next.*];
-        //  and token's attributes shortcut
-        var attrs = &text.tokens_attrs[i.*];
-
-        if (token[0] == '\n') {
+        if (text.input_bytes[curr] == '\n') {
             showProgress(text, i.*, &prev_percent);
             continue;
         }
 
-        // Parse alphabet token and not too long to get syllables
-        if (attrs.category != .nonalpha and token.len <= U2ACharStream.MAX_LEN) {
-            const type_info = text.alphabet_types.getPtr(token).?;
+        //  and token's attributes shortcut
+        var attrs = &text.tokens_attrs[i.*];
 
-            if (type_info.category == ._none) { // Not transformed yet
-                char_stream.reset();
-                // Try to convert token to syllable
-                var syllable = parsers.parseTokenToGetSyllable(
-                    true, // strict mode on
-                    printNothing,
-                    &char_stream,
-                    token,
-                );
+        // Parse alphabet token only
+        if (attrs.category == .nonalpha) continue;
 
-                if (syllable.can_be_vietnamese) {
-                    // Token is vietnamese syllable
-                    type_info.category = switch (attrs.category) {
-                        .alphmark => .syllmark,
-                        .alphabet => .syllable,
-                        else => unreachable,
-                    };
-                    type_info.syllable_id = syllable.toId();
+        // Init token shortcuts
+        var token = text.input_bytes[curr..next.*];
 
-                    // Write ascii transform
-                    if (text.convert_mode == 3) {
-                        if (char_stream.first_char_is_upper) {
-                            text.syllable_bytes[text.syllable_bytes_len] = '^';
-                            text.syllable_bytes_len += 1;
-                            text.syllable_bytes[text.syllable_bytes_len] = ' ';
-                            text.syllable_bytes_len += 1;
-                        }
-                        const buff = text.syllable_bytes[text.syllable_bytes_len..];
-                        type_info.transform = syllable.printBuffParts(buff);
-                        text.syllable_bytes_len += type_info.transform.len;
-                    } else {
-                        type_info.transform = saveAsciiTransform(text, char_stream);
+        // Parse not too long to get syllables
+        if (token.len > U2ACharStream.MAX_LEN) continue;
+
+        // Log token type
+        const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+            .count = 0,
+            .category = ._none,
+        }) catch unreachable;
+        const type_info = gop.value_ptr;
+        type_info.count += 1;
+
+        if (type_info.category == ._none) {
+            // Not transformed yet
+            char_stream.reset();
+
+            // Try to convert token to syllable
+            var syllable = parsers.parseTokenToGetSyllable(
+                true, // strict mode on
+                printNothing,
+                &char_stream,
+                token,
+            );
+
+            if (syllable.can_be_vietnamese) {
+                // Token is vietnamese syllable
+                type_info.category = switch (attrs.category) {
+                    .alphmark => .syllmark,
+                    .alphabet => .syllable,
+                    else => unreachable,
+                };
+                type_info.syllable_id = syllable.toId();
+
+                // Write ascii transform
+                if (text.convert_mode == 3) {
+                    if (char_stream.first_char_is_upper) {
+                        text.syllable_bytes[text.syllable_bytes_len] = '^';
+                        text.syllable_bytes_len += 1;
+                        text.syllable_bytes[text.syllable_bytes_len] = ' ';
+                        text.syllable_bytes_len += 1;
                     }
+                    const buff = text.syllable_bytes[text.syllable_bytes_len..];
+                    type_info.transform = syllable.printBuffParts(buff);
+                    text.syllable_bytes_len += type_info.transform.len;
                 } else {
-                    // For non-syllable, attrs.category can only be
-                    // .alphabet or .alphmark
-                    type_info.category = attrs.category;
+                    type_info.transform = saveAsciiTransform(text, char_stream);
                 }
+            } else {
+                // For non-syllable, attrs.category can only be
+                // .alphabet or .alphmark
+                type_info.category = attrs.category;
             }
+        }
 
-            if (type_info.isSyllable()) {
-                // Update token category according to it's type category
-                attrs.category = type_info.category;
-                // Point token value to it's transform to write to output stream
-                token = type_info.transform;
-                text.syllable_ids[i.*] = type_info.syllable_id;
-            }
-        } // END attrs.category == .alphabet or .alphmark
+        if (type_info.isSyllable()) {
+            // Update token category according to it's type category
+            attrs.category = type_info.category;
+            // Point token value to it's transform to write to output stream
+            token = type_info.transform;
+            text.syllable_ids[i.*] = type_info.syllable_id;
+        }
     } // END while text.parsed_tokens_number
 }
 
