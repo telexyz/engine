@@ -171,6 +171,7 @@ pub fn main() anyerror!void {
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});
         try write_out_final();
         _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
+        text.free_input_bytes();
 
         thread1.join();
         thread2.join();
