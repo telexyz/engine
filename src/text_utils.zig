@@ -71,6 +71,7 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
 // TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
 const PAD = "                 ";
 const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
+const M_WAIT_NANOSECS: u64 = 8_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false);
@@ -85,12 +86,8 @@ pub fn parseTokens(text: *Text) void {
     var curr: usize = undefined;
 
     while (i.* <= text.tokens_number) : (i.* += 1) {
-
         // Check if reach the end of tokens list
-        var maxx = text.tokens_number;
-        if (!text.tokens_number_finalized) maxx -= 1;
-
-        if (i.* == maxx) {
+        if (i.* == text.tokens_number) {
 
             // Segmentation ended => no more tokens for sure then return
             if (text.tokens_number_finalized) {
@@ -106,13 +103,14 @@ pub fn parseTokens(text: *Text) void {
             } // END waiting for new tokens
 
             // No new token and timeout
-            maxx = text.tokens_number;
-            if (!text.tokens_number_finalized) maxx -= 1;
-            if (i.* == maxx) return;
+            if (i.* == text.tokens_number) return;
 
             // Got new tokens, reset counter and continue
             sleeps_count = 0;
         }
+
+        // Better wait to syllabet_types be finalized
+        if (i.* == text.tokens_number - 1) std.time.sleep(M_WAIT_NANOSECS);
 
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;
