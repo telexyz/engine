@@ -17,26 +17,13 @@ pub const Text = struct {
 
     // Create arena's ArenaAllocator from init_allocator
     arena: std.heap.ArenaAllocator = undefined,
-
-    // A shortcut to any allocator to switch to diff allocator if needed
-    // for now it's &self.arena.allocator
     allocator: *std.mem.Allocator = undefined,
+    allocator_initialized: bool = false,
 
     // Done with boring allocators, now we describe the Text struct
     // First of all text is an input byte stream
     // we must initlized input_bytes somewhere and provide it to Text struct is created
     input_bytes: []const u8 = undefined,
-
-    // The we split input bytes into a list of tokens
-    // A toke is a slice of []const u8, that point to the original input bytes
-    // (normally input byte are readed from a text file, corpus.txt for example)
-    // Each tokens[i] slice will point to the original input_bytes
-
-    recored_byte_addr: usize = undefined,
-    tokens_skip: []u16 = undefined,
-    tokens_len: []u16 = undefined,
-    syllable_ids: []Syllable.UniqueId = undefined,
-    tokens_attrs: []TokenAttributes = undefined,
 
     // out-of-size tokens
     alphabet_too_long_tokens: std.ArrayList([]const u8) = undefined,
@@ -71,24 +58,37 @@ pub const Text = struct {
     syllow0t_bytes: []u8 = undefined,
     syllow0t_bytes_len: usize = 0,
 
-    // Try to predict maxium number of token to alloc mememory in advance
-    estimated_tokens_number: usize = undefined,
-
     // Start the text with empty tokens list, hence tokens_number = 0
     tokens_number: usize = 0,
-
     parsed_input_bytes: usize = 0,
     parsed_tokens_number: usize = 0,
     tokens_number_finalized: bool = false,
 
-    allocator_initialized: bool = false,
-    // Used to estimate (maximum) tokens_number
+    // The we split input bytes into a list of tokens
+    // A toke is a slice of []const u8, that point to the original input bytes
+    // (normally input byte are readed from a text file, corpus.txt for example)
+    // Each tokens[i] slice will point to the original input_bytes
+
+    // Try to predict maxium number of token to alloc mememory in advance
+    estimated_tokens_number: usize = undefined,
+    recored_byte_addr: usize = undefined, // used to calculate TokenInfo#skip
+    tokens_infos: std.ArrayList(TokenInfo) = undefined,
+
+    const SkipLenType = u16;
+    const MAX_SKIP_LEN = 0xffff;
+
+    pub const TokenInfo = struct {
+        skip: SkipLenType = undefined,
+        len: SkipLenType = undefined,
+        syllable_id: Syllable.UniqueId = 0,
+        attrs: TokenAttributes = undefined,
+    };
 
     pub const MAX_TOKEN_LEN = 20;
-    const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 1536 * 1024 * 1024; // 1.5Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
-    const BUFF_SIZE = 256; // incase input is small, estimated fail, so need buffer
+    const AVG_BYTES_PER_TOKEN = 10;
+    const BUFF_SIZE = 256; // incase input is small, estimated not correct
 
     pub const TypeInfo = struct {
         count: u32 = 0,
@@ -188,14 +188,13 @@ pub const Text = struct {
         self.recored_byte_addr = @ptrToInt(input_bytes.ptr);
 
         const input_bytes_size = self.input_bytes.len;
-        var tokens_num = &self.estimated_tokens_number;
-        tokens_num.* = input_bytes_size / AVG_BYTES_PER_TOKEN + BUFF_SIZE;
+        self.estimated_tokens_number = input_bytes_size / AVG_BYTES_PER_TOKEN + BUFF_SIZE;
 
-        // Init token list
-        self.tokens_skip = try self.allocator.alloc(u16, tokens_num.*);
-        self.tokens_len = try self.allocator.alloc(u16, tokens_num.*);
-        self.tokens_attrs = try self.allocator.alloc(TokenAttributes, tokens_num.*);
-        self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
+        // Init tokens infos list
+        self.tokens_infos = try std.ArrayList(TokenInfo).initCapacity(
+            self.allocator,
+            self.estimated_tokens_number,
+        );
 
         // Init types count
         self.syllabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
@@ -221,6 +220,7 @@ pub const Text = struct {
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
     }
+
     pub fn free_input_output(self: *Text) void {
         self.allocator.free(self.input_bytes);
         self.allocator.free(self.transformed_bytes);
@@ -249,9 +249,10 @@ pub const Text = struct {
         var skip_len = tkn_addr - self.recored_byte_addr;
         self.recored_byte_addr = tkn_addr + token.len;
 
-        if (skip_len < 65536 and token.len < 65536) {
-            self.tokens_skip[self.tokens_number] = @intCast(u16, skip_len);
-            self.tokens_len[self.tokens_number] = @intCast(u16, token.len);
+        var token_info = TokenInfo{ .attrs = attrs };
+        if (skip_len < MAX_SKIP_LEN and token.len < MAX_SKIP_LEN) {
+            token_info.skip = @intCast(SkipLenType, skip_len);
+            token_info.len = @intCast(SkipLenType, token.len);
         } else {
             std.debug.print("\n !!!! OUT OF skip_len {d} OR token.len {d} !!!!\n{s}\n", .{
                 skip_len,
@@ -260,7 +261,7 @@ pub const Text = struct {
             });
             unreachable;
         }
-        self.tokens_attrs[self.tokens_number] = attrs;
+        try self.tokens_infos.append(token_info);
 
         if (token.len <= MAX_TOKEN_LEN) {
             if (attrs.category == .nonalpha) {

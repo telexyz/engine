@@ -17,17 +17,16 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
     var wrt = std.io.bufferedWriter(file.writer());
     var writer = wrt.writer();
 
-    var i: usize = 0;
     var next: usize = 0;
     var curr: usize = undefined;
     var prev_token_is_vi = true;
 
-    while (i < text.tokens_number) : (i += 1) {
+    for (text.tokens_infos.items) |token_info| {
         //
-        curr = next + text.tokens_skip[i];
-        next = curr + text.tokens_len[i];
+        curr = next + token_info.skip;
+        next = curr + token_info.len;
         var token = text.input_bytes[curr..next];
-        var attrs = text.tokens_attrs[i];
+        var attrs = token_info.attrs;
 
         // Write data out
         if (attrs.isSyllable()) {
@@ -101,8 +100,9 @@ pub fn parseTokens(text: *Text) void {
             sleeps_count = 0;
         }
 
-        curr = next.* + text.tokens_skip[i.*];
-        next.* = curr + text.tokens_len[i.*];
+        const token_info = &text.tokens_infos.items[i.*];
+        curr = next.* + token_info.skip;
+        next.* = curr + token_info.len;
 
         if (text.input_bytes[curr] == '\n') {
             showProgress(text, i.*, &prev_percent);
@@ -110,7 +110,7 @@ pub fn parseTokens(text: *Text) void {
         }
 
         //  and token's attributes shortcut
-        var attrs = &text.tokens_attrs[i.*];
+        var attrs = &token_info.attrs;
 
         // Parse alphabet and not too long token only
         if (attrs.category == .nonalpha) continue;
@@ -172,7 +172,7 @@ pub fn parseTokens(text: *Text) void {
 
         if (type_info.isSyllable()) {
             attrs.category = type_info.category;
-            text.syllable_ids[i.*] = type_info.syllable_id;
+            token_info.syllable_id = type_info.syllable_id;
         }
     }
 }

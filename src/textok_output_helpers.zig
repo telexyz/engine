@@ -187,20 +187,17 @@ pub const TextokOutputHelpers = struct {
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
-        var i: usize = 0;
         var wrt = std.io.bufferedWriter(output_file.writer());
         var curr: usize = 0;
         var next: usize = 0;
 
-        while (i < n) : (i += 1) {
-            curr = next + text.tokens_skip[i];
-            next = curr + text.tokens_len[i];
-            const token = text.input_bytes[curr..next];
-            _ = try wrt.writer().write(token);
+        for (text.tokens_infos.items[0..n]) |token_info| {
+            curr = next + token_info.skip;
+            next = curr + token_info.len;
+            _ = try wrt.writer().write(text.input_bytes[curr..next]);
 
-            const attrs = text.tokens_attrs[i];
-            if (attrs.surrounded_by_spaces == .both or
-                attrs.surrounded_by_spaces == .right)
+            if (token_info.attrs.surrounded_by_spaces == .both or
+                token_info.attrs.surrounded_by_spaces == .right)
                 _ = try wrt.writer().write(" ");
         }
         try wrt.flush();

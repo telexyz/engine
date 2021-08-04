@@ -57,7 +57,7 @@ fn write_out_samples() !void {
     try TextokOutput.write_text_tokens_to_file(
         text,
         "data/07-tokens_sample.txt",
-        777_777,
+        77_777,
     );
 }
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# ./clean.sh
-~/zig build -Drelease-safe=true
+./clean.sh
+~/zig build #-Drelease-safe=true
 cp ./zig-out/bin/telexify ~/bin
 # cp ./zig-out/bin/telexify ~/repos/results/bin
 

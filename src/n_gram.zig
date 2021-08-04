@@ -69,13 +69,12 @@ pub const NGram = struct {
 
     pub fn parseAndWriteFourGram(self: *NGram, text: Text, filename: []const u8) void {
         var gram: FourGram = .{};
-        var n = text.tokens_number;
-        var i: usize = 0;
-        while (i < n) : (i += 1) {
+
+        for (text.tokens_infos.items) |token_info| {
             gram.s0 = gram.s1;
             gram.s1 = gram.s2;
             gram.s2 = gram.s3;
-            gram.s3 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
+            gram.s3 = token_info.syllable_id;
             if (gram.s0 == BLANK or gram.s1 == BLANK) continue;
             if (gram.s2 == BLANK or gram.s3 == BLANK) continue;
             const gop = self.four_gram_counts.getOrPutValue(gram, 0) catch unreachable;
@@ -91,13 +90,11 @@ pub const NGram = struct {
         tri_filename: []const u8,
     ) void {
         var gram: TriGram = .{ .s0 = BLANK, .s1 = BLANK, .s2 = BLANK };
-        var n = text.tokens_number;
-        var i: usize = 0;
 
-        while (i < n) : (i += 1) {
+        for (text.tokens_infos.items) |token_info| {
             gram.s0 = gram.s1;
             gram.s1 = gram.s2;
-            gram.s2 = if (text.tokens_attrs[i].isSyllable()) text.syllable_ids[i] else BLANK;
+            gram.s2 = token_info.syllable_id;
 
             if (gram.s1 == BLANK or gram.s2 == BLANK) continue;
             const bigram = BiGram{ .s0 = gram.s1, .s1 = gram.s2 };
