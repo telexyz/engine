@@ -145,10 +145,7 @@ pub fn main() anyerror!void {
     text_utils.parseTokens(&text);
     const step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
 
-    print("\nWriting types to file ...\n", .{});
-    try write_out_types();
-    const types_time = showMeTimeLap(step2_time, "Writing types to file done!");
-
+    var step3_time: i64 = undefined;
     if (parse_n_grams) {
         print("\nParse and write n-gram ...\n", .{});
         gram = .{};
@@ -175,20 +172,24 @@ pub fn main() anyerror!void {
 
         print("\nWriting tokenized results to file ...\n", .{});
         try write_out_final();
-        const write_time = showMeTimeLap(types_time, "Writing tokenized results done!");
+        const write_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
 
         thread0.join();
         thread1.join();
         thread2.join();
 
-        _ = showMeTimeLap(write_time, "Parse and write n-gram done!");
+        step3_time = showMeTimeLap(write_time, "Parse and write n-gram done!");
         //
     } else {
         //
         print("\nWriting tokenized results to file ...\n", .{});
         try write_out_final();
-        _ = showMeTimeLap(types_time, "Writing tokenized results done!");
+        step3_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
     }
+
+    print("\nWriting types to file ...\n", .{});
+    try write_out_types();
+    _ = showMeTimeLap(step3_time, "Writing types to file done!");
 
     _ = showMeTimeLap(start_time, "Total");
 }

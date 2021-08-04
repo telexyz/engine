@@ -6,18 +6,6 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-inline fn printToken(token: []const u8, attrs: Text.TokenAttributes) void {
-    if (token[0] == '\n') {
-        print("\nNEWLINE: ", .{});
-    } else {
-        print("\"{s}\" => {}, {}\n", .{
-            token,
-            attrs.category,
-            attrs.surrounded_by_spaces,
-        });
-    }
-}
-
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
         std.debug.print(fmt_str, args);
@@ -41,15 +29,10 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
         var token = text.input_bytes[curr..next];
         var attrs = text.tokens_attrs[i];
 
-        if (token[0] == '\n') {
-            _ = try writer.write("\n");
-            prev_token_is_vi = false;
-            continue;
-        }
-
         // Write data out
         if (attrs.isSyllable()) {
-            _ = try writer.write(token);
+            const gop = text.alphabet_types.get(token);
+            _ = try writer.write(gop.?.transform);
 
             if (!text.keep_origin_amap) {
                 _ = try writer.write(" ");
@@ -73,9 +56,9 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
             _ = try writer.write(" ");
         }
         // text.transformed_bytes[first_byte_index] = attrs.toByte();
-        // printToken(token, attrs.*); // DEBUG
     }
     try wrt.flush();
+    try text.removeSyllablesFromAlphabetTypes();
 }
 
 const PAD = "                 ";
@@ -98,10 +81,7 @@ pub fn parseTokens(text: *Text) void {
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
             // If segmentation end => no more tokens for sure then return
-            if (text.tokens_number_finalized) {
-                text.removeSyllablesFromAlphabetTypes() catch unreachable;
-                return;
-            }
+            if (text.tokens_number_finalized) return;
             // BEGIN waiting for new tokens (all tokens is processed)
             while (sleeps_count < max_sleeps and i.* == text.tokens_number) {
                 std.time.sleep(WAIT_NANOSECS);
