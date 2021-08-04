@@ -6,6 +6,15 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
+inline fn showProgress(text: *Text, prev_percent: *usize) void {
+    const percent = (100 * text.parsed_input_bytes) / text.input_bytes.len;
+    if (percent > prev_percent.*) {
+        prev_percent.* = percent;
+        if (@rem(percent, 5) == 0)
+            std.debug.print("{s}{d}% Parsing\n", .{ PAD, percent });
+    }
+}
+
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
         std.debug.print(fmt_str, args);
@@ -61,14 +70,14 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
 
 // TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
 const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
+const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false);
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
-    var prev_percent: u64 = 0;
-    const max_sleeps: u8 = 20;
+    var prev_percent: usize = 0;
+    const max_sleeps: u8 = 10;
     var sleeps_count: u8 = 0;
 
     var i: *usize = &text.parsed_tokens_number;
@@ -76,9 +85,12 @@ pub fn parseTokens(text: *Text) void {
     var curr: usize = undefined;
 
     while (i.* <= text.tokens_number) : (i.* += 1) {
-        //
+
         // Check if reach the end of tokens list
-        if (i.* == text.tokens_number) {
+        var maxx = text.tokens_number;
+        if (!text.tokens_number_finalized) maxx -= 1;
+
+        if (i.* == maxx) {
 
             // Segmentation ended => no more tokens for sure then return
             if (text.tokens_number_finalized) {
@@ -94,7 +106,9 @@ pub fn parseTokens(text: *Text) void {
             } // END waiting for new tokens
 
             // No new token and timeout
-            if (i.* == text.tokens_number) return;
+            maxx = text.tokens_number;
+            if (!text.tokens_number_finalized) maxx -= 1;
+            if (i.* == maxx) return;
 
             // Got new tokens, reset counter and continue
             sleeps_count = 0;
@@ -105,7 +119,7 @@ pub fn parseTokens(text: *Text) void {
         next.* = curr + token_info.len;
 
         if (text.input_bytes[curr] == '\n') {
-            showProgress(text, i.*, &prev_percent);
+            showProgress(text, &prev_percent);
             continue;
         }
 
@@ -174,19 +188,6 @@ pub fn parseTokens(text: *Text) void {
             attrs.category = type_info.category;
             token_info.syllable_id = type_info.syllable_id;
         }
-    }
-}
-
-inline fn showProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
-    const p = prev_percent.*;
-    const b = text.estimated_tokens_number + text.tokens_number;
-    const x = text.tokens_number;
-    const n = if (p < 30) b / 2 else if (p < 60) (b + x) / 3 else if (p < 80) (b + 4 * x) / 6 else x;
-    const percent = (100 * token_index) / n;
-    if (percent > p) {
-        prev_percent.* = percent;
-        if (@rem(percent, 3) == 0)
-            std.debug.print("{s}{d}% Parsing\n", .{ PAD, percent });
     }
 }
 
