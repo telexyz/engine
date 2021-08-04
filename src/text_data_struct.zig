@@ -80,9 +80,9 @@ pub const Text = struct {
     allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
 
-    pub const MAX_TOKEN_LEN = 20;
+    pub const MAX_TOKEN_LEN = 15;
     const AVG_BYTES_PER_TOKEN = 3;
-    const MAX_INPUT_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2Gb
+    const MAX_INPUT_FILE_SIZE = 1536 * 1024 * 1024; // 1.5Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
     const BUFF_SIZE = 125; // incase input is small, estimated fail, so need buffer
 
