@@ -59,6 +59,7 @@ pub const Text = struct {
     // Listing tytes along with its frequence will reveal intersting information
 
     // Use data of input_bytes, pointed by tokens[i]
+    syllabet_types: std.StringHashMap(TypeInfo) = undefined,
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     nonalpha_types: std.StringHashMap(u32) = undefined,
 
@@ -83,7 +84,7 @@ pub const Text = struct {
     allocator_initialized: bool = false,
     // Used to estimate (maximum) tokens_number
 
-    pub const MAX_TOKEN_LEN = 15;
+    pub const MAX_TOKEN_LEN = 20;
     const AVG_BYTES_PER_TOKEN = 3;
     const MAX_INPUT_FILE_SIZE = 1536 * 1024 * 1024; // 1.5Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
@@ -197,6 +198,7 @@ pub const Text = struct {
         self.syllable_ids = try self.allocator.alloc(Syllable.UniqueId, tokens_num.*);
 
         // Init types count
+        self.syllabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
@@ -261,8 +263,6 @@ pub const Text = struct {
         self.tokens_attrs[self.tokens_number] = attrs;
 
         if (token.len <= MAX_TOKEN_LEN) {
-            // Count nonalpha token only
-            // alphatoken will be counted in parsing phase
             if (attrs.category == .nonalpha) {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
@@ -288,11 +288,12 @@ pub const Text = struct {
     pub fn removeSyllablesFromAlphabetTypes(self: *Text) !void {
         if (!self.tokens_number_finalized) return;
 
-        var it = self.alphabet_types.iterator();
+        var it = self.syllabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
                 try self.countSyllableAndsyllow0t(kv.value_ptr.transform, kv.value_ptr);
-                _ = self.alphabet_types.remove(kv.key_ptr.*);
+            } else {
+                _ = try self.alphabet_types.put(kv.key_ptr.*, kv.value_ptr.*);
             }
         }
     }

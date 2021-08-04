@@ -31,7 +31,7 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
 
         // Write data out
         if (attrs.isSyllable()) {
-            const type_ptr = text.alphabet_types.getPtr(token);
+            const type_ptr = text.syllabet_types.getPtr(token);
             _ = try writer.write(type_ptr.?.transform);
 
             if (!text.keep_origin_amap) {
@@ -58,7 +58,6 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
         // text.transformed_bytes[first_byte_index] = attrs.toByte();
     }
     try wrt.flush();
-    try text.removeSyllablesFromAlphabetTypes();
 }
 
 // TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
@@ -78,18 +77,26 @@ pub fn parseTokens(text: *Text) void {
     var curr: usize = undefined;
 
     while (i.* <= text.tokens_number) : (i.* += 1) {
+        //
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
-            // If segmentation end => no more tokens for sure then return
-            if (text.tokens_number_finalized) return;
+
+            // Segmentation ended => no more tokens for sure then return
+            if (text.tokens_number_finalized) {
+                text.removeSyllablesFromAlphabetTypes() catch unreachable;
+                return;
+            }
+
             // BEGIN waiting for new tokens (all tokens is processed)
             while (sleeps_count < max_sleeps and i.* == text.tokens_number) {
                 std.time.sleep(WAIT_NANOSECS);
                 sleeps_count += 1;
                 std.debug.print("{s}... wait new tokens\n", .{PAD});
             } // END waiting for new tokens
+
             // No new token and timeout
             if (i.* == text.tokens_number) return;
+
             // Got new tokens, reset counter and continue
             sleeps_count = 0;
         }
@@ -105,17 +112,15 @@ pub fn parseTokens(text: *Text) void {
         //  and token's attributes shortcut
         var attrs = &text.tokens_attrs[i.*];
 
-        // Parse alphabet token only
+        // Parse alphabet and not too long token only
         if (attrs.category == .nonalpha) continue;
+        if (text.tokens_len[i.*] > U2ACharStream.MAX_LEN) continue;
 
         // Init token shortcuts
         var token = text.input_bytes[curr..next.*];
 
-        // Parse not too long to get syllables
-        if (token.len > U2ACharStream.MAX_LEN) continue;
-
         // Log token type
-        const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+        const gop = text.syllabet_types.getOrPutValue(token, Text.TypeInfo{
             .count = 0,
             .category = ._none,
         }) catch unreachable;
@@ -158,20 +163,16 @@ pub fn parseTokens(text: *Text) void {
                     type_info.transform = saveAsciiTransform(text, char_stream);
                 }
             } else {
-                // For non-syllable, attrs.category can only be
-                // .alphabet or .alphmark
+                // For non-syllable, attrs.category can only be .alphabet or .alphmark
                 type_info.category = attrs.category;
             }
         }
 
         if (type_info.isSyllable()) {
-            // Update token category according to it's type category
             attrs.category = type_info.category;
-            // Point token value to it's transform to write to output stream
-            token = type_info.transform;
             text.syllable_ids[i.*] = type_info.syllable_id;
         }
-    } // END while text.parsed_tokens_number
+    }
 }
 
 inline fn showProgress(text: *Text, token_index: usize, prev_percent: *u64) void {
