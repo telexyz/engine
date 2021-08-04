@@ -172,13 +172,13 @@ pub fn main() anyerror!void {
 
         print("\nWriting tokenized results to file ...\n", .{});
         try write_out_final();
-        const write_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
+        _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 
         thread0.join();
         thread1.join();
         thread2.join();
 
-        step3_time = showMeTimeLap(write_time, "Parse and write n-gram done!");
+        step3_time = showMeTimeLap(step2_time, "Parse and write n-gram done!");
         //
     } else {
         //

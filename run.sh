@@ -3,14 +3,14 @@
 rm data/0*.txt
 rm data/1*.txt
 
-~/zig build #-Drelease-fast=true
+~/zig build -Drelease-fast=true
 # ~/zig build -Drelease-safe=true
 
 # cp ./zig-out/bin/telexify ~/repos/results/bin
 cp ./zig-out/bin/telexify ~/bin
 
-~/bin/telexify data/news_titles.txt data/tknz.txt dense ngram # warm up
-# ~/bin/telexify ~/repos/results/news_titles.txt data/news_titles.dense.xyz dense ngram
+# ~/bin/telexify data/news_titles.txt data/tknz.txt dense ngram # warm up
+~/bin/telexify ~/repos/results/news_titles.txt data/news_titles.dense.xyz dense ngram
 
 # ~/zig build
 # ~/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram # warm up
