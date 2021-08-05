@@ -21,8 +21,9 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
     var curr: usize = undefined;
     var prev_token_is_vi = true;
 
-    for (text.tokens_infos.items) |token_info| {
-        //
+    var i: usize = 0;
+    while (i < text.tokens_number) : (i += 1) {
+        const token_info = text.tokens_infos[i];
         curr = next + token_info.skip;
         next = curr + token_info.len;
 
@@ -93,7 +94,7 @@ pub fn parseTokens(text: *Text) void {
             if (i.* == text.tokens_number) return;
         }
 
-        const token_info = &text.tokens_infos.items[i.*];
+        const token_info = &text.tokens_infos[i.*];
         curr = next.* + token_info.skip;
         next.* = curr + token_info.len;
 

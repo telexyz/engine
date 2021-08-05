@@ -130,7 +130,7 @@ pub const GramTrie = struct {
 
         var keys: [5]Syllable.UniqueId = .{ BLANK, BLANK, BLANK, BLANK, BLANK };
 
-        for (text.tokens_infos.items) |token_info| {
+        for (text.tokens_infos) |token_info| {
             //
             keys[4] = keys[3];
             keys[3] = keys[2];

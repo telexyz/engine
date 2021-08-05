@@ -70,13 +70,18 @@ pub const NGram = struct {
     pub fn parseAndWriteFourGram(self: *NGram, text: Text, filename: []const u8) void {
         var gram: FourGram = .{};
 
-        for (text.tokens_infos.items) |token_info| {
+        var i: usize = 0;
+        while (i < text.tokens_number) : (i += 1) {
+            const token_info = text.tokens_infos[i];
+
             gram.s0 = gram.s1;
             gram.s1 = gram.s2;
             gram.s2 = gram.s3;
             gram.s3 = token_info.syllable_id;
+
             if (gram.s0 == BLANK or gram.s1 == BLANK) continue;
             if (gram.s2 == BLANK or gram.s3 == BLANK) continue;
+
             const gop = self.four_gram_counts.getOrPutValue(gram, 0) catch {
                 std.debug.print("!!! CANNOT PUT VALUE TO four_gram_counts !!!", .{});
                 unreachable;
@@ -97,7 +102,9 @@ pub const NGram = struct {
     ) void {
         var gram: TriGram = .{ .s0 = BLANK, .s1 = BLANK, .s2 = BLANK };
 
-        for (text.tokens_infos.items) |token_info| {
+        var i: usize = 0;
+        while (i < text.tokens_number) : (i += 1) {
+            const token_info = text.tokens_infos[i];
             gram.s0 = gram.s1;
             gram.s1 = gram.s2;
             gram.s2 = token_info.syllable_id;
