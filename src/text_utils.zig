@@ -102,7 +102,7 @@ pub fn parseTokens(text: *Text) void {
         // Guarding to wait for tokens_infos.append(..) to be finalized
         // Nếu ko chờ chiết xuất token_info.skip / token_info.len bị sai
         // Dẫn đến token bị sai lệch và ko trích xuất được syllabet_types
-        if (5 + i.* > text.tokens_number) std.time.sleep(WAIT_NANOSECS);
+        if (6 + i.* > text.tokens_number) std.time.sleep(WAIT_NANOSECS);
 
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;
@@ -187,10 +187,6 @@ pub fn parseTokens(text: *Text) void {
         if (type_info.isSyllable()) {
             attrs.category = type_info.category;
             token_info.syllable_id = type_info.syllable_id;
-            text.countSyllableAndSyllow0t(type_info.transform, type_info) catch {
-                std.debug.print("!!! CANNOT countSyllableAndSyllow0t !!!", .{});
-                unreachable;
-            };
         }
     }
 }

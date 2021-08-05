@@ -147,7 +147,7 @@ pub fn main() anyerror!void {
     // It's a very rare-case happend when the sleep() call fail.
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
-    try text.addSyllabetTypesToAlphabetTypes();
+    try text.processSyllabetTypes();
 
     var step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
 

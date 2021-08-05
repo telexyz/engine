@@ -294,16 +294,16 @@ pub const Text = struct {
         self.tokens_number += 1;
     }
 
-    pub fn addSyllabetTypesToAlphabetTypes(self: *Text) !void {
+    pub fn processSyllabetTypes(self: *Text) !void {
         if (!self.tokens_number_finalized) return;
 
         var it = self.syllabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
-                // Already logged in text_utils.parseTokens
-                // std.debug.print("\n{s} => {}", .{ kv.value_ptr.transform, kv.value_ptr });
-                // try self.countSyllableAndSyllow0t(kv.value_ptr.transform, kv.value_ptr);
+                // std.debug.print("\n{s} => {}", .{kv.value_ptr.transform, kv.value_ptr});
+                try self.countSyllableAndSyllow0t(kv.value_ptr.transform, kv.value_ptr);
             } else {
+                // std.debug.print("\n{s} => {}", .{ kv.value_ptr, kv.value_ptr });
                 _ = try self.alphabet_types.put(kv.key_ptr.*, kv.value_ptr.*);
             }
         }
@@ -373,7 +373,7 @@ test "Text" {
     text.tokens_number_finalized = true;
     thread.join();
     text_utils.parseTokens(&text);
-    try text.addSyllabetTypesToAlphabetTypes();
+    try text.processSyllabetTypes();
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nhà");
