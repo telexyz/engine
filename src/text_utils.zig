@@ -137,7 +137,7 @@ pub fn parseTokens(text: *Text) void {
         const ptr = text.syllabet_types.getPtr(token);
         if (ptr == null) {
             std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
-            std.debug.print("Xem tokens_infos.append(..) đã đủ time để update chưa \n", .{});
+            std.debug.print("Xem tokens_infos.append(..) đã được update chưa ???\n", .{});
             std.debug.print("CONTEXT {s}\n", .{text.input_bytes[curr - 10 .. next.* + 10]});
             unreachable;
         }
