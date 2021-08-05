@@ -733,7 +733,7 @@ fn canBeVietnameseStrick(am_tiet: []const u8) bool {
 }
 
 test "canBeVietnamese() // alphamarks exceptions" {
-    try expect(canBeVietnameseStrick("Đạo"));
     try expect(canBeVietnameseStrick("ðạo"));
     try expect(canBeVietnameseStrick("Ðạo"));
+    try expect(canBeVietnameseStrick("nội"));
 }

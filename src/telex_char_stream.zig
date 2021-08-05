@@ -161,7 +161,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
                 if (self.len == 0) return CharStreamError.MarkCharNotFollowAMarkableVowel;
                 switch (self.buffer[self.len - 1]) {
                     'a', 'e', 'o' => {
-                        self.buffer[self.len] = self.buffer[self.len - 1];
+                        self.buffer[self.len] = 'z';
                         self.len += 1;
                         self.has_mark = true;
                         self.pure_utf8 = false;

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# ./clean.sh
+./clean.sh
 
 ~/zig test src/test_parser_with_real_syllables.zig
 

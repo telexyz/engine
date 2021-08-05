@@ -90,7 +90,7 @@ pub const Text = struct {
     pub const MAX_TOKEN_LEN = 20;
     const MAX_INPUT_FILE_SIZE = 1336 * 1024 * 1024; // 1.3Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
-    const AVG_BYTES_PER_TOKEN = 10;
+    const AVG_BYTES_PER_TOKEN = 3;
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
 
     pub const TypeInfo = struct {

@@ -102,7 +102,7 @@ pub fn parseTokens(text: *Text) void {
         // Guarding to wait for tokens_infos.append(..) to be finalized
         // Nếu ko chờ chiết xuất token_info.skip / token_info.len bị sai
         // Dẫn đến token bị sai lệch và ko trích xuất được syllabet_types
-        if (6 + i.* > text.tokens_number) std.time.sleep(WAIT_NANOSECS);
+        // if (6 + i.* > text.tokens_number) std.time.sleep(WAIT_NANOSECS);
 
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;
