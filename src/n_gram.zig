@@ -50,7 +50,7 @@ pub const NGram = struct {
 
     arena: std.heap.ArenaAllocator = undefined,
 
-    pub const MIN_COUNT = 3;
+    pub const MIN_COUNT = 9;
 
     pub fn init(self: *NGram, init_allocator: *std.mem.Allocator) void {
         self.arena = std.heap.ArenaAllocator.init(init_allocator);

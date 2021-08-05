@@ -29,7 +29,7 @@ pub const Tokenizer = struct {
     };
 
     pub fn segment(self: *Tokenizer, text: *Text) !void {
-        @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
+        // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
         var index: usize = undefined;
         var next_index: usize = 0;
 

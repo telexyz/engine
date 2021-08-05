@@ -66,7 +66,7 @@ const PAD = "                 ";
 const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
-    @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
+    // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
 
     // Char stream to parse syllable
     var char_stream = U2ACharStream.new();
