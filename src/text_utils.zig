@@ -89,11 +89,8 @@ pub fn parseTokens(text: *Text) void {
     while (i.* <= text.tokens_number) : (i.* += 1) {
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
-            //
-            if (text.tokens_number_finalized) {
-                // Segmentation ended => no more tokens for sure then return
-                return;
-            }
+            // Segmentation ended => no more tokens for sure then return
+            if (text.tokens_number_finalized) return;
 
             std.time.sleep(WAIT_NANOSECS);
             std.debug.print("{s}... wait new tokens\n", .{PAD});
@@ -102,8 +99,10 @@ pub fn parseTokens(text: *Text) void {
             if (i.* == text.tokens_number) return;
         }
 
-        // Better wait to syllabet_types be finalized
-        if (5 + i.* >= text.tokens_number) std.time.sleep(WAIT_NANOSECS);
+        // Guarding to wait for tokens_infos.append(..) to be finalized
+        // Nếu ko chờ chiết xuất token_info.skip / token_info.len bị sai
+        // Dẫn đến token bị sai lệch và ko trích xuất được syllabet_types
+        if (4 + i.* > text.tokens_number) std.time.sleep(WAIT_NANOSECS / 2);
 
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;
@@ -127,12 +126,22 @@ pub fn parseTokens(text: *Text) void {
             const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
                 .count = 0,
                 .category = ._none,
-            }) catch unreachable;
+            }) catch {
+                std.debug.print("!!! CANNOT PUT VALUE TO text.alphabet_types !!!", .{});
+                unreachable;
+            };
             gop.value_ptr.count += 1;
             continue;
         }
 
-        const type_info = text.syllabet_types.getPtr(token).?;
+        const ptr = text.syllabet_types.getPtr(token);
+        if (ptr == null) {
+            std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
+            std.debug.print("Xem tokens_infos.append(..) đã đủ time để update chưa \n", .{});
+            std.debug.print("CONTEXT {s}\n", .{text.input_bytes[curr - 10 .. next.* + 10]});
+            unreachable;
+        }
+        const type_info = ptr.?;
 
         if (type_info.category == ._none) {
             // Not transformed yet
@@ -232,6 +241,7 @@ pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
         2 => 32,
         else => unreachable,
     };
+
     text.syllable_bytes_len += 1;
 
     // 1: Nước =>  ^nuoc|w, VIỆT =>  ^^viet|z, đầy =>  dday|z, con => con|

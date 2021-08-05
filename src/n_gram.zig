@@ -77,10 +77,16 @@ pub const NGram = struct {
             gram.s3 = token_info.syllable_id;
             if (gram.s0 == BLANK or gram.s1 == BLANK) continue;
             if (gram.s2 == BLANK or gram.s3 == BLANK) continue;
-            const gop = self.four_gram_counts.getOrPutValue(gram, 0) catch unreachable;
+            const gop = self.four_gram_counts.getOrPutValue(gram, 0) catch {
+                std.debug.print("!!! CANNOT PUT VALUE TO four_gram_counts !!!", .{});
+                unreachable;
+            };
             gop.value_ptr.* += 1;
         }
-        writeGramCounts(self.four_gram_counts, filename) catch unreachable;
+        writeGramCounts(self.four_gram_counts, filename) catch {
+            std.debug.print("!!! CANOT WRITE four_gram_counts to {s} !!!", .{filename});
+            unreachable;
+        };
     }
 
     pub fn parseAndWriteBiTriGram(
@@ -98,15 +104,27 @@ pub const NGram = struct {
 
             if (gram.s1 == BLANK or gram.s2 == BLANK) continue;
             const bigram = BiGram{ .s0 = gram.s1, .s1 = gram.s2 };
-            const gop2 = self.bi_gram_counts.getOrPutValue(bigram, 0) catch unreachable;
+            const gop2 = self.bi_gram_counts.getOrPutValue(bigram, 0) catch {
+                std.debug.print("!!! CANNOT PUT VALUE TO bi_gram_counts !!!", .{});
+                unreachable;
+            };
             gop2.value_ptr.* += 1;
 
             if (gram.s0 == BLANK) continue;
-            const gop3 = self.tri_gram_counts.getOrPutValue(gram, 0) catch unreachable;
+            const gop3 = self.tri_gram_counts.getOrPutValue(gram, 0) catch {
+                std.debug.print("!!! CANNOT PUT VALUE TO tri_gram_counts !!!", .{});
+                unreachable;
+            };
             gop3.value_ptr.* += 1;
         } // while
-        writeGramCounts(self.bi_gram_counts, bi_filename) catch unreachable;
-        writeGramCounts(self.tri_gram_counts, tri_filename) catch unreachable;
+        writeGramCounts(self.bi_gram_counts, bi_filename) catch {
+            std.debug.print("!!! CANOT WRITE bi_gram_counts to {s} !!!", .{filename});
+            unreachable;
+        };
+        writeGramCounts(self.tri_gram_counts, tri_filename) catch {
+            std.debug.print("!!! CANOT WRITE tri_gram_counts to {s} !!!", .{filename});
+            unreachable;
+        };
     }
 };
 

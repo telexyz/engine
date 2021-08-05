@@ -74,18 +74,21 @@ pub const Text = struct {
     recored_byte_addr: usize = undefined, // used to calculate TokenInfo#skip
     tokens_infos: std.ArrayList(TokenInfo) = undefined,
 
-    const SkipLenType = u16;
-    const MAX_SKIP_LEN = 0xffff;
+    const TokenSkipType = u16;
+    const TOKEN_MAX_SKIP = 0xffff;
 
-    pub const TokenInfo = struct {
-        skip: SkipLenType = undefined,
-        len: SkipLenType = undefined,
-        syllable_id: Syllable.UniqueId = 0,
-        attrs: TokenAttributes = undefined,
+    const TokenLenType = u16;
+    const TOKEN_MAX_LEN = 0xffff;
+
+    pub const TokenInfo = struct { //   Total  7-bytes
+        skip: TokenSkipType = undefined, //    2-bytes
+        len: TokenLenType = undefined, //      2-bytes
+        syllable_id: Syllable.UniqueId = 0, // 2-bytes
+        attrs: TokenAttributes = undefined, // 1-byte
     };
 
     pub const MAX_TOKEN_LEN = 20;
-    const MAX_INPUT_FILE_SIZE = 1536 * 1024 * 1024; // 1.5Gb
+    const MAX_INPUT_FILE_SIZE = 1336 * 1024 * 1024; // 1.3Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
     const AVG_BYTES_PER_TOKEN = 10;
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
@@ -241,27 +244,32 @@ pub const Text = struct {
             }
             return self.input_bytes[curr..next];
         } else {
+            std.debug.print("!!! n: {} is bigger than tokens_number !!!", .{n});
             unreachable;
         }
     }
     pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
         const tkn_addr = @ptrToInt(token.ptr);
-        var skip_len = tkn_addr - self.recored_byte_addr;
+        const skip = tkn_addr - self.recored_byte_addr;
         self.recored_byte_addr = tkn_addr + token.len;
 
-        var token_info = TokenInfo{ .attrs = attrs };
-        if (skip_len < MAX_SKIP_LEN and token.len < MAX_SKIP_LEN) {
-            token_info.skip = @intCast(SkipLenType, skip_len);
-            token_info.len = @intCast(SkipLenType, token.len);
-        } else {
-            std.debug.print("\n !!!! OUT OF skip_len {d} OR token.len {d} !!!!\n{s}\n", .{
-                skip_len,
-                token.len,
-                token,
-            });
-            unreachable;
-        }
-        try self.tokens_infos.append(token_info);
+        // var token_info = TokenInfo{ .attrs = attrs };
+        // if (skip < TOKEN_MAX_SKIP and token.len < TOKEN_MAX_LEN) {
+        //     token_info.skip = @intCast(TokenSkipType, skip);
+        //     token_info.len = @intCast(TokenLenType, token.len);
+        // } else {
+        //     std.debug.print("\n !! OUT OF skip {d} OR len {d} !!", .{ skip, token.len });
+        //     unreachable;
+        // }
+        // token_info.skip = @intCast(TokenSkipType, skip);
+        // token_info.len = @intCast(TokenLenType, token.len);
+        // try self.tokens_infos.append(token_info);
+
+        try self.tokens_infos.append(.{
+            .attrs = attrs,
+            .skip = @intCast(TokenSkipType, skip),
+            .len = @intCast(TokenLenType, token.len),
+        });
 
         if (token.len <= MAX_TOKEN_LEN) {
             if (attrs.category == .nonalpha) {
