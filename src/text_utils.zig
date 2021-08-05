@@ -70,7 +70,7 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
 
 // TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
 const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
+const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false);
@@ -87,9 +87,6 @@ pub fn parseTokens(text: *Text) void {
     var curr: usize = undefined;
 
     while (i.* <= text.tokens_number) : (i.* += 1) {
-        // Better wait to syllabet_types be finalized
-        if (3 + i.* >= text.tokens_number) std.time.sleep(WAIT_NANOSECS / 3);
-
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
             //
@@ -104,6 +101,9 @@ pub fn parseTokens(text: *Text) void {
             // No new token and timeout
             if (i.* == text.tokens_number) return;
         }
+
+        // Better wait to syllabet_types be finalized
+        if (5 + i.* >= text.tokens_number) std.time.sleep(WAIT_NANOSECS);
 
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;
