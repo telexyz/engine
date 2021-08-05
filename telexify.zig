@@ -171,7 +171,7 @@ pub fn main() anyerror!void {
         try text.processAlphabetTypes();
         print("\nWriting types to files ...\n", .{});
         try write_out_types();
-        const types_time = showMeTimeLap(step2_timxe, "Writing types to files done!");
+        const types_time = showMeTimeLap(step2_time, "Writing types to files done!");
 
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});
         try TextokOutput.write_transforms_to_file(text, output_filename);
