@@ -67,11 +67,24 @@ pub const NGram = struct {
         TextNotFinalized,
     };
 
+    const PAD = "                 ";
     pub fn parseAndWriteFourGram(self: *NGram, text: Text, filename: []const u8) void {
-        var gram: FourGram = .{};
+        // Record progress
+        const ten_percents = text.tokens_number / 10;
+        var percents_threshold = ten_percents;
+        var percents: u8 = 0;
 
+        var gram: FourGram = .{};
         var i: usize = 0;
+
         while (i < text.tokens_number) : (i += 1) {
+            // Show progress
+            if (i >= percents_threshold) {
+                percents += 10;
+                std.debug.print("{s}{d}% Parsing 4-gram\n", .{ PAD, percents });
+                percents_threshold += ten_percents;
+            }
+
             const token_info = text.tokens_infos[i];
 
             gram.s0 = gram.s1;
@@ -100,10 +113,21 @@ pub const NGram = struct {
         bi_filename: []const u8,
         tri_filename: []const u8,
     ) void {
+        // Record progress
+        const ten_percents = text.tokens_number / 10;
+        var percents_threshold = ten_percents;
+        var percents: u8 = 0;
         var gram: TriGram = .{ .s0 = BLANK, .s1 = BLANK, .s2 = BLANK };
 
         var i: usize = 0;
         while (i < text.tokens_number) : (i += 1) {
+            // Show progress
+            if (i >= percents_threshold) {
+                percents += 10;
+                std.debug.print("Parsing 2,3-gram {d}%\n", .{percents});
+                percents_threshold += ten_percents;
+            }
+
             const token_info = text.tokens_infos[i];
             gram.s0 = gram.s1;
             gram.s1 = gram.s2;

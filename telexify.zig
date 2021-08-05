@@ -147,7 +147,7 @@ pub fn main() anyerror!void {
     text.free_tokens_infos();
 
     if (parse_n_grams) {
-        print("\nStep-3: Parse and write n-gram ...\n", .{});
+        print("\nSTEP 3: Parse and write n-gram ...\n", .{});
         gram = .{};
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
