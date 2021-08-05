@@ -231,6 +231,10 @@ pub const Text = struct {
         self.tokens_number = 0;
     }
 
+    pub fn free_tokens_infos(self: *Text) void {
+        self.allocator.free(self.tokens_infos);
+    }
+
     pub fn free_input_bytes(self: *Text) void {
         self.allocator.free(self.input_bytes);
     }
