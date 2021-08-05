@@ -386,8 +386,8 @@ test "Text" {
     while (it.next()) |tkn| {
         try text.recordToken(tkn, attrs);
     }
-    text.tokens_number_finalized = true;
     thread.join();
+    text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
     try text.processAlphabetTypes();
 
@@ -401,11 +401,11 @@ test "Text" {
     //  1s 2s  3s  1a 4s  5s     6s  1a 1s 2s  2a 3a
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
 
-    // std.debug.print("\nalphabet_types.count: {d}", .{text.alphabet_types.count()});
+    std.debug.print("\nalphabet_types.count: {d}", .{text.alphabet_types.count()});
     var iter = text.alphabet_types.iterator();
     while (iter.next()) |kv| {
         _ = kv; // enable the look to make the .count() == 3, don't know why but it works
-        // std.debug.print("\n{s} => {}", .{ kv.key_ptr.*, kv.value_ptr });
+        std.debug.print("\n{s} => {}", .{ kv.key_ptr.*, kv.value_ptr });
     }
 
     try std.testing.expect(text.alphabet_types.count() == 3);
