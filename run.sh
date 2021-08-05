@@ -1,22 +1,22 @@
 #!/bin/sh
 
-./clean.sh && ~/zig build
-# ~/zig build -Drelease-safe=true
-cp ./zig-out/bin/telexify ~/bin
+# ./clean.sh && ~/zig build
+~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
 # cp ./zig-out/bin/telexify ~/repos/results/bin
 
-./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts ngram # test run
-./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts
-./zig-out/bin/telexify data/news_titles.txt data/tknz.txt dense ngram
-./zig-out/bin/telexify data/news_titles.txt data/tknz.txt dense
-./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare ngram
-./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare
+# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts ngram # test run
+# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts
+# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt dense ngram
+# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt dense
+# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare ngram
+# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare
+# ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
 
 # ~/bin/telexify ~/repos/data/news_titles.txt ~/repos/data/news_titles.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/fb_comments.txt ~/repos/data/fb_comments.dense.xyz dense
 # ~/bin/telexify ~/repos/data/vietai_sat.txt ~/repos/data/vietai_sat.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vi_wiki_all.txt ~/repos/data/vi_wiki_all.spare.xyz spare
-# ~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
+~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
 
 # ~/zig build
 # ~/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram

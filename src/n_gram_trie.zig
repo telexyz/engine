@@ -128,18 +128,15 @@ pub const GramTrie = struct {
 
         try self.init_n_gram_lists(text.syllable_types.count());
 
-        var i: usize = 0;
-        var n: usize = text.tokens_number;
         var keys: [5]Syllable.UniqueId = .{ BLANK, BLANK, BLANK, BLANK, BLANK };
 
-        while (i < n) : (i += 1) {
+        for (text.tokens_infos.items) |token_info| {
             //
-            const is_syllable = text.tokens_attrs[i].isSyllable();
             keys[4] = keys[3];
             keys[3] = keys[2];
             keys[2] = keys[1];
             keys[1] = keys[0];
-            keys[0] = if (is_syllable) text.syllable_ids[i] else BLANK;
+            keys[0] = token_info.syllable_id;
             _ = try self.count(&keys);
         }
     }
