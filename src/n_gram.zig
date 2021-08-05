@@ -125,6 +125,9 @@ pub const NGram = struct {
             std.debug.print("!!! CANOT WRITE tri_gram_counts to {s} !!!", .{tri_filename});
             unreachable;
         };
+
+        self.bi_gram_counts.deinit();
+        self.tri_gram_counts.deinit();
     }
 };
 
