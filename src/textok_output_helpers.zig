@@ -204,4 +204,13 @@ pub const TextokOutputHelpers = struct {
         }
         try wrt.flush();
     }
+
+    pub fn write_transforms_to_file(text: Text, filename: []const u8) !void {
+        var file = try std.fs.cwd().createFile(filename, .{});
+        defer file.close();
+        var wrt = std.io.bufferedWriter(file.writer());
+        // const wrt = output_file.writer();
+        _ = try wrt.writer().write(text.transformed_bytes);
+        try wrt.flush();
+    }
 };

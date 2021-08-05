@@ -35,6 +35,12 @@ pub const Text = struct {
     // but it not looked right for me. I think it we should keep original form.
     // Same tokens counted to type, we will save transform in TypeInfo
 
+    // We'll need transformed_bytes stream as a data store for transforms slices
+    // transforms[i] will point to a position in the transformed_bytes stream
+    transformed_bytes: []u8 = undefined,
+    transformed_bytes_size: usize = undefined,
+    transformed_bytes_len: usize = 0,
+
     // Data buffer for syllable_types
     syllable_bytes: []u8 = undefined,
     syllable_bytes_len: usize = 0,
@@ -206,6 +212,12 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
+        const delta = input_bytes_size / 4;
+        self.transformed_bytes_size = input_bytes_size + delta + BUFF_SIZE;
+        if (self.keep_origin_amap) self.transformed_bytes_size += delta;
+        if (self.convert_mode == 3) self.transformed_bytes_size += delta;
+        self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
+
         // Init syllable...
         self.syllable_bytes = try self.allocator.alloc(u8, 3 * TEXT_DICT_FILE_SIZE);
         self.syllable_bytes_len = 0;
@@ -222,6 +234,11 @@ pub const Text = struct {
     pub fn free_input_bytes(self: *Text) void {
         self.allocator.free(self.input_bytes);
     }
+
+    pub fn free_transformed_bytes(self: *Text) void {
+        self.allocator.free(self.transformed_bytes);
+    }
+
     pub fn deinit(self: *Text) void {
         // Since we use ArenaAllocator, simply deinit arena itself to
         // free all allocated memories

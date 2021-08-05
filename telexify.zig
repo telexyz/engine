@@ -134,13 +134,11 @@ pub fn main() anyerror!void {
 
     try tknz.segment(&text);
     _ = showMeTimeLap(step0_time, "Step-1: Token segmenting finish!");
-
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_samples();
     try write_out_too_long_tokens();
 
     thread.join(); // Wait for sylabeling thread end
-
     // Then run one more time to finalize sylabeling process
     // since there may be some last tokens was skipped before thread end
     // because sylabeling too fast and timeout before new tokens come
@@ -148,11 +146,11 @@ pub fn main() anyerror!void {
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
 
+    // step1 (segment) and step2 (parse) run at the same step0_time
     var step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
 
-    var step3_time: i64 = undefined;
     if (parse_n_grams) {
-        print("\nParse and write n-gram ...\n", .{});
+        print("\nStep-3: Parse and write n-gram ...\n", .{});
         gram = .{};
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
@@ -169,25 +167,34 @@ pub fn main() anyerror!void {
             .{ &gram, text, "data/19-four_gram.txt" },
         );
 
+        // In the mean time writing parsed results out
+        try text.processAlphabetTypes();
+        print("\nWriting types to files ...\n", .{});
+        try write_out_types();
+        const types_time = showMeTimeLap(step2_timxe, "Writing types to files done!");
+
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-        try text_utils.writeTransformsToFile(&text, output_filename);
-        _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
+        try TextokOutput.write_transforms_to_file(text, output_filename);
+        _ = showMeTimeLap(types_time, "Writing tokenized results done!");
+
+        text.free_input_bytes();
+        text.free_transformed_bytes();
 
         thread1.join();
         thread2.join();
 
-        step3_time = showMeTimeLap(step2_time, "Parse and write n-gram done!");
+        _ = showMeTimeLap(step2_time, "Step-3: Parse and write n-gram done!");
         //
     } else {
         //
+        try text.processAlphabetTypes();
+        print("\nWriting types to files ...\n", .{});
+        try write_out_types();
+        const types_time = showMeTimeLap(step2_time, "Writing types to files done!");
+        //
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-        try text_utils.writeTransformsToFile(&text, output_filename);
-        step3_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
+        try TextokOutput.write_transforms_to_file(text, output_filename);
+        _ = showMeTimeLap(types_time, "Writing tokenized results done!");
     }
-
-    try text.processAlphabetTypes();
-    print("\nWriting types to files ...\n", .{});
-    try write_out_types();
-    _ = showMeTimeLap(step3_time, "Writing types to files done!");
     _ = showMeTimeLap(start_time, "Total");
 }
