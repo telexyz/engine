@@ -118,11 +118,11 @@ pub const NGram = struct {
             gop3.value_ptr.* += 1;
         } // while
         writeGramCounts(self.bi_gram_counts, bi_filename) catch {
-            std.debug.print("!!! CANOT WRITE bi_gram_counts to {s} !!!", .{filename});
+            std.debug.print("!!! CANOT WRITE bi_gram_counts to {s} !!!", .{bi_filename});
             unreachable;
         };
         writeGramCounts(self.tri_gram_counts, tri_filename) catch {
-            std.debug.print("!!! CANOT WRITE tri_gram_counts to {s} !!!", .{filename});
+            std.debug.print("!!! CANOT WRITE tri_gram_counts to {s} !!!", .{tri_filename});
             unreachable;
         };
     }

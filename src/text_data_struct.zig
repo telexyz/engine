@@ -300,8 +300,9 @@ pub const Text = struct {
         var it = self.syllabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
+                // Already logged in text_utils.parseTokens
                 // std.debug.print("\n{s} => {}", .{ kv.value_ptr.transform, kv.value_ptr });
-                try self.countSyllableAndSyllow0t(kv.value_ptr.transform, kv.value_ptr);
+                // try self.countSyllableAndSyllow0t(kv.value_ptr.transform, kv.value_ptr);
             } else {
                 _ = try self.alphabet_types.put(kv.key_ptr.*, kv.value_ptr.*);
             }

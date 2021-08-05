@@ -187,6 +187,10 @@ pub fn parseTokens(text: *Text) void {
         if (type_info.isSyllable()) {
             attrs.category = type_info.category;
             token_info.syllable_id = type_info.syllable_id;
+            self.countSyllableAndSyllow0t(type_info.transform, type_info) catch {
+                std.print.debug("!!! CANNOT countSyllableAndSyllow0t !!!", .{});
+                unreachable;
+            };
         }
     }
 }
