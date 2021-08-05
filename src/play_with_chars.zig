@@ -9,7 +9,7 @@ const unicode = std.unicode;
 
 // var str = "×÷ ̣ ̂́ ̉ ̂ ̛̣ ̂̃ ̣̂ ̂̉ ̛ ̛̀ ̃ ̛́ ̛̉ ̆̀ ͡ ̆́ıąö ͙͕ ";
 
-var str = "Ðiề";
+var str = "ðÐiề";
 
 //\n\tđĐàáãâăèéêìíĩòóõôơýùúũưủụọỏịỉỳỵỷỹạảẹẻẽẦẤẬẨẪẰẮẶẲẴỀẾỆỂỄỒỐỘỔỖỜỚỢỞỠỪỨỰỬỮầấậẩẫằắặẳẵềếệểễồốộổỗờớợởỡừứựửữ";
 
@@ -49,7 +49,7 @@ pub fn main() !void {
         var i: usize = 0;
         while (i < char_bytes_length) {
             const b = str[index + i];
-            print(" : {x} {d}", .{ b, b });
+            print(" : byte-{d} {x} {d}", .{ i, b, b });
             i += 1;
         }
         print(" \n", .{});

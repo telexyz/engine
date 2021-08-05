@@ -241,6 +241,9 @@ pub fn parseTokenToGetSyllable(
         } else {
             char = @intCast(u21, byte);
         }
+
+        // if (char == 'ð') std.debug.print("\nparseTokenToGetSyllable char: `{}`, byte: {d}", .{ char, byte });
+
         char_stream.pushCharAndFirstByte(char, byte) catch {
             // Any error with char_stream, just return current parsed syllable
             // The error should not affect the result of the parse
@@ -720,4 +723,17 @@ test "canBeVietnamese() // Auto-repair obvious cases" {
     try expect(canBeVietnamese("tuyen")); // tuyên
     try expect(canBeVietnamese("cuă")); // cưa
     try expect(canBeVietnamese("cưă")); // cưa
+}
+
+// - - -
+
+fn canBeVietnameseStrick(am_tiet: []const u8) bool {
+    // return parseAmTietToGetSyllable(true, std.debug.print, am_tiet).can_be_vietnamese;
+    return parseAmTietToGetSyllable(true, printNothing, am_tiet).can_be_vietnamese;
+}
+
+test "canBeVietnamese() // alphamarks exceptions" {
+    try expect(canBeVietnameseStrick("Đạo"));
+    try expect(canBeVietnameseStrick("ðạo"));
+    try expect(canBeVietnameseStrick("Ðạo"));
 }

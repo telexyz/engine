@@ -227,6 +227,9 @@ pub const Utf8ToAsciiTelexCharStream = struct {
         }
         // Record only stand-alone char as last_char
         self.last_char = char;
+
+        // if (char == 'ð') std.debug.print("\npushCharAndFirstByte char: `{}`, first_byte: {d}", .{ char, first_byte });
+
         try self.pushTelexCode(telex_utils.utf8ToTelexCode(char, first_byte));
     }
 

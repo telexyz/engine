@@ -8,11 +8,14 @@ const syllable_data_structs = @import("syllable_data_structs.zig");
 
 const IS_UPPER = 512;
 
-pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
+pub fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
     var am_giua: syllable_data_structs.AmGiua = ._none;
     var tone: syllable_data_structs.Tone = ._none;
     var telex_code: u10 = 0;
     var upper_code: u10 = 0;
+
+    // std.debug.print("\n!!! char: `{}`, first_byte: {d} !!!", .{ char, first_byte });
+    // if (char == 240) std.debug.print("\n!!! first_byte = {d} !!!", .{first_byte});
 
     // first_byte == 0 mean don't know it's value
     // Need to try every possibility
@@ -157,6 +160,13 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 telex_code = 'y' - 83;
                 upper_code = IS_UPPER;
             },
+            'ð' => { // 'ð'.upper => 'Ð'
+                telex_code = 13;
+            },
+            'Ð' => {
+                telex_code = 13;
+                upper_code = IS_UPPER;
+            },
             else => {
                 if (first_byte != 0) return 0;
             },
@@ -167,7 +177,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
             'ă' => {
                 am_giua = .aw;
             },
-            'đ', 'ð' => { // 'ð'.upper => 'Ð'
+            'đ' => {
                 telex_code = 13;
             },
             'ĩ' => {
@@ -188,7 +198,7 @@ pub inline fn utf8ToTelexCode(char: u21, first_byte: u8) u10 {
                 am_giua = .aw;
                 upper_code = IS_UPPER;
             },
-            'Đ', 'Ð' => {
+            'Đ' => {
                 telex_code = 13;
                 upper_code = IS_UPPER;
             },
