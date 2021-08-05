@@ -144,7 +144,6 @@ pub fn main() anyerror!void {
 
     // step1 (segment) and step2 (parse) run at the same step0_time
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Token parsing finish!");
-    text.free_tokens_infos();
 
     if (parse_n_grams) {
         print("\nSTEP 3: Parse and write n-gram ...\n", .{});
