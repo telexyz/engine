@@ -1,5 +1,7 @@
 # Vietnamese Telex Input Method and Anything Related
 
+## Re-presenting + Indexing sao cho có thể view corpus thật nhanh, phát hiện các trường hợp bất thuòng, tự động sửa lỗi, bỏ đi những đoạn text kém chất lượng ...
+
 ## Cải tiến bộ gõ Telex
 
 [ IMPORTANT ] Yếu điểm có thể coi là lớn nhất của Telex là viết song ngữ rất chậm,
