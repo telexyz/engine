@@ -6,15 +6,6 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-inline fn showProgress(text: *Text, prev_percent: *usize) void {
-    const percent = (100 * text.parsed_input_bytes) / text.input_bytes.len;
-    if (percent > prev_percent.*) {
-        prev_percent.* = percent;
-        if (@rem(percent, 10) == 0)
-            std.debug.print("{s}{d}% Parsing\n", .{ PAD, percent });
-    }
-}
-
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
         std.debug.print(fmt_str, args);
@@ -34,12 +25,13 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
         //
         curr = next + token_info.skip;
         next = curr + token_info.len;
+
         var token = text.input_bytes[curr..next];
-        var attrs = token_info.attrs;
+        const attrs = token_info.attrs;
 
         // Write data out
         if (attrs.isSyllable()) {
-            const type_ptr = text.syllabet_types.getPtr(token);
+            const type_ptr = text.alphabet_types.getPtr(token);
             _ = try writer.write(type_ptr.?.transform);
 
             if (!text.keep_origin_amap) {
@@ -80,7 +72,9 @@ pub fn parseTokens(text: *Text) void {
     char_stream.strict_mode = true;
 
     // Record progress
-    var prev_percent: usize = 0;
+    const ten_percents = text.input_bytes.len / 10;
+    var percents_threshold = ten_percents;
+    var percents: u8 = 0;
 
     var i: *usize = &text.parsed_tokens_number;
     var next: *usize = &text.parsed_input_bytes;
@@ -99,48 +93,33 @@ pub fn parseTokens(text: *Text) void {
             if (i.* == text.tokens_number) return;
         }
 
-        // Guarding to wait for tokens_infos.append(..) to be finalized
-        // Nếu ko chờ chiết xuất token_info.skip / token_info.len bị sai
-        // Dẫn đến token bị sai lệch và ko trích xuất được syllabet_types
-        // if (6 + i.* > text.tokens_number) std.time.sleep(WAIT_NANOSECS);
-
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;
         next.* = curr + token_info.len;
 
-        if (text.input_bytes[curr] == '\n') {
-            showProgress(text, &prev_percent);
-            continue;
+        // Parse alphabet and not too long token only
+        if (token_info.attrs.category == .nonalpha) continue;
+        if (token_info.len > U2ACharStream.MAX_LEN) continue;
+
+        // Show progress
+        if (next.* >= percents_threshold) {
+            percents += 10;
+            std.debug.print("{s}{d}% Parsing\n", .{ PAD, percents });
+            percents_threshold += ten_percents;
         }
 
-        //  and token's attributes shortcut
+        // Init token and attrs shortcuts
+        var token = text.input_bytes[curr..next.*];
         var attrs = &token_info.attrs;
 
-        // Parse alphabet and not too long token only
-        if (attrs.category == .nonalpha) continue;
-
-        // Init token shortcuts
-        var token = text.input_bytes[curr..next.*];
-
-        if (token.len > U2ACharStream.MAX_LEN) {
-            const gop = text.alphabet_types.getOrPutValue(token, Text.TypeInfo{
-                .count = 0,
-                .category = ._none,
-            }) catch {
-                std.debug.print("!!! CANNOT PUT VALUE TO text.alphabet_types !!!", .{});
-                unreachable;
-            };
-            gop.value_ptr.count += 1;
-            continue;
-        }
-
-        const ptr = text.syllabet_types.getPtr(token);
+        const ptr = text.alphabet_types.getPtr(token);
         if (ptr == null) {
             std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
             std.debug.print("Xem tokens_infos.append(..) đã được update chưa ???\n", .{});
             std.debug.print("CONTEXT {s}\n", .{text.input_bytes[curr - 10 .. next.* + 10]});
             unreachable;
         }
+        // Init type_info shortcut
         const type_info = ptr.?;
 
         if (type_info.category == ._none) {

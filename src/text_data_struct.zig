@@ -4,9 +4,6 @@ const File = std.fs.File;
 const syllable_data_structs = @import("./syllable_data_structs.zig");
 const Syllable = syllable_data_structs.Syllable;
 
-const telex_char_stream = @import("./telex_char_stream.zig");
-const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
-
 pub const Text = struct {
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = true,
@@ -46,7 +43,6 @@ pub const Text = struct {
     // Listing tytes along with its frequence will reveal intersting information
 
     // Use data of input_bytes, pointed by tokens[i]
-    syllabet_types: std.StringHashMap(TypeInfo) = undefined,
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     nonalpha_types: std.StringHashMap(u32) = undefined,
 
@@ -200,7 +196,6 @@ pub const Text = struct {
         );
 
         // Init types count
-        self.syllabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
@@ -275,9 +270,9 @@ pub const Text = struct {
             if (attrs.category == .nonalpha) {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
-            } else if (token.len <= U2ACharStream.MAX_LEN) {
+            } else {
                 // Log token type that can be syllable
-                const gop = try self.syllabet_types.getOrPutValue(token, Text.TypeInfo{
+                const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
                     .count = 0,
                     .category = ._none,
                 });
@@ -294,17 +289,15 @@ pub const Text = struct {
         self.tokens_number += 1;
     }
 
-    pub fn processSyllabetTypes(self: *Text) !void {
+    pub fn processAlphabetTypes(self: *Text) !void {
         if (!self.tokens_number_finalized) return;
 
-        var it = self.syllabet_types.iterator();
+        var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
                 // std.debug.print("\n{s} => {}", .{kv.value_ptr.transform, kv.value_ptr});
                 try self.countSyllableAndSyllow0t(kv.value_ptr.transform, kv.value_ptr);
-            } else {
-                // std.debug.print("\n{s} => {}", .{ kv.value_ptr, kv.value_ptr });
-                _ = try self.alphabet_types.put(kv.key_ptr.*, kv.value_ptr.*);
+                _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
     }
@@ -373,7 +366,7 @@ test "Text" {
     text.tokens_number_finalized = true;
     thread.join();
     text_utils.parseTokens(&text);
-    try text.processSyllabetTypes();
+    try text.processAlphabetTypes();
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nhà");
@@ -381,10 +374,18 @@ test "Text" {
     try std.testing.expect(text.alphabet_types.get(",").?.count == 2);
     try std.testing.expect(text.alphabet_types.get("TAQs").?.count == 1);
     try std.testing.expect(text.alphabet_types.get("xxx") == null);
-    try std.testing.expect(text.alphabet_types.count() == 3);
 
     //  1s 2s  3s  1a 4s  5s     6s  1a 1s 2s  2a 3a
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
+
+    std.debug.print("\nalphabet_types.count: {d}", .{text.alphabet_types.count()});
+    // var iter = text.alphabet_types.iterator();
+    // while (iter.next()) |kv| {
+    //     std.debug.print("\n{s} => {}", .{ kv.key_ptr.*, kv.value_ptr });
+    // }
+
+    try std.testing.expect(text.alphabet_types.count() == 3);
+
     // std.debug.print("\n{}\n", .{text.syllable_types.get("nha|f").?.count});
     // std.debug.print("\n{}\n\n", .{text.syllow0t_types.get("ca|").?.count});
     try std.testing.expect(text.syllable_types.count() == 7); // Cả != cả

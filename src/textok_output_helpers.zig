@@ -3,7 +3,7 @@ const Text = @import("./text_data_struct.zig").Text;
 
 const TOKENS_PER_LINE = 10;
 const MAX_FREQ_LEN = 9;
-const PAD = "  ";
+const PAD = "    ";
 
 pub const TextokOutputHelpers = struct {
     //

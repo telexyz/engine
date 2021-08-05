@@ -88,7 +88,7 @@ fn write_out_types() !void {
     );
 }
 
-fn write_out_final() !void {
+fn write_out_too_long_tokens() !void {
     try TextokOutput.write_too_long_tokens_to_file(
         text.alphabet_too_long_tokens,
         "data/09-alphabet_too_long.txt",
@@ -99,8 +99,6 @@ fn write_out_final() !void {
         "data/10-nonalpha_too_long.txt",
         "data/temp.txt",
     );
-    // Final result
-    try text_utils.writeTransformsToFile(&text, output_filename);
 }
 
 fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
@@ -139,6 +137,8 @@ pub fn main() anyerror!void {
 
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_samples();
+    try write_out_too_long_tokens();
+
     thread.join(); // Wait for sylabeling thread end
 
     // Then run one more time to finalize sylabeling process
@@ -147,13 +147,8 @@ pub fn main() anyerror!void {
     // It's a very rare-case happend when the sleep() call fail.
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
-    try text.processSyllabetTypes();
 
     var step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
-
-    print("\nWriting types to files ...\n", .{});
-    try write_out_types();
-    step2_time = showMeTimeLap(step2_time, "Writing types to files done!");
 
     var step3_time: i64 = undefined;
     if (parse_n_grams) {
@@ -175,8 +170,7 @@ pub fn main() anyerror!void {
         );
 
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-        try write_out_final();
-        text.free_input_bytes();
+        try text_utils.writeTransformsToFile(&text, output_filename);
         _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 
         thread1.join();
@@ -187,9 +181,13 @@ pub fn main() anyerror!void {
     } else {
         //
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-        try write_out_final();
+        try text_utils.writeTransformsToFile(&text, output_filename);
         step3_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
     }
 
+    try text.processAlphabetTypes();
+    print("\nWriting types to files ...\n", .{});
+    try write_out_types();
+    _ = showMeTimeLap(step3_time, "Writing types to files done!");
     _ = showMeTimeLap(start_time, "Total");
 }
