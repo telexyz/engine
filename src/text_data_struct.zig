@@ -294,7 +294,7 @@ pub const Text = struct {
         self.tokens_number += 1;
     }
 
-    pub fn removeSyllablesFromAlphabetTypes(self: *Text) !void {
+    pub fn addSyllabetTypesToAlphabetTypes(self: *Text) !void {
         if (!self.tokens_number_finalized) return;
 
         var it = self.syllabet_types.iterator();
@@ -309,7 +309,7 @@ pub const Text = struct {
         }
     }
 
-    fn countSyllableAndSyllow0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
+    pub fn countSyllableAndSyllow0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
         // Record and count syllable
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
@@ -373,7 +373,7 @@ test "Text" {
     text.tokens_number_finalized = true;
     thread.join();
     text_utils.parseTokens(&text);
-    try text.removeSyllablesFromAlphabetTypes();
+    try text.addSyllabetTypesToAlphabetTypes();
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nhà");
