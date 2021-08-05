@@ -190,7 +190,7 @@ pub const Text = struct {
         self.recored_byte_addr = @ptrToInt(input_bytes.ptr);
 
         const input_bytes_size = self.input_bytes.len;
-        self.estimated_tokens_number = (input_bytes_size * 2) / 5;
+        self.estimated_tokens_number = (input_bytes_size * 10) / 28;
         self.estimated_tokens_number += BUFF_SIZE;
 
         // Init tokens infos list
