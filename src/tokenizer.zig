@@ -327,10 +327,10 @@ test "Tokenizer" {
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.getToken(i));
 
-        try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
+        try testing.expect(s1_tkcats[i] == text.tokens_infos.items[i].attrs.category);
 
         // print("Token: {s}\n", .{token});//DEBUG
-        try testing.expectEqualStrings(@tagName(s1_surrds[i]), @tagName(text.tokens_attrs[i].surrounded_by_spaces));
+        try testing.expectEqualStrings(@tagName(s1_surrds[i]), @tagName(text.tokens_infos.items[i].attrs.surrounded_by_spaces));
         i += 1;
     }
 
@@ -344,8 +344,8 @@ test "Tokenizer" {
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.getToken(i));
         // print("Token: {s}\n", .{token});
-        try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
-        try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_attrs[i].surrounded_by_spaces));
+        try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_infos.items[i].attrs.category));
+        try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_infos.items[i].attrs.surrounded_by_spaces));
         i += 1;
         j += 1;
     }
@@ -357,14 +357,14 @@ test "Tokenizer" {
     j = 0;
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.getToken(i));
-        const surrounded_by_spaces = text.tokens_attrs[i].surrounded_by_spaces;
+        const surrounded_by_spaces = text.tokens_infos.items[i].attrs.surrounded_by_spaces;
         switch (j) {
             0 => try testing.expect(surrounded_by_spaces == .left),
             18 => try testing.expect(surrounded_by_spaces == .right),
             else => try testing.expect(surrounded_by_spaces == .none),
         }
 
-        const category = text.tokens_attrs[i].category;
+        const category = text.tokens_infos.items[i].attrs.category;
         if (@rem(j, 2) == 0) {
             try testing.expect(category == .alphabet);
         } else {
@@ -391,8 +391,8 @@ test "Tokenizer" {
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.getToken(i));
         // print("Token: {s}\n", .{token}); //DEBUG
-        try testing.expectEqualStrings(@tagName(s1_tkcats[i]), @tagName(text.tokens_attrs[i].category));
-        // try testing.expect(s1_tkcats[i] == text.tokens_attrs[i].category);
+        try testing.expectEqualStrings(@tagName(s1_tkcats[i]), @tagName(text.tokens_infos.items[i].attrs.category));
+        // try testing.expect(s1_tkcats[i] == text.tokens_infos.items[i].attrs.category);
         i += 1;
     }
 
@@ -406,8 +406,8 @@ test "Tokenizer" {
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.getToken(i));
         // print("Token: {s}\n", .{token}); //DEBUG
-        try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_attrs[i].category));
-        // try testing.expect(s2_tkcats[j] == text.tokens_attrs[i].category);
+        try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_infos.items[i].attrs.category));
+        // try testing.expect(s2_tkcats[j] == text.tokens_infos.items[i].attrs.category);
         i += 1;
         j += 1;
     }

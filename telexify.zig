@@ -147,7 +147,13 @@ pub fn main() anyerror!void {
     // It's a very rare-case happend when the sleep() call fail.
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
-    const step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
+    try text.removeSyllablesFromAlphabetTypes();
+
+    var step2_time = showMeTimeLap(step0_time, "Step-2: Token parsing finish!");
+
+    print("\nWriting types to files ...\n", .{});
+    try write_out_types();
+    step2_time = showMeTimeLap(step2_time, "Writing types to files done!");
 
     var step3_time: i64 = undefined;
     if (parse_n_grams) {
@@ -170,8 +176,8 @@ pub fn main() anyerror!void {
 
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});
         try write_out_final();
-        _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
         text.free_input_bytes();
+        _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 
         thread1.join();
         thread2.join();
@@ -184,10 +190,6 @@ pub fn main() anyerror!void {
         try write_out_final();
         step3_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
     }
-
-    print("\nWriting types to file ...\n", .{});
-    try write_out_types();
-    _ = showMeTimeLap(step3_time, "Writing types to file done!");
 
     _ = showMeTimeLap(start_time, "Total");
 }

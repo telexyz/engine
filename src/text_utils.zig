@@ -70,47 +70,40 @@ pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
 
 // TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
 const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
-const M_WAIT_NANOSECS: u64 = 120_000_000; // nanoseconds
+const WAIT_NANOSECS: u64 = 500_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false);
+
+    // Char stream to parse syllable
     var char_stream = U2ACharStream.new();
     char_stream.strict_mode = true;
+
+    // Record progress
     var prev_percent: usize = 0;
-    const max_sleeps: u8 = 10;
-    var sleeps_count: u8 = 0;
 
     var i: *usize = &text.parsed_tokens_number;
     var next: *usize = &text.parsed_input_bytes;
     var curr: usize = undefined;
 
     while (i.* <= text.tokens_number) : (i.* += 1) {
+        // Better wait to syllabet_types be finalized
+        if (3 + i.* >= text.tokens_number) std.time.sleep(WAIT_NANOSECS / 3);
+
         // Check if reach the end of tokens list
         if (i.* == text.tokens_number) {
-
-            // Segmentation ended => no more tokens for sure then return
+            //
             if (text.tokens_number_finalized) {
-                text.removeSyllablesFromAlphabetTypes() catch unreachable;
+                // Segmentation ended => no more tokens for sure then return
                 return;
             }
 
-            // BEGIN waiting for new tokens (all tokens is processed)
-            while (sleeps_count < max_sleeps and i.* == text.tokens_number) {
-                std.time.sleep(WAIT_NANOSECS);
-                sleeps_count += 1;
-                std.debug.print("{s}... wait new tokens\n", .{PAD});
-            } // END waiting for new tokens
+            std.time.sleep(WAIT_NANOSECS);
+            std.debug.print("{s}... wait new tokens\n", .{PAD});
 
             // No new token and timeout
             if (i.* == text.tokens_number) return;
-
-            // Got new tokens, reset counter and continue
-            sleeps_count = 0;
         }
-
-        // Better wait to syllabet_types be finalized
-        if (5 + i.* > text.tokens_number) std.time.sleep(M_WAIT_NANOSECS);
 
         const token_info = &text.tokens_infos.items[i.*];
         curr = next.* + token_info.skip;

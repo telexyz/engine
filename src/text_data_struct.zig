@@ -235,8 +235,9 @@ pub const Text = struct {
             var curr: usize = 0;
             var next: usize = 0;
             while (i <= n) : (i += 1) {
-                curr = next + self.tokens_skip[i];
-                next = curr + self.tokens_len[i];
+                const token_info = self.tokens_infos.items[i];
+                curr = next + token_info.skip;
+                next = curr + token_info.len;
             }
             return self.input_bytes[curr..next];
         } else {
@@ -291,14 +292,15 @@ pub const Text = struct {
         var it = self.syllabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
-                try self.countSyllableAndsyllow0t(kv.value_ptr.transform, kv.value_ptr);
+                // std.debug.print("\n{s} => {}", .{ kv.value_ptr.transform, kv.value_ptr });
+                try self.countSyllableAndSyllow0t(kv.value_ptr.transform, kv.value_ptr);
             } else {
                 _ = try self.alphabet_types.put(kv.key_ptr.*, kv.value_ptr.*);
             }
         }
     }
 
-    fn countSyllableAndsyllow0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
+    fn countSyllableAndSyllow0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
         // Record and count syllable
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
@@ -356,14 +358,11 @@ test "Text" {
     try text.recordToken(it.next().?, attrs);
 
     const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
-
     while (it.next()) |tkn| {
         try text.recordToken(tkn, attrs);
     }
     text.tokens_number_finalized = true;
-
     thread.join();
-    text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
     try text.removeSyllablesFromAlphabetTypes();
 
@@ -377,7 +376,8 @@ test "Text" {
 
     //  1s 2s  3s  1a 4s  5s     6s  1a 1s 2s  2a 3a
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
-    // std.debug.print("\n{}\n", .{text.syllow0t_types.get("ca")});
+    // std.debug.print("\n{}\n", .{text.syllable_types.get("nha|f").?.count});
+    // std.debug.print("\n{}\n\n", .{text.syllow0t_types.get("ca|").?.count});
     try std.testing.expect(text.syllable_types.count() == 7); // Cả != cả
     try std.testing.expect(text.syllable_types.get("nha|f").?.count == 2);
     try std.testing.expect(text.syllow0t_types.count() == 6); // Cả => cả
