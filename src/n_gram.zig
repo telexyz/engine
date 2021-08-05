@@ -67,7 +67,7 @@ pub const NGram = struct {
         TextNotFinalized,
     };
 
-    const PAD = "                      ";
+    const PAD = "                        ";
     pub fn parseAndWriteFourGram(self: *NGram, text: Text, filename: []const u8) void {
         // Record progress
         const ten_percents = text.tokens_number / 10;
@@ -81,7 +81,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print("Parsing 4-gram {d}%\n", .{percents});
+                std.debug.print("Parsing four-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -124,7 +124,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print("{s}{d}% Parsing 2,3-gram\n", .{ PAD, percents });
+                std.debug.print("{s}{d}% Parsing bi,tri-gram\n", .{ PAD, percents });
                 percents_threshold += ten_percents;
             }
 

@@ -29,6 +29,7 @@ pub const Tokenizer = struct {
     };
 
     pub fn segment(self: *Tokenizer, text: *Text) !void {
+        @setRuntimeSafety(false); // DANGER: NEED FOR SPEED
         var index: usize = undefined;
         var next_index: usize = 0;
 

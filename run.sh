@@ -2,8 +2,8 @@
 
 # ./clean.sh && 
 # ~/zig build
-~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
-# ~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
+# ~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
+~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
 
 # ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts ngram # test run
 # ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts
