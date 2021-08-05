@@ -243,7 +243,13 @@ pub const Text = struct {
             unreachable;
         }
     }
+
     pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
+        if (self.tokens_number > self.estimated_tokens_number - 1) {
+            std.debug.print("!!! Need to adjust Text.estimated_tokens_number !!!", .{});
+            unreachable;
+        }
+
         const tkn_addr = @ptrToInt(token.ptr);
         const skip = tkn_addr - self.recored_byte_addr;
         self.recored_byte_addr = tkn_addr + token.len;
