@@ -180,11 +180,14 @@ pub fn parseTokens(text: *Text) void {
                     text.transformed_bytes[text.transformed_bytes_len] = b;
                     text.transformed_bytes_len += 1;
                 }
-            } else {
-                if (!(token.len == 1 and token[0] == '_')) {
-                    text.transformed_bytes[text.transformed_bytes_len] = '\n';
-                    text.transformed_bytes_len += 1;
-                    prev_token_is_vi = false;
+            } else { // Bỏ qua _ , - là token kết nối âm tiết
+                if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
+                    if (prev_token_is_vi == true) {
+                        // Chỉ xuống dòng cho non-syllable token đầu tiên
+                        text.transformed_bytes[text.transformed_bytes_len] = '\n';
+                        text.transformed_bytes_len += 1;
+                        prev_token_is_vi = false;
+                    }
                 }
             }
         }

@@ -210,7 +210,7 @@ pub const TextokOutputHelpers = struct {
         defer file.close();
         var wrt = std.io.bufferedWriter(file.writer());
         // const wrt = output_file.writer();
-        _ = try wrt.writer().write(text.transformed_bytes);
+        _ = try wrt.writer().write(text.transformed_bytes[0..text.transformed_bytes_len]);
         try wrt.flush();
     }
 };

@@ -133,16 +133,17 @@ pub fn main() anyerror!void {
     _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
     // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
     try write_out_samples();
+    try write_out_too_long_tokens();
 
     thread.join(); // Wait for sylabeling thread end
     // Then run one more time to finalize sylabeling process
     // since there may be some last tokens was skipped before thread end
     // because sylabeling too fast and timeout before new tokens come
     // It's a very rare-case happend when the sleep() call fail.
-    text.tokens_number_finalized = true;
-    text_utils.parseTokens(&text);
+    // text.tokens_number_finalized = true;
+    // text_utils.parseTokens(&text);
 
-    // step1 (segment) and step2 (parse) run at the same step0_time
+    // step1 (segment) and step2 (parse) run at the same time (step0_time)
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Token parsing finish!");
 
     if (parse_n_grams) {
@@ -167,7 +168,6 @@ pub fn main() anyerror!void {
         try text.processAlphabetTypes();
         print("\nWriting types to files ...\n", .{});
         try write_out_types();
-        try write_out_too_long_tokens();
         const types_time = showMeTimeLap(step2_time, "Writing types to files done!");
 
         print("\nWriting tokenized results to {s} ...\n", .{output_filename});

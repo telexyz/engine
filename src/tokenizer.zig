@@ -91,7 +91,7 @@ pub const Tokenizer = struct {
                 // newline \n as a hint to do something special like: counting
                 // progress percents ... it will not work if the copus
                 // don't use \n but it's seem to be a rare case.
-                ' ' => {
+                32 => {
                     char_type = .space;
                 },
                 '\n' => {
@@ -99,10 +99,10 @@ pub const Tokenizer = struct {
                     // It's could be a hint for sentences / phrases break ...
                     char_type = .space;
                 },
-                // '\t' => {
-                //     char_type = .space;
-                //     first_byte = ' '; // Convert to space
-                // },
+                '\t' => {
+                    char_type = .space;
+                    first_byte = ' '; // Convert to space
+                },
                 '\\' => {
                     // \r = CR (Carriage Return)
                     //      → Used as a new line character in Mac OS before X
