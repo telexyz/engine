@@ -192,7 +192,7 @@ pub const TextokOutputHelpers = struct {
         var next: usize = 0;
 
         var i: usize = 0;
-        while (i < text.tokens_number) : (i += 1) {
+        while (i < n) : (i += 1) {
             const token_info = text.tokens_infos[i];
             curr = next + token_info.skip;
             next = curr + token_info.len;
