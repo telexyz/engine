@@ -109,18 +109,24 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
     return now;
 }
 
-fn write_results_out(step2_time: i64) !void {
-    // In the mean time writing parsed results out
-    try text.processAlphabetTypes();
-    print("\nWriting stats to files ...\n", .{});
-    try write_out_types();
-    try write_out_samples();
-    try write_out_too_long_tokens();
-    const types_time = showMeTimeLap(step2_time, "Writing stats to files done!");
+fn write_results_out_and_free_mem(step2_time: i64) !void {
+    // In the mean time writing parsed results out, and free amap mem asap
 
     print("\nWriting tokenized results to {s} ...\n", .{output_filename});
     try TextokOutput.write_transforms_to_file(text, output_filename);
-    _ = showMeTimeLap(types_time, "Writing tokenized results done!");
+    const trans_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
+    text.free_transformed_bytes();
+
+    print("\nWriting types to files ...\n", .{});
+    try text.processAlphabetTypes();
+    try write_out_types();
+    const types_time = showMeTimeLap(trans_time, "Writing types to files done!");
+    text.free_input_bytes();
+
+    try write_out_samples();
+    print("\nWriting too long tokens to files ...\n", .{});
+    try write_out_too_long_tokens();
+    _ = showMeTimeLap(types_time, "Writing too long tokens done!");
 }
 
 pub fn main() anyerror!void {
@@ -173,9 +179,7 @@ pub fn main() anyerror!void {
             .{ &gram, text, "data/19-four_gram.txt" },
         );
 
-        try write_results_out(step2_time);
-        text.free_input_bytes();
-        text.free_transformed_bytes();
+        try write_results_out_and_free_mem(step2_time);
 
         thread1.join();
         thread2.join();
@@ -184,7 +188,7 @@ pub fn main() anyerror!void {
         //
     } else {
         //
-        try write_results_out(step2_time);
+        try write_results_out_and_free_mem(step2_time);
     }
     _ = showMeTimeLap(start_time, "FINISHED: Total");
 }
