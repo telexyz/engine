@@ -72,7 +72,7 @@ pub const Text = struct {
     // Each tokens[i] slice will point to the original input_bytes
 
     // Try to predict maxium number of token to alloc mememory in advance
-    estimated_tokens_number: usize = undefined,
+    estimated_tokens_num: usize = undefined,
     recored_byte_addr: usize = undefined, // used to calculate TokenInfo#skip
     tokens_infos: []TokenInfo = undefined,
 
@@ -82,7 +82,10 @@ pub const Text = struct {
     const TokenLenType = u16;
     const TOKEN_MAX_LEN = 0xffff;
 
-    pub const TokenInfo = struct { //   Total  7-bytes
+    // For 1Gb text input (1024*1024*1024 bytes)
+    // estimated_tokens_num = 366 * 1024 * 1024 (1024*1024*1024 / 2.8)
+    // Mem allocated to tokens_infos = (366 * 7) * 1024 * 1024 = 2562 MB (2.5Gb)
+    pub const TokenInfo = struct { //    Total 7-bytes
         skip: TokenSkipType = undefined, //    2-bytes
         len: TokenLenType = undefined, //      2-bytes
         syllable_id: Syllable.UniqueId = 0, // 2-bytes
@@ -94,11 +97,23 @@ pub const Text = struct {
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
 
-    pub const TypeInfo = struct {
-        count: u32 = 0,
-        transform: []const u8 = undefined,
-        category: TokenCategory = ._none,
-        syllable_id: Syllable.UniqueId = 0,
+    pub const SyllTransPtr = u24;
+    // pub const SyllTransPtr = packed struct { // 3-bytes (save 13-bytes)
+    //     offset: u20, // 1Mb = 2^10 * 20^10 = 2^20
+    //     length: u4, // 2^4 = 16, max syllable transform len is 13 (_ng uyez ng x)
+    // };
+    pub const TypeInfo = struct { //    Total  10-bytes (old struct 23-bytes)
+        count: u32 = 0, //                      4-bytes
+        transform_ptr: SyllTransPtr = 0, //     3-bytes
+        category: TokenCategory = ._none, //    1-bytes
+        syllable_id: Syllable.UniqueId = 0, //  2-bytes
+
+        pub fn transform(self: TypeInfo, text: *Text) []const u8 {
+            // Decode transform_ptr's offset + length to slice
+            const length = @truncate(u4, self.transform_ptr);
+            const offset = self.transform_ptr >> 4;
+            return text.syllable_bytes[offset .. offset + length];
+        }
 
         pub fn isSyllable(self: TypeInfo) bool {
             return self.syllable_id > 0;
@@ -192,13 +207,13 @@ pub const Text = struct {
         self.recored_byte_addr = @ptrToInt(input_bytes.ptr);
 
         const input_bytes_size = self.input_bytes.len;
-        self.estimated_tokens_number = (input_bytes_size * 10) / 28;
-        self.estimated_tokens_number += BUFF_SIZE;
+        self.estimated_tokens_num = (input_bytes_size * 10) / 45;
+        self.estimated_tokens_num += BUFF_SIZE;
 
         // Init tokens infos list
         self.tokens_infos = try self.allocator.alloc(
             TokenInfo,
-            self.estimated_tokens_number,
+            self.estimated_tokens_num,
         );
 
         // Init types count
@@ -212,14 +227,14 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
 
-        const delta = input_bytes_size / 4;
+        const delta = input_bytes_size / 5;
         self.transformed_bytes_size = input_bytes_size + delta + BUFF_SIZE;
         if (self.keep_origin_amap) self.transformed_bytes_size += delta;
         if (self.convert_mode == 3) self.transformed_bytes_size += delta;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllable...
-        self.syllable_bytes = try self.allocator.alloc(u8, 3 * TEXT_DICT_FILE_SIZE);
+        self.syllable_bytes = try self.allocator.alloc(u8, TEXT_DICT_FILE_SIZE);
         self.syllable_bytes_len = 0;
 
         // Init syllower...
@@ -266,8 +281,8 @@ pub const Text = struct {
     }
 
     pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
-        if (self.tokens_number > self.estimated_tokens_number - 1) {
-            std.debug.print("!!! Need to adjust Text.estimated_tokens_number !!!", .{});
+        if (self.tokens_number > self.estimated_tokens_num - 1) {
+            std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
             unreachable;
         }
 
@@ -323,7 +338,10 @@ pub const Text = struct {
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
                 // std.debug.print("\n{s} => {}", .{kv.value_ptr.transform, kv.value_ptr});
-                try self.countSyllableAndSyllow0t(kv.value_ptr.transform, kv.value_ptr);
+                try self.countSyllableAndSyllow0t(
+                    kv.value_ptr.transform(self),
+                    kv.value_ptr,
+                );
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }

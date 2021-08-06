@@ -142,21 +142,11 @@ pub fn parseTokens(text: *Text) void {
                         else => unreachable,
                     };
                     type_info.syllable_id = syllable.toId();
-
-                    // Write ascii transform
-                    if (text.convert_mode == 3) {
-                        if (char_stream.first_char_is_upper) {
-                            text.syllable_bytes[text.syllable_bytes_len] = '^';
-                            text.syllable_bytes_len += 1;
-                            text.syllable_bytes[text.syllable_bytes_len] = ' ';
-                            text.syllable_bytes_len += 1;
-                        }
-                        const buff = text.syllable_bytes[text.syllable_bytes_len..];
-                        type_info.transform = syllable.printBuffParts(buff);
-                        text.syllable_bytes_len += type_info.transform.len;
-                    } else {
-                        type_info.transform = saveAsciiTransform(text, char_stream);
-                    }
+                    type_info.transform_ptr = saveAsciiTransform(
+                        text,
+                        char_stream,
+                        &syllable,
+                    );
                 } else {
                     // For non-syllable, attrs.category can only be .alphabet or .alphmark
                     type_info.category = attrs.category;
@@ -164,7 +154,7 @@ pub fn parseTokens(text: *Text) void {
             }
 
             if (type_info.isSyllable()) {
-                token = type_info.transform;
+                token = type_info.transform(text);
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
             }
@@ -208,75 +198,94 @@ pub fn parseTokens(text: *Text) void {
     } // while loop
 }
 
-pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream) []const u8 {
+pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.SyllTransPtr {
     const trans_start_at = text.syllable_bytes_len;
-    var byte: u8 = 0;
-    var mark: u8 = 0;
 
-    // 1: Nước => ^nuoc, VIỆT => ^^viet
-    if (char_stream.first_char_is_upper) {
-        text.syllable_bytes[text.syllable_bytes_len] = '^';
-        text.syllable_bytes_len += 1;
-        if (char_stream.isUpper()) {
+    if (text.convert_mode == 3) {
+        //
+        if (char_stream.first_char_is_upper) {
             text.syllable_bytes[text.syllable_bytes_len] = '^';
             text.syllable_bytes_len += 1;
-        }
-        // 2: Nước => ^ nuoc, VIỆT => ^^ viet
-        if (text.convert_mode == 2) {
-            text.syllable_bytes[text.syllable_bytes_len] = 32;
+            text.syllable_bytes[text.syllable_bytes_len] = ' ';
             text.syllable_bytes_len += 1;
         }
-    }
 
-    var i: usize = 0;
-    // 2: đầy => d day, con => con
-    if (text.convert_mode == 2 and char_stream.buffer[0] == 'd' and
-        char_stream.buffer[1] == 'd')
-    {
-        text.syllable_bytes[text.syllable_bytes_len] = 'd';
-        text.syllable_bytes_len += 1;
-        text.syllable_bytes[text.syllable_bytes_len] = 32;
-        text.syllable_bytes_len += 1;
-        i = 1;
-    }
+        const buff = text.syllable_bytes[text.syllable_bytes_len..];
+        text.syllable_bytes_len += syllable.printBuffParts(buff).len;
+        //
+    } else {
+        //
+        var byte: u8 = 0;
+        var mark: u8 = 0;
 
-    while (i < char_stream.len) : (i += 1) {
-        byte = char_stream.buffer[i];
-        if (byte == 'w' or (byte == 'z' and i > 0)) {
-            if (mark != 0 and mark != byte) {
-                std.debug.print("DUPMARK: {s}\n", .{char_stream.buffer[0..char_stream.len]}); //DEBUG
+        // 1: Nước => ^nuoc, VIỆT => ^^viet
+        if (char_stream.first_char_is_upper) {
+            text.syllable_bytes[text.syllable_bytes_len] = '^';
+            text.syllable_bytes_len += 1;
+            if (char_stream.isUpper()) {
+                text.syllable_bytes[text.syllable_bytes_len] = '^';
+                text.syllable_bytes_len += 1;
             }
-            mark = byte;
-            continue;
+            // 2: Nước => ^ nuoc, VIỆT => ^^ viet
+            if (text.convert_mode == 2) {
+                text.syllable_bytes[text.syllable_bytes_len] = 32;
+                text.syllable_bytes_len += 1;
+            }
         }
-        text.syllable_bytes[text.syllable_bytes_len] = byte;
+
+        var i: usize = 0;
+        // 2: đầy => d day, con => con
+        if (text.convert_mode == 2 and char_stream.buffer[0] == 'd' and
+            char_stream.buffer[1] == 'd')
+        {
+            text.syllable_bytes[text.syllable_bytes_len] = 'd';
+            text.syllable_bytes_len += 1;
+            text.syllable_bytes[text.syllable_bytes_len] = 32;
+            text.syllable_bytes_len += 1;
+            i = 1;
+        }
+
+        while (i < char_stream.len) : (i += 1) {
+            byte = char_stream.buffer[i];
+            if (byte == 'w' or (byte == 'z' and i > 0)) {
+                if (mark != 0 and mark != byte) {
+                    std.debug.print("DUPMARK: {s}\n", .{char_stream.buffer[0..char_stream.len]}); //DEBUG
+                }
+                mark = byte;
+                continue;
+            }
+            text.syllable_bytes[text.syllable_bytes_len] = byte;
+            text.syllable_bytes_len += 1;
+        }
+
+        text.syllable_bytes[text.syllable_bytes_len] = switch (text.convert_mode) {
+            1 => '|',
+            2 => 32,
+            else => unreachable,
+        };
+
         text.syllable_bytes_len += 1;
+
+        // 1: Nước =>  ^nuoc|w, VIỆT =>  ^^viet|z, đầy =>  dday|z, con => con|
+        // 2: Nước => ^ nuoc w, VIỆT => ^^ viet z, đầy => d day z, con => con
+        if (mark != 0) {
+            text.syllable_bytes[text.syllable_bytes_len] = mark;
+            text.syllable_bytes_len += 1;
+        }
+        // 1: Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, con => con|
+        // 2: Nước =>  nuoc ws, VIỆT =>   viet zj, đầy =>d day zf, con => con
+        if (char_stream.tone != 0) {
+            text.syllable_bytes[text.syllable_bytes_len] = char_stream.tone;
+            text.syllable_bytes_len += 1;
+        }
+        if (text.convert_mode == 2 and
+            text.syllable_bytes[text.syllable_bytes_len - 1] == 32)
+        { // remove unecessary space for no-mark no-tone syllable
+            text.syllable_bytes_len -= 1;
+        }
     }
 
-    text.syllable_bytes[text.syllable_bytes_len] = switch (text.convert_mode) {
-        1 => '|',
-        2 => 32,
-        else => unreachable,
-    };
-
-    text.syllable_bytes_len += 1;
-
-    // 1: Nước =>  ^nuoc|w, VIỆT =>  ^^viet|z, đầy =>  dday|z, con => con|
-    // 2: Nước => ^ nuoc w, VIỆT => ^^ viet z, đầy => d day z, con => con
-    if (mark != 0) {
-        text.syllable_bytes[text.syllable_bytes_len] = mark;
-        text.syllable_bytes_len += 1;
-    }
-    // 1: Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, con => con|
-    // 2: Nước =>  nuoc ws, VIỆT =>   viet zj, đầy =>d day zf, con => con
-    if (char_stream.tone != 0) {
-        text.syllable_bytes[text.syllable_bytes_len] = char_stream.tone;
-        text.syllable_bytes_len += 1;
-    }
-    if (text.convert_mode == 2 and
-        text.syllable_bytes[text.syllable_bytes_len - 1] == 32)
-    { // remove unecessary space for no-mark no-tone syllable
-        text.syllable_bytes_len -= 1;
-    }
-    return text.syllable_bytes[trans_start_at..text.syllable_bytes_len];
+    // Encode slice to offset + length
+    const len = text.syllable_bytes_len - trans_start_at;
+    return @intCast(Text.SyllTransPtr, (trans_start_at << 4) + len);
 }
