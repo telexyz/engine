@@ -105,7 +105,7 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
     const now = std.time.milliTimestamp();
     const duration = now - start_time;
     const mins = @intToFloat(f32, duration) / 60000;
-    print("\n[ " ++ fmt_str ++ " Duration {d:.2} mins ]\n\n", .{mins});
+    print("\n[[ " ++ fmt_str ++ " Duration {d:.2} mins ]]\n", .{mins});
     return now;
 }
 
@@ -122,11 +122,12 @@ fn write_results_out_and_free_mem(step2_time: i64) !void {
     try write_out_types();
     const types_time = showMeTimeLap(trans_time, "Writing types to files done!");
     text.free_input_bytes();
+    const free_input_time = showMeTimeLap(types_time, "input_byte free");
 
-    try write_out_samples();
     print("\nWriting too long tokens to files ...\n", .{});
+    try write_out_samples();
     try write_out_too_long_tokens();
-    _ = showMeTimeLap(types_time, "Writing too long tokens done!");
+    _ = showMeTimeLap(free_input_time, "Writing too long tokens done!");
 }
 
 pub fn main() anyerror!void {
@@ -160,7 +161,7 @@ pub fn main() anyerror!void {
     // }
     // text.tokens_number_finalized = true;
 
-    var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Token parsing finish!");
+    var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
     if (parse_n_grams) {
         print("\nSTEP 3: Parse and write n-gram ...\n", .{});
         gram = .{};
