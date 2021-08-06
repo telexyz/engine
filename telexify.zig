@@ -105,7 +105,7 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
     const now = std.time.milliTimestamp();
     const duration = now - start_time;
     const mins = @intToFloat(f32, duration) / 60000;
-    print("\n[[ " ++ fmt_str ++ " Duration {d:.2} mins ]]\n", .{mins});
+    print("\n(( " ++ fmt_str ++ " Duration {d:.2} mins ))\n\n", .{mins});
     return now;
 }
 
