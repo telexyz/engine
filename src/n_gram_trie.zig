@@ -216,7 +216,7 @@ test "parse ngram from text" {
         .surrounded_by_spaces = .both,
     };
     while (it.next()) |tkn| {
-        try text.recordToken(tkn, attrs);
+        try text.recordToken(tkn, attrs, false);
     }
 
     text.tokens_number_finalized = true;

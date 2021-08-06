@@ -75,7 +75,7 @@ pub fn parseTokens(text: *Text) void {
     var i: *usize = &text.parsed_tokens_number;
     var next: *usize = &text.parsed_input_bytes;
     var curr: usize = undefined;
-    var prev_token_is_vi = true;
+    text.prev_token_is_vi = true;
 
     while (i.* <= text.tokens_number) : (i.* += 1) {
         // Check if reach the end of tokens list
@@ -127,13 +127,11 @@ pub fn parseTokens(text: *Text) void {
         } // END parse alphabet token to get syllable
 
         // Write data out
-        prev_token_is_vi = writeToken(attrs.*, token, prev_token_is_vi, text);
+        writeToken(attrs.*, token, text);
     } // while loop
 }
 
-pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, prev_token_is_vi: bool, text: *Text) bool {
-    var _prev_token_is_vi: bool = prev_token_is_vi;
-
+pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, text: *Text) void {
     if (attrs.isSyllable()) {
         for (token) |b| {
             text.transformed_bytes[text.transformed_bytes_len] = b;
@@ -143,7 +141,7 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, prev_to
         if (!text.keep_origin_amap) {
             text.transformed_bytes[text.transformed_bytes_len] = 32;
             text.transformed_bytes_len += 1;
-            _prev_token_is_vi = true;
+            text.prev_token_is_vi = true;
         }
     } else {
         // not syllable
@@ -155,11 +153,11 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, prev_to
             }
         } else { // Bỏ qua _ , - là token kết nối âm tiết
             if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
-                if (_prev_token_is_vi == true) {
+                if (text.prev_token_is_vi == true) {
                     // Chỉ xuống dòng cho non-syllable token đầu tiên
                     text.transformed_bytes[text.transformed_bytes_len] = '\n';
                     text.transformed_bytes_len += 1;
-                    _prev_token_is_vi = false;
+                    text.prev_token_is_vi = false;
                 }
             }
         }
@@ -171,7 +169,6 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, prev_to
         text.transformed_bytes_len += 1;
     }
     // text.transformed_bytes[first_byte_index] = attrs.toByte();
-    return _prev_token_is_vi;
 }
 
 pub inline fn token2Syllable(
@@ -264,7 +261,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
             byte = char_stream.buffer[i];
             if (byte == 'w' or (byte == 'z' and i > 0)) {
                 if (mark != 0 and mark != byte) {
-                    std.debug.print("DUPMARK: {s}\n", .{char_stream.buffer[0..char_stream.len]}); //DEBUG
+                    // std.debug.print("DUPMARK: {s}\n", .{char_stream.buffer[0..char_stream.len]}); //DEBUG
                 }
                 mark = byte;
                 continue;

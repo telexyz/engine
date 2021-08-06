@@ -3,11 +3,15 @@ const File = std.fs.File;
 
 const syllable_data_structs = @import("./syllable_data_structs.zig");
 const Syllable = syllable_data_structs.Syllable;
+const text_utils = @import("./text_utils.zig");
+const telex_char_stream = @import("./telex_char_stream.zig");
+const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 pub const Text = struct {
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = true,
     convert_mode: u8 = 1, // dense
+    prev_token_is_vi: bool = true,
 
     // Must be init when text is created
     init_allocator: *std.mem.Allocator,
@@ -280,12 +284,13 @@ pub const Text = struct {
         }
     }
 
-    pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes) !void {
+    pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
         if (self.tokens_number > self.estimated_tokens_num - 1) {
             std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
             unreachable;
         }
 
+        var _token = token;
         const tkn_addr = @ptrToInt(token.ptr);
         const skip = tkn_addr - self.recored_byte_addr;
         self.recored_byte_addr = tkn_addr + token.len;
@@ -302,7 +307,8 @@ pub const Text = struct {
         // token_info.len = @intCast(TokenLenType, token.len);
         // try self.tokens_infos.append(token_info);
 
-        self.tokens_infos[self.tokens_number] = .{
+        const token_info = &self.tokens_infos[self.tokens_number];
+        token_info.* = .{
             .attrs = attrs,
             .skip = @intCast(TokenSkipType, skip),
             .len = @intCast(TokenLenType, token.len),
@@ -319,6 +325,17 @@ pub const Text = struct {
                     .category = ._none,
                 });
                 gop.value_ptr.count += 1;
+
+                if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
+                    const type_info = gop.value_ptr;
+                    text_utils.token2Syllable(token, attrs, type_info, self);
+
+                    if (type_info.isSyllable()) {
+                        _token = type_info.transform(self);
+                        token_info.attrs.category = type_info.category;
+                        token_info.syllable_id = type_info.syllable_id;
+                    }
+                }
             }
         } else {
             // Log too long tokens
@@ -327,21 +344,25 @@ pub const Text = struct {
             else
                 try self.alphabet_too_long_tokens.append(token);
         }
+
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
+
+        if (then_parse_syllable) {
+            // Write data out
+            text_utils.writeToken(token_info.attrs, _token, self);
+            // Record parsed_tokens_number
+            self.parsed_tokens_number = self.tokens_number;
+        }
     }
 
     pub fn processAlphabetTypes(self: *Text) !void {
-        if (!self.tokens_number_finalized) return;
-
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
-                // std.debug.print("\n{s} => {}", .{kv.value_ptr.transform, kv.value_ptr});
-                try self.countSyllableAndSyllow0t(
-                    kv.value_ptr.transform(self),
-                    kv.value_ptr,
-                );
+                const token = kv.value_ptr.transform(self);
+                // std.debug.print("\nSyll: {s} => {}", .{ token, kv.value_ptr });
+                try self.countSyllableAndSyllow0t(token, kv.value_ptr);
                 _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
@@ -377,8 +398,6 @@ pub const Text = struct {
     }
 };
 
-const text_utils = @import("./text_utils.zig");
-
 test "Text" {
     var text = Text{
         .init_allocator = std.testing.allocator,
@@ -397,21 +416,20 @@ test "Text" {
         .category = .alphabet,
         .surrounded_by_spaces = .both,
     };
-    try text.recordToken(token.?, attrs);
+    try text.recordToken(token.?, attrs, true);
     try std.testing.expect(text.tokens_number == 1);
     try std.testing.expectEqualStrings(text.getToken(0), "Cả");
 
-    try text.recordToken(it.next().?, attrs);
-    try text.recordToken(it.next().?, attrs);
+    try text.recordToken(it.next().?, attrs, true);
+    try text.recordToken(it.next().?, attrs, true);
 
-    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     while (it.next()) |tkn| {
-        try text.recordToken(tkn, attrs);
+        try text.recordToken(tkn, attrs, true);
     }
-    thread.join();
     text.tokens_number_finalized = true;
-    text_utils.parseTokens(&text);
-    try text.processAlphabetTypes();
+    // thread.join();
+    // text_utils.parseTokens(&text);
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nhà");
@@ -423,12 +441,14 @@ test "Text" {
     //  1s 2s  3s  1a 4s  5s     6s  1a 1s 2s  2a 3a
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
 
-    std.debug.print("\nalphabet_types.count: {d}", .{text.alphabet_types.count()});
-    var iter = text.alphabet_types.iterator();
-    while (iter.next()) |kv| {
-        _ = kv; // enable the look to make the .count() == 3, don't know why but it works
-        std.debug.print("\n{s} => {}", .{ kv.key_ptr.*, kv.value_ptr });
-    }
+    try text.processAlphabetTypes();
+
+    // std.debug.print("\nalphabet_types.count: {d}", .{text.alphabet_types.count()});
+    // var iter = text.alphabet_types.iterator();
+    // while (iter.next()) |kv| {
+    //     _ = kv; // enable the look to make the .count() == 3, don't know why but it works
+    //     std.debug.print("\n{s} => {}", .{ kv.key_ptr.*, kv.value_ptr });
+    // }
 
     try std.testing.expect(text.alphabet_types.count() == 3);
 

@@ -127,15 +127,21 @@ pub fn main() anyerror!void {
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
     // Init parser thread just before you run tknz.segment so it can catch up :)
-    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
 
-    try tknz.segment(&text);
+    const then_parse_syllable = true;
+    try tknz.segment(&text, then_parse_syllable); // parse syllable on-the-fly
     _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
-    // Câu giờ, đề phòng trường hợp thread vẫn chạy thì tận dụng tg để ghi 1 phần kq
+
     try write_out_samples();
     try write_out_too_long_tokens();
 
-    thread.join(); // Wait for sylabeling thread end
+    // thread.join(); // Wait for sylabeling thread end
+    // if (text.parsed_tokens_number != text.tokens_number) {
+    //     std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{});
+    //     unreachable;
+    // }
+
     // Then run one more time to finalize sylabeling process
     // since there may be some last tokens was skipped before thread end
     // because sylabeling too fast and timeout before new tokens come

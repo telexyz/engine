@@ -28,7 +28,7 @@ pub const Tokenizer = struct {
         space, // ' ' '\t' '\n'
     };
 
-    pub fn segment(self: *Tokenizer, text: *Text) !void {
+    pub fn segment(self: *Tokenizer, text: *Text, then_parse_syllable: bool) !void {
         // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
         var index: usize = undefined;
         var next_index: usize = 0;
@@ -191,7 +191,7 @@ pub const Tokenizer = struct {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
                         const attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .alphmark else .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
-                        try text.recordToken(token, attrs);
+                        try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
                         //
                     } else {
@@ -201,7 +201,7 @@ pub const Tokenizer = struct {
                             .category = .nonalpha,
                             .surrounded_by_spaces = if (nonalpha_token_start_at > nonspace_token_start_at) .right else .both,
                         };
-                        try text.recordToken(token, attrs);
+                        try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
                         //
                     }
@@ -216,7 +216,7 @@ pub const Tokenizer = struct {
                         .category = .nonalpha,
                         .surrounded_by_spaces = .none,
                     };
-                    try text.recordToken(token, attrs);
+                    try text.recordToken(token, attrs, then_parse_syllable);
                     //
                     if (counting_lines) {
                         printToken(token, attrs);
@@ -268,7 +268,7 @@ pub const Tokenizer = struct {
                             .category = if (contains_marktone_char) .alphmark else .alphabet,
                             .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
                         };
-                        try text.recordToken(token, attrs);
+                        try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
                         // Reset for nonalpha
                         in_alphabet_token_zone = false;
@@ -284,7 +284,7 @@ pub const Tokenizer = struct {
                             .category = .nonalpha,
                             .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
                         };
-                        try text.recordToken(token, attrs);
+                        try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
                         // Reset for alphabet
                         in_alphabet_token_zone = true;
@@ -317,7 +317,7 @@ test "Tokenizer" {
         // .max_lines = 100, // For testing process maximum 100 lines only
     };
 
-    try tknz.segment(&text);
+    try tknz.segment(&text, false);
 
     const s1_tokens = "Giá trúng binh quân 13.011 đồng / cp , thu về hơn 1.300 voọc .";
     var s1_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alphabet, .alphmark, .nonalpha, .alphmark, .nonalpha, .alphabet, .nonalpha, .alphabet, .alphmark, .alphmark, .nonalpha, .alphmark, .nonalpha };
