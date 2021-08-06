@@ -30,6 +30,8 @@ pub const Tokenizer = struct {
 
     pub fn segment(self: *Tokenizer, text: *Text, then_parse_syllable: bool) !void {
         // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
+        const message = if (then_parse_syllable) "Segmenting & Parsing" else "Segmenting";
+
         var index: usize = undefined;
         var next_index: usize = 0;
 
@@ -227,7 +229,7 @@ pub const Tokenizer = struct {
                     // Show progress ...
                     if (index > percents_threshold) {
                         percents += 10;
-                        print("Segmenting {d}%\n", .{percents});
+                        print("{s} {d}%\n", .{ message, percents });
                         percents_threshold += ten_percents;
                     }
                 }
