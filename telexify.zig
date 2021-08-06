@@ -121,13 +121,13 @@ fn write_results_out_and_free_mem(step2_time: i64) !void {
     try text.processAlphabetTypes();
     try write_out_types();
     const types_time = showMeTimeLap(trans_time, "Writing types to files done!");
-    text.free_input_bytes();
-    const free_input_time = showMeTimeLap(types_time, "input_byte free");
 
     print("\nWriting too long tokens to files ...\n", .{});
-    try write_out_samples();
     try write_out_too_long_tokens();
-    _ = showMeTimeLap(free_input_time, "Writing too long tokens done!");
+    _ = showMeTimeLap(types_time, "Writing too long tokens done!");
+
+    text.free_input_bytes();
+    try write_out_samples();
 }
 
 pub fn main() anyerror!void {
