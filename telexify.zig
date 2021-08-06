@@ -109,6 +109,20 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
     return now;
 }
 
+fn write_results_out(step2_time: i64) !void {
+    // In the mean time writing parsed results out
+    try text.processAlphabetTypes();
+    print("\nWriting stats to files ...\n", .{});
+    try write_out_types();
+    try write_out_samples();
+    try write_out_too_long_tokens();
+    const types_time = showMeTimeLap(step2_time, "Writing stats to files done!");
+
+    print("\nWriting tokenized results to {s} ...\n", .{output_filename});
+    try TextokOutput.write_transforms_to_file(text, output_filename);
+    _ = showMeTimeLap(types_time, "Writing tokenized results done!");
+}
+
 pub fn main() anyerror!void {
     const start_time = std.time.milliTimestamp();
 
@@ -131,27 +145,16 @@ pub fn main() anyerror!void {
 
     const then_parse_syllable = true;
     try tknz.segment(&text, then_parse_syllable); // parse syllable on-the-fly
-    _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
 
-    try write_out_samples();
-    try write_out_too_long_tokens();
-
+    // _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
     // thread.join(); // Wait for sylabeling thread end
     // if (text.parsed_tokens_number != text.tokens_number) {
     //     std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{});
     //     unreachable;
     // }
-
-    // Then run one more time to finalize sylabeling process
-    // since there may be some last tokens was skipped before thread end
-    // because sylabeling too fast and timeout before new tokens come
-    // It's a very rare-case happend when the sleep() call fail.
     // text.tokens_number_finalized = true;
-    // text_utils.parseTokens(&text);
 
-    // step1 (segment) and step2 (parse) run at the same time (step0_time)
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Token parsing finish!");
-
     if (parse_n_grams) {
         print("\nSTEP 3: Parse and write n-gram ...\n", .{});
         gram = .{};
@@ -170,16 +173,7 @@ pub fn main() anyerror!void {
             .{ &gram, text, "data/19-four_gram.txt" },
         );
 
-        // In the mean time writing parsed results out
-        try text.processAlphabetTypes();
-        print("\nWriting types to files ...\n", .{});
-        try write_out_types();
-        const types_time = showMeTimeLap(step2_time, "Writing types to files done!");
-
-        print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-        try TextokOutput.write_transforms_to_file(text, output_filename);
-        _ = showMeTimeLap(types_time, "Writing tokenized results done!");
-
+        try write_results_out(step2_time);
         text.free_input_bytes();
         text.free_transformed_bytes();
 
@@ -190,15 +184,7 @@ pub fn main() anyerror!void {
         //
     } else {
         //
-        try text.processAlphabetTypes();
-        print("\nWriting types to files ...\n", .{});
-        try write_out_types();
-        try write_out_too_long_tokens();
-        const types_time = showMeTimeLap(step2_time, "Writing types to files done!");
-        //
-        print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-        try TextokOutput.write_transforms_to_file(text, output_filename);
-        _ = showMeTimeLap(types_time, "Writing tokenized results done!");
+        try write_results_out(step2_time);
     }
     _ = showMeTimeLap(start_time, "FINISHED: Total");
 }
