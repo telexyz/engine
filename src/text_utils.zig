@@ -67,11 +67,6 @@ const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
-
-    // Char stream to parse syllable
-    var char_stream = U2ACharStream.new();
-    char_stream.strict_mode = true;
-
     // Record progress
     const ten_percents = text.input_bytes.len / 10;
     var percents_threshold = ten_percents;
@@ -122,36 +117,7 @@ pub fn parseTokens(text: *Text) void {
             // Init type_info shortcut
             const type_info = ptr.?;
 
-            if (type_info.category == ._none) {
-                // Not transformed yet
-                char_stream.reset();
-
-                // Try to convert token to syllable
-                var syllable = parsers.parseTokenToGetSyllable(
-                    true, // strict mode on
-                    printNothing,
-                    &char_stream,
-                    token,
-                );
-
-                if (syllable.can_be_vietnamese) {
-                    // Token is vietnamese syllable
-                    type_info.category = switch (attrs.category) {
-                        .alphmark => .syllmark,
-                        .alphabet => .syllable,
-                        else => unreachable,
-                    };
-                    type_info.syllable_id = syllable.toId();
-                    type_info.transform_ptr = saveAsciiTransform(
-                        text,
-                        char_stream,
-                        &syllable,
-                    );
-                } else {
-                    // For non-syllable, attrs.category can only be .alphabet or .alphmark
-                    type_info.category = attrs.category;
-                }
-            }
+            token2Syllable(token, attrs.*, type_info, text);
 
             if (type_info.isSyllable()) {
                 token = type_info.transform(text);
@@ -161,47 +127,93 @@ pub fn parseTokens(text: *Text) void {
         } // END parse alphabet token to get syllable
 
         // Write data out
-        if (attrs.isSyllable()) {
+        prev_token_is_vi = writeToken(attrs.*, token, prev_token_is_vi, text);
+    } // while loop
+}
+
+pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, prev_token_is_vi: bool, text: *Text) bool {
+    var _prev_token_is_vi: bool = prev_token_is_vi;
+
+    if (attrs.isSyllable()) {
+        for (token) |b| {
+            text.transformed_bytes[text.transformed_bytes_len] = b;
+            text.transformed_bytes_len += 1;
+        }
+
+        if (!text.keep_origin_amap) {
+            text.transformed_bytes[text.transformed_bytes_len] = 32;
+            text.transformed_bytes_len += 1;
+            _prev_token_is_vi = true;
+        }
+    } else {
+        // not syllable
+        if (text.keep_origin_amap) {
+            // write original bytes
             for (token) |b| {
                 text.transformed_bytes[text.transformed_bytes_len] = b;
                 text.transformed_bytes_len += 1;
             }
-
-            if (!text.keep_origin_amap) {
-                text.transformed_bytes[text.transformed_bytes_len] = 32;
-                text.transformed_bytes_len += 1;
-                prev_token_is_vi = true;
-            }
-        } else {
-            // not syllable
-            if (text.keep_origin_amap) {
-                // write original bytes
-                for (token) |b| {
-                    text.transformed_bytes[text.transformed_bytes_len] = b;
+        } else { // Bỏ qua _ , - là token kết nối âm tiết
+            if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
+                if (_prev_token_is_vi == true) {
+                    // Chỉ xuống dòng cho non-syllable token đầu tiên
+                    text.transformed_bytes[text.transformed_bytes_len] = '\n';
                     text.transformed_bytes_len += 1;
-                }
-            } else { // Bỏ qua _ , - là token kết nối âm tiết
-                if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
-                    if (prev_token_is_vi == true) {
-                        // Chỉ xuống dòng cho non-syllable token đầu tiên
-                        text.transformed_bytes[text.transformed_bytes_len] = '\n';
-                        text.transformed_bytes_len += 1;
-                        prev_token_is_vi = false;
-                    }
+                    _prev_token_is_vi = false;
                 }
             }
         }
+    }
 
-        if (text.keep_origin_amap and attrs.spaceAfter()) {
-            // Write spacing as it is
-            text.transformed_bytes[text.transformed_bytes_len] = 32;
-            text.transformed_bytes_len += 1;
-        }
-        // text.transformed_bytes[first_byte_index] = attrs.toByte();
-    } // while loop
+    if (text.keep_origin_amap and attrs.spaceAfter()) {
+        // Write spacing as it is
+        text.transformed_bytes[text.transformed_bytes_len] = 32;
+        text.transformed_bytes_len += 1;
+    }
+    // text.transformed_bytes[first_byte_index] = attrs.toByte();
+    return _prev_token_is_vi;
 }
 
-pub fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.SyllTransPtr {
+pub inline fn token2Syllable(
+    token: []const u8,
+    attrs: Text.TokenAttributes,
+    type_info: *Text.TypeInfo,
+    text: *Text,
+) void {
+    if (type_info.category == ._none) {
+        // Char stream to parse syllable
+        var char_stream = U2ACharStream.new();
+        char_stream.strict_mode = true;
+
+        // Try to convert token to syllable
+        var syllable = parsers.parseTokenToGetSyllable(
+            true, // strict mode on
+            printNothing,
+            &char_stream,
+            token,
+        );
+
+        if (syllable.can_be_vietnamese) {
+            // Token is vietnamese syllable
+            type_info.category = switch (attrs.category) {
+                .alphmark => .syllmark,
+                .alphabet => .syllable,
+                else => unreachable,
+            };
+            type_info.syllable_id = syllable.toId();
+            type_info.transform_ptr = saveAsciiTransform(
+                text,
+                char_stream,
+                &syllable,
+            );
+        } else {
+            // For non-syllable, attrs.category can only be .alphabet or .alphmark
+            type_info.category = attrs.category;
+        }
+    }
+}
+
+pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.SyllTransPtr {
     const trans_start_at = text.syllable_bytes_len;
 
     if (text.convert_mode == 3) {
