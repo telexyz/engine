@@ -174,7 +174,7 @@ pub const Text = struct {
         syll0m0t = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
         // Supplement category ids 8-63
         // used as an intialized/temp values / need to be processed / state machine
-        _none = 8, // initial state
+        can_be_syllable = 8,
     };
 
     pub const TokenSurroundedBySpaces = enum(u2) {
@@ -317,7 +317,7 @@ pub const Text = struct {
                 // Log alphabet token (that can be syllable)
                 const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
                     .count = 0,
-                    .category = ._none,
+                    .category = if (token.len <= U2ACharStream.MAX_LEN) .can_be_syllable else attrs.category,
                 });
                 gop.value_ptr.count += 1;
 

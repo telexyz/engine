@@ -307,7 +307,7 @@ const testing = std.testing;
 test "Tokenizer" {
     const input_bytes =
         \\Giá       trúng    binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
-        \\Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
+        \\HeirsNguyễn tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
         \\https://vnexpress.net/cdc-tinh-dong-thap-dong-cua-4299620.html
         \\
     ;
@@ -338,15 +338,15 @@ test "Tokenizer" {
     }
 
     try std.testing.expectEqualStrings("\n", text.getToken(i));
-    const s2_tokens = "Tuyến tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
+    const s2_tokens = "HeirsNguyễn tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
     var s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alph0m0t, .nonalpha, .alph0m0t, .alphmark, .alphmark, .nonalpha, .alph0m0t, .alphmark, .nonalpha, .alphmark, .alph0m0t, .alph0m0t, .nonalpha };
     const s2_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
     it = std.mem.split(s2_tokens, " ");
     i += 1;
     var j: usize = 0;
     while (it.next()) |token| {
-        try testing.expectEqualStrings(token, text.getToken(i));
         // print("Token: {s}\n", .{token});
+        try testing.expectEqualStrings(token, text.getToken(i));
         try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_infos[i].attrs.category));
         try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_infos[i].attrs.surrounded_by_spaces));
         i += 1;
@@ -401,8 +401,8 @@ test "Tokenizer" {
 
     try std.testing.expectEqualStrings("\n", text.getToken(i));
 
-    // Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
-    s2_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .alph0m0t, .nonalpha, .syll0m0t, .syllmark, .syllmark, .nonalpha, .syll0m0t, .syllmark, .nonalpha, .syllmark, .alph0m0t, .alph0m0t, .nonalpha };
+    // HeirsNguyễn tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
+    s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .syllmark, .alph0m0t, .nonalpha, .syll0m0t, .syllmark, .syllmark, .nonalpha, .syll0m0t, .syllmark, .nonalpha, .syllmark, .alph0m0t, .alph0m0t, .nonalpha };
     it = std.mem.split(s2_tokens, " ");
     i += 1;
     j = 0;

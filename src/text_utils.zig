@@ -61,7 +61,7 @@ pub inline fn token2Syllable(
     type_info: *Text.TypeInfo,
     text: *Text,
 ) void {
-    if (type_info.category == ._none) {
+    if (type_info.category == .can_be_syllable) {
         // Char stream to parse syllable
         var char_stream = U2ACharStream.new();
         char_stream.strict_mode = true;
