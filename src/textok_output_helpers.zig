@@ -3,7 +3,7 @@ const Text = @import("./text_data_struct.zig").Text;
 
 const TOKENS_PER_LINE = 10;
 const MAX_FREQ_LEN = 9;
-const PAD = "    ";
+const PAD = "   ";
 
 pub const TextokOutputHelpers = struct {
     //
@@ -94,7 +94,7 @@ pub const TextokOutputHelpers = struct {
         _ = try freqs_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
         count.* += 1;
         // write token to file
-        const pad = if (@rem(count.*, TOKENS_PER_LINE) == 0) "\n" else PAD;
+        const pad = if (@rem(count.*, TOKENS_PER_LINE) == 0) "\n\n" else PAD;
         _ = try types_wrt.writer().print("{s}{s}", .{ token.value, pad });
     }
 
@@ -135,7 +135,7 @@ pub const TextokOutputHelpers = struct {
             // write freq and token pair to file
             _ = try freqs_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
             // write token to file
-            const pad = if (@rem(i + 1, TOKENS_PER_LINE) == 0) "\n" else PAD;
+            const pad = if (@rem(i + 1, TOKENS_PER_LINE) == 0) "\n\n" else PAD;
             _ = try types_wrt.writer().print("{s}{s}", .{ token.value, pad });
         }
 
