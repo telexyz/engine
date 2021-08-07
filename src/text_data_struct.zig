@@ -96,19 +96,19 @@ pub const Text = struct {
         attrs: TokenAttributes = undefined, // 1-byte
     };
 
-    pub const MAX_TOKEN_LEN = 20;
+    pub const MAX_WORD_LEN = 16;
     const MAX_INPUT_FILE_SIZE = 1336 * 1024 * 1024; // 1.3Gb
     const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
 
-    pub const SyllTransPtr = u24;
-    // pub const SyllTransPtr = packed struct { // 3-bytes (save 13-bytes)
-    //     offset: u20, // 1Mb = 2^10 * 20^10 = 2^20
-    //     length: u4, // 2^4 = 16, max syllable transform len is 13 (_ng uyez ng x)
+    pub const TransformPtr = u24;
+    // packed struct { // 3-bytes
+    //     offset: u20,// = 2^10 * 2^10 = 1024 * 1024 = 1Mb
+    //     length: u4, // max len = 16
     // };
     pub const TypeInfo = struct { //    Total  10-bytes (old struct 23-bytes)
         count: u32 = 0, //                      4-bytes
-        transform_ptr: SyllTransPtr = 0, //     3-bytes
+        transform_ptr: TransformPtr = 0, //     3-bytes
         category: TokenCategory = ._none, //    1-bytes
         syllable_id: Syllable.UniqueId = 0, //  2-bytes
 
@@ -250,10 +250,6 @@ pub const Text = struct {
         self.tokens_number = 0;
     }
 
-    pub fn free_tokens_infos(self: *Text) void {
-        self.allocator.free(self.tokens_infos);
-    }
-
     pub fn free_input_bytes(self: *Text) void {
         self.allocator.free(self.input_bytes);
     }
@@ -267,6 +263,7 @@ pub const Text = struct {
         // free all allocated memories
         self.arena.deinit();
     }
+
     pub fn getToken(self: Text, n: usize) []const u8 {
         if (n < self.tokens_number) {
             var i: usize = 0;
@@ -284,36 +281,40 @@ pub const Text = struct {
         }
     }
 
+    inline fn getTokenSkipLen(self: *Text, token: []const u8, token_info: *TokenInfo) void {
+        const tkn_addr = @ptrToInt(token.ptr);
+        const skip = tkn_addr - self.recored_byte_addr;
+
+        self.recored_byte_addr = tkn_addr + token.len;
+
+        if (skip <= TOKEN_MAX_SKIP and token.len <= TOKEN_MAX_LEN) {
+            token_info.skip = @intCast(TokenSkipType, skip);
+            token_info.len = @intCast(TokenLenType, token.len);
+        } else {
+            std.debug.print("\n !! OUT OF skip {d} OR len {d} !!", .{ skip, token.len });
+            unreachable;
+        }
+    }
+
     pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
         //
-        if (self.tokens_number > self.estimated_tokens_num - 1) {
+        if (self.tokens_number > self.estimated_tokens_num) {
             std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
             unreachable;
         }
 
-        var _token = token;
-        const tkn_addr = @ptrToInt(token.ptr);
-        const skip = tkn_addr - self.recored_byte_addr;
-        self.recored_byte_addr = tkn_addr + token.len;
-
-        if (skip > TOKEN_MAX_SKIP or token.len > TOKEN_MAX_LEN) {
-            std.debug.print("\n !! OUT OF skip {d} OR len {d} !!", .{ skip, token.len });
-            unreachable;
-        }
-
         const token_info = &self.tokens_infos[self.tokens_number];
-        token_info.* = .{
-            .attrs = attrs,
-            .skip = @intCast(TokenSkipType, skip),
-            .len = @intCast(TokenLenType, token.len),
-        };
+        token_info.attrs = attrs;
 
-        if (token.len <= MAX_TOKEN_LEN) {
+        self.getTokenSkipLen(token, token_info);
+
+        var _token = token;
+        if (token.len <= MAX_WORD_LEN) {
             if (attrs.category == .nonalpha) {
                 const gop = try self.nonalpha_types.getOrPutValue(token, 0);
                 gop.value_ptr.* += 1;
             } else {
-                // Log token type that can be syllable
+                // Log alphabet token (that can be syllable)
                 const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
                     .count = 0,
                     .category = ._none,
@@ -322,6 +323,7 @@ pub const Text = struct {
 
                 if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
                     const type_info = gop.value_ptr;
+
                     text_utils.token2Syllable(token, attrs, type_info, self);
 
                     if (type_info.isSyllable()) {
@@ -331,6 +333,7 @@ pub const Text = struct {
                     }
                 }
             }
+            // alphabet token
         } else {
             // Log too long tokens
             if (attrs.category == .nonalpha)
@@ -345,6 +348,7 @@ pub const Text = struct {
         if (then_parse_syllable) {
             // Write data out
             text_utils.writeToken(token_info.attrs, _token, self);
+
             // Record parsed_tokens_number
             self.parsed_tokens_number = self.tokens_number;
         }
@@ -436,14 +440,6 @@ test "Text" {
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
 
     try text.processAlphabetTypes();
-
-    // std.debug.print("\nalphabet_types.count: {d}", .{text.alphabet_types.count()});
-    // var iter = text.alphabet_types.iterator();
-    // while (iter.next()) |kv| {
-    //     _ = kv; // enable the look to make the .count() == 3, don't know why but it works
-    //     std.debug.print("\n{s} => {}", .{ kv.key_ptr.*, kv.value_ptr });
-    // }
-
     try std.testing.expect(text.alphabet_types.count() == 3);
 
     // std.debug.print("\n{}\n", .{text.syllable_types.get("nha|f").?.count});

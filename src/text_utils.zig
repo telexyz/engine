@@ -94,7 +94,7 @@ pub inline fn token2Syllable(
     }
 }
 
-pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.SyllTransPtr {
+pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.TransformPtr {
     const trans_start_at = text.syllable_bytes_len;
 
     if (text.convert_mode == 3) {
@@ -183,7 +183,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
 
     // Encode slice to offset + length
     const len = text.syllable_bytes_len - trans_start_at;
-    return @intCast(Text.SyllTransPtr, (trans_start_at << 4) + len);
+    return @intCast(Text.TransformPtr, (trans_start_at << 4) + len);
 }
 
 // - - - - - - - - - -
