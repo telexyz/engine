@@ -31,9 +31,11 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 * Làm mượt n-gram và viết bộ decoder áp dụng tự động bỏ dấu tiếng Việt (xem `docs/.them_dau_thanh.md`)
 
+* Làm phần token repair (xem `docs/.token_repairs.md`) vì nó thú vị
+
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-* Làm phần token repair (xem `docs/.token_repairs.md`) vì nó thú vị
+* Sử dụng stream input từ file và stream output ra file để giảm thiểu áp lực lên bộ nhớ
 
 [ >>> DONE <<< ]
 

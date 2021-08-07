@@ -96,8 +96,8 @@ pub const Text = struct {
         }
     };
 
-    const MAX_INPUT_FILE_SIZE = 1336 * 1024 * 1024; // 1.3Gb
     const ONE_MB = 1024 * 1024;
+    const MAX_INPUT_FILE_SIZE = 2048 * ONE_MB; // 1336 ~ 1.3Gb
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
 
     pub inline fn double_0_trans_len(ptr: [*]u8) usize {
