@@ -285,6 +285,7 @@ pub const Text = struct {
     }
 
     pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
+        //
         if (self.tokens_number > self.estimated_tokens_num - 1) {
             std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
             unreachable;
@@ -295,17 +296,10 @@ pub const Text = struct {
         const skip = tkn_addr - self.recored_byte_addr;
         self.recored_byte_addr = tkn_addr + token.len;
 
-        // var token_info = TokenInfo{ .attrs = attrs };
-        // if (skip < TOKEN_MAX_SKIP and token.len < TOKEN_MAX_LEN) {
-        //     token_info.skip = @intCast(TokenSkipType, skip);
-        //     token_info.len = @intCast(TokenLenType, token.len);
-        // } else {
-        //     std.debug.print("\n !! OUT OF skip {d} OR len {d} !!", .{ skip, token.len });
-        //     unreachable;
-        // }
-        // token_info.skip = @intCast(TokenSkipType, skip);
-        // token_info.len = @intCast(TokenLenType, token.len);
-        // try self.tokens_infos.append(token_info);
+        if (skip > TOKEN_MAX_SKIP or token.len > TOKEN_MAX_LEN) {
+            std.debug.print("\n !! OUT OF skip {d} OR len {d} !!", .{ skip, token.len });
+            unreachable;
+        }
 
         const token_info = &self.tokens_infos[self.tokens_number];
         token_info.* = .{
