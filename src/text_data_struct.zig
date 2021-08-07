@@ -92,7 +92,7 @@ pub const Text = struct {
 
         pub fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
             var ptr = self.trans_ptr(text);
-            var n: u8 = 0;
+            var n: usize = 0;
             while (ptr[n] != 0) : (n += 1) {}
             return ptr[0..n];
         }
@@ -115,7 +115,7 @@ pub const Text = struct {
 
         pub fn trans_slice(self: TypeInfo, text: *Text) []const u8 {
             const ptr = text.syllable_bytes.ptr + self.trans_offset;
-            var n: u8 = 0;
+            var n: usize = 0;
             while (ptr[n] != 0) : (n += 1) {}
             return ptr[0..n];
         }
