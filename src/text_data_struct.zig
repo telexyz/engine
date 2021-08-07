@@ -265,17 +265,9 @@ pub const Text = struct {
         self.arena.deinit();
     }
 
-    pub fn getToken(self: Text, n: usize) []const u8 {
+    pub fn getToken(self: *Text, n: usize) []const u8 {
         if (n < self.tokens_number) {
-            var i: usize = 0;
-            var curr: usize = 0;
-            var next: usize = 0;
-            while (i <= n) : (i += 1) {
-                const token_info = self.tokens_infos[i];
-                curr = next + token_info.skip;
-                next = curr + token_info.len;
-            }
-            return self.input_bytes[curr..next];
+            return self.tokens_infos[n].trans_slice(self);
         } else {
             std.debug.print("!!! n: {} is bigger than tokens_number !!!", .{n});
             unreachable;
@@ -483,7 +475,7 @@ test "Text" {
     // "Cả nhà đơi ,  thử nghiệm nhé ,  cả nhà !  TAQs"
 
     try text.processAlphabetTypes();
-    try std.testing.expect(text.alphabet_types.count() == 3);
+    try std.testing.expect(text.alphabet_types.count() == 10);
 
     // std.debug.print("\n{}\n", .{text.syllable_types.get("nha|f").?.count});
     // std.debug.print("\n{}\n\n", .{text.syllow00_types.get("ca|").?.count});
