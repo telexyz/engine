@@ -43,7 +43,7 @@ pub const Text = struct {
 
     // Data buffer for syllable_types
     syllable_bytes: []u8 = undefined,
-    syllable_bytes_len: usize = 0,
+    syllable_bytes_len: TransPtr = 0,
 
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
@@ -58,7 +58,7 @@ pub const Text = struct {
 
     // Data buffer for both alphabet_types and nonealpha_types
     token_bytes: []u8 = undefined,
-    token_bytes_len: usize = 0,
+    token_bytes_len: TransPtr = 0,
 
     // Data buffer for syllow00_types
     syllow00_bytes: []u8 = undefined,
@@ -70,23 +70,29 @@ pub const Text = struct {
     parsed_tokens_number: usize = 0,
     tokens_number_finalized: bool = false,
 
-    // The we split input bytes into a list of tokens
-    // A toke is a slice of []const u8, that point to the original input bytes
-    // (normally input byte are readed from a text file, corpus.txt for example)
-    // Each tokens[i] slice will point to the original input_bytes
-
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_num: usize = undefined,
-    recored_byte_addr: usize = undefined, // used to calculate TokenInfo#skip
     tokens_infos: []TokenInfo = undefined,
 
     // For 1Gb text input (1024*1024*1024 bytes)
     // estimated_tokens_num = 214 * 1024 * 1024 (1024*1024*1024 / 4.8)
     // Mem allocated to tokens_infos = (214 * 6) * 1024 * 1024 = 2562 MB (1.2Gb)
+
     pub const TokenInfo = struct { //    Total 6-bytes
         trans_ptr: TransPtr = undefined, //    3-bytes
         attrs: TokenAttributes = undefined, // 1-byte
         syllable_id: Syllable.UniqueId = 0, // 2-bytes
+
+        pub fn transform_ptr(self: TokenInfo, text: *Text) [*]u8 {
+            return text.token_bytes.ptr + self.trans_ptr;
+        }
+
+        pub fn transform_slice(self: TokenInfo, text: *Text) []const u8 {
+            const ptr = text.token_bytes.ptr + self.trans_ptr;
+            var n: u8 = 0;
+            while (ptr[n] != 0) : (n += 1) {}
+            return ptr[0..n];
+        }
     };
 
     const MAX_INPUT_FILE_SIZE = 1336 * 1024 * 1024; // 1.3Gb
@@ -100,8 +106,15 @@ pub const Text = struct {
         category: TokenCategory = undefined, // 1-bytes
         syllable_id: Syllable.UniqueId = 0, //  2-bytes
 
-        pub fn transform(self: TypeInfo, text: *Text) [*]u8 {
+        pub fn transform_ptr(self: TypeInfo, text: *Text) [*]u8 {
             return text.syllable_bytes.ptr + self.trans_ptr;
+        }
+
+        pub fn transform_slice(self: TypeInfo, text: *Text) []const u8 {
+            const ptr = text.syllable_bytes.ptr + self.trans_ptr;
+            var n: u8 = 0;
+            while (ptr[n] != 0) : (n += 1) {}
+            return ptr[0..n];
         }
 
         pub fn isSyllable(self: TypeInfo) bool {
@@ -193,7 +206,6 @@ pub const Text = struct {
     pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {
         self.initAllocatorIfNeeded();
         self.input_bytes = input_bytes;
-        self.recored_byte_addr = @ptrToInt(input_bytes.ptr);
 
         const input_bytes_size = self.input_bytes.len;
         self.estimated_tokens_num = (input_bytes_size * 10) / 45;
@@ -265,33 +277,47 @@ pub const Text = struct {
         }
     }
 
+    inline fn copyToken(self: *Text, token: []const u8, token_info: *TokenInfo) []const u8 {
+        var token_len = @intCast(Text.TransPtr, token.len);
+        var token_ptr = self.token_bytes.ptr + self.token_bytes_len;
+
+        const copied_token = token_ptr[0..token_len];
+
+        // Copy input _token to token_bytes
+        for (token) |byte| {
+            token_ptr.* = byte;
+            token_ptr += 1;
+        }
+
+        // Add 0 terminated
+        token_ptr.* = 0;
+
+        // Remember copied one index in token_info.trans_ptr
+        token_info.trans_ptr = self.token_bytes_len;
+
+        // Then increase token_bytes_len to reach the end of token_bytes
+        self.token_bytes_len += token_len + 1;
+
+        // Return copied token
+        return copied_token;
+    }
+
     pub fn recordToken(self: *Text, _token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
-        // Guarding for mem size
+        // Guarding
         if (self.tokens_number > self.estimated_tokens_num) {
             std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
             unreachable;
         }
 
-        // Copy input _token to token_bytes
-        var token_ptr = self.token_bytes.ptr + self.token_bytes_len;
-        for (_token) |byte| {
-            token_ptr.* = byte;
-            token_ptr += 1;
-        }
-        // Add 0 terminated
-        token_ptr.* = 0;
-
-        // Init new token from copied one
-        const token = (self.token_bytes.ptr + self.token_bytes_len)[0.._token.len];
-        // Then increase token_bytes_len
-        self.token_bytes_len += _token.len + 1;
-
         // Init token_info
         const token_info = &self.tokens_infos[self.tokens_number];
         token_info.attrs = attrs;
 
+        // Write _token to token_bytes, update token_info.trans_ptr and return copied token
+        const token = self.copyToken(_token, token_info);
+
         // Transform place-holder (for now it's syllable transform, add more later)
-        var transform: [*]u8 = undefined;
+        var transform_ptr: [*]u8 = undefined;
 
         if (attrs.category == .nonalpha) {
             const gop = try self.nonalpha_types.getOrPutValue(token, 0);
@@ -310,7 +336,7 @@ pub const Text = struct {
                 text_utils.token2Syllable(token, attrs, type_info, self);
 
                 if (type_info.isSyllable()) {
-                    transform = type_info.transform(self);
+                    transform_ptr = type_info.transform_ptr(self);
                     token_info.attrs.category = type_info.category;
                     token_info.syllable_id = type_info.syllable_id;
                 }
@@ -322,7 +348,7 @@ pub const Text = struct {
 
         if (then_parse_syllable) {
             // Write data out
-            text_utils.writeToken(token_info.attrs, token, transform, self);
+            text_utils.writeToken(token_info.attrs, token, transform_ptr, self);
 
             // Record parsed_tokens_number
             self.parsed_tokens_number = self.tokens_number;
@@ -332,13 +358,9 @@ pub const Text = struct {
     pub fn processAlphabetTypes(self: *Text) !void {
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
-            if (kv.value_ptr.isSyllable()) {
-                const token_trans_ptr = kv.value_ptr.transform(self);
-                var n: u8 = 0;
-                while (token_trans_ptr[n] != 0) : (n += 1) {}
-                const token = token_trans_ptr[0..n];
-                // std.debug.print("\nSyll: {s} => {}", .{ token, kv.value_ptr });
-                try self.countSyllableAndSyllow0t(token, kv.value_ptr);
+            const at = kv.value_ptr;
+            if (at.isSyllable()) {
+                try self.countSyllableAndSyllow0t(at.transform_slice(self), at);
             }
         }
     }

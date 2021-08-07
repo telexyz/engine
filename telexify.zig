@@ -55,7 +55,7 @@ fn initConfigsFromArgs() void {
 fn write_out_samples() !void {
     // Write sample of final output to preview
     try TextokOutput.write_text_tokens_to_file(
-        text,
+        &text,
         "data/07-tokens_sample.txt",
         77_777,
     );

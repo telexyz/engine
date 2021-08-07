@@ -109,7 +109,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         }
 
         const buff = text.syllable_bytes[text.syllable_bytes_len..];
-        text.syllable_bytes_len += syllable.printBuffParts(buff).len;
+        text.syllable_bytes_len += @intCast(Text.TransPtr, syllable.printBuffParts(buff).len);
         //
     } else {
         //
@@ -187,10 +187,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
     text.syllable_bytes[text.syllable_bytes_len] = 0;
     text.syllable_bytes_len += 1;
 
-    // Encode slice to offset + length
-    // const len = text.syllable_bytes_len - trans_start_at;
-    // return @intCast(Text.TransPtr, (trans_start_at << 4) + len);
-    return @intCast(Text.TransPtr, trans_start_at);
+    return trans_start_at;
 }
 
 // - - - - - - - - - - - - - - -
@@ -231,7 +228,7 @@ pub fn parseTokens(text: *Text) void {
         // Init token and attrs shortcuts
         var token = text.input_bytes[curr..next.*];
         var attrs = &token_info.attrs;
-        var trans: [*]u8 = undefined;
+        var transform_ptr: [*]u8 = undefined;
 
         // Parse alphabet and not too long token only
         if (attrs.category != .nonalpha and token_info.len <= U2ACharStream.MAX_LEN) {
@@ -255,13 +252,13 @@ pub fn parseTokens(text: *Text) void {
             token2Syllable(token, attrs.*, type_info, text);
 
             if (type_info.isSyllable()) {
-                trans = type_info.transform(text);
+                transform_ptr = type_info.transform_ptr(text);
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
             }
         } // END parse alphabet token to get syllable
 
         // Write data out
-        writeToken(attrs.*, token, trans, text);
+        writeToken(attrs.*, token, transform_ptr, text);
     } // while loop
 }
