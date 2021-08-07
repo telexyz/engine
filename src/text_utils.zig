@@ -7,19 +7,19 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
 pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transform: [*]const u8, text: *Text) void {
-    @setRuntimeSafety(false); // mimic std / mem.zig / fn copy()
-    var trans_ptr = text.transformed_bytes.ptr + text.transformed_bytes_len;
+    // @setRuntimeSafety(false); // mimic std / mem.zig / fn copy()
+    var trans_offset_ptr = text.transformed_bytes.ptr + text.transformed_bytes_len;
     if (attrs.isSyllable()) {
         var n: u8 = 0;
         while (transform[n] != 0) {
-            trans_ptr.* = transform[n];
-            trans_ptr += 1;
+            trans_offset_ptr.* = transform[n];
+            trans_offset_ptr += 1;
             n += 1;
         }
 
         if (!text.keep_origin_amap) {
-            trans_ptr.* = 32;
-            trans_ptr += 1;
+            trans_offset_ptr.* = 32;
+            trans_offset_ptr += 1;
             text.prev_token_is_vi = true;
         }
     } else {
@@ -27,15 +27,15 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transfo
         if (text.keep_origin_amap) {
             // write original bytes
             for (token) |b| {
-                trans_ptr.* = b;
-                trans_ptr += 1;
+                trans_offset_ptr.* = b;
+                trans_offset_ptr += 1;
             }
         } else { // Bỏ qua _ , - là token kết nối âm tiết
             if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
                 if (text.prev_token_is_vi == true) {
                     // Chỉ xuống dòng cho non-syllable token đầu tiên
-                    trans_ptr.* = '\n';
-                    trans_ptr += 1;
+                    trans_offset_ptr.* = '\n';
+                    trans_offset_ptr += 1;
                     text.prev_token_is_vi = false;
                 }
             }
@@ -44,12 +44,12 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transfo
 
     if (text.keep_origin_amap and attrs.spaceAfter()) {
         // Write spacing as it is
-        trans_ptr.* = 32;
-        trans_ptr += 1;
+        trans_offset_ptr.* = 32;
+        trans_offset_ptr += 1;
     }
 
     // text.transformed_bytes[first_byte_index] = attrs.toByte();
-    text.transformed_bytes_len = @ptrToInt(trans_ptr) - @ptrToInt(text.transformed_bytes.ptr);
+    text.transformed_bytes_len = @ptrToInt(trans_offset_ptr) - @ptrToInt(text.transformed_bytes.ptr);
 }
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
@@ -84,7 +84,7 @@ pub inline fn token2Syllable(
                 else => unreachable,
             };
             type_info.syllable_id = syllable.toId();
-            type_info.trans_ptr = saveAsciiTransform(
+            type_info.trans_offset = saveAsciiTransform(
                 text,
                 char_stream,
                 &syllable,
@@ -96,7 +96,7 @@ pub inline fn token2Syllable(
     }
 }
 
-pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.TransPtr {
+pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.TransOffset {
     const trans_start_at = text.syllable_bytes_len;
 
     if (text.convert_mode == 3) {
@@ -109,7 +109,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         }
 
         const buff = text.syllable_bytes[text.syllable_bytes_len..];
-        text.syllable_bytes_len += @intCast(Text.TransPtr, syllable.printBuffParts(buff).len);
+        text.syllable_bytes_len += @intCast(Text.TransOffset, syllable.printBuffParts(buff).len);
         //
     } else {
         //
@@ -228,7 +228,7 @@ pub fn parseTokens(text: *Text) void {
         // Init token and attrs shortcuts
         var token = text.input_bytes[curr..next.*];
         var attrs = &token_info.attrs;
-        var transform_ptr: [*]u8 = undefined;
+        var trans_ptr: [*]u8 = undefined;
 
         // Parse alphabet and not too long token only
         if (attrs.category != .nonalpha and token_info.len <= U2ACharStream.MAX_LEN) {
@@ -252,13 +252,13 @@ pub fn parseTokens(text: *Text) void {
             token2Syllable(token, attrs.*, type_info, text);
 
             if (type_info.isSyllable()) {
-                transform_ptr = type_info.transform_ptr(text);
+                trans_ptr = type_info.trans_ptr(text);
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
             }
         } // END parse alphabet token to get syllable
 
         // Write data out
-        writeToken(attrs.*, token, transform_ptr, text);
+        writeToken(attrs.*, token, trans_ptr, text);
     } // while loop
 }

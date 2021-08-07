@@ -43,7 +43,7 @@ pub const Text = struct {
 
     // Data buffer for syllable_types
     syllable_bytes: []u8 = undefined,
-    syllable_bytes_len: TransPtr = 0,
+    syllable_bytes_len: TransOffset = 0,
 
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
@@ -58,7 +58,7 @@ pub const Text = struct {
 
     // Data buffer for both alphabet_types and nonealpha_types
     token_bytes: []u8 = undefined,
-    token_bytes_len: TransPtr = 0,
+    token_bytes_len: TransOffset = 0,
 
     // Data buffer for syllow00_types
     syllow00_bytes: []u8 = undefined,
@@ -78,17 +78,17 @@ pub const Text = struct {
     // estimated_tokens_num = 214 * 1024 * 1024 (1024*1024*1024 / 4.8)
     // Mem allocated to tokens_infos = (214 * 6) * 1024 * 1024 = 2562 MB (1.2Gb)
 
-    pub const TokenInfo = struct { //    Total 6-bytes
-        trans_ptr: TransPtr = undefined, //    3-bytes
-        attrs: TokenAttributes = undefined, // 1-byte
-        syllable_id: Syllable.UniqueId = 0, // 2-bytes
+    pub const TokenInfo = struct { //         Total 6-bytes
+        trans_offset: TransOffset = undefined, //   3-bytes
+        attrs: TokenAttributes = undefined, //      1-byte
+        syllable_id: Syllable.UniqueId = 0, //      2-bytes
 
-        pub fn transform_ptr(self: TokenInfo, text: *Text) [*]u8 {
-            return text.token_bytes.ptr + self.trans_ptr;
+        pub fn trans_ptr(self: TokenInfo, text: *Text) [*]u8 {
+            return text.token_bytes.ptr + self.trans_offset;
         }
 
-        pub fn transform_slice(self: TokenInfo, text: *Text) []const u8 {
-            const ptr = text.token_bytes.ptr + self.trans_ptr;
+        pub fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
+            const ptr = text.token_bytes.ptr + self.trans_offset;
             var n: u8 = 0;
             while (ptr[n] != 0) : (n += 1) {}
             return ptr[0..n];
@@ -99,19 +99,19 @@ pub const Text = struct {
     const ONE_MB = 1024 * 1024;
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
 
-    pub const TransPtr = u24; //= 2^4 * 2^10 * 2^10 = 16 * 1024 * 1024 = 16Mb
-    pub const TypeInfo = struct { //    Total  10-bytes (old struct 23-bytes)
-        count: u32 = 0, //                      4-bytes
-        trans_ptr: TransPtr = undefined, //     3-bytes
-        category: TokenCategory = undefined, // 1-bytes
-        syllable_id: Syllable.UniqueId = 0, //  2-bytes
+    pub const TransOffset = u24; //= 2^4 * 2^10 * 2^10 = 16 * 1024 * 1024 = 16Mb
+    pub const TypeInfo = struct { //         Total 10-bytes (old struct 23-bytes)
+        count: u32 = 0, //                          4-bytes
+        trans_offset: TransOffset = undefined, //   3-bytes
+        category: TokenCategory = undefined, //     1-bytes
+        syllable_id: Syllable.UniqueId = 0, //      2-bytes
 
-        pub fn transform_ptr(self: TypeInfo, text: *Text) [*]u8 {
-            return text.syllable_bytes.ptr + self.trans_ptr;
+        pub fn trans_ptr(self: TypeInfo, text: *Text) [*]u8 {
+            return text.syllable_bytes.ptr + self.trans_offset;
         }
 
-        pub fn transform_slice(self: TypeInfo, text: *Text) []const u8 {
-            const ptr = text.syllable_bytes.ptr + self.trans_ptr;
+        pub fn trans_slice(self: TypeInfo, text: *Text) []const u8 {
+            const ptr = text.syllable_bytes.ptr + self.trans_offset;
             var n: u8 = 0;
             while (ptr[n] != 0) : (n += 1) {}
             return ptr[0..n];
@@ -278,7 +278,7 @@ pub const Text = struct {
     }
 
     inline fn copyToken(self: *Text, token: []const u8, token_info: *TokenInfo) []const u8 {
-        var token_len = @intCast(Text.TransPtr, token.len);
+        var token_len = @intCast(Text.TransOffset, token.len);
         var token_ptr = self.token_bytes.ptr + self.token_bytes_len;
 
         const copied_token = token_ptr[0..token_len];
@@ -292,8 +292,8 @@ pub const Text = struct {
         // Add 0 terminated
         token_ptr.* = 0;
 
-        // Remember copied one index in token_info.trans_ptr
-        token_info.trans_ptr = self.token_bytes_len;
+        // Remember copied one index in token_info.trans_offset
+        token_info.trans_offset = self.token_bytes_len;
 
         // Then increase token_bytes_len to reach the end of token_bytes
         self.token_bytes_len += token_len + 1;
@@ -313,11 +313,11 @@ pub const Text = struct {
         const token_info = &self.tokens_infos[self.tokens_number];
         token_info.attrs = attrs;
 
-        // Write _token to token_bytes, update token_info.trans_ptr and return copied token
+        // Write _token to token_bytes, update token_info.trans_offset and return copied token
         const token = self.copyToken(_token, token_info);
 
         // Transform place-holder (for now it's syllable transform, add more later)
-        var transform_ptr: [*]u8 = undefined;
+        var trans_ptr: [*]u8 = undefined;
 
         if (attrs.category == .nonalpha) {
             const gop = try self.nonalpha_types.getOrPutValue(token, 0);
@@ -336,7 +336,7 @@ pub const Text = struct {
                 text_utils.token2Syllable(token, attrs, type_info, self);
 
                 if (type_info.isSyllable()) {
-                    transform_ptr = type_info.transform_ptr(self);
+                    trans_ptr = type_info.trans_ptr(self);
                     token_info.attrs.category = type_info.category;
                     token_info.syllable_id = type_info.syllable_id;
                 }
@@ -348,7 +348,7 @@ pub const Text = struct {
 
         if (then_parse_syllable) {
             // Write data out
-            text_utils.writeToken(token_info.attrs, token, transform_ptr, self);
+            text_utils.writeToken(token_info.attrs, token, trans_ptr, self);
 
             // Record parsed_tokens_number
             self.parsed_tokens_number = self.tokens_number;
@@ -360,7 +360,7 @@ pub const Text = struct {
         while (it.next()) |kv| {
             const at = kv.value_ptr;
             if (at.isSyllable()) {
-                try self.countSyllableAndSyllow0t(at.transform_slice(self), at);
+                try self.countSyllableAndSyllow0t(at.trans_slice(self), at);
             }
         }
     }

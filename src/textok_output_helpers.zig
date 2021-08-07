@@ -155,7 +155,7 @@ pub const TextokOutputHelpers = struct {
         var i: usize = 0;
         while (i < n) : (i += 1) {
             const token_info = text.tokens_infos[i];
-            _ = try wrt.writer().write(token_info.transform_slice(text));
+            _ = try wrt.writer().write(token_info.trans_slice(text));
 
             if (token_info.attrs.surrounded_by_spaces == .both or
                 token_info.attrs.surrounded_by_spaces == .right)
