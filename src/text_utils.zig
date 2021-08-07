@@ -175,10 +175,11 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         if (offset_ptr[0] != 32) offset_ptr += 1;
     }
 
-    // Add double 0 terminator
+    // Add double 0 terminators
     offset_ptr.* = 0;
     offset_ptr += 1;
     offset_ptr.* = 0;
+    offset_ptr += 1;
 
     text.syllable_bytes_len = @intCast(Text.TransOffset, @ptrToInt(offset_ptr) - @ptrToInt(text.syllable_bytes.ptr));
     return trans_start_at;

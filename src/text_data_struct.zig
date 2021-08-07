@@ -90,17 +90,22 @@ pub const Text = struct {
             return (if (self.attrs.category == .nonalpha) text.nonalpha_bytes.ptr else text.alphabet_bytes.ptr) + self.trans_offset;
         }
 
-        pub fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
+        pub inline fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
             var ptr = self.trans_ptr(text);
-            var n: usize = 0;
-            while (ptr[n] != 0) : (n += 1) {}
-            return ptr[0..n];
+            return ptr[0..double_0_trans_len(ptr)];
         }
     };
 
     const MAX_INPUT_FILE_SIZE = 1336 * 1024 * 1024; // 1.3Gb
     const ONE_MB = 1024 * 1024;
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
+
+    pub inline fn double_0_trans_len(ptr: [*]u8) usize {
+        var n: usize = 2;
+        while (ptr[n] != 0) : (n += 2) {}
+        if (ptr[n - 1] == 0) n -= 1;
+        return n;
+    }
 
     pub const TransOffset = u24; //= 2^4 * 2^10 * 2^10 = 16 * 1024 * 1024 = 16Mb
     pub const TypeInfo = struct { //         Total 10-bytes (old struct 23-bytes)
@@ -109,15 +114,13 @@ pub const Text = struct {
         category: TokenCategory = undefined, //     1-bytes
         syllable_id: Syllable.UniqueId = 0, //      2-bytes
 
-        pub fn trans_ptr(self: TypeInfo, text: *Text) [*]u8 {
+        pub inline fn trans_ptr(self: TypeInfo, text: *Text) [*]u8 {
             return text.syllable_bytes.ptr + self.trans_offset;
         }
 
-        pub fn trans_slice(self: TypeInfo, text: *Text) []const u8 {
+        pub inline fn trans_slice(self: TypeInfo, text: *Text) []const u8 {
             const ptr = text.syllable_bytes.ptr + self.trans_offset;
-            var n: usize = 0;
-            while (ptr[n] != 0) : (n += 1) {}
-            return ptr[0..n];
+            return ptr[0..double_0_trans_len(ptr)];
         }
 
         pub fn isSyllable(self: TypeInfo) bool {
@@ -287,7 +290,7 @@ pub const Text = struct {
             token_ptr += 1;
         }
 
-        // Add double 0 terminator
+        // Add double 0 terminators
         token_ptr.* = 0;
         token_ptr += 1;
         token_ptr.* = 0;
@@ -299,7 +302,7 @@ pub const Text = struct {
         if (bytes_len.* > 16_777_128) {
             std.debug.print("\n{}", .{bytes_len.*});
         }
-        bytes_len.* += token_len + 1;
+        bytes_len.* += token_len + 2; // <= double 0 terminators
 
         // Return copied token
         return copied_token;
