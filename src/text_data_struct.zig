@@ -211,7 +211,13 @@ pub const Text = struct {
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.alphabet_bytes = try self.allocator.alloc(u8, ONE_MB);
+        self.alphabet_bytes_len = 0;
+
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
+        self.nonalpha_bytes = try self.allocator.alloc(u8, ONE_MB);
+        self.nonalpha_bytes_len = 0;
+
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
         // self.alphabet_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
