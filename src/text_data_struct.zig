@@ -56,13 +56,9 @@ pub const Text = struct {
     syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower-mark-tone
     syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllow00
 
-    // Data buffer for alphabet_types
-    alphabet_bytes: []u8 = undefined,
-    alphabet_bytes_len: usize = 0,
-
-    // Data buffer for nonalpha_types
-    nonalpha_bytes: []u8 = undefined,
-    nonalpha_bytes_len: usize = 0,
+    // Data buffer for both alphabet_types and nonealpha_types
+    token_bytes: []u8 = undefined,
+    token_bytes_len: usize = 0,
 
     // Data buffer for syllow00_types
     syllow00_bytes: []u8 = undefined,
@@ -211,21 +207,14 @@ pub const Text = struct {
 
         // Init types count
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.alphabet_bytes = try self.allocator.alloc(u8, ONE_MB);
-        self.alphabet_bytes_len = 0;
-
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
-        self.nonalpha_bytes = try self.allocator.alloc(u8, ONE_MB);
-        self.nonalpha_bytes_len = 0;
-
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
-        // self.alphabet_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
-        // self.nonalpha_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
+        self.token_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
+        self.token_bytes_len = 0;
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
-
         const delta = input_bytes_size / 5;
         self.transformed_bytes_size = input_bytes_size + delta + BUFF_SIZE;
         if (self.keep_origin_amap) self.transformed_bytes_size += delta;
@@ -276,16 +265,32 @@ pub const Text = struct {
         }
     }
 
-    pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
-        //
+    pub fn recordToken(self: *Text, _token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
+        // Guarding for mem size
         if (self.tokens_number > self.estimated_tokens_num) {
             std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
             unreachable;
         }
 
+        // Copy input _token to token_bytes
+        var token_ptr = self.token_bytes.ptr + self.token_bytes_len;
+        for (_token) |byte| {
+            token_ptr.* = byte;
+            token_ptr += 1;
+        }
+        // Add 0 terminated
+        token_ptr.* = 0;
+
+        // Init new token from copied one
+        const token = (self.token_bytes.ptr + self.token_bytes_len)[0.._token.len];
+        // Then increase token_bytes_len
+        self.token_bytes_len += _token.len + 1;
+
+        // Init token_info
         const token_info = &self.tokens_infos[self.tokens_number];
         token_info.attrs = attrs;
 
+        // Transform place-holder (for now it's syllable transform, add more later)
         var transform: [*]u8 = undefined;
 
         if (attrs.category == .nonalpha) {
