@@ -56,9 +56,12 @@ pub const Text = struct {
     syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower-mark-tone
     syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllow00
 
-    // Data buffer for both alphabet_types and nonealpha_types
-    token_bytes: []u8 = undefined,
-    token_bytes_len: TransOffset = 0,
+    // Data buffer for both alphabet_types and nonalpha_types
+    alphabet_bytes: []u8 = undefined,
+    alphabet_bytes_len: TransOffset = 0,
+
+    nonalpha_bytes: []u8 = undefined,
+    nonalpha_bytes_len: TransOffset = 0,
 
     // Data buffer for syllow00_types
     syllow00_bytes: []u8 = undefined,
@@ -83,12 +86,12 @@ pub const Text = struct {
         attrs: TokenAttributes = undefined, //      1-byte
         syllable_id: Syllable.UniqueId = 0, //      2-bytes
 
-        pub fn trans_ptr(self: TokenInfo, text: *Text) [*]u8 {
-            return text.token_bytes.ptr + self.trans_offset;
+        pub inline fn trans_ptr(self: TokenInfo, text: *Text) [*]u8 {
+            return (if (self.attrs.category == .nonalpha) text.nonalpha_bytes.ptr else text.alphabet_bytes.ptr) + self.trans_offset;
         }
 
         pub fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
-            const ptr = text.token_bytes.ptr + self.trans_offset;
+            var ptr = self.trans_ptr(text);
             var n: u8 = 0;
             while (ptr[n] != 0) : (n += 1) {}
             return ptr[0..n];
@@ -222,8 +225,10 @@ pub const Text = struct {
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
-        self.token_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
-        self.token_bytes_len = 0;
+        self.alphabet_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
+        self.nonalpha_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
+        self.alphabet_bytes_len = 0;
+        self.nonalpha_bytes_len = 0;
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
@@ -277,9 +282,9 @@ pub const Text = struct {
         }
     }
 
-    inline fn copyToken(self: *Text, token: []const u8, token_info: *TokenInfo) []const u8 {
+    inline fn copyToken(token: []const u8, token_info: *TokenInfo, bytes_ptr: [*]u8, bytes_len: *TransOffset) []const u8 {
         var token_len = @intCast(Text.TransOffset, token.len);
-        var token_ptr = self.token_bytes.ptr + self.token_bytes_len;
+        var token_ptr = bytes_ptr + bytes_len.*;
 
         const copied_token = token_ptr[0..token_len];
 
@@ -293,10 +298,13 @@ pub const Text = struct {
         token_ptr.* = 0;
 
         // Remember copied one index in token_info.trans_offset
-        token_info.trans_offset = self.token_bytes_len;
+        token_info.trans_offset = bytes_len.*;
 
         // Then increase token_bytes_len to reach the end of token_bytes
-        self.token_bytes_len += token_len + 1;
+        if (bytes_len.* > 16_777_128) {
+            std.debug.print("\n{}", .{bytes_len.*});
+        }
+        bytes_len.* += token_len + 1;
 
         // Return copied token
         return copied_token;
@@ -313,25 +321,53 @@ pub const Text = struct {
         const token_info = &self.tokens_infos[self.tokens_number];
         token_info.attrs = attrs;
 
-        // Write _token to token_bytes, update token_info.trans_offset and return copied token
-        const token = self.copyToken(_token, token_info);
+        // Token place holder
+        var token: []const u8 = undefined;
 
         // Transform place-holder (for now it's syllable transform, add more later)
         var trans_ptr: [*]u8 = undefined;
 
         if (attrs.category == .nonalpha) {
-            const gop = try self.nonalpha_types.getOrPutValue(token, 0);
-            gop.value_ptr.* += 1;
-        } else {
-            // Log alphabet token (that can be syllable)
-            const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
-                .count = 0,
-                .category = if (token.len <= U2ACharStream.MAX_LEN) .can_be_syllable else attrs.category,
-            });
-            gop.value_ptr.count += 1;
+            // nonalpha token
+            const entry = self.nonalpha_types.getEntry(_token);
+            const start_ptr = self.nonalpha_bytes.ptr;
+
+            if (entry == null) {
+                // Write _token to token_bytes, update token_info.trans_offset
+                token = copyToken(_token, token_info, start_ptr, &self.nonalpha_bytes_len);
+                try self.nonalpha_types.put(token, 1);
+                //
+            } else {
+                //
+                const kv = entry.?;
+                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.ptr) - @ptrToInt(start_ptr));
+                kv.value_ptr.* += 1;
+            }
+            //
+        } else { // alphabet token
+            //
+            const entry = self.alphabet_types.getEntry(_token);
+            // std.debug.print("\ntoken: {s}", .{_token});//DEBUG
+            const start_ptr = self.alphabet_bytes.ptr;
+            var kv: std.StringHashMap(TypeInfo).Entry = undefined;
+
+            if (entry == null) {
+                // Write _token to token_bytes, update token_info.trans_offset
+                token = copyToken(_token, token_info, start_ptr, &self.alphabet_bytes_len);
+                kv = try self.alphabet_types.getOrPutValue(token, TypeInfo{
+                    .count = 1,
+                    .category = if (token.len <= U2ACharStream.MAX_LEN) .can_be_syllable else attrs.category,
+                });
+                //
+            } else {
+                //
+                kv = entry.?;
+                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.ptr) - @ptrToInt(start_ptr));
+                kv.value_ptr.count += 1;
+            }
 
             if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
-                const type_info = gop.value_ptr;
+                const type_info = kv.value_ptr;
 
                 text_utils.token2Syllable(token, attrs, type_info, self);
 
