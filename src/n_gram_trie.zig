@@ -212,7 +212,7 @@ test "parse ngram from text" {
 
     var it = std.mem.tokenize(text.input_bytes, " ");
     var attrs: Text.TokenAttributes = .{
-        .category = .alphabet,
+        .category = .alphmark,
         .surrounded_by_spaces = .both,
     };
     while (it.next()) |tkn| {

@@ -192,7 +192,7 @@ pub const Tokenizer = struct {
                     if (in_alphabet_token_zone) {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
-                        const attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .alphmark else .alphabet, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
+                        const attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .alphmark else .alph0m0t, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
                         try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
                         //
@@ -267,7 +267,7 @@ pub const Tokenizer = struct {
                         // Record alphabet
                         const token = input_bytes[alphabet_token_start_at..index];
                         const attrs: Text.TokenAttributes = .{
-                            .category = if (contains_marktone_char) .alphmark else .alphabet,
+                            .category = if (contains_marktone_char) .alphmark else .alph0m0t,
                             .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
                         };
                         try text.recordToken(token, attrs, then_parse_syllable);
@@ -322,7 +322,7 @@ test "Tokenizer" {
     try tknz.segment(&text, false);
 
     const s1_tokens = "Giá trúng binh quân 13.011 đồng / cp , thu về hơn 1.300 voọc .";
-    var s1_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alphabet, .alphmark, .nonalpha, .alphmark, .nonalpha, .alphabet, .nonalpha, .alphabet, .alphmark, .alphmark, .nonalpha, .alphmark, .nonalpha };
+    var s1_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alph0m0t, .alphmark, .nonalpha, .alphmark, .nonalpha, .alph0m0t, .nonalpha, .alph0m0t, .alphmark, .alphmark, .nonalpha, .alphmark, .nonalpha };
     const s1_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .both, .both, .both, .left, .none, .none, .right, .both, .both, .both, .both, .left, .right };
 
     var it = std.mem.split(s1_tokens, " ");
@@ -339,7 +339,7 @@ test "Tokenizer" {
 
     try std.testing.expectEqualStrings("\n", text.getToken(i));
     const s2_tokens = "Tuyến tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
-    var s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alphabet, .nonalpha, .alphabet, .alphmark, .alphmark, .nonalpha, .alphabet, .alphmark, .nonalpha, .alphmark, .alphabet, .alphabet, .nonalpha };
+    var s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alph0m0t, .nonalpha, .alph0m0t, .alphmark, .alphmark, .nonalpha, .alph0m0t, .alphmark, .nonalpha, .alphmark, .alph0m0t, .alph0m0t, .nonalpha };
     const s2_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
     it = std.mem.split(s2_tokens, " ");
     i += 1;
@@ -369,7 +369,7 @@ test "Tokenizer" {
 
         const category = text.tokens_infos[i].attrs.category;
         if (@rem(j, 2) == 0) {
-            try testing.expect(category == .alphabet);
+            try testing.expect(category == .alph0m0t);
         } else {
             try testing.expect(category == .nonalpha);
         }
@@ -388,7 +388,7 @@ test "Tokenizer" {
     try testing.expect(text.parsed_tokens_number == text.tokens_number);
 
     // Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
-    s1_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .syllable, .syllmark, .nonalpha, .syllmark, .nonalpha, .alphabet, .nonalpha, .syllable, .syllmark, .syllmark, .nonalpha, .syllmark, .nonalpha };
+    s1_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .syll0m0t, .syllmark, .nonalpha, .syllmark, .nonalpha, .alph0m0t, .nonalpha, .syll0m0t, .syllmark, .syllmark, .nonalpha, .syllmark, .nonalpha };
     it = std.mem.split(s1_tokens, " ");
     i = 0;
     while (it.next()) |token| {
@@ -402,7 +402,7 @@ test "Tokenizer" {
     try std.testing.expectEqualStrings("\n", text.getToken(i));
 
     // Tuyến tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
-    s2_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .alphabet, .nonalpha, .syllable, .syllmark, .syllmark, .nonalpha, .syllable, .syllmark, .nonalpha, .syllmark, .alphabet, .alphabet, .nonalpha };
+    s2_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .alph0m0t, .nonalpha, .syll0m0t, .syllmark, .syllmark, .nonalpha, .syll0m0t, .syllmark, .nonalpha, .syllmark, .alph0m0t, .alph0m0t, .nonalpha };
     it = std.mem.split(s2_tokens, " ");
     i += 1;
     j = 0;

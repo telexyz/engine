@@ -78,7 +78,7 @@ pub inline fn token2Syllable(
             // Token is vietnamese syllable
             type_info.category = switch (attrs.category) {
                 .alphmark => .syllmark,
-                .alphabet => .syllable,
+                .alph0m0t => .syll0m0t,
                 else => unreachable,
             };
             type_info.syllable_id = syllable.toId();
@@ -88,7 +88,7 @@ pub inline fn token2Syllable(
                 &syllable,
             );
         } else {
-            // For non-syllable, attrs.category can only be .alphabet or .alphmark
+            // For non-syllable, attrs.category can only be .alph0m0t or .alphmark
             type_info.category = attrs.category;
         }
     }

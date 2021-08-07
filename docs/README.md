@@ -44,7 +44,7 @@ Chọn C/ làm trước. Đi theo hướng NLP: Embedding, Tagging, NER, ...
 
 Xem chi tiết `docs/01-TKNZ.md`: Hiện đã xong phrase-1, tách Viet Syllables làm bộ từ vựng chính, tách tokens đi cùng bộ thuộc tính nhúng vào 27 ký tự ascii vô hình để có thể đi kèm token (làm header) trong file text.
 
-Phase-2 dùng `syllower` đã tách làm bộ từ vựng gốc (khoảng 9000 âm tiết viết thường), sau đó áp dụng BPE để xử lý mọi OVV bao gồm `alphmark`, `alphabet` và `nonalpha` bằng cách quy về các `subword units` (dự tính khoảng 9000 từ vựng nữa)
+Phase-2 dùng `syllower` đã tách làm bộ từ vựng gốc (khoảng 9000 âm tiết viết thường), sau đó áp dụng BPE để xử lý mọi OVV bao gồm `alphmark`, `alph0m0t` và `nonalpha` bằng cách quy về các `subword units` (dự tính khoảng 9000 từ vựng nữa)
 https://github.com/telexyz/fastBPE
 
 Phase-1 cũng còn rất nhiều ý tưởng cần thực thi hoặc cải tiến:
@@ -59,27 +59,6 @@ A/ Tiếp tục đào sâu, cải tiến phase-1, handmade phase-2, hoàn thiệ
 B/ Dừng lại ở đó để đi tiếp theo hướng lưu trữ + Retrieval (encoding, indexing, searching, ... ) Hướng này đi sâu vào ứng dụng tìm kiếm, sử dụng https://justine.lol/redbean/ để viết web app (dùng web interface) rất hay. Hướng này kết quả cuối đã hình dung rõ, chỉ tập trung vào implement cho tốt.
 
 C/ Dừng lại ở đó để đi tiếp theo hướng NLP: Embedding, Tagging, NER, ... Hướng này hướng tới SOTA NLP, sử dụng các thư viện đơn giản và hiệu quả như để khám phá xem có thể làm gì được với tập dữ liệu tiếng Việt đang có?
-
-```js
-// Bộ thuộc tính token sau khi tách
-    pub const TokenCategory = enum(u6) {
-        // Dùng được 27 invisible ascii chars, 1-8,11, 12,15-31
-        // 3 main token categoried, used to write to disk as token's attrs
-        syllmark = 0, // âm tiết có dấu hoặc thanh (100% tiếng Việt)
-        syllable = 1, // âm tiết ko dấu ko thanh (dễ nhầm lẫn với tiếng Anh)
-        alphmark = 4, // tokens thuộc bảng chữ cái và có dấu hoặc thanh (từ mượn, dính, từ nước ngoài ko phải tiếng Anh ..)
-        alphabet = 5, // tokens thuộc bảng chữ cái ko dấu ko thanh (~100% tiếng Anh)
-        nonalpha = 6, // tokens thuộc số và các ký tự ko thuộc bảng chữ cái
-    };
-
-    pub const TokenSurroundedBySpaces = enum(u2) {
-        // Use 2-bits to describle
-        none, //  0|0 // bị kẹp cứng bởi 2 tokens khác
-        right, // 0|1 // bên trái là token, bên phải là space
-        left, //  1|0 // bên trái là space, bên phải là token
-        both, //  1|1 // cả hai bên đều là spaces
-    };
-```
 
 TO-TEST: convert syllable to various format and valid them with telex parser.
 

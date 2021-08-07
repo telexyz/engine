@@ -121,7 +121,7 @@ pub const Text = struct {
 
         pub fn isSyllable(self: TypeInfo) bool {
             return self.syllable_id > 0;
-            // return self.category == .syllmark or self.category == .syllable;
+            // return self.category == .syllmark or self.category == .syll0m0t;
         }
 
         pub fn haveMarkTone(self: TypeInfo) bool {
@@ -142,7 +142,7 @@ pub const Text = struct {
         }
 
         pub fn isSyllable(self: TokenAttributes) bool {
-            return self.category == .syllmark or self.category == .syllable;
+            return self.category == .syllmark or self.category == .syll0m0t;
         }
 
         pub fn haveMarkTone(self: TypeInfo) bool {
@@ -169,9 +169,9 @@ pub const Text = struct {
         //         2, //  + 0x11    =>       10    + 1 => \x0b
         //         3, //  + 0x00,11 => 12       15     => \x0c\x0f
         alphmark = 4, //  + 2-bits  => 16,17,18,19     => \x10\x11\x12\x13
-        alphabet = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
+        alph0m0t = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
         syllmark = 6, //  + 2-bits  => 24,25,26,27     => \x18\x19\x1a\x1b
-        syllable = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
+        syll0m0t = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
         // Supplement category ids 8-63
         // used as an intialized/temp values / need to be processed / state machine
         _none = 8, // initial state
@@ -411,7 +411,7 @@ test "Text" {
     var it = std.mem.tokenize(text.input_bytes, " ");
     var token = it.next();
     var attrs: Text.TokenAttributes = .{
-        .category = .alphabet,
+        .category = .alphmark,
         .surrounded_by_spaces = .both,
     };
     try text.recordToken(token.?, attrs, true);
