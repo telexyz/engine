@@ -58,11 +58,11 @@ pub const Text = struct {
 
     // Use data of transformed_bytes, pointed by transforms[i]
     syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower-mark-tone
-    syllow0t_types: std.StringHashMap(TypeInfo) = undefined, // = syllow0t
+    syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllow00
 
-    // Data buffer for syllow0t_types
-    syllow0t_bytes: []u8 = undefined,
-    syllow0t_bytes_len: usize = 0,
+    // Data buffer for syllow00_types
+    syllow00_bytes: []u8 = undefined,
+    syllow00_bytes_len: usize = 0,
 
     // Start the text with empty tokens list, hence tokens_number = 0
     tokens_number: usize = 0,
@@ -242,9 +242,9 @@ pub const Text = struct {
         self.syllable_bytes_len = 0;
 
         // Init syllower...
-        self.syllow0t_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllow0t_bytes = try self.allocator.alloc(u8, TEXT_DICT_FILE_SIZE);
-        self.syllow0t_bytes_len = 0;
+        self.syllow00_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.syllow00_bytes = try self.allocator.alloc(u8, TEXT_DICT_FILE_SIZE);
+        self.syllow00_bytes_len = 0;
 
         // Start empty token list and empty transfomed bytes
         self.tokens_number = 0;
@@ -371,27 +371,33 @@ pub const Text = struct {
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
 
-        // Convert syllable to syllow0t
+        // Convert syllable to syllow00
         var i: u8 = if (syllable[0] == '^') 1 else 0;
         if (i == 1 and (syllable[1] == '^' or syllable[1] == 32)) i = 2;
         if (i == 2 and syllable[2] == 32) i = 3;
 
+        // Remove tone "[sfrxj]"
         var n = syllable.len - 1;
-        n = switch (syllable[n]) {
-            's', 'f', 'r', 'x', 'j' => n, // remove tone "[sfrxj]"
-            else => n + 1,
-        };
+        switch (syllable[n]) {
+            's', 'f', 'r', 'x', 'j' => n -= 1,
+            else => {},
+        }
+        // Remove mark
+        switch (syllable[n]) {
+            'w', 'z' => n -= 1,
+            else => {},
+        }
 
-        var next = self.syllow0t_bytes_len;
-        while (i < n) : (i += 1) {
-            self.syllow0t_bytes[next] = syllable[i];
+        var next = self.syllow00_bytes_len;
+        while (i <= n) : (i += 1) {
+            self.syllow00_bytes[next] = syllable[i];
             next += 1;
         }
 
-        const syllow0t = self.syllow0t_bytes[self.syllow0t_bytes_len..next];
-        self.syllow0t_bytes_len = next;
+        const syllow00 = self.syllow00_bytes[self.syllow00_bytes_len..next];
+        self.syllow00_bytes_len = next;
 
-        const gop2 = try self.syllow0t_types.getOrPutValue(syllow0t, TypeInfo{ .category = type_info.category });
+        const gop2 = try self.syllow00_types.getOrPutValue(syllow00, TypeInfo{ .category = type_info.category });
         gop2.value_ptr.count += type_info.count;
     }
 };
@@ -443,10 +449,10 @@ test "Text" {
     try std.testing.expect(text.alphabet_types.count() == 3);
 
     // std.debug.print("\n{}\n", .{text.syllable_types.get("nha|f").?.count});
-    // std.debug.print("\n{}\n\n", .{text.syllow0t_types.get("ca|").?.count});
+    // std.debug.print("\n{}\n\n", .{text.syllow00_types.get("ca|").?.count});
     try std.testing.expect(text.syllable_types.count() == 7); // Cả != cả
     try std.testing.expect(text.syllable_types.get("nha|f").?.count == 2);
-    try std.testing.expect(text.syllow0t_types.count() == 6); // Cả => cả
-    try std.testing.expect(text.syllow0t_types.get("ca|").?.count == 2);
+    try std.testing.expect(text.syllow00_types.count() == 6); // Cả => cả
+    try std.testing.expect(text.syllow00_types.get("ca|").?.count == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }

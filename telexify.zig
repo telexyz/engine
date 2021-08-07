@@ -70,9 +70,9 @@ fn write_out_types() !void {
         "data/12-syll0m0t_types.txt",
     );
     try TextokOutput.write_types_to_files(
-        text.syllow0t_types,
-        "data/03-syllow0t_freqs.txt",
-        "data/13-syllow0t_types.txt",
+        text.syllow00_types,
+        "data/03-syllow00_freqs.txt",
+        "data/13-syllow00_types.txt",
     );
     try TextokOutput.write_mktn_vs_0m0t_types_to_files(
         text.alphabet_types,
