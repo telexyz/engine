@@ -6,141 +6,18 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
-    if (false)
-        std.debug.print(fmt_str, args);
-}
-
-pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
-    var file = try std.fs.cwd().createFile(filename, .{});
-    defer file.close();
-    var wrt = std.io.bufferedWriter(file.writer());
-    var writer = wrt.writer();
-
-    var next: usize = 0;
-    var curr: usize = undefined;
-    var prev_token_is_vi = true;
-
-    var i: usize = 0;
-    while (i < text.tokens_number) : (i += 1) {
-        const token_info = text.tokens_infos[i];
-        curr = next + token_info.skip;
-        next = curr + token_info.len;
-
-        var token = text.input_bytes[curr..next];
-        const attrs = token_info.attrs;
-
-        // Write data out
-        if (attrs.isSyllable()) {
-            const type_ptr = text.alphabet_types.getPtr(token);
-            _ = try writer.write(type_ptr.?.transform);
-            // _ = try writer.write(token);
-
-            if (!text.keep_origin_amap) {
-                _ = try writer.write(" ");
-                prev_token_is_vi = true;
-            }
-        } else {
-            // not syllable
-            if (text.keep_origin_amap) {
-                // write original bytes
-                _ = try writer.write(token);
-            } else {
-                if (!(token.len == 1 and token[0] == '_')) {
-                    if (prev_token_is_vi) _ = try writer.write("\n");
-                    prev_token_is_vi = false;
-                }
-            }
-        }
-
-        if (text.keep_origin_amap and attrs.spaceAfter()) {
-            // Write spacing as it is
-            _ = try writer.write(" ");
-        }
-    }
-    try wrt.flush();
-}
-
-// TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
-const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
-
-pub fn parseTokens(text: *Text) void {
-    // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
-    // Record progress
-    const ten_percents = text.input_bytes.len / 10;
-    var percents_threshold = ten_percents;
-    var percents: u8 = 0;
-
-    var i: *usize = &text.parsed_tokens_number;
-    var next: *usize = &text.parsed_input_bytes;
-    var curr: usize = undefined;
-    text.prev_token_is_vi = true;
-
-    while (i.* <= text.tokens_number) : (i.* += 1) {
-        // Check if reach the end of tokens list
-        if (i.* == text.tokens_number) {
-            // Segmentation ended => no more tokens for sure then return
-            if (text.tokens_number_finalized) return;
-
-            std.time.sleep(WAIT_NANOSECS);
-            std.debug.print("{s}... wait new tokens\n", .{PAD});
-
-            // No new token and timeout
-            if (i.* == text.tokens_number) return;
-        }
-
-        const token_info = &text.tokens_infos[i.*];
-        curr = next.* + token_info.skip;
-        next.* = curr + token_info.len;
-
-        // Init token and attrs shortcuts
-        var token = text.input_bytes[curr..next.*];
-        var attrs = &token_info.attrs;
-
-        // Parse alphabet and not too long token only
-        if (attrs.category != .nonalpha and token_info.len <= U2ACharStream.MAX_LEN) {
-            // Show progress
-            if (next.* >= percents_threshold) {
-                percents += 10;
-                std.debug.print("{s}{d}% Parsing\n", .{ PAD, percents });
-                percents_threshold += ten_percents;
-            }
-
-            const ptr = text.alphabet_types.getPtr(token);
-            if (ptr == null) {
-                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
-                std.debug.print("Xem tokens_infos.append(..) đã được update chưa ???\n", .{});
-                std.debug.print("CONTEXT {s}\n", .{text.input_bytes[curr - 10 .. next.* + 10]});
-                unreachable;
-            }
-            // Init type_info shortcut
-            const type_info = ptr.?;
-
-            token2Syllable(token, attrs.*, type_info, text);
-
-            if (type_info.isSyllable()) {
-                token = type_info.transform(text);
-                attrs.category = type_info.category;
-                token_info.syllable_id = type_info.syllable_id;
-            }
-        } // END parse alphabet token to get syllable
-
-        // Write data out
-        writeToken(attrs.*, token, text);
-    } // while loop
-}
-
 pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, text: *Text) void {
+    @setRuntimeSafety(false); // mimic std / mem.zig / fn copy()
+    var trans_ptr = text.transformed_bytes.ptr + text.transformed_bytes_len;
     if (attrs.isSyllable()) {
         for (token) |b| {
-            text.transformed_bytes[text.transformed_bytes_len] = b;
-            text.transformed_bytes_len += 1;
+            trans_ptr.* = b;
+            trans_ptr += 1;
         }
 
         if (!text.keep_origin_amap) {
-            text.transformed_bytes[text.transformed_bytes_len] = 32;
-            text.transformed_bytes_len += 1;
+            trans_ptr.* = 32;
+            trans_ptr += 1;
             text.prev_token_is_vi = true;
         }
     } else {
@@ -148,15 +25,15 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, text: *
         if (text.keep_origin_amap) {
             // write original bytes
             for (token) |b| {
-                text.transformed_bytes[text.transformed_bytes_len] = b;
-                text.transformed_bytes_len += 1;
+                trans_ptr.* = b;
+                trans_ptr += 1;
             }
         } else { // Bỏ qua _ , - là token kết nối âm tiết
             if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
                 if (text.prev_token_is_vi == true) {
                     // Chỉ xuống dòng cho non-syllable token đầu tiên
-                    text.transformed_bytes[text.transformed_bytes_len] = '\n';
-                    text.transformed_bytes_len += 1;
+                    trans_ptr.* = '\n';
+                    trans_ptr += 1;
                     text.prev_token_is_vi = false;
                 }
             }
@@ -165,10 +42,17 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, text: *
 
     if (text.keep_origin_amap and attrs.spaceAfter()) {
         // Write spacing as it is
-        text.transformed_bytes[text.transformed_bytes_len] = 32;
-        text.transformed_bytes_len += 1;
+        trans_ptr.* = 32;
+        trans_ptr += 1;
     }
+
     // text.transformed_bytes[first_byte_index] = attrs.toByte();
+    text.transformed_bytes_len = @ptrToInt(trans_ptr) - @ptrToInt(text.transformed_bytes.ptr);
+}
+
+fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
+    if (false)
+        std.debug.print(fmt_str, args);
 }
 
 pub inline fn token2Syllable(
@@ -300,4 +184,127 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
     // Encode slice to offset + length
     const len = text.syllable_bytes_len - trans_start_at;
     return @intCast(Text.SyllTransPtr, (trans_start_at << 4) + len);
+}
+
+// - - - - - - - - - -
+// Keep for references
+
+pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
+    var file = try std.fs.cwd().createFile(filename, .{});
+    defer file.close();
+    var wrt = std.io.bufferedWriter(file.writer());
+    var writer = wrt.writer();
+
+    var next: usize = 0;
+    var curr: usize = undefined;
+    var prev_token_is_vi = true;
+
+    var i: usize = 0;
+    while (i < text.tokens_number) : (i += 1) {
+        const token_info = text.tokens_infos[i];
+        curr = next + token_info.skip;
+        next = curr + token_info.len;
+
+        var token = text.input_bytes[curr..next];
+        const attrs = token_info.attrs;
+
+        // Write data out
+        if (attrs.isSyllable()) {
+            const type_ptr = text.alphabet_types.getPtr(token);
+            _ = try writer.write(type_ptr.?.transform);
+            // _ = try writer.write(token);
+
+            if (!text.keep_origin_amap) {
+                _ = try writer.write(" ");
+                prev_token_is_vi = true;
+            }
+        } else {
+            // not syllable
+            if (text.keep_origin_amap) {
+                // write original bytes
+                _ = try writer.write(token);
+            } else {
+                if (!(token.len == 1 and token[0] == '_')) {
+                    if (prev_token_is_vi) _ = try writer.write("\n");
+                    prev_token_is_vi = false;
+                }
+            }
+        }
+
+        if (text.keep_origin_amap and attrs.spaceAfter()) {
+            // Write spacing as it is
+            _ = try writer.write(" ");
+        }
+    }
+    try wrt.flush();
+}
+
+// TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
+const PAD = "                 ";
+const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
+
+pub fn parseTokens(text: *Text) void {
+    // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
+    // Record progress
+    const ten_percents = text.input_bytes.len / 10;
+    var percents_threshold = ten_percents;
+    var percents: u8 = 0;
+
+    var i: *usize = &text.parsed_tokens_number;
+    var next: *usize = &text.parsed_input_bytes;
+    var curr: usize = undefined;
+    text.prev_token_is_vi = true;
+
+    while (i.* <= text.tokens_number) : (i.* += 1) {
+        // Check if reach the end of tokens list
+        if (i.* == text.tokens_number) {
+            // Segmentation ended => no more tokens for sure then return
+            if (text.tokens_number_finalized) return;
+
+            std.time.sleep(WAIT_NANOSECS);
+            std.debug.print("{s}... wait new tokens\n", .{PAD});
+
+            // No new token and timeout
+            if (i.* == text.tokens_number) return;
+        }
+
+        const token_info = &text.tokens_infos[i.*];
+        curr = next.* + token_info.skip;
+        next.* = curr + token_info.len;
+
+        // Init token and attrs shortcuts
+        var token = text.input_bytes[curr..next.*];
+        var attrs = &token_info.attrs;
+
+        // Parse alphabet and not too long token only
+        if (attrs.category != .nonalpha and token_info.len <= U2ACharStream.MAX_LEN) {
+            // Show progress
+            if (next.* >= percents_threshold) {
+                percents += 10;
+                std.debug.print("{s}{d}% Parsing\n", .{ PAD, percents });
+                percents_threshold += ten_percents;
+            }
+
+            const ptr = text.alphabet_types.getPtr(token);
+            if (ptr == null) {
+                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
+                std.debug.print("Xem tokens_infos.append(..) đã được update chưa ???\n", .{});
+                std.debug.print("CONTEXT {s}\n", .{text.input_bytes[curr - 10 .. next.* + 10]});
+                unreachable;
+            }
+            // Init type_info shortcut
+            const type_info = ptr.?;
+
+            token2Syllable(token, attrs.*, type_info, text);
+
+            if (type_info.isSyllable()) {
+                token = type_info.transform(text);
+                attrs.category = type_info.category;
+                token_info.syllable_id = type_info.syllable_id;
+            }
+        } // END parse alphabet token to get syllable
+
+        // Write data out
+        writeToken(attrs.*, token, text);
+    } // while loop
 }
