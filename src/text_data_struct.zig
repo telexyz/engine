@@ -321,7 +321,7 @@ pub const Text = struct {
         const token_info = &self.tokens_infos[self.tokens_number];
         token_info.attrs = attrs;
 
-        // Token place holder
+        // Token transit place holder
         var token: []const u8 = undefined;
 
         // Transform place-holder (for now it's syllable transform, add more later)
@@ -340,7 +340,8 @@ pub const Text = struct {
             } else {
                 //
                 const kv = entry.?;
-                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.ptr) - @ptrToInt(start_ptr));
+                token = kv.key_ptr.*;
+                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr));
                 kv.value_ptr.* += 1;
             }
             //
@@ -362,7 +363,8 @@ pub const Text = struct {
             } else {
                 //
                 kv = entry.?;
-                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.ptr) - @ptrToInt(start_ptr));
+                token = kv.key_ptr.*;
+                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr));
                 kv.value_ptr.count += 1;
             }
 
