@@ -136,6 +136,7 @@ pub fn main() anyerror!void {
 
     const then_parse_syllable = true;
     try tknz.segment(&text, then_parse_syllable); // parse syllable on-the-fly
+    text.free_input_bytes();
 
     // _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
     // thread.join(); // Wait for sylabeling thread end
@@ -144,7 +145,6 @@ pub fn main() anyerror!void {
     //     unreachable;
     // }
     // text.tokens_number_finalized = true;
-    text.free_input_bytes();
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
     if (parse_n_grams) {
@@ -153,23 +153,14 @@ pub fn main() anyerror!void {
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
 
-        const thread1 = try std.Thread.spawn(
-            .{},
-            NGram.parseAndWriteBiTriGram,
-            .{ &gram, text, "data/17-bi_gram.txt", "data/18-tri_gram.txt" },
-        );
-
-        const thread2 = try std.Thread.spawn(
-            .{},
-            NGram.parseAndWriteFourGram,
-            .{ &gram, text, "data/19-four_gram.txt" },
-        );
+        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWriteBiTriGram, .{ &gram, text, "data/17-bi_gram.txt", "data/18-tri_gram.txt" });
+        // const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWriteFourGram, .{ &gram, text, "data/19-four_gram.txt" });
 
         try write_results_out_and_free_mem(step2_time);
+        gram.parseAndWriteFourGram(text, "data/19-four_gram.txt");
 
         thread1.join();
-        thread2.join();
-
+        // thread2.join();
         _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
         //
     } else {
