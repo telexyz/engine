@@ -198,7 +198,7 @@ pub const Text = struct {
         self.initAllocatorIfNeeded();
         var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
         defer input_file.close();
-        var input_bytes = try input_file.reader().readAllAlloc(self.allocator, MAX_INPUT_FILE_SIZE);
+        var input_bytes = try input_file.reader().readAllAlloc(self.init_allocator, MAX_INPUT_FILE_SIZE);
         try self.initFromInputBytes(input_bytes);
     }
 
@@ -236,11 +236,13 @@ pub const Text = struct {
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
         const delta = input_bytes_size / 5;
-        self.transformed_bytes_size = input_bytes_size + delta + BUFF_SIZE;
-        if (self.keep_origin_amap) self.transformed_bytes_size += delta;
-        if (self.convert_mode == 3) self.transformed_bytes_size += delta;
-        self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
+        var bytes_size = input_bytes_size + delta + BUFF_SIZE;
+        if (self.keep_origin_amap) bytes_size += delta;
+        if (self.convert_mode == 3) bytes_size += delta;
+
+        self.transformed_bytes = try self.init_allocator.alloc(u8, bytes_size);
         self.transformed_offset_ptr = self.transformed_bytes.ptr;
+        self.transformed_bytes_size = bytes_size;
 
         // Init syllable...
         self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
@@ -256,14 +258,16 @@ pub const Text = struct {
     }
 
     pub fn free_input_bytes(self: *Text) void {
-        self.allocator.free(self.input_bytes);
+        self.init_allocator.free(self.input_bytes);
     }
 
     pub fn free_transformed_bytes(self: *Text) void {
-        self.allocator.free(self.transformed_bytes);
+        self.init_allocator.free(self.transformed_bytes);
     }
 
     pub fn deinit(self: *Text) void {
+        self.free_input_bytes();
+        self.free_transformed_bytes();
         // Since we use ArenaAllocator, simply deinit arena itself to
         // free all allocated memories
         self.arena.deinit();

@@ -14,11 +14,11 @@
 # ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
 # ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense
 
-~/bin/telexify ~/repos/data/news_titles.txt ~/repos/data/news_titles.dense.xyz dense ngram
+# ~/bin/telexify ~/repos/data/news_titles.txt ~/repos/data/news_titles.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/fb_comments.txt ~/repos/data/fb_comments.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vietai_sat.txt ~/repos/data/vietai_sat.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vi_wiki_all.txt ~/repos/data/vi_wiki_all.spare.xyz spare ngram
-# ~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
+~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
 
 # ~/zig build
 # ~/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram
