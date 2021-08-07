@@ -19,47 +19,9 @@ pub const TextokOutputHelpers = struct {
         return a.count > b.count;
     }
 
-    pub fn write_too_long_tokens_to_file(
-        tokens: std.ArrayList([]const u8),
-        filename: []const u8,
-        filename2: []const u8,
-    ) !void {
-        var file = try std.fs.cwd().createFile(filename, .{});
-        defer file.close();
-        var wrt = std.io.bufferedWriter(file.writer());
-
-        var file2 = try std.fs.cwd().createFile(filename2, .{});
-        defer file2.close();
-        var wrt2 = std.io.bufferedWriter(file2.writer());
-
-        const lookForMarkTone = (filename2.len > 18);
-        var is_marktone = false;
-
-        for (tokens.items) |token| {
-            if (lookForMarkTone) {
-                for (token) |byte| {
-                    if (byte < 'A' or byte > 'z') {
-                        is_marktone = true;
-                        break;
-                    }
-                }
-            }
-
-            if (is_marktone) {
-                _ = try wrt2.writer().write(token);
-                _ = try wrt2.writer().write("\n");
-                is_marktone = false;
-            } else {
-                _ = try wrt.writer().write(token);
-                _ = try wrt.writer().write("\n");
-            }
-        }
-        try wrt.flush();
-        try wrt2.flush();
-    }
-
     pub fn write_mktn_vs_0m0t_types_to_files(
         types: std.StringHashMap(Text.TypeInfo),
+        skip_syllables: bool,
         freqs_mktn_filename: []const u8,
         freqs_0m0t_filename: []const u8,
         types_mktn_filename: []const u8,
@@ -90,6 +52,7 @@ pub const TextokOutputHelpers = struct {
 
         // Add items
         while (it.next()) |kv| {
+            if (skip_syllables and kv.value_ptr.isSyllable()) continue;
             try tokens_list.append(.{
                 .value = kv.key_ptr.*,
                 .count = kv.value_ptr.count,
@@ -188,20 +151,16 @@ pub const TextokOutputHelpers = struct {
         defer output_file.close();
 
         var wrt = std.io.bufferedWriter(output_file.writer());
-        var curr: usize = 0;
-        var next: usize = 0;
 
-        var i: usize = 0;
-        while (i < n) : (i += 1) {
-            const token_info = text.tokens_infos[i];
-            curr = next + token_info.skip;
-            next = curr + token_info.len;
-            _ = try wrt.writer().write(text.input_bytes[curr..next]);
+        // var i: usize = 0;
+        // while (i < n) : (i += 1) {
+        //     const token_info = text.tokens_infos[i];
+        //     _ = try wrt.writer().write(text.input_bytes[curr..next]);
 
-            if (token_info.attrs.surrounded_by_spaces == .both or
-                token_info.attrs.surrounded_by_spaces == .right)
-                _ = try wrt.writer().write(" ");
-        }
+        //     if (token_info.attrs.surrounded_by_spaces == .both or
+        //         token_info.attrs.surrounded_by_spaces == .right)
+        //         _ = try wrt.writer().write(" ");
+        // }
         try wrt.flush();
     }
 

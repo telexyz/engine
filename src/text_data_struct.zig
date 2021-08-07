@@ -26,10 +26,6 @@ pub const Text = struct {
     // we must initlized input_bytes somewhere and provide it to Text struct is created
     input_bytes: []const u8 = undefined,
 
-    // out-of-size tokens
-    alphabet_too_long_tokens: std.ArrayList([]const u8) = undefined,
-    nonalpha_too_long_tokens: std.ArrayList([]const u8) = undefined,
-
     // A token can have multiple transforms:
     // For example ascii_transforms[i] is the ascii-telex transformation of tokens[i]
     // ascii_transforms should be used only if token is a VN syllable for sure,
@@ -60,6 +56,14 @@ pub const Text = struct {
     syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower-mark-tone
     syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllow00
 
+    // Data buffer for alphabet_types
+    alphabet_bytes: []u8 = undefined,
+    alphabet_bytes_len: usize = 0,
+
+    // Data buffer for nonalpha_types
+    nonalpha_bytes: []u8 = undefined,
+    nonalpha_bytes_len: usize = 0,
+
     // Data buffer for syllow00_types
     syllow00_bytes: []u8 = undefined,
     syllow00_bytes_len: usize = 0,
@@ -80,43 +84,28 @@ pub const Text = struct {
     recored_byte_addr: usize = undefined, // used to calculate TokenInfo#skip
     tokens_infos: []TokenInfo = undefined,
 
-    const TokenSkipType = u16;
-    const TOKEN_MAX_SKIP = 0xffff;
-
-    const TokenLenType = u16;
-    const TOKEN_MAX_LEN = 0xffff;
-
     // For 1Gb text input (1024*1024*1024 bytes)
-    // estimated_tokens_num = 366 * 1024 * 1024 (1024*1024*1024 / 2.8)
-    // Mem allocated to tokens_infos = (366 * 7) * 1024 * 1024 = 2562 MB (2.5Gb)
-    pub const TokenInfo = struct { //    Total 7-bytes
-        skip: TokenSkipType = undefined, //    2-bytes
-        len: TokenLenType = undefined, //      2-bytes
-        syllable_id: Syllable.UniqueId = 0, // 2-bytes
+    // estimated_tokens_num = 214 * 1024 * 1024 (1024*1024*1024 / 4.8)
+    // Mem allocated to tokens_infos = (214 * 6) * 1024 * 1024 = 2562 MB (1.2Gb)
+    pub const TokenInfo = struct { //    Total 6-bytes
+        trans_ptr: TransPtr = undefined, //    3-bytes
         attrs: TokenAttributes = undefined, // 1-byte
+        syllable_id: Syllable.UniqueId = 0, // 2-bytes
     };
 
-    pub const MAX_WORD_LEN = 16;
     const MAX_INPUT_FILE_SIZE = 1336 * 1024 * 1024; // 1.3Gb
-    const TEXT_DICT_FILE_SIZE = 1024 * 1024; // 1Mb
+    const ONE_MB = 1024 * 1024;
     const BUFF_SIZE = 256; // incase input is small, estimated not correct
 
-    pub const TransformPtr = u24;
-    // packed struct { // 3-bytes
-    //     offset: u20,// = 2^10 * 2^10 = 1024 * 1024 = 1Mb
-    //     length: u4, // max len = 16
-    // };
+    pub const TransPtr = u24; //= 2^4 * 2^10 * 2^10 = 16 * 1024 * 1024 = 16Mb
     pub const TypeInfo = struct { //    Total  10-bytes (old struct 23-bytes)
         count: u32 = 0, //                      4-bytes
-        transform_ptr: TransformPtr = 0, //     3-bytes
-        category: TokenCategory = ._none, //    1-bytes
+        trans_ptr: TransPtr = undefined, //     3-bytes
+        category: TokenCategory = undefined, // 1-bytes
         syllable_id: Syllable.UniqueId = 0, //  2-bytes
 
-        pub fn transform(self: TypeInfo, text: *Text) []const u8 {
-            // Decode transform_ptr's offset + length to slice
-            const length = @truncate(u4, self.transform_ptr);
-            const offset = self.transform_ptr >> 4;
-            return text.syllable_bytes[offset .. offset + length];
+        pub fn transform(self: TypeInfo, text: *Text) [*]u8 {
+            return text.syllable_bytes.ptr + self.trans_ptr;
         }
 
         pub fn isSyllable(self: TypeInfo) bool {
@@ -225,8 +214,8 @@ pub const Text = struct {
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
-        self.alphabet_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
-        self.nonalpha_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
+        // self.alphabet_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
+        // self.nonalpha_too_long_tokens = std.ArrayList([]const u8).init(self.allocator);
 
         // Init transformed_bytes, each token may have an additional byte at the
         // begining to store it's attribute so we need more memory than input_bytes
@@ -238,12 +227,12 @@ pub const Text = struct {
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
 
         // Init syllable...
-        self.syllable_bytes = try self.allocator.alloc(u8, TEXT_DICT_FILE_SIZE);
+        self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
         self.syllable_bytes_len = 0;
 
         // Init syllower...
         self.syllow00_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllow00_bytes = try self.allocator.alloc(u8, TEXT_DICT_FILE_SIZE);
+        self.syllow00_bytes = try self.allocator.alloc(u8, ONE_MB);
         self.syllow00_bytes_len = 0;
 
         // Start empty token list and empty transfomed bytes
@@ -281,21 +270,6 @@ pub const Text = struct {
         }
     }
 
-    inline fn getTokenSkipLen(self: *Text, token: []const u8, token_info: *TokenInfo) void {
-        const tkn_addr = @ptrToInt(token.ptr);
-        const skip = tkn_addr - self.recored_byte_addr;
-
-        self.recored_byte_addr = tkn_addr + token.len;
-
-        if (skip <= TOKEN_MAX_SKIP and token.len <= TOKEN_MAX_LEN) {
-            token_info.skip = @intCast(TokenSkipType, skip);
-            token_info.len = @intCast(TokenLenType, token.len);
-        } else {
-            std.debug.print("\n !! OUT OF skip {d} OR len {d} !!", .{ skip, token.len });
-            unreachable;
-        }
-    }
-
     pub fn recordToken(self: *Text, token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
         //
         if (self.tokens_number > self.estimated_tokens_num) {
@@ -306,40 +280,30 @@ pub const Text = struct {
         const token_info = &self.tokens_infos[self.tokens_number];
         token_info.attrs = attrs;
 
-        self.getTokenSkipLen(token, token_info);
+        var transform: [*]u8 = undefined;
 
-        var _token = token;
-        if (token.len <= MAX_WORD_LEN) {
-            if (attrs.category == .nonalpha) {
-                const gop = try self.nonalpha_types.getOrPutValue(token, 0);
-                gop.value_ptr.* += 1;
-            } else {
-                // Log alphabet token (that can be syllable)
-                const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
-                    .count = 0,
-                    .category = if (token.len <= U2ACharStream.MAX_LEN) .can_be_syllable else attrs.category,
-                });
-                gop.value_ptr.count += 1;
+        if (attrs.category == .nonalpha) {
+            const gop = try self.nonalpha_types.getOrPutValue(token, 0);
+            gop.value_ptr.* += 1;
+        } else {
+            // Log alphabet token (that can be syllable)
+            const gop = try self.alphabet_types.getOrPutValue(token, Text.TypeInfo{
+                .count = 0,
+                .category = if (token.len <= U2ACharStream.MAX_LEN) .can_be_syllable else attrs.category,
+            });
+            gop.value_ptr.count += 1;
 
-                if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
-                    const type_info = gop.value_ptr;
+            if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
+                const type_info = gop.value_ptr;
 
-                    text_utils.token2Syllable(token, attrs, type_info, self);
+                text_utils.token2Syllable(token, attrs, type_info, self);
 
-                    if (type_info.isSyllable()) {
-                        _token = type_info.transform(self);
-                        token_info.attrs.category = type_info.category;
-                        token_info.syllable_id = type_info.syllable_id;
-                    }
+                if (type_info.isSyllable()) {
+                    transform = type_info.transform(self);
+                    token_info.attrs.category = type_info.category;
+                    token_info.syllable_id = type_info.syllable_id;
                 }
             }
-            // alphabet token
-        } else {
-            // Log too long tokens
-            if (attrs.category == .nonalpha)
-                try self.nonalpha_too_long_tokens.append(token)
-            else
-                try self.alphabet_too_long_tokens.append(token);
         }
 
         // increare tokens_number only when everything is finalized
@@ -347,7 +311,7 @@ pub const Text = struct {
 
         if (then_parse_syllable) {
             // Write data out
-            text_utils.writeToken(token_info.attrs, _token, self);
+            text_utils.writeToken(token_info.attrs, token, transform, self);
 
             // Record parsed_tokens_number
             self.parsed_tokens_number = self.tokens_number;
@@ -358,10 +322,12 @@ pub const Text = struct {
         var it = self.alphabet_types.iterator();
         while (it.next()) |kv| {
             if (kv.value_ptr.isSyllable()) {
-                const token = kv.value_ptr.transform(self);
+                const token_trans_ptr = kv.value_ptr.transform(self);
+                var n: u8 = 0;
+                while (token_trans_ptr[n] != 0) : (n += 1) {}
+                const token = token_trans_ptr[0..n];
                 // std.debug.print("\nSyll: {s} => {}", .{ token, kv.value_ptr });
                 try self.countSyllableAndSyllow0t(token, kv.value_ptr);
-                _ = self.alphabet_types.remove(kv.key_ptr.*);
             }
         }
     }

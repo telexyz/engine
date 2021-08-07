@@ -64,6 +64,7 @@ fn write_out_samples() !void {
 fn write_out_types() !void {
     try TextokOutput.write_mktn_vs_0m0t_types_to_files(
         text.syllable_types,
+        false, // don't skip syllable
         "data/01-syllmark_freqs.txt",
         "data/02-syll0m0t_freqs.txt",
         "data/11-syllmark_types.txt",
@@ -76,6 +77,7 @@ fn write_out_types() !void {
     );
     try TextokOutput.write_mktn_vs_0m0t_types_to_files(
         text.alphabet_types,
+        true, // skip syllable
         "data/04-alphmark_freqs.txt",
         "data/05-alph0m0t_freqs.txt",
         "data/14-alphmark_types.txt",
@@ -85,19 +87,6 @@ fn write_out_types() !void {
         text.nonalpha_types,
         "data/06-nonalpha_freqs.txt",
         "data/16-nonalpha_types.txt",
-    );
-}
-
-fn write_out_too_long_tokens() !void {
-    try TextokOutput.write_too_long_tokens_to_file(
-        text.alphabet_too_long_tokens,
-        "data/09-alphabet_too_long.txt",
-        "data/08-alphmark_too_long.txt",
-    );
-    try TextokOutput.write_too_long_tokens_to_file(
-        text.nonalpha_too_long_tokens,
-        "data/10-nonalpha_too_long.txt",
-        "data/temp.txt",
     );
 }
 
@@ -120,13 +109,9 @@ fn write_results_out_and_free_mem(step2_time: i64) !void {
     print("\nWriting types to files ...\n", .{});
     try text.processAlphabetTypes();
     try write_out_types();
-    const types_time = showMeTimeLap(trans_time, "Writing types to files done!");
+    _ = showMeTimeLap(trans_time, "Writing types to files done!");
 
-    print("\nWriting too long tokens to files ...\n", .{});
     try write_out_samples();
-    try write_out_too_long_tokens();
-    _ = showMeTimeLap(types_time, "Writing too long tokens done!");
-    text.free_input_bytes();
 }
 
 pub fn main() anyerror!void {
@@ -159,6 +144,7 @@ pub fn main() anyerror!void {
     //     unreachable;
     // }
     // text.tokens_number_finalized = true;
+    text.free_input_bytes();
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
     if (parse_n_grams) {

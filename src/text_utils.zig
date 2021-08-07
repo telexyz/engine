@@ -6,13 +6,15 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, text: *Text) void {
+pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transform: [*]const u8, text: *Text) void {
     @setRuntimeSafety(false); // mimic std / mem.zig / fn copy()
     var trans_ptr = text.transformed_bytes.ptr + text.transformed_bytes_len;
     if (attrs.isSyllable()) {
-        for (token) |b| {
-            trans_ptr.* = b;
+        var n: u8 = 0;
+        while (transform[n] != 0) {
+            trans_ptr.* = transform[n];
             trans_ptr += 1;
+            n += 1;
         }
 
         if (!text.keep_origin_amap) {
@@ -82,7 +84,7 @@ pub inline fn token2Syllable(
                 else => unreachable,
             };
             type_info.syllable_id = syllable.toId();
-            type_info.transform_ptr = saveAsciiTransform(
+            type_info.trans_ptr = saveAsciiTransform(
                 text,
                 char_stream,
                 &syllable,
@@ -94,7 +96,7 @@ pub inline fn token2Syllable(
     }
 }
 
-pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.TransformPtr {
+pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.TransPtr {
     const trans_start_at = text.syllable_bytes_len;
 
     if (text.convert_mode == 3) {
@@ -181,65 +183,19 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         }
     }
 
+    // Add 0 terminator
+    text.syllable_bytes[text.syllable_bytes_len] = 0;
+    text.syllable_bytes_len += 1;
+
     // Encode slice to offset + length
-    const len = text.syllable_bytes_len - trans_start_at;
-    return @intCast(Text.TransformPtr, (trans_start_at << 4) + len);
+    // const len = text.syllable_bytes_len - trans_start_at;
+    // return @intCast(Text.TransPtr, (trans_start_at << 4) + len);
+    return @intCast(Text.TransPtr, trans_start_at);
 }
 
-// - - - - - - - - - -
-// Keep for references
+// - - - - - - - - - - - - - - -
+// Low use / keep for references
 
-pub fn writeTransformsToFile(text: *Text, filename: []const u8) !void {
-    var file = try std.fs.cwd().createFile(filename, .{});
-    defer file.close();
-    var wrt = std.io.bufferedWriter(file.writer());
-    var writer = wrt.writer();
-
-    var next: usize = 0;
-    var curr: usize = undefined;
-    var prev_token_is_vi = true;
-
-    var i: usize = 0;
-    while (i < text.tokens_number) : (i += 1) {
-        const token_info = text.tokens_infos[i];
-        curr = next + token_info.skip;
-        next = curr + token_info.len;
-
-        var token = text.input_bytes[curr..next];
-        const attrs = token_info.attrs;
-
-        // Write data out
-        if (attrs.isSyllable()) {
-            const type_ptr = text.alphabet_types.getPtr(token);
-            _ = try writer.write(type_ptr.?.transform);
-            // _ = try writer.write(token);
-
-            if (!text.keep_origin_amap) {
-                _ = try writer.write(" ");
-                prev_token_is_vi = true;
-            }
-        } else {
-            // not syllable
-            if (text.keep_origin_amap) {
-                // write original bytes
-                _ = try writer.write(token);
-            } else {
-                if (!(token.len == 1 and token[0] == '_')) {
-                    if (prev_token_is_vi) _ = try writer.write("\n");
-                    prev_token_is_vi = false;
-                }
-            }
-        }
-
-        if (text.keep_origin_amap and attrs.spaceAfter()) {
-            // Write spacing as it is
-            _ = try writer.write(" ");
-        }
-    }
-    try wrt.flush();
-}
-
-// TODO: convert &#xA9; to utf8 https://mothereff.in/html-entities
 const PAD = "                 ";
 const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
 
@@ -275,6 +231,7 @@ pub fn parseTokens(text: *Text) void {
         // Init token and attrs shortcuts
         var token = text.input_bytes[curr..next.*];
         var attrs = &token_info.attrs;
+        var trans: [*]u8 = undefined;
 
         // Parse alphabet and not too long token only
         if (attrs.category != .nonalpha and token_info.len <= U2ACharStream.MAX_LEN) {
@@ -298,13 +255,13 @@ pub fn parseTokens(text: *Text) void {
             token2Syllable(token, attrs.*, type_info, text);
 
             if (type_info.isSyllable()) {
-                token = type_info.transform(text);
+                trans = type_info.transform(text);
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
             }
         } // END parse alphabet token to get syllable
 
         // Write data out
-        writeToken(attrs.*, token, text);
+        writeToken(attrs.*, token, trans, text);
     } // while loop
 }
