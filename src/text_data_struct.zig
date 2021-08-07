@@ -39,7 +39,7 @@ pub const Text = struct {
     // transforms[i] will point to a position in the transformed_bytes stream
     transformed_bytes: []u8 = undefined,
     transformed_bytes_size: usize = undefined,
-    transformed_bytes_len: usize = 0,
+    transformed_offset_ptr: [*]u8 = undefined,
 
     // Data buffer for syllable_types
     syllable_bytes: []u8 = undefined,
@@ -237,6 +237,7 @@ pub const Text = struct {
         if (self.keep_origin_amap) self.transformed_bytes_size += delta;
         if (self.convert_mode == 3) self.transformed_bytes_size += delta;
         self.transformed_bytes = try self.allocator.alloc(u8, self.transformed_bytes_size);
+        self.transformed_offset_ptr = self.transformed_bytes.ptr;
 
         // Init syllable...
         self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
@@ -286,7 +287,9 @@ pub const Text = struct {
             token_ptr += 1;
         }
 
-        // Add 0 terminated
+        // Add double 0 terminator
+        token_ptr.* = 0;
+        token_ptr += 1;
         token_ptr.* = 0;
 
         // Remember copied one index in token_info.trans_offset

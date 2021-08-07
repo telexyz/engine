@@ -169,7 +169,8 @@ pub const TextokOutputHelpers = struct {
         defer file.close();
         var wrt = std.io.bufferedWriter(file.writer());
         // const wrt = output_file.writer();
-        _ = try wrt.writer().write(text.transformed_bytes[0..text.transformed_bytes_len]);
+        const n = @ptrToInt(text.transformed_offset_ptr) - @ptrToInt(text.transformed_bytes.ptr);
+        _ = try wrt.writer().write(text.transformed_bytes[0..n]);
         try wrt.flush();
     }
 };

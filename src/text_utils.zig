@@ -7,19 +7,17 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
 pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transform: [*]const u8, text: *Text) void {
-    // @setRuntimeSafety(false); // mimic std / mem.zig / fn copy()
-    var trans_offset_ptr = text.transformed_bytes.ptr + text.transformed_bytes_len;
     if (attrs.isSyllable()) {
         var n: u8 = 0;
         while (transform[n] != 0) {
-            trans_offset_ptr.* = transform[n];
-            trans_offset_ptr += 1;
+            text.transformed_offset_ptr.* = transform[n];
+            text.transformed_offset_ptr += 1;
             n += 1;
         }
 
         if (!text.keep_origin_amap) {
-            trans_offset_ptr.* = 32;
-            trans_offset_ptr += 1;
+            text.transformed_offset_ptr.* = 32;
+            text.transformed_offset_ptr += 1;
             text.prev_token_is_vi = true;
         }
     } else {
@@ -27,15 +25,15 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transfo
         if (text.keep_origin_amap) {
             // write original bytes
             for (token) |b| {
-                trans_offset_ptr.* = b;
-                trans_offset_ptr += 1;
+                text.transformed_offset_ptr.* = b;
+                text.transformed_offset_ptr += 1;
             }
         } else { // Bỏ qua _ , - là token kết nối âm tiết
             if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
                 if (text.prev_token_is_vi == true) {
                     // Chỉ xuống dòng cho non-syllable token đầu tiên
-                    trans_offset_ptr.* = '\n';
-                    trans_offset_ptr += 1;
+                    text.transformed_offset_ptr.* = '\n';
+                    text.transformed_offset_ptr += 1;
                     text.prev_token_is_vi = false;
                 }
             }
@@ -44,12 +42,9 @@ pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transfo
 
     if (text.keep_origin_amap and attrs.spaceAfter()) {
         // Write spacing as it is
-        trans_offset_ptr.* = 32;
-        trans_offset_ptr += 1;
+        text.transformed_offset_ptr.* = 32;
+        text.transformed_offset_ptr += 1;
     }
-
-    // text.transformed_bytes[first_byte_index] = attrs.toByte();
-    text.transformed_bytes_len = @ptrToInt(trans_offset_ptr) - @ptrToInt(text.transformed_bytes.ptr);
 }
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
@@ -98,18 +93,20 @@ pub inline fn token2Syllable(
 
 pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.TransOffset {
     const trans_start_at = text.syllable_bytes_len;
+    var offset_ptr = text.syllable_bytes.ptr + text.syllable_bytes_len;
 
     if (text.convert_mode == 3) {
         //
-        if (char_stream.first_char_is_upper) {
-            text.syllable_bytes[text.syllable_bytes_len] = '^';
-            text.syllable_bytes_len += 1;
-            text.syllable_bytes[text.syllable_bytes_len] = ' ';
-            text.syllable_bytes_len += 1;
-        }
+        const n: u8 = if (char_stream.first_char_is_upper) blk: {
+            offset_ptr.* = '^';
+            offset_ptr += 1;
+            offset_ptr.* = ' ';
+            offset_ptr += 1;
+            break :blk 2;
+        } else 0;
 
-        const buff = text.syllable_bytes[text.syllable_bytes_len..];
-        text.syllable_bytes_len += @intCast(Text.TransOffset, syllable.printBuffParts(buff).len);
+        const buff = syllable.printBuffParts(offset_ptr[0..16]);
+        text.syllable_bytes_len += @intCast(Text.TransOffset, buff.len) + n;
         //
     } else {
         //
@@ -118,16 +115,16 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
 
         // 1: Nước => ^nuoc, VIỆT => ^^viet
         if (char_stream.first_char_is_upper) {
-            text.syllable_bytes[text.syllable_bytes_len] = '^';
-            text.syllable_bytes_len += 1;
+            offset_ptr.* = '^';
+            offset_ptr += 1;
             if (char_stream.isUpper()) {
-                text.syllable_bytes[text.syllable_bytes_len] = '^';
-                text.syllable_bytes_len += 1;
+                offset_ptr.* = '^';
+                offset_ptr += 1;
             }
             // 2: Nước => ^ nuoc, VIỆT => ^^ viet
             if (text.convert_mode == 2) {
-                text.syllable_bytes[text.syllable_bytes_len] = 32;
-                text.syllable_bytes_len += 1;
+                offset_ptr.* = 32;
+                offset_ptr += 1;
             }
         }
 
@@ -136,10 +133,10 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         if (text.convert_mode == 2 and char_stream.buffer[0] == 'd' and
             char_stream.buffer[1] == 'd')
         {
-            text.syllable_bytes[text.syllable_bytes_len] = 'd';
-            text.syllable_bytes_len += 1;
-            text.syllable_bytes[text.syllable_bytes_len] = 32;
-            text.syllable_bytes_len += 1;
+            offset_ptr.* = 'd';
+            offset_ptr += 1;
+            offset_ptr.* = 32;
+            offset_ptr += 1;
             i = 1;
         }
 
@@ -152,41 +149,38 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
                 mark = byte;
                 continue;
             }
-            text.syllable_bytes[text.syllable_bytes_len] = byte;
-            text.syllable_bytes_len += 1;
+            offset_ptr.* = byte;
+            offset_ptr += 1;
         }
 
-        text.syllable_bytes[text.syllable_bytes_len] = switch (text.convert_mode) {
+        offset_ptr.* = switch (text.convert_mode) {
             1 => '|',
             2 => 32,
             else => unreachable,
         };
 
-        text.syllable_bytes_len += 1;
-
         // 1: Nước =>  ^nuoc|w, VIỆT =>  ^^viet|z, đầy =>  dday|z, con => con|
         // 2: Nước => ^ nuoc w, VIỆT => ^^ viet z, đầy => d day z, con => con
         if (mark != 0) {
-            text.syllable_bytes[text.syllable_bytes_len] = mark;
-            text.syllable_bytes_len += 1;
+            offset_ptr += 1;
+            offset_ptr.* = mark;
         }
         // 1: Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, con => con|
         // 2: Nước =>  nuoc ws, VIỆT =>   viet zj, đầy =>d day zf, con => con
         if (char_stream.tone != 0) {
-            text.syllable_bytes[text.syllable_bytes_len] = char_stream.tone;
-            text.syllable_bytes_len += 1;
+            offset_ptr += 1;
+            offset_ptr.* = char_stream.tone;
         }
-        if (text.convert_mode == 2 and
-            text.syllable_bytes[text.syllable_bytes_len - 1] == 32)
-        { // remove unecessary space for no-mark no-tone syllable
-            text.syllable_bytes_len -= 1;
-        }
+
+        if (offset_ptr[0] != 32) offset_ptr += 1;
     }
 
-    // Add 0 terminator
-    text.syllable_bytes[text.syllable_bytes_len] = 0;
-    text.syllable_bytes_len += 1;
+    // Add double 0 terminator
+    offset_ptr.* = 0;
+    offset_ptr += 1;
+    offset_ptr.* = 0;
 
+    text.syllable_bytes_len = @intCast(Text.TransOffset, @ptrToInt(offset_ptr) - @ptrToInt(text.syllable_bytes.ptr));
     return trans_start_at;
 }
 
@@ -204,8 +198,6 @@ pub fn parseTokens(text: *Text) void {
     var percents: u8 = 0;
 
     var i: *usize = &text.parsed_tokens_number;
-    var next: *usize = &text.parsed_input_bytes;
-    var curr: usize = undefined;
     text.prev_token_is_vi = true;
 
     while (i.* <= text.tokens_number) : (i.* += 1) {
@@ -222,19 +214,19 @@ pub fn parseTokens(text: *Text) void {
         }
 
         const token_info = &text.tokens_infos[i.*];
-        curr = next.* + token_info.skip;
-        next.* = curr + token_info.len;
 
         // Init token and attrs shortcuts
-        var token = text.input_bytes[curr..next.*];
+        var token = token_info.trans_slice(text);
         var attrs = &token_info.attrs;
         var trans_ptr: [*]u8 = undefined;
+        text.parsed_input_bytes += token.len + 1;
 
         // Parse alphabet and not too long token only
-        if (attrs.category != .nonalpha and token_info.len <= U2ACharStream.MAX_LEN) {
+        if (attrs.category != .nonalpha and token.len <= U2ACharStream.MAX_LEN) {
             // Show progress
-            if (next.* >= percents_threshold) {
+            if (text.parsed_input_bytes >= percents_threshold) {
                 percents += 10;
+                if (percents > 100) percents = 100;
                 std.debug.print("{s}{d}% Parsing\n", .{ PAD, percents });
                 percents_threshold += ten_percents;
             }
@@ -242,8 +234,6 @@ pub fn parseTokens(text: *Text) void {
             const ptr = text.alphabet_types.getPtr(token);
             if (ptr == null) {
                 std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
-                std.debug.print("Xem tokens_infos.append(..) đã được update chưa ???\n", .{});
-                std.debug.print("CONTEXT {s}\n", .{text.input_bytes[curr - 10 .. next.* + 10]});
                 unreachable;
             }
             // Init type_info shortcut
