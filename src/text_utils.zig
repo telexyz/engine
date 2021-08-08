@@ -17,7 +17,7 @@ pub inline fn token2Syllable(
     type_info: *Text.TypeInfo,
     text: *Text,
 ) void {
-    if (type_info.category == .can_be_syllable) {
+    if (type_info.category == .can_be_syllable) { // not parsed yet
         // Char stream to parse syllable
         var char_stream = U2ACharStream.new();
         char_stream.strict_mode = true;
@@ -192,6 +192,7 @@ pub fn parseTokens(text: *Text) void {
             // Init type_info shortcut
             const type_info = text.alphabet_types.getPtr(token).?;
 
+            // Over-write type_info's category, syllable_id, trans_offset
             token2Syllable(token, attrs.*, type_info, text);
 
             if (type_info.isSyllable()) {

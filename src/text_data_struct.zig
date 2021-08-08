@@ -11,7 +11,7 @@ pub const Text = struct {
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = true,
     convert_mode: u8 = 1, // dense
-    prev_token_is_vi: bool = true,
+    prev_token_is_vi: bool = undefined,
 
     // Must be init when text is created
     init_allocator: *std.mem.Allocator,
@@ -290,9 +290,6 @@ pub const Text = struct {
         token_info.trans_offset = bytes_len.*;
 
         // Then increase token_bytes_len to reach the end of token_bytes
-        if (bytes_len.* > 16_777_128) {
-            std.debug.print("\n{}", .{bytes_len.*});
-        }
         bytes_len.* += token_len + 2; // <= double 0 terminators
 
         // Return copied token
@@ -306,9 +303,12 @@ pub const Text = struct {
             unreachable;
         }
 
-        // Init token_info
+        // Get token_info, its value is random because of mem alloc
         const token_info = &self.tokens_infos[self.tokens_number];
+
+        // Init token_info
         token_info.attrs = attrs;
+        token_info.syllable_id = 0;
 
         // Token transit place holder
         var token: []const u8 = undefined;
@@ -357,6 +357,7 @@ pub const Text = struct {
             if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
                 const type_info = kv.value_ptr;
 
+                // Over-write type_info's category, syllable_id, trans_offset
                 text_utils.token2Syllable(token, attrs, type_info, self);
 
                 if (type_info.isSyllable()) {

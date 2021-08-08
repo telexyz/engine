@@ -170,7 +170,7 @@ pub const TextokOutputHelpers = struct {
         const writer = wrt.writer();
 
         var i: usize = 0;
-        text.prev_token_is_vi = true;
+        text.prev_token_is_vi = false;
 
         while (i < text.tokens_number) : (i += 1)
             try writeTokenInfo(text.tokens_infos[i], text, writer);
@@ -178,22 +178,31 @@ pub const TextokOutputHelpers = struct {
         try wrt.flush();
     }
 
-    pub fn writeTokenInfo(token_info: Text.TokenInfo, text: *Text, writer: anytype) !void {
-        const trans_slice = token_info.trans_slice(text);
-
+    pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: anytype) !void {
         if (text.keep_origin_amap) {
-            _ = try writer.write(trans_slice);
-            if (token_info.attrs.spaceAfter()) _ = try writer.write(" ");
-        } else {
-            if (token_info.isSyllable()) {
-                _ = try writer.write(trans_slice);
-                _ = try writer.write(" ");
-            } else if (text.prev_token_is_vi and // Chỉ xét non-syllable token đầu tiên
-                !(trans_slice.len == 1 and trans_slice[0] == '_')) // Bỏ qua `_` token
-            { // Xuống dòng và đánh dấu xoá đánh dấu chuỗi syllables
+            // Write all tokens
+            _ = try writer.write(tk_info.trans_slice(text));
+            if (tk_info.attrs.spaceAfter()) _ = try writer.write(" ");
+            return;
+        }
+
+        // Write syllables only
+        if (tk_info.isSyllable()) {
+            _ = try writer.write(tk_info.trans_slice(text));
+            _ = try writer.write(" ");
+            text.prev_token_is_vi = true;
+            //
+        } else if (text.prev_token_is_vi) {
+            //
+            const trans_ptr = tk_info.trans_ptr(text);
+
+            const is_syllable_joiner = tk_info.attrs.surrounded_by_spaces == .none and trans_ptr[1] == 0 and (trans_ptr[0] == '_' or trans_ptr[0] == '+');
+
+            if (!is_syllable_joiner) {
                 _ = try writer.write("\n");
                 text.prev_token_is_vi = false;
             }
-        } // !keep_origin_amap
+        }
     }
+    //
 };
