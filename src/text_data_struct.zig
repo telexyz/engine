@@ -9,7 +9,7 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 pub const Text = struct {
     pub const FileWriter = std.io.Writer(std.fs.File, std.os.WriteError, std.fs.File.write);
-    pub const BufferedWriter = std.io.BufferedWriter(4 * ONE_MB, FileWriter); // 4Mb
+    pub const BufferedWriter = std.io.BufferedWriter(ONE_MB, FileWriter);
     writer: BufferedWriter.Writer = undefined,
 
     // Keep origin data as-much-as-possible
