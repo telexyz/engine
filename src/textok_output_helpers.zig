@@ -147,10 +147,10 @@ pub const TextokOutputHelpers = struct {
         var n = text.tokens_number;
         if (max > 0 and n > max) n = max;
 
-        var output_file = try std.fs.cwd().createFile(output_filename, .{});
-        defer output_file.close();
+        var file = try std.fs.cwd().createFile(filename, .{});
+        defer file.close();
 
-        const wrt = std.io.bufferedWriter(output_file.writer());
+        var wrt = std.io.bufferedWriter(file.writer());
         const writer = wrt.writer();
 
         var i: usize = 0;
@@ -178,14 +178,10 @@ pub const TextokOutputHelpers = struct {
 
     pub fn writeTokenInfo(token_info: Text.TokenInfo, text: *Text, writer: anytype) !void {
         const trans_slice = token_info.trans_slice(text);
-        //
         if (text.keep_origin_amap) {
-            //
             _ = try writer.write(trans_slice);
             if (token_info.attrs.spaceAfter()) _ = try writer.write(" ");
-            //
         } else {
-            //
             if (token_info.isSyllable()) {
                 _ = try writer.write(trans_slice);
             } else if (text.prev_token_is_vi and // Chỉ xét non-syllable token đầu tiên

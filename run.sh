@@ -9,8 +9,8 @@
 # ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare ngram
 # ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt dense ngram
 # ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare
-./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt
+# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts
+./zig-out/bin/telexify data/news_titles.txt data/tknz.txt
 # ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
 # ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense
 
