@@ -135,6 +135,9 @@ pub fn main() anyerror!void {
     };
     text.writer = buff_wrt;
 
+    // std.debug.print("$$$$ {} $$$", .{buff_wrt.writer()});
+    // => std.io.writer.Writer(*std.io.buffered_writer.BufferedWriter(40960,std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write)),std.os.WriteError,std.io.buffered_writer.BufferedWriter(40960,std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write)).write){ .context = std.io.buffered_writer.BufferedWriter(40960,std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write)){ .unbuffered_writer = std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write){ .context = File{ ... } }, .fifo = std.fifo.LinearFifo(u8,std.fifo.LinearFifoBufferType { .Static = 40960}){ .allocator = void, .buf = { ... }, .head = 0, .count = 0 } } }
+
     // Init parser thread just before you run tknz.segment so it can catch up :)
     // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     // const then_parse_syllable = false;
@@ -142,6 +145,7 @@ pub fn main() anyerror!void {
 
     try tknz.segment(&text, then_parse_syllable); // parse syllable on-the-fly
     text.free_input_bytes();
+    try buff_wrt.flush();
     try write_out_samples();
 
     // _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
@@ -162,7 +166,6 @@ pub fn main() anyerror!void {
         // const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWriteFourGram, .{ &gram, text, "data/19-four_gram.txt" });
 
         try write_results(step2_time);
-        try buff_wrt.flush();
         gram.parseAndWriteFourGram(text, "data/19-four_gram.txt");
 
         thread1.join();
@@ -172,7 +175,6 @@ pub fn main() anyerror!void {
     } else {
         //
         try write_results(step2_time);
-        try buff_wrt.flush();
     }
     _ = showMeTimeLap(start_time, "FINISHED: Total");
 }
