@@ -98,19 +98,17 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
     return now;
 }
 
-fn write_results_out_and_free_mem(step2_time: i64) !void {
+fn write_results(step2_time: i64) !void {
     // In the mean time writing parsed results out, and free amap mem asap
 
     print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-    // try TextokOutput.write_transforms_to_file(&text, output_filename);
+    try TextokOutput.write_transforms_to_file(&text, output_filename);
     const trans_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
 
     print("\nWriting types to files ...\n", .{});
     try text.processAlphabetTypes();
     try write_out_types();
     _ = showMeTimeLap(trans_time, "Writing types to files done!");
-
-    try write_out_samples();
 }
 
 pub fn main() anyerror!void {
@@ -136,6 +134,7 @@ pub fn main() anyerror!void {
     const then_parse_syllable = true;
     try tknz.segment(&text, then_parse_syllable); // parse syllable on-the-fly
     text.free_input_bytes();
+    try write_out_samples();
 
     // _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
     // thread.join(); // Wait for sylabeling thread end
@@ -154,7 +153,7 @@ pub fn main() anyerror!void {
         const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWriteBiTriGram, .{ &gram, text, "data/17-bi_gram.txt", "data/18-tri_gram.txt" });
         // const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWriteFourGram, .{ &gram, text, "data/19-four_gram.txt" });
 
-        try write_results_out_and_free_mem(step2_time);
+        try write_results(step2_time);
         gram.parseAndWriteFourGram(text, "data/19-four_gram.txt");
 
         thread1.join();
@@ -163,7 +162,7 @@ pub fn main() anyerror!void {
         //
     } else {
         //
-        try write_results_out_and_free_mem(step2_time);
+        try write_results(step2_time);
     }
     _ = showMeTimeLap(start_time, "FINISHED: Total");
 }

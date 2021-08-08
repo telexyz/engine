@@ -184,6 +184,7 @@ pub const TextokOutputHelpers = struct {
         } else {
             if (token_info.isSyllable()) {
                 _ = try writer.write(trans_slice);
+                _ = try writer.write(" ");
             } else if (text.prev_token_is_vi and // Chỉ xét non-syllable token đầu tiên
                 !(trans_slice.len == 1 and trans_slice[0] == '_')) // Bỏ qua `_` token
             { // Xuống dòng và đánh dấu !text.prev_token_is_vi

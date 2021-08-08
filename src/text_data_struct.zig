@@ -25,7 +25,7 @@ pub const Text = struct {
     // First of all text is an input byte stream
     // we must initlized input_bytes somewhere and provide it to Text struct is created
     input_bytes: []const u8 = undefined,
-    input_bytes_initized_outside: bool = true,
+    can_free_input_bytes: bool = false,
 
     // A token can have multiple transforms:
     // For example ascii_transforms[i] is the ascii-telex transformation of tokens[i]
@@ -203,7 +203,7 @@ pub const Text = struct {
         var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
         defer input_file.close();
         var input_bytes = try input_file.reader().readAllAlloc(self.init_allocator, MAX_INPUT_FILE_SIZE);
-        self.input_bytes_initized_outside = false;
+        self.can_free_input_bytes = true;
         try self.initFromInputBytes(input_bytes);
     }
 
@@ -252,8 +252,10 @@ pub const Text = struct {
     }
 
     pub fn free_input_bytes(self: *Text) void {
-        if (self.input_bytes_initized_outside) return;
-        self.init_allocator.free(self.input_bytes);
+        if (self.can_free_input_bytes) {
+            self.init_allocator.free(self.input_bytes);
+            self.can_free_input_bytes = false;
+        }
     }
 
     pub fn deinit(self: *Text) void {
