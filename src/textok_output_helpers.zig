@@ -170,6 +170,8 @@ pub const TextokOutputHelpers = struct {
         const writer = wrt.writer();
 
         var i: usize = 0;
+        text.prev_token_is_vi = true;
+
         while (i < text.tokens_number) : (i += 1)
             try writeTokenInfo(text.tokens_infos[i], text, writer);
 
@@ -178,6 +180,7 @@ pub const TextokOutputHelpers = struct {
 
     pub fn writeTokenInfo(token_info: Text.TokenInfo, text: *Text, writer: anytype) !void {
         const trans_slice = token_info.trans_slice(text);
+
         if (text.keep_origin_amap) {
             _ = try writer.write(trans_slice);
             if (token_info.attrs.spaceAfter()) _ = try writer.write(" ");
@@ -187,7 +190,7 @@ pub const TextokOutputHelpers = struct {
                 _ = try writer.write(" ");
             } else if (text.prev_token_is_vi and // Chỉ xét non-syllable token đầu tiên
                 !(trans_slice.len == 1 and trans_slice[0] == '_')) // Bỏ qua `_` token
-            { // Xuống dòng và đánh dấu !text.prev_token_is_vi
+            { // Xuống dòng và đánh dấu xoá đánh dấu chuỗi syllables
                 _ = try writer.write("\n");
                 text.prev_token_is_vi = false;
             }

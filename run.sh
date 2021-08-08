@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# ./clean.sh 
+rm data/0*.txt data/1*.txt data/tknz* && rm data/temp* data/play_with_chars*
+# ./clean.sh
 ~/zig build
 # ~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
 # ~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
