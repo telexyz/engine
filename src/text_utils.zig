@@ -8,15 +8,16 @@ const Text = @import("./text_data_struct.zig").Text;
 
 pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *Text, writer: anytype) !void {
     if (text.keep_origin_amap) {
-        _ = try writer.write(token);
-        if (attrs.spaceAfter()) _ = try writer.write(" ");
+        if (attrs.spaceAfter())
+            _ = try writer.print("{s} ", .{token})
+        else
+            _ = try writer.write(token);
         return;
     }
 
     // Write syllables only
     if (attrs.isSyllable()) {
-        _ = try writer.write(token);
-        _ = try writer.write(" ");
+        _ = try writer.print("{s} ", .{token});
         text.prev_token_is_vi = true;
         //
     } else if (text.prev_token_is_vi) {
@@ -41,8 +42,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: anyty
 
     // Write syllables only
     if (tk_info.isSyllable()) {
-        _ = try writer.write(tk_info.trans_slice(text));
-        _ = try writer.write(" ");
+        _ = try writer.print("{s} ", .{tk_info.trans_slice(text)});
         text.prev_token_is_vi = true;
         //
     } else if (text.prev_token_is_vi) {
