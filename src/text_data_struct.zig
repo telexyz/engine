@@ -36,12 +36,6 @@ pub const Text = struct {
     // but it not looked right for me. I think it we should keep original form.
     // Same tokens counted to type, we will save transform in TypeInfo
 
-    // We'll need transformed_bytes stream as a data store for transforms slices
-    // transforms[i] will point to a position in the transformed_bytes stream
-    transformed_bytes: []u8 = undefined,
-    transformed_bytes_size: usize = undefined,
-    transformed_offset_ptr: [*]u8 = undefined,
-
     // Data buffer for syllable_types
     syllable_bytes: []u8 = undefined,
     syllable_bytes_len: TransOffset = 0,
@@ -100,6 +94,10 @@ pub const Text = struct {
             var ptr = self.trans_ptr(text);
             return ptr[0..double_0_trans_len(ptr)];
         }
+
+        pub inline fn isSyllable(self: TokenInfo) bool {
+            return self.syllable_id != 0;
+        }
     };
 
     const ONE_MB = 1024 * 1024;
@@ -129,12 +127,11 @@ pub const Text = struct {
             return ptr[0..double_0_trans_len(ptr)];
         }
 
-        pub fn isSyllable(self: TypeInfo) bool {
-            return self.syllable_id > 0;
-            // return self.category == .syllmark or self.category == .syll0m0t;
+        pub inline fn isSyllable(self: TypeInfo) bool {
+            return self.syllable_id != 0;
         }
 
-        pub fn haveMarkTone(self: TypeInfo) bool {
+        pub inline fn haveMarkTone(self: TypeInfo) bool {
             return self.category == .syllmark or self.category == .alphmark;
         }
     };
@@ -146,25 +143,26 @@ pub const Text = struct {
         surrounded_by_spaces: TokenSurroundedBySpaces,
         category: TokenCategory,
 
-        pub fn spaceAfter(self: TokenAttributes) bool {
+        pub inline fn spaceAfter(self: TokenAttributes) bool {
             return self.surrounded_by_spaces == .right or
                 self.surrounded_by_spaces == .both;
         }
 
-        pub fn isSyllable(self: TokenAttributes) bool {
+        pub inline fn isSyllable(self: TokenAttributes) bool {
             return self.category == .syllmark or self.category == .syll0m0t;
         }
 
-        pub fn haveMarkTone(self: TypeInfo) bool {
+        pub inline fn haveMarkTone(self: TypeInfo) bool {
             return self.category == .syllmark or self.category == .alphmark;
         }
 
-        pub fn toByte(self: TokenAttributes) u8 {
+        pub inline fn toByte(self: TokenAttributes) u8 {
             const byte = @bitCast(u8, self);
             if (byte < 12) return byte + 1;
             return byte;
         }
-        pub fn newFromByte(byte: u8) TokenAttributes {
+
+        pub inline fn newFromByte(byte: u8) TokenAttributes {
             if (byte < 12) byte -= 1;
             return @bitCast(TokenAttributes, byte);
         }
@@ -247,10 +245,6 @@ pub const Text = struct {
         if (self.keep_origin_amap) bytes_size += delta;
         if (self.convert_mode == 3) bytes_size += delta;
 
-        self.transformed_bytes = try self.init_allocator.alloc(u8, bytes_size);
-        self.transformed_offset_ptr = self.transformed_bytes.ptr;
-        self.transformed_bytes_size = bytes_size;
-
         // Init syllable...
         self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
         self.syllable_bytes_len = 0;
@@ -269,13 +263,8 @@ pub const Text = struct {
         self.init_allocator.free(self.input_bytes);
     }
 
-    pub fn free_transformed_bytes(self: *Text) void {
-        self.init_allocator.free(self.transformed_bytes);
-    }
-
     pub fn deinit(self: *Text) void {
         self.free_input_bytes();
-        self.free_transformed_bytes();
         // Since we use ArenaAllocator, simply deinit arena itself to
         // free all allocated memories
         self.arena.deinit();
@@ -390,15 +379,13 @@ pub const Text = struct {
 
     pub fn processAlphabetTypes(self: *Text) !void {
         var it = self.alphabet_types.iterator();
-        while (it.next()) |kv| {
-            const at = kv.value_ptr;
-            if (at.isSyllable()) {
-                try self.countSyllableAndSyllow0t(at.trans_slice(self), at);
-            }
-        }
+        while (it.next()) |kv|
+            if (kv.value_ptr.isSyllable())
+                try self.countSyllableAndSyllow0t(kv.value_ptr.trans_slice(self), kv.value_ptr);
     }
 
     pub fn countSyllableAndSyllow0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
+        // std.debug.print("\nSyllable: \"{s}\"", .{syllable});//DEBUG
         // Record and count syllable
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;

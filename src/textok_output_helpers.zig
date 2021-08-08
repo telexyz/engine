@@ -164,13 +164,37 @@ pub const TextokOutputHelpers = struct {
         try wrt.flush();
     }
 
-    pub fn write_transforms_to_file(text: Text, filename: []const u8) !void {
+    pub fn write_transforms_to_file(text: *Text, filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
         var wrt = std.io.bufferedWriter(file.writer());
-        // const wrt = output_file.writer();
-        const n = @ptrToInt(text.transformed_offset_ptr) - @ptrToInt(text.transformed_bytes.ptr);
-        _ = try wrt.writer().write(text.transformed_bytes[0..n]);
+        const writer = wrt.writer();
+        var i: usize = 0;
+        while (i < text.tokens_number) : (i += 1) {
+            try writeTokenInfo(text.tokens_infos[i], text, writer);
+        }
         try wrt.flush();
+    }
+
+    pub fn writeTokenInfo(token_info: Text.TokenInfo, text: *Text, writer: anytype) !void {
+        const trans_slice = token_info.trans_slice(text);
+        //
+        if (text.keep_origin_amap) {
+            //
+            _ = try writer.write(trans_slice);
+            if (token_info.attrs.spaceAfter()) {
+                _ = try writer.write(" ");
+            }
+        } else {
+            //
+            if (token_info.isSyllable()) {
+                _ = try writer.write(trans_slice);
+            } else if (text.prev_token_is_vi and // xuống dòng cho non-syllable token đầu
+                !(trans_slice.len == 1 and trans_slice[0] == '_')) // Bỏ qua `_` token
+            {
+                _ = try writer.write("\n");
+                text.prev_token_is_vi = false;
+            }
+        } // !keep_origin_amap
     }
 };

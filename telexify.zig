@@ -102,9 +102,8 @@ fn write_results_out_and_free_mem(step2_time: i64) !void {
     // In the mean time writing parsed results out, and free amap mem asap
 
     print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-    try TextokOutput.write_transforms_to_file(text, output_filename);
+    // try TextokOutput.write_transforms_to_file(&text, output_filename);
     const trans_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
-    text.free_transformed_bytes();
 
     print("\nWriting types to files ...\n", .{});
     try text.processAlphabetTypes();

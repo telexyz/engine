@@ -6,47 +6,6 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-pub inline fn writeToken(attrs: Text.TokenAttributes, token: []const u8, transform: [*]const u8, text: *Text) void {
-    if (attrs.isSyllable()) {
-        var n: u8 = 0;
-        while (transform[n] != 0) {
-            text.transformed_offset_ptr.* = transform[n];
-            text.transformed_offset_ptr += 1;
-            n += 1;
-        }
-
-        if (!text.keep_origin_amap) {
-            text.transformed_offset_ptr.* = 32;
-            text.transformed_offset_ptr += 1;
-            text.prev_token_is_vi = true;
-        }
-    } else {
-        // not syllable
-        if (text.keep_origin_amap) {
-            // write original bytes
-            for (token) |b| {
-                text.transformed_offset_ptr.* = b;
-                text.transformed_offset_ptr += 1;
-            }
-        } else { // Bỏ qua _ , - là token kết nối âm tiết
-            if (!(token.len == 1 and (token[0] == '_' or token[0] == '-'))) {
-                if (text.prev_token_is_vi == true) {
-                    // Chỉ xuống dòng cho non-syllable token đầu tiên
-                    text.transformed_offset_ptr.* = '\n';
-                    text.transformed_offset_ptr += 1;
-                    text.prev_token_is_vi = false;
-                }
-            }
-        }
-    }
-
-    if (text.keep_origin_amap and attrs.spaceAfter()) {
-        // Write spacing as it is
-        text.transformed_offset_ptr.* = 32;
-        text.transformed_offset_ptr += 1;
-    }
-}
-
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
         std.debug.print(fmt_str, args);
@@ -97,16 +56,14 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
 
     if (text.convert_mode == 3) {
         //
-        const n: u8 = if (char_stream.first_char_is_upper) blk: {
+        if (char_stream.first_char_is_upper) {
             offset_ptr.* = '^';
             offset_ptr += 1;
             offset_ptr.* = ' ';
             offset_ptr += 1;
-            break :blk 2;
-        } else 0;
-
+        }
         const buff = syllable.printBuffParts(offset_ptr[0..16]);
-        text.syllable_bytes_len += @intCast(Text.TransOffset, buff.len) + n;
+        offset_ptr += buff.len;
         //
     } else {
         //
@@ -182,6 +139,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
     offset_ptr += 1;
 
     text.syllable_bytes_len = @intCast(Text.TransOffset, @ptrToInt(offset_ptr) - @ptrToInt(text.syllable_bytes.ptr));
+
     return trans_start_at;
 }
 
