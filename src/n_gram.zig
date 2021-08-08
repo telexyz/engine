@@ -242,7 +242,7 @@ test "ngram" {
     try text.initFromInputBytes("Cả nhà nhà nhà nhà nhà nhà nhà nhà nhà đơi thử nghiệm nhé , cả nhà ! TAQs cả nhà");
     defer text.deinit();
 
-    var it = std.mem.tokenize(text.input_bytes, " ");
+    var it = std.mem.tokenize(u8, text.input_bytes, " ");
     var attrs: Text.TokenAttributes = .{
         .category = .alphmark,
         .surrounded_by_spaces = .both,

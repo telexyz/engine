@@ -325,7 +325,7 @@ test "Tokenizer" {
     var s1_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alph0m0t, .alphmark, .nonalpha, .alphmark, .nonalpha, .alph0m0t, .nonalpha, .alph0m0t, .alphmark, .alphmark, .nonalpha, .alphmark, .nonalpha };
     const s1_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .both, .both, .both, .left, .none, .none, .right, .both, .both, .both, .both, .left, .right };
 
-    var it = std.mem.split(s1_tokens, " ");
+    var it = std.mem.split(u8, s1_tokens, " ");
     var i: usize = 0;
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.getToken(i));
@@ -341,7 +341,7 @@ test "Tokenizer" {
     const s2_tokens = "HeirsNguyễn tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
     var s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alph0m0t, .nonalpha, .alph0m0t, .alphmark, .alphmark, .nonalpha, .alph0m0t, .alphmark, .nonalpha, .alphmark, .alph0m0t, .alph0m0t, .nonalpha };
     const s2_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
-    it = std.mem.split(s2_tokens, " ");
+    it = std.mem.split(u8, s2_tokens, " ");
     i += 1;
     var j: usize = 0;
     while (it.next()) |token| {
@@ -355,7 +355,7 @@ test "Tokenizer" {
 
     try std.testing.expectEqualStrings("\n", text.getToken(i));
     const s3_tokens = "https :// vnexpress . net / cdc - tinh - dong - thap - dong - cua -4299620. html";
-    it = std.mem.split(s3_tokens, " ");
+    it = std.mem.split(u8, s3_tokens, " ");
     i += 1;
     j = 0;
     while (it.next()) |token| {
@@ -387,23 +387,22 @@ test "Tokenizer" {
 
     try testing.expect(text.parsed_tokens_number == text.tokens_number);
 
-    // Giá trúng binh quân 13.011 đồng/cp, thu về hơn 1.300 voọc.
+    const s1_parsed_tokens = "^gia|s trung|s binh| quan|z 13.011 ddong|zf / cp , thu| ve|zf hon|w 1.300 vooc|j .";
     s1_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .syll0m0t, .syllmark, .nonalpha, .syllmark, .nonalpha, .alph0m0t, .nonalpha, .syll0m0t, .syllmark, .syllmark, .nonalpha, .syllmark, .nonalpha };
-    it = std.mem.split(s1_tokens, " ");
+    it = std.mem.split(u8, s1_parsed_tokens, " ");
     i = 0;
     while (it.next()) |token| {
+        // print("\nToken: {s}, {s}", .{ token, text.getToken(i) }); //DEBUG
         try testing.expectEqualStrings(token, text.getToken(i));
-        // print("Token: {s}\n", .{token}); //DEBUG
         try testing.expectEqualStrings(@tagName(s1_tkcats[i]), @tagName(text.tokens_infos[i].attrs.category));
-        // try testing.expect(s1_tkcats[i] == text.tokens_infos[i].attrs.category);
         i += 1;
     }
 
     try std.testing.expectEqualStrings("\n", text.getToken(i));
 
-    // HeirsNguyễn tránh TP.Long Xuyên sẽ 'khai tử' trạm BOT T2.
+    const s2_parsed_tokens = "HeirsNguyễn tranh|s TP . ^long| ^xuyen|z se|x ' khai| tu|wr ' tram|j BOT T 2.";
     s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .syllmark, .alph0m0t, .nonalpha, .syll0m0t, .syllmark, .syllmark, .nonalpha, .syll0m0t, .syllmark, .nonalpha, .syllmark, .alph0m0t, .alph0m0t, .nonalpha };
-    it = std.mem.split(s2_tokens, " ");
+    it = std.mem.split(u8, s2_parsed_tokens, " ");
     i += 1;
     j = 0;
     while (it.next()) |token| {

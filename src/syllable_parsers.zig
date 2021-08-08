@@ -591,7 +591,7 @@ test "canBeVietnamese() // other encode" {
 
 test "canBeVietnamese() positive fb_comments_10m" {
     const words_str = "TƯ trực trở giữ VỚI cực";
-    var it = std.mem.split(words_str, " ");
+    var it = std.mem.split(u8, words_str, " ");
     while (it.next()) |word| {
         // std.debug.print("fb_comments_10m: {s}\n", .{word});
         try expect(canBeVietnamese(word));

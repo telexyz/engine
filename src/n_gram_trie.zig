@@ -111,10 +111,6 @@ pub const GramTrie = struct {
         return curr_node;
     }
 
-    pub const Error = error{
-        TextNotFinalized,
-    };
-
     pub fn init_n_gram_lists(self: *GramTrie, n: usize) !void {
         self.n_gram_lists = try self.allocator.create([MAX_N]NGramList);
         var i: u8 = 0;
@@ -124,8 +120,6 @@ pub const GramTrie = struct {
     }
 
     pub fn parse(self: *GramTrie, text: Text) !void {
-        if (!text.tokens_number_finalized) return Error.TextNotFinalized;
-
         try self.init_n_gram_lists(text.syllable_types.count());
 
         var keys: [5]Syllable.UniqueId = .{ BLANK, BLANK, BLANK, BLANK, BLANK };
@@ -210,7 +204,7 @@ test "parse ngram from text" {
     try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs");
     defer text.deinit();
 
-    var it = std.mem.tokenize(text.input_bytes, " ");
+    var it = std.mem.tokenize(u8, text.input_bytes, " ");
     var attrs: Text.TokenAttributes = .{
         .category = .alphmark,
         .surrounded_by_spaces = .both,

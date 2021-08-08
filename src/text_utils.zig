@@ -219,7 +219,6 @@ pub fn parseTokens(text: *Text) void {
         // Init token and attrs shortcuts
         var token = token_info.trans_slice(text);
         var attrs = &token_info.attrs;
-        var trans_ptr: [*]u8 = undefined;
         text.parsed_input_bytes += token.len + 1;
 
         // Parse alphabet and not too long token only
@@ -232,24 +231,16 @@ pub fn parseTokens(text: *Text) void {
                 percents_threshold += ten_percents;
             }
 
-            const ptr = text.alphabet_types.getPtr(token);
-            if (ptr == null) {
-                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
-                unreachable;
-            }
             // Init type_info shortcut
-            const type_info = ptr.?;
+            const type_info = text.alphabet_types.getPtr(token).?;
 
             token2Syllable(token, attrs.*, type_info, text);
 
             if (type_info.isSyllable()) {
-                trans_ptr = type_info.trans_ptr(text);
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
+                token_info.trans_offset = type_info.trans_offset;
             }
         } // END parse alphabet token to get syllable
-
-        // Write data out
-        writeToken(attrs.*, token, trans_ptr, text);
     } // while loop
 }

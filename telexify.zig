@@ -144,7 +144,6 @@ pub fn main() anyerror!void {
     //     std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{});
     //     unreachable;
     // }
-    // text.tokens_number_finalized = true;
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
     if (parse_n_grams) {

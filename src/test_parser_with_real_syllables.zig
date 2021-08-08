@@ -34,7 +34,7 @@ test "all(-most) vn syllables in UPPERCASE" {
     var buffer: [15]u8 = undefined;
     const buff = buffer[0..];
 
-    var it = std.mem.split(words_str, " ");
+    var it = std.mem.split(u8, words_str, " ");
     var syll: parsers.Syllable = undefined;
     var syllId: parsers.Syllable.UniqueId = undefined;
     var revertedSyll: parsers.Syllable = undefined;

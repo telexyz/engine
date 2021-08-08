@@ -29,13 +29,16 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 * Làm bộ so khớp từ điển để gộp âm tiết thành từ (xem `docs/.dict_matching.md`, áp dụng RDR để tăng độ chính xác (cần cho __INVERTED INDEX VÀ WORD EMBEDDING__)
 
-* Làm mượt n-gram và viết bộ decoder áp dụng tự động bỏ dấu tiếng Việt (xem `docs/.them_dau_thanh.md`)
 
 * Làm phần token repair (xem `docs/.token_repairs.md`) vì nó thú vị
 
+* Sử dụng stream input từ file để giảm thiểu áp lực lên bộ nhớ
+
+* Làm mượt n-gram và viết bộ decoder áp dụng tự động bỏ dấu tiếng Việt (xem `docs/.them_dau_thanh.md`)
+
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-* Sử dụng stream input từ file và stream output ra file để giảm thiểu áp lực lên bộ nhớ
+* Viết thẳng tknz output ra file, bỏ qua bộ đệm
 
 [ >>> DONE <<< ]
 

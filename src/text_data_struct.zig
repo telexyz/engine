@@ -25,6 +25,7 @@ pub const Text = struct {
     // First of all text is an input byte stream
     // we must initlized input_bytes somewhere and provide it to Text struct is created
     input_bytes: []const u8 = undefined,
+    input_bytes_initized_outside: bool = true,
 
     // A token can have multiple transforms:
     // For example ascii_transforms[i] is the ascii-telex transformation of tokens[i]
@@ -87,7 +88,12 @@ pub const Text = struct {
         syllable_id: Syllable.UniqueId = 0, //      2-bytes
 
         pub inline fn trans_ptr(self: TokenInfo, text: *Text) [*]u8 {
-            return (if (self.attrs.category == .nonalpha) text.nonalpha_bytes.ptr else text.alphabet_bytes.ptr) + self.trans_offset;
+            const buff = switch (self.attrs.category) {
+                .nonalpha => text.nonalpha_bytes,
+                .syllmark, .syll0m0t => text.syllable_bytes,
+                else => text.alphabet_bytes,
+            };
+            return buff.ptr + self.trans_offset;
         }
 
         pub inline fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
@@ -199,6 +205,7 @@ pub const Text = struct {
         var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
         defer input_file.close();
         var input_bytes = try input_file.reader().readAllAlloc(self.init_allocator, MAX_INPUT_FILE_SIZE);
+        self.input_bytes_initized_outside = false;
         try self.initFromInputBytes(input_bytes);
     }
 
@@ -258,6 +265,7 @@ pub const Text = struct {
     }
 
     pub fn free_input_bytes(self: *Text) void {
+        if (self.input_bytes_initized_outside) return;
         self.init_allocator.free(self.input_bytes);
     }
 
@@ -274,12 +282,7 @@ pub const Text = struct {
     }
 
     pub fn getToken(self: *Text, n: usize) []const u8 {
-        if (n < self.tokens_number) {
-            return self.tokens_infos[n].trans_slice(self);
-        } else {
-            std.debug.print("!!! n: {} is bigger than tokens_number !!!", .{n});
-            unreachable;
-        }
+        return self.tokens_infos[n].trans_slice(self);
     }
 
     inline fn copyToken(token: []const u8, token_info: *TokenInfo, bytes_ptr: [*]u8, bytes_len: *TransOffset) []const u8 {
@@ -325,9 +328,6 @@ pub const Text = struct {
 
         // Token transit place holder
         var token: []const u8 = undefined;
-
-        // Transform place-holder (for now it's syllable transform, add more later)
-        var trans_ptr: [*]u8 = undefined;
 
         if (attrs.category == .nonalpha) {
             // nonalpha token
@@ -376,23 +376,16 @@ pub const Text = struct {
                 text_utils.token2Syllable(token, attrs, type_info, self);
 
                 if (type_info.isSyllable()) {
-                    trans_ptr = type_info.trans_ptr(self);
                     token_info.attrs.category = type_info.category;
                     token_info.syllable_id = type_info.syllable_id;
+                    token_info.trans_offset = type_info.trans_offset;
                 }
             }
         }
 
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
-
-        if (then_parse_syllable) {
-            // Write data out
-            text_utils.writeToken(token_info.attrs, token, trans_ptr, self);
-
-            // Record parsed_tokens_number
-            self.parsed_tokens_number = self.tokens_number;
-        }
+        if (then_parse_syllable) self.parsed_tokens_number = self.tokens_number;
     }
 
     pub fn processAlphabetTypes(self: *Text) !void {
@@ -453,29 +446,37 @@ test "Text" {
     // It's up to tokenizer to split the text and assign value to tokens
     // Here is the simplest tokenizer based on space delimiter
     // std.mem.tokenize is a Zig standard library function to deal with byte stream
-    var it = std.mem.tokenize(text.input_bytes, " ");
+    var it = std.mem.tokenize(u8, text.input_bytes, " ");
     var token = it.next();
     var attrs: Text.TokenAttributes = .{
         .category = .alphmark,
         .surrounded_by_spaces = .both,
     };
-    try text.recordToken(token.?, attrs, true);
-    try std.testing.expect(text.tokens_number == 1);
-    try std.testing.expectEqualStrings(text.getToken(0), "Cả");
 
-    try text.recordToken(it.next().?, attrs, true);
-    try text.recordToken(it.next().?, attrs, true);
+    if (false) {
+        try text.recordToken(token.?, attrs, false);
+        try std.testing.expect(text.tokens_number == 1);
+        try std.testing.expectEqualStrings(text.getToken(0), "Cả");
+        try text.recordToken(it.next().?, attrs, false);
+        try text.recordToken(it.next().?, attrs, false);
 
-    // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
-    while (it.next()) |tkn| {
-        try text.recordToken(tkn, attrs, true);
+        const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+        while (it.next()) |tkn| try text.recordToken(tkn, attrs, false);
+        text.tokens_number_finalized = true;
+        thread.join();
+        text_utils.parseTokens(&text);
+    } else {
+        try text.recordToken(token.?, attrs, true);
+        try std.testing.expect(text.tokens_number == 1);
+        try std.testing.expectEqualStrings(text.getToken(0), "^ca|r");
+        try text.recordToken(it.next().?, attrs, true);
+        try text.recordToken(it.next().?, attrs, true);
+        while (it.next()) |tkn| try text.recordToken(tkn, attrs, true);
+        text.tokens_number_finalized = true;
     }
-    text.tokens_number_finalized = true;
-    // thread.join();
-    // text_utils.parseTokens(&text);
 
     try std.testing.expect(text.tokens_number == 12);
-    try std.testing.expectEqualStrings(text.getToken(9), "nhà");
+    try std.testing.expectEqualStrings(text.getToken(9), "nha|f");
     try std.testing.expect(text.alphabet_types.get("!").?.count == 1);
     try std.testing.expect(text.alphabet_types.get(",").?.count == 2);
     try std.testing.expect(text.alphabet_types.get("TAQs").?.count == 1);
