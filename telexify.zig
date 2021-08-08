@@ -150,7 +150,6 @@ pub fn main() anyerror!void {
     //     std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{});
     //     unreachable;
     // }
-    try buff_wrt.flush();
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
     if (parse_n_grams) {
@@ -163,6 +162,7 @@ pub fn main() anyerror!void {
         // const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWriteFourGram, .{ &gram, text, "data/19-four_gram.txt" });
 
         try write_results(step2_time);
+        try buff_wrt.flush();
         gram.parseAndWriteFourGram(text, "data/19-four_gram.txt");
 
         thread1.join();
@@ -172,6 +172,7 @@ pub fn main() anyerror!void {
     } else {
         //
         try write_results(step2_time);
+        try buff_wrt.flush();
     }
     _ = showMeTimeLap(start_time, "FINISHED: Total");
 }
