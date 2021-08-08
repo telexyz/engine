@@ -133,10 +133,7 @@ pub fn main() anyerror!void {
     var buff_wrt = Text.BufferedWriter{
         .unbuffered_writer = file_wtr,
     };
-    text.writer = buff_wrt;
-
-    // std.debug.print("$$$$ {} $$$", .{buff_wrt.writer()});
-    // => std.io.writer.Writer(*std.io.buffered_writer.BufferedWriter(40960,std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write)),std.os.WriteError,std.io.buffered_writer.BufferedWriter(40960,std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write)).write){ .context = std.io.buffered_writer.BufferedWriter(40960,std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write)){ .unbuffered_writer = std.io.writer.Writer(std.fs.file.File,std.os.WriteError,std.fs.file.File.write){ .context = File{ ... } }, .fifo = std.fifo.LinearFifo(u8,std.fifo.LinearFifoBufferType { .Static = 40960}){ .allocator = void, .buf = { ... }, .head = 0, .count = 0 } } }
+    text.writer = buff_wrt.writer();
 
     // Init parser thread just before you run tknz.segment so it can catch up :)
     // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});

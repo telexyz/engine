@@ -9,8 +9,8 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 pub const Text = struct {
     pub const FileWriter = std.io.Writer(std.fs.File, std.os.WriteError, std.fs.File.write);
-    pub const BufferedWriter = std.io.BufferedWriter(10 * 4096, FileWriter);
-    writer: BufferedWriter = undefined,
+    pub const BufferedWriter = std.io.BufferedWriter(4 * ONE_MB, FileWriter); // 4Mb
+    writer: BufferedWriter.Writer = undefined,
 
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = true,
@@ -376,7 +376,7 @@ pub const Text = struct {
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
         if (then_parse_syllable) {
-            try text_utils.writeToken(token, token_info.attrs, self, self.writer.writer());
+            try text_utils.writeToken(token, token_info.attrs, self, self.writer);
             self.parsed_tokens_number = self.tokens_number;
         }
     }

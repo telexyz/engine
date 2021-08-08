@@ -6,7 +6,7 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *Text, writer: anytype) !void {
+pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *Text, writer: Text.BufferedWriter.Writer) !void {
     if (text.keep_origin_amap) {
         if (attrs.spaceAfter())
             _ = try writer.print("{s} ", .{token})
@@ -32,7 +32,7 @@ pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *
     }
 }
 
-pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: anytype) !void {
+pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.BufferedWriter.Writer) !void {
     if (text.keep_origin_amap) {
         // Write all tokens
         _ = try writer.write(tk_info.trans_slice(text));
