@@ -129,8 +129,11 @@ pub fn main() anyerror!void {
 
     var file = try std.fs.cwd().createFile(output_filename, .{});
     defer file.close();
-    var wrt = std.io.bufferedWriter(file.writer());
-    text.writer = wrt;
+    const file_wtr = file.writer();
+    var buff_wrt = std.io.BufferedWriter(10 * 4096, @TypeOf(file_wtr)){
+        .unbuffered_writer = file_wtr,
+    };
+    text.writer = buff_wrt;
 
     // Init parser thread just before you run tknz.segment so it can catch up :)
     // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
@@ -147,7 +150,7 @@ pub fn main() anyerror!void {
     //     std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{});
     //     unreachable;
     // }
-    try wrt.flush();
+    try buff_wrt.flush();
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
     if (parse_n_grams) {
