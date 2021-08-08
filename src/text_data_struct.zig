@@ -368,6 +368,7 @@ pub const Text = struct {
                     token_info.attrs.category = type_info.category;
                     token_info.syllable_id = type_info.syllable_id;
                     token_info.trans_offset = type_info.trans_offset;
+                    token = token_info.trans_slice(self);
                 }
             }
         }
@@ -375,7 +376,7 @@ pub const Text = struct {
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
         if (then_parse_syllable) {
-            try text_utils.writeTokenInfo(token_info.*, self, self.writer.writer());
+            try text_utils.writeToken(token, token_info.attrs, self, self.writer.writer());
             self.parsed_tokens_number = self.tokens_number;
         }
     }
