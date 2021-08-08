@@ -1,10 +1,10 @@
 # Vietnamese Telex Input Method and Anything Related
 
+[ GOAL ] RE-PRESENTING + INDEXING SAO CHO CÓ THỂ VIEW CORPUS THẬT NHANH, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG ...
 
-## Re-presenting + Indexing sao cho có thể view corpus thật nhanh, phát hiện các trường hợp bất thuòng, tự động sửa lỗi, bỏ đi những đoạn text kém chất lượng ...
+[ BY PRODUCT 1 ] token repair, syllables2words, n-gram, spell error correction ...
 
-
-## Cải tiến bộ gõ Telex
+[ BY PRODUCT 2 ] Cải tiến bộ gõ Telex
 
 [ IMPORTANT ] Yếu điểm có thể coi là lớn nhất của Telex là viết song ngữ rất chậm,
 vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũng rất mất thời gian !!!
@@ -22,25 +22,33 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
     - áp dụng bộ sửa lỗi chính tả lên input search terms
 
 * Làm bộ chữa lỗi chính tả (tham khảo `jamspell, neuspell ...`)
-  - Sinh ra candidates từ edit-distances và áp dụng n-gram giống bài toán thêm dấu+thanh
+  - Sinh ra candidates từ edit-distances rồi áp dụng n-gram + beam-search như thêm dấu+thanh
   - Tìm hiểu các phương pháp khác ...
 
 [ TODO ]
 
-* Làm bộ so khớp từ điển để gộp âm tiết thành từ (xem `docs/.dict_matching.md`, áp dụng RDR để tăng độ chính xác (cần cho __INVERTED INDEX VÀ WORD EMBEDDING__)
-
-
-* Làm phần token repair (xem `docs/.token_repairs.md`) vì nó thú vị
-
 * Sử dụng stream input từ file để giảm thiểu áp lực lên bộ nhớ
 
-* Làm mượt n-gram và viết bộ decoder áp dụng tự động bỏ dấu tiếng Việt (xem `docs/.them_dau_thanh.md`)
+* Làm bộ so khớp từ điển để gộp âm tiết thành từ, áp dụng RDR để tăng độ chính xác: cần cho __INVERTED INDEX VÀ WORD EMBEDDING__
+  (xem `docs/.dict_matching.md`)
+
+* Làm mượt n-gram và viết bộ beam-search decoder để tự động bỏ dấu tiếng Việt
+  (xem `docs/.them_dau_thanh.md`)
+
+
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-* Viết thẳng tknz output ra file, bỏ qua bộ đệm
+
+* Làm token repair vì nó thú vị và khởi tạo module beam-search nền tảng
+  (xem `docs/.token_repairs.md`)
+
 
 [ >>> DONE <<< ]
+
+
+
+* Viết thẳng tknz output ra file, bỏ qua bộ đệm để không phải khởi tạo nhiều bộ nhớ đệm
 
 *  08/08/2021: Nén input vào bộ tự điển `alphabet_types` và `nonalpha_types` vừa giữ được đầu vào nguyên bản của `token` vừa đếm `types`
 
