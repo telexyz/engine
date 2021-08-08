@@ -6,6 +6,33 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
+pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: anytype) !void {
+    if (text.keep_origin_amap) {
+        // Write all tokens
+        _ = try writer.write(tk_info.trans_slice(text));
+        if (tk_info.attrs.spaceAfter()) _ = try writer.write(" ");
+        return;
+    }
+
+    // Write syllables only
+    if (tk_info.isSyllable()) {
+        _ = try writer.write(tk_info.trans_slice(text));
+        _ = try writer.write(" ");
+        text.prev_token_is_vi = true;
+        //
+    } else if (text.prev_token_is_vi) {
+        //
+        const trans_ptr = tk_info.trans_ptr(text);
+
+        const true_joiner = tk_info.attrs.surrounded_by_spaces == .none and trans_ptr[1] == 0 and (trans_ptr[0] == '_' or trans_ptr[0] == '-');
+
+        if (!true_joiner) {
+            _ = try writer.write("\n");
+            text.prev_token_is_vi = false;
+        }
+    }
+}
+
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     if (false)
         std.debug.print(fmt_str, args);

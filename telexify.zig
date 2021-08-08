@@ -100,15 +100,14 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
 
 fn write_results(step2_time: i64) !void {
     // In the mean time writing parsed results out, and free amap mem asap
-
-    print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-    try TextokOutput.write_transforms_to_file(&text, output_filename);
-    const trans_time = showMeTimeLap(step2_time, "Writing tokenized results done!");
-
     print("\nWriting types to files ...\n", .{});
     try text.processAlphabetTypes();
     try write_out_types();
-    _ = showMeTimeLap(trans_time, "Writing types to files done!");
+    _ = showMeTimeLap(step2_time, "Writing types to files done!");
+
+    // print("\nWriting tokenized results to {s} ...\n", .{output_filename});
+    // try TextokOutput.write_transforms_to_file(&text, output_filename);
+    // _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 }
 
 pub fn main() anyerror!void {
@@ -128,10 +127,16 @@ pub fn main() anyerror!void {
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
+    var file = try std.fs.cwd().createFile(output_filename, .{});
+    defer file.close();
+    var wrt = std.io.bufferedWriter(file.writer());
+    text.writer = wrt;
+
     // Init parser thread just before you run tknz.segment so it can catch up :)
     // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
-
+    // const then_parse_syllable = false;
     const then_parse_syllable = true;
+
     try tknz.segment(&text, then_parse_syllable); // parse syllable on-the-fly
     text.free_input_bytes();
     try write_out_samples();
@@ -142,6 +147,7 @@ pub fn main() anyerror!void {
     //     std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{});
     //     unreachable;
     // }
+    try wrt.flush();
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
     if (parse_n_grams) {
