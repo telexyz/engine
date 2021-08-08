@@ -130,7 +130,7 @@ pub fn main() anyerror!void {
     var file = try std.fs.cwd().createFile(output_filename, .{});
     defer file.close();
     const file_wtr = file.writer();
-    var buff_wrt = std.io.BufferedWriter(10 * 4096, @TypeOf(file_wtr)){
+    var buff_wrt = Text.BufferedWriter{
         .unbuffered_writer = file_wtr,
     };
     text.writer = buff_wrt;

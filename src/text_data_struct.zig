@@ -8,7 +8,9 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 pub const Text = struct {
-    writer: std.io.BufferedWriter(10 * 4096, std.io.Writer(std.fs.File, std.os.WriteError, std.fs.File.write)) = undefined,
+    pub const FileWriter = std.io.Writer(std.fs.File, std.os.WriteError, std.fs.File.write);
+    pub const BufferedWriter = std.io.BufferedWriter(10 * 4096, FileWriter);
+    writer: BufferedWriter = undefined,
 
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = true,
