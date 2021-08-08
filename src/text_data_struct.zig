@@ -36,20 +36,16 @@ pub const Text = struct {
     // but it not looked right for me. I think it we should keep original form.
     // Same tokens counted to type, we will save transform in TypeInfo
 
-    // Data buffer for syllable_types
-    syllable_bytes: []u8 = undefined,
-    syllable_bytes_len: TransOffset = 0,
-
     // Same tokens are counted as a type
     // Listing tytes along with its frequence will reveal intersting information
 
-    // Use data of input_bytes, pointed by tokens[i]
+    // Use data of alphabet_bytes and nonalpha_bytes
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     nonalpha_types: std.StringHashMap(u32) = undefined,
 
-    // Use data of transformed_bytes, pointed by transforms[i]
-    syllable_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower-mark-tone
-    syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllow00
+    // Use data of syllable_bytes and syllow00_bytes
+    syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllable.toLower -mark - tone
+    syllable_types: std.StringHashMap(TypeInfo) = undefined,
 
     // Data buffer for both alphabet_types and nonalpha_types
     alphabet_bytes: []u8 = undefined,
@@ -57,6 +53,10 @@ pub const Text = struct {
 
     nonalpha_bytes: []u8 = undefined,
     nonalpha_bytes_len: TransOffset = 0,
+
+    // Data buffer for syllable_types
+    syllable_bytes: []u8 = undefined,
+    syllable_bytes_len: TransOffset = 0,
 
     // Data buffer for syllow00_types
     syllow00_bytes: []u8 = undefined,
@@ -237,13 +237,6 @@ pub const Text = struct {
         self.nonalpha_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
         self.alphabet_bytes_len = 0;
         self.nonalpha_bytes_len = 0;
-
-        // Init transformed_bytes, each token may have an additional byte at the
-        // begining to store it's attribute so we need more memory than input_bytes
-        const delta = input_bytes_size / 5;
-        var bytes_size = input_bytes_size + delta + BUFF_SIZE;
-        if (self.keep_origin_amap) bytes_size += delta;
-        if (self.convert_mode == 3) bytes_size += delta;
 
         // Init syllable...
         self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);

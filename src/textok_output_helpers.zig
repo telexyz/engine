@@ -143,23 +143,21 @@ pub const TextokOutputHelpers = struct {
         try types_wrt.flush();
     }
 
-    pub fn write_text_tokens_to_file(text: *Text, output_filename: []const u8, max: usize) !void {
+    pub fn write_text_tokens_to_file(text: *Text, filename: []const u8, max: usize) !void {
         var n = text.tokens_number;
         if (max > 0 and n > max) n = max;
-        // Open files to write transformed input data (final result)
+
         var output_file = try std.fs.cwd().createFile(output_filename, .{});
         defer output_file.close();
 
-        var wrt = std.io.bufferedWriter(output_file.writer());
+        const wrt = std.io.bufferedWriter(output_file.writer());
+        const writer = wrt.writer();
 
         var i: usize = 0;
         while (i < n) : (i += 1) {
             const token_info = text.tokens_infos[i];
-            _ = try wrt.writer().write(token_info.trans_slice(text));
-
-            if (token_info.attrs.surrounded_by_spaces == .both or
-                token_info.attrs.surrounded_by_spaces == .right)
-                _ = try wrt.writer().write(" ");
+            _ = try writer.write(token_info.trans_slice(text));
+            if (token_info.attrs.spaceAfter()) _ = try writer.write(" ");
         }
         try wrt.flush();
     }
@@ -167,12 +165,14 @@ pub const TextokOutputHelpers = struct {
     pub fn write_transforms_to_file(text: *Text, filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
+
         var wrt = std.io.bufferedWriter(file.writer());
         const writer = wrt.writer();
+
         var i: usize = 0;
-        while (i < text.tokens_number) : (i += 1) {
+        while (i < text.tokens_number) : (i += 1)
             try writeTokenInfo(text.tokens_infos[i], text, writer);
-        }
+
         try wrt.flush();
     }
 
@@ -182,16 +182,15 @@ pub const TextokOutputHelpers = struct {
         if (text.keep_origin_amap) {
             //
             _ = try writer.write(trans_slice);
-            if (token_info.attrs.spaceAfter()) {
-                _ = try writer.write(" ");
-            }
+            if (token_info.attrs.spaceAfter()) _ = try writer.write(" ");
+            //
         } else {
             //
             if (token_info.isSyllable()) {
                 _ = try writer.write(trans_slice);
-            } else if (text.prev_token_is_vi and // xuống dòng cho non-syllable token đầu
+            } else if (text.prev_token_is_vi and // Chỉ xét non-syllable token đầu tiên
                 !(trans_slice.len == 1 and trans_slice[0] == '_')) // Bỏ qua `_` token
-            {
+            { // Xuống dòng và đánh dấu !text.prev_token_is_vi
                 _ = try writer.write("\n");
                 text.prev_token_is_vi = false;
             }
