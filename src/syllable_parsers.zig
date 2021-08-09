@@ -452,7 +452,7 @@ inline fn _amGiua(str: []const u8) AmGiua {
         'u' => switch (c1) { // u|uw|uwa|uwow|ua|uaa|uee|uy|uyee|uya|uoo
             'a' => switch (c2) {
                 'a', 'z' => AmGiua.uaz, // uaa quan,quân
-                'w' => .uaw,
+                'w' => .oaw, // auto correct .oaw <= uaw
                 else => .ua, // ua
             },
             // 'e' => if (c2 == 'e') AmGiua.uez else .ue, // ue|uee quen,quên
@@ -742,6 +742,7 @@ fn canBeVietnameseStrick(am_tiet: []const u8) bool {
 
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrick(""));
+    try expect(canBeVietnameseStrick("khuắng"));
     try expect(canBeVietnameseStrick("khuều"));
     try expect(canBeVietnameseStrick("ngoẩy"));
     try expect(canBeVietnameseStrick("ðạo"));
