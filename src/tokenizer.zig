@@ -382,8 +382,14 @@ test "Tokenizer" {
     // print("\ntokens_number: {}\n", .{text.tokens_number});
     try testing.expect(text.tokens_number == 15 + 15 + 19 + 3); // 3 * \n
 
+    var file = try std.fs.cwd().createFile("data/tknz.txt", .{});
+    defer file.close();
+    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
+    text.writer = buff_wrt.writer();
+
     try testing.expect(text.tokens_number_finalized == true);
     text_utils.parseTokens(&text);
+    try buff_wrt.flush();
 
     try testing.expect(text.parsed_tokens_number == text.tokens_number);
 

@@ -256,7 +256,9 @@ pub fn parseTokens(text: *Text) void {
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
                 token_info.trans_offset = type_info.trans_offset;
-                token = token_info.trans_slice(text);
+
+                token = type_info.trans_slice(text); // must get token from type_info
+                token_info.attrs.length = if (token.len < 8) @intCast(u3, token.len) else 0;
             }
         } // END parse alphabet token to get syllable
         // Write token to file

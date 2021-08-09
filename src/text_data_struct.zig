@@ -9,7 +9,7 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 pub const Text = struct {
     pub const FileWriter = std.io.Writer(std.fs.File, std.os.WriteError, std.fs.File.write);
-    pub const BufferedWriter = std.io.BufferedWriter(ONE_MB, FileWriter);
+    pub const BufferedWriter = std.io.BufferedWriter(ONE_MB / 5, FileWriter);
     writer: BufferedWriter.Writer = undefined,
 
     // Keep origin data as-much-as-possible
@@ -96,7 +96,10 @@ pub const Text = struct {
 
         pub inline fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
             var ptr = self.trans_ptr(text);
-            return ptr[0..double_0_trans_len(ptr)];
+            var len: usize = self.attrs.length;
+            if (len == 0) len = double_0_trans_len(ptr);
+            return ptr[0..len];
+            // return ptr[0..double_0_trans_len(ptr)];
         }
 
         pub inline fn isSyllable(self: TokenInfo) bool {
@@ -146,6 +149,7 @@ pub const Text = struct {
     pub const TokenAttributes = packed struct {
         surrounded_by_spaces: TokenSurroundedBySpaces,
         category: TokenCategory,
+        length: TokenLen = 0,
 
         pub inline fn spaceAfter(self: TokenAttributes) bool {
             return self.surrounded_by_spaces == .right or
@@ -159,34 +163,17 @@ pub const Text = struct {
         pub inline fn haveMarkTone(self: TypeInfo) bool {
             return self.category == .syllmark or self.category == .alphmark;
         }
-
-        pub inline fn toByte(self: TokenAttributes) u8 {
-            const byte = @bitCast(u8, self);
-            if (byte < 12) return byte + 1;
-            return byte;
-        }
-
-        pub inline fn newFromByte(byte: u8) TokenAttributes {
-            if (byte < 12) byte -= 1;
-            return @bitCast(TokenAttributes, byte);
-        }
     };
 
-    pub const TokenCategory = enum(u6) {
-        // Dùng được 27 invisible ascii chars, 1-8,11, 12,15-31
-        // 3 main token categoried, used to write to disk as token's attrs
-        nonalpha = 0, //  + 2-bits  => 00,01,02,03 + 1 => \x01\x02\x03\x04
-        // Avoid slot 1 if possible since it don't show as space in klogg app
-        //         1, //  + 2-bits  => 04,05,06,07 + 1 => \x05\x06\x07\x08
-        //         2, //  + 0x11    =>       10    + 1 => \x0b
-        //         3, //  + 0x00,11 => 12       15     => \x0c\x0f
-        alphmark = 4, //  + 2-bits  => 16,17,18,19     => \x10\x11\x12\x13
-        alph0m0t = 5, //  + 2-bits  => 20,21,22,23     => \x14\x15\x16\x17
-        syllmark = 6, //  + 2-bits  => 24,25,26,27     => \x18\x19\x1a\x1b
-        syll0m0t = 7, //  + 2-bits  => 28,29,30,31     => \x1c\x1d\x1e\x1f
-        // Supplement category ids 8-63
-        // used as an intialized/temp values / need to be processed / state machine
-        can_be_syllable = 8,
+    pub const TokenLen = u3;
+
+    pub const TokenCategory = enum(u3) {
+        can_be_syllable,
+        nonalpha,
+        alphmark,
+        alph0m0t,
+        syllmark,
+        syll0m0t,
     };
 
     pub const TokenSurroundedBySpaces = enum(u2) {
@@ -313,6 +300,7 @@ pub const Text = struct {
 
         // Init token_info
         token_info.attrs = attrs;
+        token_info.attrs.length = if (_token.len < 8) @intCast(u3, _token.len) else 0;
         token_info.syllable_id = 0;
 
         // Token transit place holder
@@ -369,13 +357,16 @@ pub const Text = struct {
                     token_info.attrs.category = type_info.category;
                     token_info.syllable_id = type_info.syllable_id;
                     token_info.trans_offset = type_info.trans_offset;
-                    token = token_info.trans_slice(self);
+
+                    token = type_info.trans_slice(self); // must get token from type_info
+                    token_info.attrs.length = if (token.len < 8) @intCast(u3, token.len) else 0;
                 }
             }
         }
 
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
+
         if (then_parse_syllable) {
             try text_utils.writeToken(token, token_info.attrs, self);
             self.parsed_tokens_number = self.tokens_number;
@@ -445,7 +436,12 @@ test "Text" {
         .surrounded_by_spaces = .both,
     };
 
-    if (false) {
+    var file = try std.fs.cwd().createFile("data/tknz.txt", .{});
+    defer file.close();
+    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
+    text.writer = buff_wrt.writer();
+
+    if (true) {
         try text.recordToken(token.?, attrs, false);
         try std.testing.expect(text.tokens_number == 1);
         try std.testing.expectEqualStrings(text.getToken(0), "Cả");
@@ -466,6 +462,7 @@ test "Text" {
         while (it.next()) |tkn| try text.recordToken(tkn, attrs, true);
         text.tokens_number_finalized = true;
     }
+    try buff_wrt.flush();
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nha|f");
