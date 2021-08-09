@@ -265,7 +265,18 @@ pub fn parseTokenToGetSyllable(
 
         // Check #2: Filter out ascii-telex syllable like:
         // awn => ăn, doo => dô
-        if (syllable.am_giua.hasMark() and !char_stream.has_mark) {
+        if (syllable.hasMark() and !char_stream.has_mark) {
+            // Ngoại trừ tự bỏ dấu của những âm tiết chắc chắn 99% là tiếng việt
+            switch (syllable.am_giua) {
+                .uyez => { // 99% nguyen => nguyên
+                    return syllable;
+                },
+                .iez, .yez, .uez => { // nghieng => nghiêng
+                    if (syllable.am_dau.len() >= 2 and
+                        syllable.am_cuoi.len() >= 2) return syllable;
+                },
+                else => {},
+            }
             print("Don't accept ascii mark: awn => ăn, doo => dô\n", .{});
             syllable.can_be_vietnamese = false;
             return syllable;
@@ -468,7 +479,7 @@ inline fn _amGiua(str: []const u8) AmGiua {
                 'w' => .uow, // tuơm, => tươm, thuở => thủa ??
                 else => .uo, // uoo|uow|uo ('uo' is no-mark)
             },
-            'y' => switch (c2) { // uy|uya|uyee
+            'y' => switch (c2) { // uy|uya|uye|uyee|uyez
                 'a' => AmGiua.uya,
                 'e' => .uyez, // uye{e} => uyez
                 else => .uy,
@@ -487,13 +498,13 @@ inline fn _amGiua(str: []const u8) AmGiua {
             },
             else => .o,
         },
-        'i' => switch (c1) { // i|ia|iee
+        'i' => switch (c1) { // i|ia|ie|iee|iez
             'a' => AmGiua.ia,
-            'e' => .iez, // ie{e} => iee
+            'e' => .iez, // ie{e} => iez
             else => .i,
         },
         'y' => if (c1 == 'e') AmGiua.yez else .y, // y|ye{e}
-        'e' => if (c1 == 'e' or c1 == 'z') AmGiua.ez else .e, // e|ee
+        'e' => if (c1 == 'e' or c1 == 'z') AmGiua.ez else .e, // e|ee|ez
         'a' => switch (c1) { // a|aa|aw
             'a' => AmGiua.az,
             'z' => AmGiua.az,
@@ -735,17 +746,19 @@ test "canBeVietnamese() // Auto-repair obvious cases" {
 
 // - - -
 
-fn canBeVietnameseStrick(am_tiet: []const u8) bool {
+fn canBeVietnameseStrict(am_tiet: []const u8) bool {
     // return parseAmTietToGetSyllable(true, std.debug.print, am_tiet).can_be_vietnamese;
     return parseAmTietToGetSyllable(true, printNothing, am_tiet).can_be_vietnamese;
 }
 
 test "canBeVietnamese() // alphamarks exceptions" {
-    // try expect(canBeVietnameseStrick(""));
-    try expect(canBeVietnameseStrick("khuắng"));
-    try expect(canBeVietnameseStrick("khuều"));
-    try expect(canBeVietnameseStrick("ngoẩy"));
-    try expect(canBeVietnameseStrick("ðạo"));
-    try expect(canBeVietnameseStrick("Ðạo"));
-    try expect(canBeVietnameseStrick("nội"));
+    // try expect(canBeVietnameseStrict(""));
+    try expect(canBeVietnameseStrict("Nguyen"));
+    try expect(canBeVietnameseStrict("nghieng"));
+    try expect(canBeVietnameseStrict("khuắng"));
+    try expect(canBeVietnameseStrict("khuều"));
+    try expect(canBeVietnameseStrict("ngoẩy"));
+    try expect(canBeVietnameseStrict("ðạo"));
+    try expect(canBeVietnameseStrict("Ðạo"));
+    try expect(canBeVietnameseStrict("nội"));
 }

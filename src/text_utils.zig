@@ -242,7 +242,13 @@ pub fn parseTokens(text: *Text) void {
             }
 
             // Init type_info shortcut
-            const type_info = text.alphabet_types.getPtr(token).?;
+            const ptr = text.alphabet_types.getPtr(token);
+            if (ptr == null) {
+                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
+                std.debug.print("Xem tokens_infos.append(..) đã được update chưa ???\n", .{});
+                unreachable;
+            }
+            const type_info = ptr.?;
 
             // Over-write type_info's category, syllable_id, trans_offset
             token2Syllable(token, attrs.*, type_info, text);

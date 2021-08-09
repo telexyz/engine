@@ -134,16 +134,16 @@ pub const AmGiua = enum(u5) {
     ooo, // boong
     uo, // <= 'uoz', 'uow' without mark
     uy,
-    iez, // iê
+    iez, // iê <= ie (tiên <= tien, tieen, tiezn)
     oaw, // oă
     uaz, // uâ (ngoe nguẩy <= ngoẩy)
-    uez, // uê
+    uez, // uê <= ue (tuê =< tue, tuee, tuez)
     uoz, // uô
     uaw, // ưa
     uya,
-    yez, // yê
+    yez, // yê <= ye (yên <= yen, yeen, yezn)
     uow, // ươ
-    uyez, // uyê
+    uyez, // uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
 
     // uow, // “thuở/thủa” => convert to "ủa" nếu muốn chuẩn hoá
     // http://repository.ulis.vnu.edu.vn/handle/ULIS_123456789/164
@@ -311,6 +311,18 @@ pub const Syllable = packed struct {
     //                   Total 18 bits
 
     pub const UniqueId = u16;
+
+    pub inline fn hasMark(self: Syllable) bool {
+        return self.am_dau == .zd or self.am_giua.hasMark();
+    }
+
+    pub inline fn hasTone(self: Syllable) bool {
+        return self.tone != ._none;
+    }
+
+    pub inline fn hasMarkOrTone(self: Syllable) bool {
+        return self.hasMark() or self.hasTone();
+    }
 
     pub fn toId(self: Syllable) UniqueId {
         const id =
