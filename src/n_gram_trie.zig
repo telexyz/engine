@@ -204,6 +204,11 @@ test "parse ngram from text" {
     try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs");
     defer text.deinit();
 
+    var file = try std.fs.cwd().createFile("data/temp.txt", .{});
+    defer file.close();
+    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
+    text.writer = buff_wrt.writer();
+
     var it = std.mem.tokenize(u8, text.input_bytes, " ");
     var attrs: Text.TokenAttributes = .{
         .category = .alphmark,
@@ -215,6 +220,8 @@ test "parse ngram from text" {
 
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
+    try buff_wrt.flush();
+
     try gt.parse(text);
     try writeGramCounts(&gt, 1, "data/temp.txt");
 }

@@ -129,10 +129,7 @@ pub fn main() anyerror!void {
 
     var file = try std.fs.cwd().createFile(output_filename, .{});
     defer file.close();
-    const file_wtr = file.writer();
-    var buff_wrt = Text.BufferedWriter{
-        .unbuffered_writer = file_wtr,
-    };
+    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
     text.writer = buff_wrt.writer();
 
     const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
