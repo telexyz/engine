@@ -176,6 +176,9 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8) !void {
     var buffer: [13 * 5]u8 = undefined;
     const buff = buffer[0..];
 
+    var min_count: u8 = NGram.MIN_COUNT;
+    if (grams.count() < 100_000) min_count = 1;
+
     var grams_list = try std.ArrayList(GramInfo).initCapacity(
         std.heap.page_allocator,
         grams.count(),
@@ -188,7 +191,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8) !void {
         const gram = kv.key_ptr.*;
         const count = kv.value_ptr.*;
 
-        if (count < NGram.MIN_COUNT) continue;
+        if (count < min_count) continue;
 
         switch (@TypeOf(grams)) {
             std.AutoHashMap(BiGram, u32) => {
