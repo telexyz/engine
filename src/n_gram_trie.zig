@@ -190,42 +190,6 @@ test "GramTrie" {
     try std.testing.expect(0 == gt.n_gram_lists[4].items.len);
 }
 
-test "parse ngram from text" {
-    const text_utils = @import("./text_utils.zig");
-    var gt: GramTrie = .{};
-    gt.init(std.testing.allocator); // use std.heap.page_allocator for real
-    defer gt.deinit();
-
-    std.debug.print("\nNGram:\n", .{});
-
-    var text = Text{
-        .init_allocator = std.testing.allocator,
-    };
-    try text.initFromInputBytes("Cả nhà đơi thử nghiệm nhé , cả nhà ! TAQs");
-    defer text.deinit();
-
-    var file = try std.fs.cwd().createFile("data/temp.txt", .{});
-    defer file.close();
-    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
-    text.writer = buff_wrt.writer();
-
-    var it = std.mem.tokenize(u8, text.input_bytes, " ");
-    var attrs: Text.TokenAttributes = .{
-        .category = .alphmark,
-        .surrounded_by_spaces = .both,
-    };
-    while (it.next()) |tkn| {
-        try text.recordToken(tkn, attrs, false);
-    }
-
-    text.tokens_number_finalized = true;
-    text_utils.parseTokens(&text);
-    try buff_wrt.flush();
-
-    try gt.parse(text);
-    try writeGramCounts(&gt, 1, "data/temp.txt");
-}
-
 // try n_gram.writeGramCounts(&gram, 1, "data/17-bi_gram.txt");
 // try n_gram.writeGramCounts(&gram, 2, "data/18-tri_gram.txt");
 // try n_gram.writeGramCounts(&gram, 3, "data/19-four_gram.txt");

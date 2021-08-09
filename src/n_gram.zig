@@ -245,7 +245,7 @@ test "ngram" {
     try text.initFromInputBytes("Cả nhà nhà nhà nhà nhà nhà nhà nhà nhà đơi thử nghiệm nhé , cả nhà ! TAQs cả nhà");
     defer text.deinit();
 
-    var file = try std.fs.cwd().createFile("data/temp.txt", .{});
+    var file = try std.fs.cwd().createFile("data/tknz.txt", .{});
     defer file.close();
     var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
     text.writer = buff_wrt.writer();
