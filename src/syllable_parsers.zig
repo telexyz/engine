@@ -333,8 +333,10 @@ fn validateBanAmCuoiVan(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua
             return false;
         },
         .y, .aw, .ia, .ooo, .ua, .uez, .uaw, .uya, .uyez => if (am_cuoi != ._none) {
-            if (am_dau == .qu and am_giua == .y) return true;
-            print("!!! VIOLATE: 'y', 'ă', 'ia', 'oo', 'ua', 'oă', 'uê', 'uơ', 'ưa', 'uya', 'uyê' ko đi với bán âm cuối vần nào hết", .{});
+            if (am_dau == .qu and am_giua == .y and am_cuoi == .u) return true; // ngoài quýu
+            if (am_dau == .kh and am_giua == .uez and am_cuoi == .u) return true; // ngoài khuều
+            // print("!!! VIOLATE: 'uê' chỉ đi với bán âm cuối vần 'u'", .{});
+            print("!!! VIOLATE: 'y', 'ă', 'ia', 'oo', 'ua', 'oă', 'uơ', 'ưa', 'uya', 'uyê' ko đi với bán âm cuối vần nào hết", .{});
             return false;
         },
         .u, .uoz => if (am_cuoi != .i) {
@@ -739,8 +741,9 @@ fn canBeVietnameseStrick(am_tiet: []const u8) bool {
 }
 
 test "canBeVietnamese() // alphamarks exceptions" {
-    try expect(canBeVietnameseStrick("ngoẩy"));
     // try expect(canBeVietnameseStrick(""));
+    try expect(canBeVietnameseStrick("khuều"));
+    try expect(canBeVietnameseStrick("ngoẩy"));
     try expect(canBeVietnameseStrick("ðạo"));
     try expect(canBeVietnameseStrick("Ðạo"));
     try expect(canBeVietnameseStrick("nội"));
