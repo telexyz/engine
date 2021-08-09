@@ -416,8 +416,8 @@ ảo tưởng
 ảo tượng
 á châu
 á kim
-ác cãm
 ác cảm
+ác cảm
 ác hiểm
 ác kế
 ác liệt
@@ -715,7 +715,7 @@ ban chấp hành
 ban chấp uỷ
 ban chỉ huy
 ban cua
-ban cua lưỡí trắng
+ban cua lưỡi trắng
 ban công
 ban cấp
 ban giám đốc
@@ -1489,8 +1489,8 @@ biến đổi
 biến đổi thành động từ
 biến động
 biếng nhác
-biết cãm thích
 biết chắc chắn
+biết cảm thích
 biết dự liệu
 biết lẽ phải
 biết nhiều
@@ -7626,18 +7626,6 @@ cay ăn cay gỡ
 cay đắng
 cay đắng
 cay độc
-cãm giác
-cãm giác báo trước
-cãm giác rần rần
-cãm hứng
-cãm kích
-cãm kíck
-cãm nghĩ
-cãm nắng
-cãm phục
-cãm thấy
-cãm tưởng
-cãm động
 cả gan
 cả hai
 cả hai người
@@ -8792,7 +8780,7 @@ chỉ rỏ mưu gian
 chỉ rỏ tích cách giả mạo
 chỉ số
 chỉ sợi
-chỉ sự cãm xúc
+chỉ sự cảm xúc
 chỉ sự so sánh
 chỉ sự tổng quát
 chỉ thị
@@ -9534,8 +9522,8 @@ chuyện kỳ lạ
 chuyện láo khoét
 chuyện mật
 chuyện mới lạ
-chuyện nhãm hní
 chuyện nhảm
+chuyện nhảm nhí
 chuyện nói láo
 chuyện phi lý
 chuyện phim
@@ -10092,12 +10080,12 @@ chân dài
 chân dâng
 chân giày chân dép
 chân giá trị
-chân gièy chân dép
 chân giò
 chân giò ngãng ra
 chân giường
 chân giả
 chân giả khó phân
+chân giầy chân dép
 chân gà lại bới ruột gà
 chân gỗ
 chân hàng
@@ -10217,7 +10205,7 @@ châu báu
 châu bình
 châu bính
 châu can
-châu chấụ
+châu chấu
 châu chấu
 châu chấu chống xe
 châu chấu ma
@@ -11814,7 +11802,6 @@ chạy đô chạy đáo
 chạy đôn chạy đáo
 chạy đằng giời
 chạy đằng trời
-chạồm mặt
 chả bõ
 chả bù
 chả chay
@@ -12233,7 +12220,6 @@ chẵn lẻ
 chẵn mưa thừa nắng
 chẵn đôi
 chặc lưỡi
-chặc lưỡỉ
 chặn bóng
 chặn giấy
 chặn hậu
@@ -13392,7 +13378,7 @@ chữa chạy
 chữa dép ruộng dưa
 chữa dép vườn dưa
 chữa lành
-chữa thuổc
+chữa thuốc
 chữa thẹn
 chữa trị
 chững chàng
@@ -13991,7 +13977,6 @@ có bột
 có bơ
 có bởi
 có canh
-có cãm tình
 có cảm tình
 có chút mùi
 có chân trong
@@ -14011,6 +13996,7 @@ có cầu chứng
 có công hiệu
 có cơn
 có cựa
+có cảm tình
 có danh
 có danh dự
 có dả tâm
@@ -14280,7 +14266,7 @@ có vẻ khinh bỉ
 có vẻ khinh miệt
 có vẻ khinh người
 có vẻ khó chịu
-có vẻ tình cãm
+có vẻ tình cảm
 có vẻ to lớn
 có vẻ tân kỳ
 có vẻ xưa
@@ -14721,7 +14707,7 @@ cuống họng
 cuống lưu
 cuống nhị
 cuống noãn
-cuống phổí
+cuống phổi
 cuống quít
 cuống quýt
 cuồn cuộn
@@ -15034,7 +15020,6 @@ cá kiếm
 cá kìm
 cá kình
 cá kể đầu, rau kể mớ
-cá kể đầu, rau kể mớmớ
 cá kể đầu, trầu kể mớ
 cá leo
 cá linh
@@ -15970,7 +15955,7 @@ cây đuốc
 cây đào
 cây đèn
 cây độc
-cây đăng tam tyhảo
+cây đăng tam thảo
 cây đại
 cây đờn
 cây đức
@@ -17982,6 +17967,7 @@ cưỡi hổ
 cưỡi lên lưng hổ
 cưỡi lên đầu
 cưỡi lên đầu lên cổ
+cưỡi lưng hổ
 cưỡi ngựa xem hoa
 cưỡi rồng
 cưỡi sóng vượt gió
@@ -17989,7 +17975,6 @@ cưỡi thuyền vượt sóng
 cưỡi trên lưng cọp
 cưỡi trên lưng hổ
 cưỡi đầu cưỡi cổ
-cưỡi đầu cưỡì cổ
 cưỡi đầu voi dữ
 cưỡng bách
 cưỡng bức
@@ -18001,10 +17986,6 @@ cưỡng hiếp
 cưỡng hôn
 cưỡng ép
 cưỡng đoạt
-cưỡì cổ
-cưỡì hạc chầu trời
-cưỡì lưng hổ
-cưỡì đầu voi dữ
 cạc cạc
 cạch cửa
 cạch đến già
@@ -18165,6 +18146,9 @@ cải đan
 cảm biến
 cảm biết
 cảm bội
+cảm giác
+cảm giác báo trước
+cảm giác rần rần
 cảm giác
 cảm giác học
 cảm giác luận
@@ -18172,25 +18156,31 @@ cảm hoài
 cảm hoá
 cảm hoán ngữ
 cảm hàn
+cảm hứng
 cảm hối
 cảm hứng
 cảm khái
+cảm kích
 cảm kích
 cảm lạnh
 cảm mạo
 cảm mến
 cảm mộ
+cảm nghĩ
 cảm nghĩ
 cảm nhiễm
 cảm nhận
+cảm nắng
 cảm nắng
 cảm phiền
 cảm phong
+cảm phục
 cảm phục
 cảm quan
 cảm quang
 cảm thán
 cảm thán ngữ
+cảm thấy
 cảm thông
 cảm thương
 cảm thấy
@@ -18202,6 +18192,7 @@ cảm tác
 cảm tình
 cảm tình cá nhân
 cảm tính
+cảm tưởng
 cảm tưởng
 cảm tạ
 cảm từ
@@ -18210,6 +18201,7 @@ cảm tử quân
 cảm xúc
 cảm ân
 cảm điện
+cảm động
 cảm đề
 cảm động
 cảm ơn
@@ -18284,7 +18276,6 @@ cấm cung
 cấm cách
 cấm cảu
 cấm cẳn
-cấm cẳón
 cấm cố
 cấm cửa
 cấm duyên
@@ -18444,7 +18435,7 @@ cầm cố bán chác
 cầm cờ chạy hiệu
 cầm cữ
 cầm cự
-cầm dao đằng lưỡì
+cầm dao đằng lưỡi
 cầm dù chẳng được mát cán
 cầm dù mát cán
 cầm dầu dính tay
@@ -21532,11 +21523,11 @@ dể bay
 dể bảo
 dể bị
 dể bể
-dể cãm
 dể cảm
 dể cày
 dể chịu
 dể cầm
+dể cảm
 dể dãi
 dể dải
 dể dạy
@@ -22438,7 +22429,6 @@ dễ loà yếm thắm, khó loà trôn kim
 dễ làm khó bỏ
 dễ nghe
 dễ người dễ ta
-dễ ngườí dễ ta
 dễ như bỡn
 dễ như chơi
 dễ như trở bàn tay
@@ -22600,7 +22590,6 @@ dối già
 dối như cuội
 dối trá
 dối trên lừa dưới
-dối trên lừa dướỉ
 dối trẻ lừa già
 dốt có chuôi
 dốt có chuôi; dốt có đuôi
@@ -25947,7 +25936,6 @@ gắn xi
 gắng công
 gắng gượng
 gắng gỏi
-gắng gỏl
 gắng gổ
 gắng sức
 gắp lửa bỏ bàn tay
@@ -30319,7 +30307,6 @@ hội thảo
 hội thẩm
 hội thẩm nhân dân
 hội trường
-hội trưởnc
 hội trưởng
 hội tề
 hội tụ
@@ -30690,7 +30677,6 @@ ít thố lộ
 ít tốn kém
 ít tốn tiền
 ít được biết
-jump out of onés skin
 k, k
 ka beo
 ka-li ni-tơ-rat
@@ -31541,7 +31527,6 @@ khua chiêng gõ mõ
 khua chân múa tay
 khua gậy
 khua khoắng
-khua khuắng
 khua môi múa mép
 khua xáo
 khum khum
@@ -31740,7 +31725,6 @@ khuều khoào
 khuờ khoạng
 khuỳnh khuỳnh
 khuỳnh tay ngai
-khyển mã
 khà khà
 khàn khàn
 khàn khàn như giọng vịt đực
@@ -32307,8 +32291,6 @@ không bột sao gột nên hồ
 không bờ bến
 không cao
 không cao thượng
-không cãm giác
-không cãm động
 không cảm giác
 không cày cấy
 không cái nào
@@ -32498,7 +32480,9 @@ không công nhận
 không cùng
 không cương quyết
 không cử động
+không cảm giác
 không cảm giác
+không cảm động
 không cần
 không cần thiết
 không cầu mà được
@@ -33271,7 +33255,6 @@ khăng khít
 khăng khít dải đồng
 khăng khăng
 khăng tay lớn
-khăt khe
 khắc gổ
 khắc khổ
 khắc kỷ
@@ -33352,7 +33335,6 @@ khả tích
 khả ái
 khả ước
 khả ố
-khảch sạn
 khải ca
 khải hoàn
 khải hoàn ca
@@ -35160,7 +35142,6 @@ la lối om sòm
 la lớn
 la lối
 la lớn
-la mắmg
 la mắng
 la mắng
 la ni-na
@@ -35449,7 +35430,6 @@ làm bớt kêu
 làm bớt đau
 làm bực mình
 làm cao
-làm cãm động
 làm cảm động
 làm cản trở
 làm cạn
@@ -35492,9 +35472,9 @@ làm cho dính lại
 làm cho dể dàng
 làm cho dể hiểu
 làm cho giống với
-làm cho hhết rối
 làm cho hoàn hảo
 làm cho hoàn toàn
+làm cho hết rối
 làm cho hết sữa
 làm cho hợp
 làm cho khác biệt
@@ -35629,12 +35609,13 @@ làm công việc
 làm cơm
 làm cười
 làm cứng thêm
+làm cảm động
 làm dao kéo
 làm dản ra
 làm dáng
 làm dịu
-làm dịu bờt
 làm dịu bớt
+làm dịu bớt
 làm dính dầu
 làm dính mỡ
 làm dính với nhau
@@ -35780,9 +35761,9 @@ làm mạnh thêm
 làm màu bớt tươi
 làm mẽ
 làm mẻ
-làm mhàm
 làm mích lòng
-làm mỏmg lại
+làm mõng kim loại
+làm mỏng lại
 làm mọc mộng
 làm mọi người biết
 làm mòm
@@ -35805,7 +35786,7 @@ làm mất sự liên kết
 làm mất sức
 làm mất thể diện
 làm mất thời gian
-làm mất tình cãm
+làm mất tình cảm
 làm mất trinh
 làm mất trí
 làm mất trật tự
@@ -35863,6 +35844,7 @@ làm người nào tức giận
 làm người nào yêu mình
 làm người nào điên
 làm nhà
+làm nhàm
 làm nhẹ bớt
 làm nhiểm vào
 làm nhiều
@@ -36081,6 +36063,7 @@ làm việc dể
 làm việc gì
 làm việc gì không ai biết cả
 làm việc gì một mình
+làm việc hăng hái
 làm việc khó nhọc
 làm việc mau mắn
 làm việc nữa ngày
@@ -36088,7 +36071,6 @@ làm việc quá mệt
 làm việc quá nhiều
 làm việc quá độ
 làm việc vất vả
-làm việv hăng hái
 làm vui
 làm vui lòng
 làm vui mừng
@@ -36164,7 +36146,6 @@ làm đứt đoạn
 làm ơn
 làm ở nhà
 làm ướt
-làmm mõng kim loại
 làn lụt
 làn sóng
 làn sóng điện
@@ -36769,7 +36750,6 @@ lò nung
 lò nướng
 lò rèn
 lò sưởi
-lò điệh
 lò điện
 lò đúc
 lò để nấu
@@ -37572,7 +37552,6 @@ lân tinh
 lân tuất
 lâng láo
 lâng lâng
-lâp tâm
 lâu bền
 lâu dài
 lâu dài
@@ -38307,7 +38286,6 @@ lổ hở
 lổ khoan
 lổ khuôn
 lổ lưới của vớ
-lổ mảmg
 lổ mảng
 lổ mắt
 lổ nhỏ
@@ -38371,7 +38349,7 @@ lõi đời
 lõm bõm
 lõng bõng
 lõng thõng
-lõng võnc
+lõng võng
 lù bù
 lù khù
 lù lù
@@ -41050,7 +41028,7 @@ mò tìm vật gì
 mò đi ra
 mò đi tìm
 mòm vì cọ xát
-mòmg đóc
+mòng đóc
 móc gài
 móc mồi
 móc mồi câu
@@ -42159,7 +42137,6 @@ mông quạnh
 mông sấn
 mông đít
 mông đít
-môtô ba bánh
 mỗi cái
 mỗi giờ
 mỗi khi
@@ -42231,7 +42208,6 @@ một loạt
 một lũ
 một lúc
 một lần
-một lần numg
 một lần nữa
 một lô hàng
 một lô đất
@@ -42246,7 +42222,7 @@ một lứa ấp trứng
 một mã lực
 một máy
 một mẻ lưới
-một miếmh lớn
+một miếng lớn
 một mình
 một mụ già
 một mắt
@@ -44993,7 +44969,7 @@ ngoang ngoảng
 ngoao ngoao
 ngoay ngoáy
 ngoay ngoảy
-ngoảh đầu
+ngoảnh đầu
 ngoại bì
 ngoại cảnh
 ngoại diên
@@ -45021,7 +44997,6 @@ ngoài trời
 ngoe ngoe
 ngoe ngoé
 ngoe ngoảy
-ngoe ngoẩy
 ngoe nguẩy
 ngoe nguẩy như chó vẫy đuôi
 ngoe ngóe
@@ -46320,7 +46295,6 @@ người khóc
 người khuyên bảo
 người khùng
 người khâu quần áo
-người khẩn nguuyện
 người khẩn nguyện
 người không giá trị
 người không hăng hái
@@ -48468,7 +48442,6 @@ nhà thiên văn học
 nhà thuyền
 nhà thuốc
 nhà thông thái
-nhà thôể
 nhà thơ
 nhà thương
 nhà thương thí
@@ -51506,7 +51479,7 @@ nữ trang giả
 nữ trợ giáo
 nữ vương
 nữ điều dưỡng
-nữa chai nườc
+nữa chai nước
 nữa chín
 nữa lương
 nữa ngày
@@ -52599,7 +52572,6 @@ oát giờ
 oát kế
 oé oẹ
 oăn oại
-oăng oẳnc
 oăng oẳng
 oằn ở giửa
 ói ra
@@ -53814,7 +53786,6 @@ phẩm cách
 phẩm chất
 phẩm giá
 phẩm giá cao
-phẩm hạmh
 phẩm hạnh
 phẩm vật
 phẩn nộ
@@ -56718,7 +56689,6 @@ quốc thổ
 quốc toản
 quốc triều hình luật
 quốc trái
-quốc trưởnc
 quốc trưởng
 quốc trạng
 quốc tuý
@@ -57689,7 +57659,7 @@ răng cưa
 răng cửa
 răng cải mả
 răng cấm
-răng cắn phải lưỡí
+răng cắn phải lưỡi
 răng cối
 răng cửa
 răng gỉa
@@ -58579,7 +58549,6 @@ say lử cò bợ
 say mèm
 say máu
 say mèm
-say mèềm
 say mê
 say mê người nào
 say mềm
@@ -58861,7 +58830,6 @@ siêu giai cấp
 siêu hiển vi
 siêu hiện thực
 siêu hiện thực (chủ nghĩa)
-siêu hìinh học
 siêu hình
 siêu hình học
 siêu hạ giới
@@ -59631,7 +59599,6 @@ sì lờ lầu
 sì sì
 sì sụp
 sì sụt
-sìi sụp
 sìn hồ
 sình lầy
 sình sịch
@@ -60020,7 +59987,6 @@ sắp đặt thành cặp
 sắp đặt theo loại
 sắt tròn
 sắt đá
-săảm lốp
 sĩ diện
 sĩ dân
 sĩ hai
@@ -61183,7 +61149,7 @@ sự làm hại
 sự làm lạnh
 sự làm loạn
 sự làm mích lòng
-sự làm mất cãm giác
+sự làm mất cảm giác
 sự làm ngạt
 sự làm nghẹt
 sự làm nhục
@@ -61914,8 +61880,6 @@ sự tụ hợp
 sự tục tỉu
 sự túng thiếu
 sự tẫm vào
-sự tẩt
-sự tẩy
 sự tẩy uế
 sự tận tâm
 sự tập hợp
@@ -62445,7 +62409,6 @@ sầu oán
 sầu riêng
 sầu thành
 sầu thảm
-sầu thảẳm
 sầu tình
 sầu tư
 sầu tủi
@@ -62558,7 +62521,6 @@ sắt đanh
 sắt điện
 sắt đá
 sắt động
-sắác lệnh
 sằng sặc
 sẳn sàng
 sẵn có
@@ -62567,9 +62529,6 @@ sẵn lòng
 sẵn nong sẵn né
 sẵn sàng
 sẵn tay
-sẵp tới
-sẵắn lòng
-sẵắn sàng
 sặc gạch
 sặc máu
 sặc mùi
@@ -62592,7 +62551,6 @@ sẻn so
 sẽ biết
 sẽ hay
 sẽ sàng
-sẽê hay
 sến cát
 sếp ga
 sếp sòng
@@ -64449,7 +64407,6 @@ thèm khát
 thèm muốn
 thèm thuồng
 thèm ăn
-thhuộc về phong cảnh
 thi bá
 thi bơi với giải
 thi ca
@@ -65416,7 +65373,7 @@ thuộc về danh dự
 thuộc về dân chúng
 thuộc về dân tộc
 thuộc về gái trinh
-thuộc về giao cãm
+thuộc về giao cảm
 thuộc về giám hộ
 thuộc về giống như rắn
 thuộc về giống đực
@@ -65483,6 +65440,7 @@ thuộc về nước khác
 thuộc về nước mắt
 thuộc về nước đức
 thuộc về pháp luật
+thuộc về phong cảnh
 thuộc về phòng giấy
 thuộc về phần
 thuộc về phương bắc
@@ -65571,7 +65529,7 @@ thuộc về đế quốc
 thuộc về động mạch
 thuộc về đồ biểu
 thuộc về đồ ăn
-thuộc về đồng cãm
+thuộc về đồng cảm
 thuộc về đơn giản
 thuộc địa
 thuộc đầu
@@ -66503,7 +66461,7 @@ thần chiến tranh
 thần của
 thần diệu
 thần dân
-thần giao cách cãm
+thần giao cách cảm
 thần gió
 thần học
 thần hôn nhân
@@ -66767,7 +66725,6 @@ thô bỉ
 thô bố
 thô chế
 thô kịch
-thô kịck
 thô kệch
 thô kệch
 thô kịch
@@ -69975,7 +69932,6 @@ tình anh em
 tình bạn
 tình bạn bè
 tình bằng hửu
-tình cãm
 tình cảnh
 tình cảnh khó khăn
 tình cảnh khốn khó
@@ -69983,6 +69939,7 @@ tình cảnh mồ côi
 tình cảnh nghèo khổ
 tình cảnh nghèo nàn
 tình cờ
+tình cảm
 tình dục
 tình giao hảo
 tình hình
@@ -70568,7 +70525,6 @@ tiểu sinh
 tiểu sản
 tiểu sản xuất
 tiểu sử
-tiểu thhủ nông
 tiểu thiếp
 tiểu thuyết
 tiểu thuyết hóa
@@ -70581,6 +70537,7 @@ tiểu thặng
 tiểu thệ
 tiểu thị dân
 tiểu thủ công
+tiểu thủ nông
 tiểu thủy nông
 tiểu thừa
 tiểu thử
@@ -70843,7 +70800,7 @@ toé phở
 toét nhèm
 toòng teng
 tỏ bày
-tỏ cãm tình
+tỏ cảm tình
 tỏ kính ý
 tỏ ra
 tỏ vẻ
@@ -71446,7 +71403,6 @@ triệu việt vương
 triệu vân
 triệu ái
 triệu ân
-triệu âớu
 triệu đô
 triệu đông
 triệu đại
@@ -72870,6 +72826,7 @@ trường long hoà
 trường long tây
 trường lâm
 trường lạc
+trường lộc
 trường minh
 trường mẫu giáo
 trường nhi
@@ -72914,7 +72871,6 @@ trường đấu
 trường độ
 trường đời
 trường ốc
-trườngề lộc
 trưởng ban
 trưởng bạ
 trưởng ga
@@ -73005,7 +72961,6 @@ trả miếng
 trả nghĩa
 trả nợ
 trả nủa
-trả nủa (đph)
 trả phép
 trả thêm
 trả thù
@@ -74782,7 +74737,6 @@ tân thới hiệp
 tân thới nhì
 tân thới nhất
 tân thời
-tân thờl
 tân tinh
 tân tiến
 tân toan
@@ -76124,8 +76078,8 @@ tự lợi
 tự lực
 tự mãn
 tự mản
-tự mìmh làm nên
 tự mình
+tự mình làm nên
 tự mình muốn
 tự mở đầu
 tự ngã
@@ -78728,7 +78682,7 @@ vòm trời
 vòng ánh sáng
 vòng chân mày
 vòng cầu
-vòng cầu hình mốmg ngựa
+vòng cầu hình móng ngựa
 vòng cổ
 vòng hoa
 vòng hoa đội xung quanh đầu
@@ -79473,7 +79427,6 @@ vòm miệng
 vòm mềm
 vòm núi
 vòm trời
-vòmg cung
 vòn vọt
 vòng bi
 vòng cung
@@ -83955,7 +83908,6 @@ za hung
 ấu thời
 ấu trùng
 ấu đả
-âởu triệu
 è cổ
 è vai
 è è
@@ -84603,7 +84555,6 @@ za hung
 ăn cưới chẳng tày lại mặt
 ăn cướp
 ăn cướp cơm chim
-ăn cướì
 ăn cạnh nằm kề
 ăn cần ở kiệm
 ăn cận ngồi kề
@@ -85027,7 +84978,6 @@ za hung
 đa bệnh
 đa bội
 đa canh
-đa cãm
 đa cảm
 đa chiều
 đa chương trình
@@ -85267,7 +85217,7 @@ za hung
 đau đớn
 đau đớn hơn
 đau đầu
-đau đầu nhức ỏc
+đau đầu nhức óc
 đau đẻ
 đau đẻ còn chờ sáng trăng
 đau đớn
@@ -85562,6 +85512,8 @@ za hung
 đánh lộn
 đánh lớn
 đánh lừa
+đánh lừa
+đánh lửa
 đánh mạnh
 đánh mất
 đánh một trận
@@ -85613,7 +85565,6 @@ za hung
 đánh đập để khai
 đánh để khai
 đánh đổ
-đánhn lưa
 đáp hiệu
 đáp lại
 đáp xuống
@@ -87714,8 +87665,8 @@ za hung
 đầy sanh khí
 đầy sinh khí
 đầy sinh lực
-đầy thiện cãm
-đầy tình cãm
+đầy thiện cảm
+đầy tình cảm
 đầy tràn
 đầy tớ
 đầy tớ gái
@@ -88485,7 +88436,6 @@ za hung
 đồ dùng của quân đội
 đồ dùng trong nhà
 đồ dùng văn phòng
-đồ dùng đập đat
 đồ dùng để chặt
 đồ dùng để cắt
 đồ dùng để đánh trứng
@@ -89237,7 +89187,7 @@ za hung
 đường đi có rải đá
 đường đi dưới đất
 đường đi giữa hai người
-đường đi khúc khuỷy
+đường đi khúc khuỷu
 đường đi qua
 đường đi trong rừng
 đường đi về hướng đông và tây
@@ -92412,7 +92362,6 @@ za hung
 ếch ngồi đáy giếng
 ếch ngồi đáy giếng coi trời bằng vung
 ếch ngồi đáy giếng, coi trời bằng vung
-ếch ngồí đáy giếng
 ếch nhái
 ếch nào chẳng là thịt
 ếch tháng ba, gà tháng bảy

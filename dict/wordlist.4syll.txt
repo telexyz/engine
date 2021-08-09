@@ -114,7 +114,7 @@ ba vạn chín nghìn
 ba đấng ba loài
 ba đầu sáu tay
 ba đời bảy họ
-ban cua lưỡí trắng
+ban cua lưỡi trắng
 ban ngày ban mặt
 bao bọc sương mù
 bao la thiên địa
@@ -853,8 +853,6 @@ cau mặt cau mày
 cau non trái mùa
 cau non trầu lộc
 cay ăn cay gỡ
-cãm giác báo trước
-cãm giác rần rần
 cải bắp lá quăn
 cải lộn ồn ào
 cải tác khúc nhạc
@@ -1012,7 +1010,7 @@ chỉ người kiên nhẩn
 chỉ người mạnh khỏe
 chỉ người tàn tật
 chỉ rỏ mưu gian
-chỉ sự cãm xúc
+chỉ sự cảm xúc
 chỉ sự so sánh
 chỉ sự tổng quát
 chỉ thể thụ động
@@ -1195,9 +1193,9 @@ chân chỉ hạt bột
 chân co chân duỗi
 chân cứng đá mềm
 chân giày chân dép
-chân gièy chân dép
 chân giò ngãng ra
 chân giả khó phân
+chân giầy chân dép
 chân hán chân hài
 chân không bén đất
 chân kiến viển vọng
@@ -1902,7 +1900,7 @@ có vẻ khinh bỉ
 có vẻ khinh miệt
 có vẻ khinh người
 có vẻ khó chịu
-có vẻ tình cãm
+có vẻ tình cảm
 có vẻ to lớn
 có vẻ tân kỳ
 có đóng vảy cứng
@@ -2058,7 +2056,7 @@ cây toan mô thảo
 cây vàng cây bạc
 cây đa bến cũ
 cây đào kim nhưỡng
-cây đăng tam tyhảo
+cây đăng tam thảo
 cây đức chồi nhân
 cây ơ liu hoang
 cầm lại vật gì
@@ -2400,6 +2398,7 @@ cười đấy khóc đấy
 cường độ lao động
 cưỡi cổ đè đầu
 cưỡi hạc chầu trời
+cưỡi hạc chầu trời
 cưỡi lên lưng hổ
 cưỡi ngựa xem hoa
 cưỡi sóng vượt gió
@@ -2407,10 +2406,8 @@ cưỡi thuyền vượt sóng
 cưỡi trên lưng cọp
 cưỡi trên lưng hổ
 cưỡi đầu cưỡi cổ
-cưỡi đầu cưỡì cổ
 cưỡi đầu voi dữ
-cưỡì hạc chầu trời
-cưỡì đầu voi dữ
+cưỡi đầu voi dữ
 cạn tàu ráo máng
 cạnh tranh sinh tồn
 cả chài lẫn chì
@@ -2435,6 +2432,8 @@ cải tà quy chính
 cải tạo tư tưởng
 cải tử hoàn sinh
 cải ác qui thiện
+cảm giác báo trước
+cảm giác rần rần
 cảm thấy khó chịu
 cảm tình cá nhân
 cảm ứng điện từ
@@ -2456,7 +2455,7 @@ cầm cân nẩy mực
 cầm cương nảy mực
 cầm cố bán chác
 cầm cờ chạy hiệu
-cầm dao đằng lưỡì
+cầm dao đằng lưỡi
 cầm dù mát cán
 cầm dầu dính tay
 cầm gươm đằng lưỡi
@@ -2875,7 +2874,7 @@ dềnh dà dềnh dàng
 dễ bề làm ăn
 dễ làm khó bỏ
 dễ người dễ ta
-dễ ngườí dễ ta
+dễ người dễ ta
 dễ như ăn gỏi
 dễ vay dày nợ
 dễ ăn lành khiến
@@ -2887,7 +2886,7 @@ dọa non dọa già
 dọc ngang trời đất
 dốc bầu tâm sự
 dối trên lừa dưới
-dối trên lừa dướỉ
+dối trên lừa dưới
 dối trẻ lừa già
 dốt hay nói chữ
 dốt đặc cán mai
@@ -4274,9 +4273,9 @@ làm cho dính lại
 làm cho dể dàng
 làm cho dể hiểu
 làm cho giống với
-làm cho hhết rối
 làm cho hoàn hảo
 làm cho hoàn toàn
+làm cho hết rối
 làm cho hết sữa
 làm cho khác biệt
 làm cho khác nhau
@@ -4349,6 +4348,7 @@ làm lể truy niệm
 làm lể truy điệu
 làm lể đặt tên
 làm màu bớt tươi
+làm mõng kim loại
 làm mọi người biết
 làm mất danh dự
 làm mất danh giá
@@ -4357,7 +4357,7 @@ làm mất phẫm cách
 làm mất phẫm giá
 làm mất thể diện
 làm mất thời gian
-làm mất tình cãm
+làm mất tình cảm
 làm mất trật tự
 làm mất vẻ đẹp
 làm mờ nước bóng
@@ -4397,6 +4397,7 @@ làm tròn bổn phận
 làm tròn nhiệm vụ
 làm trước kỳ hạn
 làm việc ban ngày
+làm việc hăng hái
 làm việc khó nhọc
 làm việc mau mắn
 làm việc nữa ngày
@@ -4404,13 +4405,11 @@ làm việc quá mệt
 làm việc quá nhiều
 làm việc quá độ
 làm việc vất vả
-làm việv hăng hái
 làm xong bổn phận
 làm xong công việc
 làm ăn sâu vào
 làm đúng tiêu chuẩn
 làm đường thành cục
-làmm mõng kim loại
 lá buồm tam giác
 lá mọc ở rể
 le ra le vô
@@ -6888,7 +6887,7 @@ rút phép thông công
 rút ruột rút gan
 rút ruột tơ tằm
 răng của cây chỉa
-răng cắn phải lưỡí
+răng cắn phải lưỡi
 răng long đầu bạc
 răng đâm vào nướu
 răng độc của rắn
@@ -7426,7 +7425,6 @@ theo về phía nào
 theo vết xe đổ
 theo đuổi công việc
 theo đóm ăn tàn
-thhuộc về phong cảnh
 thi bơi với giải
 thi gan đấu trí
 thi gan đọ sức
@@ -7519,7 +7517,7 @@ thuộc về danh dự
 thuộc về dân chúng
 thuộc về dân tộc
 thuộc về gái trinh
-thuộc về giao cãm
+thuộc về giao cảm
 thuộc về giám hộ
 thuộc về giống đực
 thuộc về hài kịch
@@ -7564,6 +7562,7 @@ thuộc về nước khác
 thuộc về nước mắt
 thuộc về nước đức
 thuộc về pháp luật
+thuộc về phong cảnh
 thuộc về phòng giấy
 thuộc về phương bắc
 thuộc về quan niệm
@@ -7633,7 +7632,7 @@ thuộc về đế quốc
 thuộc về động mạch
 thuộc về đồ biểu
 thuộc về đồ ăn
-thuộc về đồng cãm
+thuộc về đồng cảm
 thuộc về đơn giản
 thuốc giống phòng bịnh
 thuốc nhét vào đít
@@ -7705,7 +7704,7 @@ thân phận ngoại giao
 thân tàn ma dại
 thâu hồi giấy phép
 thẩm quyền để xử
-thần giao cách cãm
+thần giao cách cảm
 thần kinh ở giữa
 thần trí hôn mê
 thầu xây cất nhà
@@ -8513,7 +8512,7 @@ tự do ngôn luận
 tự do tư tưởng
 tự kiêu qúa đáng
 tự kỷ ám thị
-tự mìmh làm nên
+tự mình làm nên
 tự nhiên chủ nghĩa
 tự nhiên thần giáo
 tự nó mà ra
@@ -9502,7 +9501,7 @@ yểu điệu thục nữ
 đau lòng xót ruột
 đau mình đau mẩy
 đau răng ăn cốm
-đau đầu nhức ỏc
+đau đầu nhức óc
 đã giải quyết xong
 đã suy tính trước
 đả rèn luyện rồi
@@ -9790,7 +9789,6 @@ yểu điệu thục nữ
 đồ có chất đắng
 đồ dùng trong nhà
 đồ dùng văn phòng
-đồ dùng đập đat
 đồ dùng để chặt
 đồ dùng để cắt
 đồ hãm bánh xe
@@ -9875,7 +9873,7 @@ yểu điệu thục nữ
 đường tàu rẻ nước
 đường xoi của cột
 đường đi dưới đất
-đường đi khúc khuỷy
+đường đi khúc khuỷu
 đường đi trong rừng
 đường ở dưới đất
 đứa bé nghịch ngợm
@@ -10224,7 +10222,7 @@ yểu điệu thục nữ
 ế sưng ế sỉa
 ếch mọc lông nách
 ếch ngồi đáy giếng
-ếch ngồí đáy giếng
+ếch ngồi đáy giếng
 ỉu xì ỉu xịt
 ọp à ọp ẹp
 ỏn a ỏn ẻn

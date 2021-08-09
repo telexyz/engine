@@ -232,8 +232,8 @@ biên uỷ viên
 biểu đồng tình
 biện chứng pháp
 biệt động quân
-biết cãm thích
 biết chắc chắn
+biết cảm thích
 biết dự liệu
 biết lẽ phải
 biết phân biệt
@@ -1348,7 +1348,7 @@ chuyện kỳ dị
 chuyện kỳ lạ
 chuyện láo khoét
 chuyện mới lạ
-chuyện nhãm hní
+chuyện nhảm nhí
 chuyện nói láo
 chuyện phi lý
 chuyện quá đáng
@@ -1928,7 +1928,6 @@ có ba góc
 có biệt tài
 có bọc sắt
 có bóng mát
-có cãm tình
 có cảm tình
 có chút mùi
 có chân trong
@@ -1939,6 +1938,7 @@ có chừng mực
 có cây cối
 có cầu chứng
 có công hiệu
+có cảm tình
 có danh dự
 có dả tâm
 có dính dáng
@@ -2717,7 +2717,7 @@ cười vỡ bụng
 cười đổng trác
 cười đứt ruột
 cưỡi lên đầu
-cưỡì lưng hổ
+cưỡi lưng hổ
 cạch đến già
 cạnh kề nhau
 cạnh đối nhau
@@ -4297,8 +4297,6 @@ không bận tâm
 không bắt buộc
 không bờ bến
 không cao thượng
-không cãm giác
-không cãm động
 không cảm giác
 không cày cấy
 không cái nào
@@ -4383,7 +4381,9 @@ không công hiệu
 không công nhận
 không cương quyết
 không cử động
+không cảm giác
 không cảm giác
+không cảm động
 không cần thiết
 không cẩn thận
 không danh giá
@@ -5012,7 +5012,6 @@ làm bớt giận
 làm bớt kêu
 làm bớt đau
 làm bực mình
-làm cãm động
 làm cảm động
 làm cản trở
 làm chảy ra
@@ -5100,10 +5099,11 @@ làm cân với
 làm công phẩn
 làm công việc
 làm cứng thêm
+làm cảm động
 làm dao kéo
 làm dản ra
-làm dịu bờt
 làm dịu bớt
+làm dịu bớt
 làm dính dầu
 làm dính mỡ
 làm gai người
@@ -5171,7 +5171,7 @@ làm lớn thêm
 làm ma cô
 làm mạnh thêm
 làm mích lòng
-làm mỏmg lại
+làm mỏng lại
 làm mọc mộng
 làm mũi lòng
 làm mũn ra
@@ -6172,7 +6172,6 @@ môn dả cầu
 môn nấu nướng
 môn thể thao
 môn thể thao
-môtô ba bánh
 một ban ca
 một chút mùi
 một chút xíu
@@ -6185,13 +6184,12 @@ một giống sò
 một hàng số
 một hiện tượng
 một loại rắn
-một lần numg
 một lần nữa
 một lô hàng
 một lô đất
 một mã lực
 một mẻ lưới
-một miếmh lớn
+một miếng lớn
 một mụ già
 một ngàn lít
 một nguyên tắc
@@ -6817,7 +6815,6 @@ người khỏe mạnh
 người khó hiểu
 người khó tánh
 người khuyên bảo
-người khẩn nguuyện
 người khẩn nguyện
 người không nhà
 người không quen
@@ -7941,7 +7938,7 @@ nữ tiếp viên
 nữ trang giả
 nữ trợ giáo
 nữ điều dưỡng
-nữa chai nườc
+nữa chai nước
 nử tu sĩ
 nước cam ép
 nước chè hai
@@ -8809,7 +8806,7 @@ siêu cấu trúc
 siêu giai cấp
 siêu hiển vi
 siêu hiện thực
-siêu hìinh học
+siêu hình học
 siêu hình học
 siêu hạ giới
 siêu liên kết
@@ -11735,11 +11732,11 @@ tiểu phân tử
 tiểu qui mô
 tiểu quy mô
 tiểu sản xuất
-tiểu thhủ nông
 tiểu thuyết hóa
 tiểu thuỷ nông
 tiểu thị dân
 tiểu thủ công
+tiểu thủ nông
 tiểu thủy nông
 tiểu tuần hoàn
 tiểu tư sản
@@ -11771,7 +11768,7 @@ toán học hóa
 toán kinh tế
 toát mồ hôi
 toát xì cấu
-tỏ cãm tình
+tỏ cảm tình
 tỏ kính ý
 tỏa ánh sáng
 tỏa mùi thơm
@@ -12046,7 +12043,6 @@ trạm quỹ đạo
 trạm xe lửa
 trạng từ hóa
 trả lời lại
-trả nủa (đph)
 trả tiền mặt
 trảm giam hậu
 trấn ba đình
@@ -14068,8 +14064,8 @@ yếu như sên
 đầy sanh khí
 đầy sinh khí
 đầy sinh lực
-đầy thiện cãm
-đầy tình cãm
+đầy thiện cảm
+đầy tình cảm
 đầy tớ gái
 đầy vũng nước
 đầy ý nghĩa

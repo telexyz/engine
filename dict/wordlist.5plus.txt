@@ -688,7 +688,6 @@ cá cắn câu biết đâu mà gỡ
 cá gặp nước rồng gặp mây
 cá không ăn muối cá ươn
 cá kể đầu, rau kể mớ
-cá kể đầu, rau kể mớmớ
 cá kể đầu, trầu kể mớ
 cá lớn nuốt cá bé
 cá mè đè cá chép
@@ -1264,7 +1263,6 @@ im ỉm như bà cốt uống thuốc
 im ỉm như gái ngồi phải cọc
 im ỉm như gái đái gốc dâu
 in sâu vào trí nhớ
-jump out of onés skin
 kẻ ăn cướp ngoài đường
 kẹo làm thứ đường xên
 khai kinh qua vùng nào
@@ -2528,7 +2526,7 @@ sự kiểm kê hàng tồn kho
 sự kết thành hột nhỏ
 sự làm cho sống lại
 sự làm cho vừa vặn
-sự làm mất cãm giác
+sự làm mất cảm giác
 sự làm nẩy ra ý kiến
 sự làm việc quá độ
 sự lủng đoạn thị trường
@@ -2968,7 +2966,7 @@ voi chẳng đẻ, đẻ thì to
 voi không nài như trai không vợ
 voi đú, chó đú, chuột chù cũng nhảy cẫng
 vòi nước bằng cao su
-vòng cầu hình mốmg ngựa
+vòng cầu hình móng ngựa
 vòng hoa đội xung quanh đầu
 vua biết mặt chúa biết tên
 vua biết mặt, chúa biết tên
