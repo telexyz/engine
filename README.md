@@ -42,7 +42,7 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 * Làm token repair vì nó thú vị và khởi tạo module beam-search nền tảng
   (xem `docs/.token_repairs.md`)
 
-* Cải tiến nhỏ: Bỏ str.len vào đầu string. <= 254 nghĩa là len thật, 255 nghĩa là phải mò từ 255 trở đi để tìm len thật, + thêm chiến thuật tripple 000 guarding sẽ tìm ra len rất nhanh
+* Cải tiến: dồn `trans_offset + syllable_id` vào làm một (`5-bytes`), dùng `token_info.attrs.isSyllable()` để xem `syllable_id` có dùng tới ko? Nếu ko dùng thì `1-byte` để lưu `token.len`, với `token.len <= 4` `4-bytes` còn lại lưu trực tiếp `token`, nếu ko thì dùng `trans_slice()`
 
 [ >>> DONE <<< ]
 
