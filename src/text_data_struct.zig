@@ -96,9 +96,13 @@ pub const Text = struct {
 
         pub inline fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
             var ptr = self.trans_ptr(text);
-            var len: usize = self.attrs.length;
-            if (len == 0) len = double_0_trans_len(ptr);
-            return ptr[0..len];
+            var n: usize = self.attrs.length;
+            if (n == 0) {
+                n = 9;
+                while (ptr[n] != 0) : (n += 2) {}
+                if (ptr[n - 1] == 0) n -= 1;
+            }
+            return ptr[0..n];
             // return ptr[0..double_0_trans_len(ptr)];
         }
 
@@ -346,6 +350,10 @@ pub const Text = struct {
                 token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr));
                 kv.value_ptr.count += 1;
             }
+
+            var parse_syllable = token.len <= U2ACharStream.MAX_LEN;
+            if (parse_syllable) parse_syllable = then_parse_syllable or
+                @rem(self.tokens_number, 5) == 4;
 
             if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
                 const type_info = kv.value_ptr;
