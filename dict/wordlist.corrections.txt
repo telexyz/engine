@@ -1,0 +1,243 @@
+-ác cãm
++ác cảm
+
+-ban cua lưỡí trắng
++ban cua lưỡi trắng
+
+-biết cãm thích
++biết cảm thích
+
+-chỉ sự cãm xúc
++chỉ sự cảm xúc
+
+-cưỡì cổ
+-cưỡì hạc chầu trời
+-cưỡì lưng hổ
+-cưỡì đầu voi dữ
+
+-cãm giác
+-cãm giác báo trước
+-cãm giác rần rần
+-cãm hứng
+-cãm kích
+-cãm kíck
+-cãm nghĩ
+-cãm nắng
+-cãm phục
+-cãm thấy
+-cãm tưởng
+-cãm động
+// cãm => cảm trùng với "cảm giác" ...
+// một loại từ nữa thay ã với á, khác biệt miền nam vs bắc, chưa thay thế hết
+
+-chuyện nhãm hní
++chuyện nhảm nhí
+
+-có vẻ tình cãm
++có vẻ tình cảm
+
+-cuống phổí
++cuống phổi
+
+-cá kể đầu, rau kể mớmớ
+
+-cây đăng tam tyhảo
++cây đăng tam thảo
+
+-chân gièy chân dép
++chân giầy chân dép
+
+-châu chấụ
++châu chấu
+
+-chạồm mặt
+
+-chặc lưỡỉ
++chặc lưỡi
+
+-chữa thuổc
++chữa thuốc
+
++cưỡi đầu cưỡi cổ
+-cưỡi đầu cưỡì cổ
+
+-cưỡì cổ
+-cưỡì hạc chầu trời
+-cưỡì lưng hổ
+-cưỡì đầu voi dữ
+ 
+-cấm cẳón
+
+-cầm dao đằng lưỡì
++cầm dao đằng lưỡi
+
+-dể cãm
++dể cảm
+
+ dễ người dễ ta
+-dễ ngườí dễ ta
+
+ dối trên lừa dưới
+-dối trên lừa dướỉ
+
+ gắng gỏi
+-gắng gỏl
+
+ hội trường
+-hội trưởnc
+
+ khua khoắng
+-khua khuắng
+
+-khyển mã
+
+-khăt khe
+
+-khảch sạn
+
+-la mắmg
+ la mắng
+
+-làm cãm động
+ làm cảm động
+
+-làm cho hhết rối
++làm cho hết rối
+
+-làm dịu bờt
+ làm dịu bớt
+
++làm mõng kim loại
++làm mỏng lại
+
+-làm việv hăng hái
++làm việc hăng hái
+
+-lò điệh
+ lò điện
+
+-lổ mảmg
+ lổ mảng
+
+-lõng võnc
++lõng võng
+
+-mòmg đóc
++mòng đóc
+
+-môtô ba bánh
++mô tô ba bánh
+
+-một lần numg
++một lần nung
+
+-một miếmh lớn
++một miếng lớn
+
+-ngoe ngoẩy
++ngoe nguẩy
+
+-người khẩn nguuyện
+ người khẩn nguyện
+
+-nhà thôể
++nhà thổ
+
+-nữa chai nườc
++nữa chai nước
+
+-oăng oẳnc
+ oăng oẳng
+
+-phẩm hạmh
+ phẩm hạnh
+
+-quốc trưởnc
+ quốc trưởng
+
+-răng cắn phải lưỡí
++răng cắn phải lưỡi
+
+-say mèềm
++say mèm
++say mềm
+
+-siêu hìinh học
+
+-sìi sụp
+ sì sụt
+
+-săảm lốp
+ săm lốp
+
+-sự làm mất cãm giác
++sự làm mất cảm giác
+
+-sự tẩt
+-sự tẩy
+
+-sầu thảẳm
++sầu thảm
+
+-dối trên lừa dướỉ
+
+-dễ ngườí dễ ta
+
+-oăng oẳnc
+
+-phẩm hạmh
+ phẩm hạnh
+
+ -sắác lệnh
+
+ -sẵp tới
+-sẵắn lòng
+-sẵắn sàng
+
+-sẽê hay
+
+-thhuộc về phong cảnh
+
+ thô kịch
+-thô kịck
+
+-tiểu thhủ nông
++tiểu thủ nông
+
+-triệu âớu
+
+-trườngề lộc
++trường lộc
+
+-trả nủa (đph)
+
+-tân thờl
+ tân thời
+
+-tự mìmh làm nên
++tự mình làm nên
+
+-vòng cầu hình mốmg ngựa
++vòng cầu hình móng ngựa
+
+-âởu triệu
+
+-ăn cướì
+
+-đa cãm
+ đa cảm
+
+-đau đầu nhức ỏc
++đau đầu nhức óc
+
++đánh lừa
++đánh lửa
+
+-đầy thiện cãm
+-đầy tình cãm
++đầy thiện cảm
++đầy tình cảm
+
+đường đi khúc khuỷy
++đường đi khúc khuỷu
+
