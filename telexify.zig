@@ -35,7 +35,7 @@ fn initConfigsFromArgs() void {
     // Optional, get max_lines from args
     var temp = args.nextPosix();
     if (temp != null) {
-        keep_origin_amap = false;
+        // keep_origin_amap = false;
         convert_mode = switch (temp.?[0]) {
             'd' => 1,
             's' => 2,
