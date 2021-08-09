@@ -135,24 +135,21 @@ pub fn main() anyerror!void {
     };
     text.writer = buff_wrt.writer();
 
-    // Init parser thread just before you run tknz.segment so it can catch up :)
-    // const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
-    // const then_parse_syllable = false;
-    const then_parse_syllable = true;
+    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    const then_parse_syllable = false;
+    // const then_parse_syllable = true; // parse syllable on-the-fly
 
-    try tknz.segment(&text, then_parse_syllable); // parse syllable on-the-fly
+    try tknz.segment(&text, then_parse_syllable);
     text.free_input_bytes();
-    try buff_wrt.flush();
     try write_out_samples();
 
-    // _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
-    // thread.join(); // Wait for sylabeling thread end
-    // if (text.parsed_tokens_number != text.tokens_number) {
-    //     std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{});
-    //     unreachable;
-    // }
+    _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
+    thread.join(); // Wait for sylabeling thread end
+    if (text.parsed_tokens_number != text.tokens_number) std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{}); // unreachable;
 
+    try buff_wrt.flush();
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
+
     if (parse_n_grams) {
         print("\nSTEP 3: Parse and write n-gram ...\n", .{});
         gram = .{};
