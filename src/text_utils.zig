@@ -242,11 +242,15 @@ pub fn parseTokens(text: *Text) void {
             }
 
             // Init type_info shortcut
-            const ptr = text.alphabet_types.getPtr(token);
+            var ptr = text.alphabet_types.getPtr(token);
             if (ptr == null) {
-                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` !!!\n", .{token});
-                std.debug.print("Xem tokens_infos.append(..) đã được update chưa ???\n", .{});
-                unreachable;
+                std.time.sleep(WAIT_NANOSECS / 2);
+                ptr = text.alphabet_types.getPtr(token);
+                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` ???\n", .{token});
+                if (ptr == null) {
+                    std.debug.print("!!! tokens_infos[i] đã được update chưa ???\n", .{});
+                    unreachable;
+                }
             }
             const type_info = ptr.?;
 
