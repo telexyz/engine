@@ -124,7 +124,7 @@ pub const Utf8ToAsciiTelexCharStream = struct {
             const byte = telex_utils.getCharByte(telex_code);
 
             // Convert uwo{w} => uow
-            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and (byte == 'o' or byte == 'a')) {
+            if (self.len > 0 and self.buffer[self.len - 1] == 'w' and (byte == 'o')) {
                 self.buffer[self.len - 1] = byte;
                 self.buffer[self.len] = 'w';
                 self.len += 1;
@@ -291,7 +291,7 @@ test "ưo, uơ, ươ => uow; ưa, uă, ưă => uaw" {
     char_stream.reset();
     try char_stream.push('ư');
     try char_stream.push('a');
-    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uaw");
+    try testing.expectEqualStrings(char_stream.buffer[0..char_stream.len], "uwa");
 
     char_stream.reset();
     try char_stream.push('ư');
