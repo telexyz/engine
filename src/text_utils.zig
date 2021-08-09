@@ -14,20 +14,15 @@ pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *
             _ = try text.writer.write(token);
         return;
     }
-
-    // Write syllables only
+    // Write space after token
     if (attrs.isSyllable()) {
         _ = try text.writer.print("{s} ", .{token});
         text.prev_token_is_vi = true;
-        //
-    } else if (text.prev_token_is_vi) {
-        //
-        const true_joiner = attrs.surrounded_by_spaces == .none and
-            token.len == 1 and (token[0] == '_' or token[0] == '-');
-
-        if (!true_joiner) {
-            _ = try text.writer.write("\n");
-            text.prev_token_is_vi = false;
+    } else {
+        switch (token[0]) {
+            '\n' => _ = try text.writer.write("\n"),
+            '_', '-' => if (attrs.surrounded_by_spaces == .none and token.len == 1) return,
+            else => _ = try text.writer.print("{s} ", .{token}),
         }
     }
 }
