@@ -478,7 +478,11 @@ inline fn _amGiua(str: []const u8) AmGiua {
             'z' => .oz,
             'w' => .ow,
             'e' => .oe,
-            'a' => if (c2 == 'w') AmGiua.oaw else .oa, // oa|oaw
+            'a' => switch (c2) { // oa|oaw
+                'z' => AmGiua.uaz, // tự động chữa lỗi oaz => uaz
+                'w' => AmGiua.oaw,
+                else => .oa,
+            },
             else => .o,
         },
         'i' => switch (c1) { // i|ia|iee
@@ -687,14 +691,16 @@ fn utf8ToAmTiet(str: []const u8) []const u8 {
     return parseAmTietToGetSyllable(true, printNothing, str).printBuffTelex(buff);
 }
 
-test "iee, yee (uyee), ooo, uee" {
+test "iee, yee (uyee), ooo, uee, uaz <= oaz" {
     // Note: Need to convert no-mark format back to marked version for
     // following vowels:
     // .iee <= .ie,
     // .yee <= .ye,
     // .uyee <= .uye,
     // .uee <= .ue,
+    // .uaz <= oaz
     // the user is aiming for 'ô' or 'oo' (both need to type double 'o')
+    try std.testing.expectEqualStrings(utf8ToAmTiet("ngoẩy"), "nguaayr");
     try std.testing.expectEqualStrings(utf8ToAmTiet("toong"), "tooong");
     try std.testing.expectEqualStrings(utf8ToAmTiet("thoọng"), "thooongj");
     try std.testing.expectEqualStrings(utf8ToAmTiet("đoong"), "ddooong");
@@ -733,6 +739,8 @@ fn canBeVietnameseStrick(am_tiet: []const u8) bool {
 }
 
 test "canBeVietnamese() // alphamarks exceptions" {
+    try expect(canBeVietnameseStrick("ngoẩy"));
+    // try expect(canBeVietnameseStrick(""));
     try expect(canBeVietnameseStrick("ðạo"));
     try expect(canBeVietnameseStrick("Ðạo"));
     try expect(canBeVietnameseStrick("nội"));

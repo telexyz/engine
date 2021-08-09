@@ -136,7 +136,7 @@ pub const AmGiua = enum(u5) {
     uy,
     iez, // iê
     oaw, // oă
-    uaz, // uâ
+    uaz, // uâ (ngoe nguẩy <= ngoẩy)
     uez, // uê
     uoz, // uô
     uaw, // ưa
