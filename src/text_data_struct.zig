@@ -106,7 +106,7 @@ pub const Text = struct {
 
     const ONE_MB = 1024 * 1024;
     const MAX_INPUT_FILE_SIZE = 2048 * ONE_MB; // 1336 ~ 1.3Gb
-    const BUFF_SIZE = 512; // incase input is small, estimated not correct
+    const BUFF_SIZE = 1024; // incase input is small, estimated not correct
 
     pub inline fn double_0_trans_len(ptr: [*]u8) usize {
         var n: usize = 2;
@@ -224,7 +224,7 @@ pub const Text = struct {
 
         const input_bytes_size = self.input_bytes.len;
         self.estimated_tokens_num = (input_bytes_size * 10) / 45;
-        self.estimated_tokens_num += (BUFF_SIZE * 10 * ONE_MB) / input_bytes_size;
+        self.estimated_tokens_num += BUFF_SIZE + (BUFF_SIZE * 20 * ONE_MB) / input_bytes_size;
         // std.debug.print("\n!!! {} !!!\n", .{self.estimated_tokens_num});
 
         // Init tokens infos list
