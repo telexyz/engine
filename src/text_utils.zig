@@ -6,18 +6,18 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *Text, writer: Text.BufferedWriter.Writer) !void {
+pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *Text) !void {
     if (text.keep_origin_amap) {
         if (attrs.spaceAfter())
-            _ = try writer.print("{s} ", .{token})
+            _ = try text.writer.print("{s} ", .{token})
         else
-            _ = try writer.write(token);
+            _ = try text.writer.write(token);
         return;
     }
 
     // Write syllables only
     if (attrs.isSyllable()) {
-        _ = try writer.print("{s} ", .{token});
+        _ = try text.writer.print("{s} ", .{token});
         text.prev_token_is_vi = true;
         //
     } else if (text.prev_token_is_vi) {
@@ -26,7 +26,7 @@ pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *
             token.len == 1 and (token[0] == '_' or token[0] == '-');
 
         if (!true_joiner) {
-            _ = try writer.write("\n");
+            _ = try text.writer.write("\n");
             text.prev_token_is_vi = false;
         }
     }
@@ -261,7 +261,13 @@ pub fn parseTokens(text: *Text) void {
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
                 token_info.trans_offset = type_info.trans_offset;
+                token = token_info.trans_slice(text);
             }
         } // END parse alphabet token to get syllable
+        // Write token to file
+        writeToken(token, token_info.attrs, text) catch {
+            std.debug.print("\n!!! Write token out fail !!!\n", .{});
+            unreachable;
+        };
     } // while loop
 }

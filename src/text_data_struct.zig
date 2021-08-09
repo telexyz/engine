@@ -377,7 +377,7 @@ pub const Text = struct {
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
         if (then_parse_syllable) {
-            try text_utils.writeToken(token, token_info.attrs, self, self.writer);
+            try text_utils.writeToken(token, token_info.attrs, self);
             self.parsed_tokens_number = self.tokens_number;
         }
     }
