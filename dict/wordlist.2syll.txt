@@ -8524,7 +8524,6 @@ chẳng đừng
 chẵn lẻ
 chẵn đôi
 chặc lưỡi
-chặc lưỡi
 chặn bóng
 chặn giấy
 chặn hậu
@@ -11961,7 +11960,6 @@ cường độ
 cưởng hiếp
 cưỡi bổ
 cưỡi cổ
-cưỡi cổ
 cưỡi hổ
 cưỡi rồng
 cưỡng bách
@@ -12104,7 +12102,6 @@ cảm hứng
 cảm hối
 cảm hứng
 cảm khái
-cảm kích
 cảm kích
 cảm kích
 cảm lạnh
@@ -22340,7 +22337,6 @@ khuyết tật
 khuyết tịch
 khuyết điểm
 khuyển mã
-khuyển mã
 khuyển nho
 khuyển ưng
 khuân vác
@@ -22484,7 +22480,6 @@ khách nợ
 khách quan
 khách quen
 khách sáo
-khách sạn
 khách sạn
 khách thương
 khách thể
@@ -23286,7 +23281,6 @@ khắng khít
 khắp cả
 khắp mặt
 khắp nơi
-khắt khe
 khắt khe
 khằng khặc
 khẳn tính
@@ -24528,7 +24522,6 @@ la lên
 la lớn
 la lối
 la lớn
-la mắng
 la mắng
 la mắng
 la ni-na
@@ -26504,7 +26497,6 @@ lổ hổng
 lổ hở
 lổ khoan
 lổ khuôn
-lổ mảng
 lổ mảng
 lổ mắt
 lổ nhỏ
@@ -33052,7 +33044,6 @@ nhà thơ
 nhà thương
 nhà thầu
 nhà thổ
-nhà thổ
 nhà thờ
 nhà tiêu
 nhà trai
@@ -36774,7 +36765,6 @@ phẩm cách
 phẩm chất
 phẩm giá
 phẩm hạnh
-phẩm hạnh
 phẩm vật
 phẩn nộ
 phẩn uất
@@ -40417,7 +40407,6 @@ say máu
 say mèm
 say mê
 say mềm
-say mềm
 say nhè
 say nắng
 say rượu
@@ -41198,7 +41187,6 @@ sênh tiền
 sêu tết
 sì sì
 sì sụp
-sì sụp
 sì sụt
 sìn hồ
 sình lầy
@@ -41420,7 +41408,6 @@ sút kém
 sút người
 sút sít
 súy phủ
-săm lốp
 săm lốp
 săm se
 săm soi
@@ -42134,7 +42121,6 @@ sắc lạp
 sắc lẹm
 sắc lẻm
 sắc lệnh
-sắc lệnh
 sắc màu
 sắc mạo
 sắc mắc
@@ -42170,7 +42156,6 @@ sắp hàng
 sắp sẵn
 sắp sửa
 sắp tới
-sắp tới
 sắp xếp
 sắp đặt
 sắp đến
@@ -42195,8 +42180,6 @@ sẳn sàng
 sẵn có
 sẵn dịp
 sẵn lòng
-sẵn lòng
-sẵn sàng
 sẵn sàng
 sẵn tay
 sặc gạch
@@ -42216,7 +42199,6 @@ sẻ sớt
 sẻ đồng
 sẻn so
 sẽ biết
-sẽ hay
 sẽ hay
 sẽ sàng
 sến cát
@@ -51209,7 +51191,6 @@ tân thịnh
 tân thọ
 tân thới
 tân thời
-tân thời
 tân tinh
 tân tiến
 tân toan
@@ -54685,7 +54666,6 @@ vòm núi
 vòm trời
 vòn vọt
 vòng bi
-vòng cung
 vòng cung
 vòng cổ
 vòng găng
@@ -58544,7 +58524,6 @@ za hung
 ăn cơm
 ăn cướp
 ăn cưới
-ăn cưới
 ăn cướp
 ăn cắp
 ăn cọ
@@ -58743,7 +58722,6 @@ za hung
 đa cảm
 đa chiều
 đa cùng
-đa cảm
 đa cảm
 đa cấp
 đa cực
