@@ -1,4 +1,6 @@
-words = File.open("VnVocab.txt").read.split("\n").uniq
+# Use /( .+?){3}\n/ to match 3-syll word
+
+words = File.open("wordlist.txt").read.split("\n").uniq
  
 words_sylls = words.map{ |w| w.split(" ") }
 
