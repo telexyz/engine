@@ -39,10 +39,10 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-
 * Làm token repair vì nó thú vị và khởi tạo module beam-search nền tảng
   (xem `docs/.token_repairs.md`)
 
+* Cải tiến nhỏ: Bỏ str.len vào đầu string. <= 254 nghĩa là len thật, 255 nghĩa là phải mò từ 255 trở đi để tìm len thật, + thêm chiến thuật tripple 000 guarding sẽ tìm ra len rất nhanh
 
 [ >>> DONE <<< ]
 
