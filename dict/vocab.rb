@@ -5,6 +5,7 @@ words = File.open(filename).read.split("\n").uniq
 
 selected = [] 
 words.each{ |w| 
+	w.gsub!(/\s+\d+\s*/, "");
 	a = w.split(" ")
 	n = a.size
 	next if w =~ /[^\sa-z\|]/
