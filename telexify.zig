@@ -105,9 +105,9 @@ fn write_results(step2_time: i64) !void {
     try write_out_types();
     _ = showMeTimeLap(step2_time, "Writing types to files done!");
 
-    // print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-    // try TextokOutput.write_transforms_to_file(&text, output_filename);
-    // _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
+    print("\nWriting tokenized results to {s} ...\n", .{output_filename});
+    try TextokOutput.write_transforms_to_file(&text, output_filename);
+    _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 }
 
 pub fn main() anyerror!void {
@@ -127,11 +127,6 @@ pub fn main() anyerror!void {
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    var file = try std.fs.cwd().createFile(output_filename, .{});
-    defer file.close();
-    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
-    text.writer = buff_wrt.writer();
-
     const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     const then_parse_syllable = false;
     // const then_parse_syllable = true; // parse syllable on-the-fly
@@ -144,7 +139,6 @@ pub fn main() anyerror!void {
     thread.join(); // Wait for sylabeling thread end
     if (text.parsed_tokens_number != text.tokens_number) std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{}); // unreachable;
 
-    try buff_wrt.flush();
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
 
     if (parse_n_grams) {
@@ -154,13 +148,13 @@ pub fn main() anyerror!void {
         defer gram.deinit();
 
         const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWriteBiTriGram, .{ &gram, text, "data/17-bi_gram.txt", "data/18-tri_gram.txt" });
-        // const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWriteFourGram, .{ &gram, text, "data/19-four_gram.txt" });
+        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWriteFourGram, .{ &gram, text, "data/19-four_gram.txt" });
 
         try write_results(step2_time);
-        gram.parseAndWriteFourGram(text, "data/19-four_gram.txt");
+        // gram.parseAndWriteFourGram(text, "data/19-four_gram.txt");
 
         thread1.join();
-        // thread2.join();
+        thread2.join();
         _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
         //
     } else {

@@ -6,27 +6,6 @@ const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
-pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *Text) !void {
-    if (text.keep_origin_amap) {
-        if (attrs.spaceAfter())
-            _ = try text.writer.print("{s} ", .{token})
-        else
-            _ = try text.writer.write(token);
-        return;
-    }
-    // Write space after token
-    if (attrs.isSyllable()) {
-        _ = try text.writer.print("{s} ", .{token});
-        text.prev_token_is_vi = true;
-    } else {
-        switch (token[0]) {
-            '\n' => _ = try text.writer.write("\n"),
-            '_', '-' => if (attrs.surrounded_by_spaces == .none and token.len == 1) return,
-            else => _ = try text.writer.print("{s} ", .{token}),
-        }
-    }
-}
-
 pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.BufferedWriter.Writer) !void {
     if (text.keep_origin_amap) {
         // Write all tokens
@@ -35,20 +14,19 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.
         return;
     }
 
-    // Write syllables only
+    // Write space after token
+    const token = tk_info.trans_slice(text);
     if (tk_info.isSyllable()) {
-        _ = try writer.print("{s} ", .{tk_info.trans_slice(text)});
+        _ = try writer.print("{s} ", .{token});
         text.prev_token_is_vi = true;
-        //
-    } else if (text.prev_token_is_vi) {
-        //
-        const trans_ptr = tk_info.trans_ptr(text);
-
-        const true_joiner = tk_info.attrs.surrounded_by_spaces == .none and trans_ptr[1] == 0 and (trans_ptr[0] == '_' or trans_ptr[0] == '-');
-
-        if (!true_joiner) {
-            _ = try writer.write("\n");
-            text.prev_token_is_vi = false;
+    } else {
+        switch (token[0]) {
+            '\n' => _ = try writer.write("\n"),
+            '_', '-' => { // skip true_joiner
+                if (!(tk_info.attrs.surrounded_by_spaces == .none and token.len == 1))
+                    try writer.print("{s} ", .{token});
+            },
+            else => _ = try writer.print("{s} ", .{token}),
         }
     }
 }
@@ -64,7 +42,7 @@ pub inline fn token2Syllable(
     type_info: *Text.TypeInfo,
     text: *Text,
 ) void {
-    if (type_info.category == .can_be_syllable) { // not parsed yet
+    if (type_info.category == .to_parse_syllable) { // not parsed yet
         // Char stream to parse syllable
         var char_stream = U2ACharStream.new();
         char_stream.strict_mode = true;
@@ -228,6 +206,7 @@ pub fn parseTokens(text: *Text) void {
 
         // Parse alphabet and not too long token only
         if (attrs.category != .nonalpha and token.len <= U2ACharStream.MAX_LEN) {
+
             // Show progress
             if (text.parsed_input_bytes >= percents_threshold) {
                 percents += 10;
@@ -239,9 +218,12 @@ pub fn parseTokens(text: *Text) void {
             // Init type_info shortcut
             var ptr = text.alphabet_types.getPtr(token);
             if (ptr == null) {
+                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` ???\n", .{token});
+
+                // Second-chance
                 std.time.sleep(WAIT_NANOSECS / 2);
                 ptr = text.alphabet_types.getPtr(token);
-                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` ???\n", .{token});
+
                 if (ptr == null) {
                     std.debug.print("!!! tokens_infos[i] đã được update chưa ???\n", .{});
                     unreachable;
@@ -256,15 +238,7 @@ pub fn parseTokens(text: *Text) void {
                 attrs.category = type_info.category;
                 token_info.syllable_id = type_info.syllable_id;
                 token_info.trans_offset = type_info.trans_offset;
-
-                token = type_info.trans_slice(text); // must get token from type_info
-                token_info.attrs.length = if (token.len < 8) @intCast(u3, token.len) else 0;
             }
         } // END parse alphabet token to get syllable
-        // Write token to file
-        writeToken(token, token_info.attrs, text) catch {
-            std.debug.print("\n!!! Write token out fail !!!\n", .{});
-            unreachable;
-        };
     } // while loop
 }

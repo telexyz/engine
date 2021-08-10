@@ -166,10 +166,9 @@ pub const TextokOutputHelpers = struct {
     pub fn write_transforms_to_file(text: *Text, filename: []const u8) !void {
         var file = try std.fs.cwd().createFile(filename, .{});
         defer file.close();
-        var wrt = std.io.bufferedWriter(file.writer());
+        var wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
         const writer = wrt.writer();
 
-        // std.debug.print("\n #### {} ####", .{@TypeOf(wrt)});//DEBUG
         var i: usize = 0;
         text.prev_token_is_vi = false;
 

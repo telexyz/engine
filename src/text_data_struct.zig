@@ -10,7 +10,6 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 pub const Text = struct {
     pub const FileWriter = std.io.Writer(std.fs.File, std.os.WriteError, std.fs.File.write);
     pub const BufferedWriter = std.io.BufferedWriter(ONE_MB / 5, FileWriter);
-    writer: BufferedWriter.Writer = undefined,
 
     // Keep origin data as-much-as-possible
     keep_origin_amap: bool = true,
@@ -96,14 +95,14 @@ pub const Text = struct {
 
         pub inline fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
             var ptr = self.trans_ptr(text);
-            var n: usize = self.attrs.length;
-            if (n == 0) {
-                n = 9;
-                while (ptr[n] != 0) : (n += 2) {}
-                if (ptr[n - 1] == 0) n -= 1;
-            }
-            return ptr[0..n];
-            // return ptr[0..double_0_trans_len(ptr)];
+            // var n: usize = self.attrs.length;
+            // if (n == 0) {
+            //     n = 9;
+            //     while (ptr[n] != 0) : (n += 2) {}
+            //     if (ptr[n - 1] == 0) n -= 1;
+            // }
+            // return ptr[0..n];
+            return ptr[0..double_0_trans_len(ptr)];
         }
 
         pub inline fn isSyllable(self: TokenInfo) bool {
@@ -172,7 +171,7 @@ pub const Text = struct {
     pub const TokenLen = u3;
 
     pub const TokenCategory = enum(u3) {
-        can_be_syllable,
+        to_parse_syllable,
         nonalpha,
         alphmark,
         alph0m0t,
@@ -304,7 +303,7 @@ pub const Text = struct {
 
         // Init token_info
         token_info.attrs = attrs;
-        token_info.attrs.length = if (_token.len < 8) @intCast(u3, _token.len) else 0;
+        // token_info.attrs.length = if (_token.len < 8) @intCast(u3, _token.len) else 0;
         token_info.syllable_id = 0;
 
         // Token transit place holder
@@ -316,44 +315,46 @@ pub const Text = struct {
             const start_ptr = self.nonalpha_bytes.ptr;
 
             if (entry == null) {
-                // Write _token to token_bytes, update token_info.trans_offset
+                // Write _token to token_bytes and update token_info.trans_offset
                 token = copyToken(_token, token_info, start_ptr, &self.nonalpha_bytes_len);
+
+                // Count token type
                 try self.nonalpha_types.put(token, 1);
                 //
             } else {
                 //
                 const kv = entry.?;
                 token = kv.key_ptr.*;
-                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr));
+                const offset = @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr);
+                token_info.trans_offset = @intCast(TransOffset, offset);
                 kv.value_ptr.* += 1;
             }
             //
         } else { // alphabet token
             //
             const entry = self.alphabet_types.getEntry(_token);
-            // std.debug.print("\ntoken: {s}", .{_token});//DEBUG
             const start_ptr = self.alphabet_bytes.ptr;
             var kv: std.StringHashMap(TypeInfo).Entry = undefined;
 
             if (entry == null) {
-                // Write _token to token_bytes, update token_info.trans_offset
+                // Write _token to token_bytes and update token_info.trans_offset
                 token = copyToken(_token, token_info, start_ptr, &self.alphabet_bytes_len);
+
+                // Count token type and mark to parse syllable later
+                const not_too_long = (token.len <= U2ACharStream.MAX_LEN);
                 kv = try self.alphabet_types.getOrPutValue(token, TypeInfo{
                     .count = 1,
-                    .category = if (token.len <= U2ACharStream.MAX_LEN) .can_be_syllable else attrs.category,
+                    .category = if (not_too_long) .to_parse_syllable else attrs.category,
                 });
                 //
             } else {
                 //
                 kv = entry.?;
                 token = kv.key_ptr.*;
-                token_info.trans_offset = @intCast(TransOffset, @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr));
+                const offset = @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr);
+                token_info.trans_offset = @intCast(TransOffset, offset);
                 kv.value_ptr.count += 1;
             }
-
-            var parse_syllable = token.len <= U2ACharStream.MAX_LEN;
-            if (parse_syllable) parse_syllable = then_parse_syllable or
-                @rem(self.tokens_number, 5) == 4;
 
             if (then_parse_syllable and token.len <= U2ACharStream.MAX_LEN) {
                 const type_info = kv.value_ptr;
@@ -365,20 +366,13 @@ pub const Text = struct {
                     token_info.attrs.category = type_info.category;
                     token_info.syllable_id = type_info.syllable_id;
                     token_info.trans_offset = type_info.trans_offset;
-
-                    token = type_info.trans_slice(self); // must get token from type_info
-                    token_info.attrs.length = if (token.len < 8) @intCast(u3, token.len) else 0;
                 }
             }
         }
 
         // increare tokens_number only when everything is finalized
         self.tokens_number += 1;
-
-        if (then_parse_syllable) {
-            try text_utils.writeToken(token, token_info.attrs, self);
-            self.parsed_tokens_number = self.tokens_number;
-        }
+        if (then_parse_syllable) self.parsed_tokens_number = self.tokens_number;
     }
 
     pub fn processAlphabetTypes(self: *Text) !void {
@@ -444,11 +438,6 @@ test "Text" {
         .surrounded_by_spaces = .both,
     };
 
-    var file = try std.fs.cwd().createFile("data/tknz.txt", .{});
-    defer file.close();
-    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
-    text.writer = buff_wrt.writer();
-
     if (true) {
         try text.recordToken(token.?, attrs, false);
         try std.testing.expect(text.tokens_number == 1);
@@ -470,7 +459,6 @@ test "Text" {
         while (it.next()) |tkn| try text.recordToken(tkn, attrs, true);
         text.tokens_number_finalized = true;
     }
-    try buff_wrt.flush();
 
     try std.testing.expect(text.tokens_number == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nha|f");

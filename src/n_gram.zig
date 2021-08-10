@@ -245,11 +245,6 @@ test "ngram" {
     try text.initFromInputBytes("Cả nhà nhà nhà nhà nhà nhà nhà nhà nhà đơi thử nghiệm nhé , cả nhà ! TAQs cả nhà");
     defer text.deinit();
 
-    var file = try std.fs.cwd().createFile("data/tknz.txt", .{});
-    defer file.close();
-    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
-    text.writer = buff_wrt.writer();
-
     var it = std.mem.tokenize(u8, text.input_bytes, " ");
     var attrs: Text.TokenAttributes = .{
         .category = .alphmark,
@@ -261,8 +256,6 @@ test "ngram" {
 
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
-
-    try buff_wrt.flush();
 
     gram.parseAndWriteFourGram(text, "data/temp4.txt");
     gram.parseAndWriteBiTriGram(text, "data/temp2.txt", "data/temp3.txt");
