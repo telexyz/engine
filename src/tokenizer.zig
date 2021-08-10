@@ -48,7 +48,10 @@ pub const Tokenizer = struct {
         var nonalpha_token_start_at: usize = 0;
 
         var in_nonspace_token_zone = true;
-        var in_alphabet_token_zone = true;
+
+        // Mặc định token đầu tiên là nonalpha, nếu ko phải sẽ ghi nhận token rỗng
+        // token.len = 0, sẽ cần escape trường trong Text.recordToken
+        var in_alphabet_token_zone = false;
         var contains_marktone_char = false;
 
         var first_byte: u8 = 0; // first byte of the utf-8 char

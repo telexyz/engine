@@ -292,6 +292,16 @@ pub const Text = struct {
     }
 
     pub fn recordToken(self: *Text, _token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
+
+        // Escape first empty token
+        if (_token.len == 0) {
+            if (self.tokens_number > 0) {
+                std.debug.print("!!! TOKEN ĐẦU VÀO KHÔNG THỂ EMPTY !!!", .{});
+                unreachable;
+            }
+            return;
+        }
+
         // Guarding
         if (self.tokens_number >= self.estimated_tokens_num) {
             std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
@@ -306,7 +316,7 @@ pub const Text = struct {
         // token_info.attrs.length = if (_token.len < 8) @intCast(u3, _token.len) else 0;
         token_info.syllable_id = 0;
 
-        // Token transit place holder
+        // Copied token place holder
         var token: []const u8 = undefined;
 
         if (attrs.category == .nonalpha) {
