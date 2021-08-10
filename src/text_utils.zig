@@ -218,14 +218,20 @@ pub fn parseTokens(text: *Text) void {
             // Init type_info shortcut
             var ptr = text.alphabet_types.getPtr(token);
             if (ptr == null) {
-                std.debug.print("!!! WRONG SYLLABLE CANDIDATE `{s}` ???\n", .{token});
+                std.debug.print("!!! SYLLABLE CANDIDATE `{s}` INDEX {d} ???\n", .{ token, i.* });
+
+                std.debug.print("CONTEXT: {s} {s} {s}", .{
+                    text.tokens_infos[i.* - 2].trans_slice(text),
+                    text.tokens_infos[i.* - 1].trans_slice(text),
+                    token,
+                });
 
                 // Second-chance
-                std.time.sleep(WAIT_NANOSECS / 2);
+                std.time.sleep(WAIT_NANOSECS);
                 ptr = text.alphabet_types.getPtr(token);
 
                 if (ptr == null) {
-                    std.debug.print("!!! tokens_infos[i] đã được update chưa ???\n", .{});
+                    std.debug.print("!!! alphabet_types đã được update chưa ???\n", .{});
                     unreachable;
                 }
             }
