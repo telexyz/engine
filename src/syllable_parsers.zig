@@ -272,12 +272,14 @@ pub fn parseTokenToGetSyllable(
                     return syllable;
                 },
                 .iez, .yez, .uez => { // nghieng => nghiêng
-                    if (syllable.am_dau.len() >= 2 and
-                        syllable.am_cuoi.len() >= 2) return syllable;
+                    var score: u8 = if (char_stream.tone == 0) 0 else 2;
+                    score += syllable.am_dau.len(); // max +2
+                    score += syllable.am_cuoi.len(); // max +2
+                    if (score >= 4) return syllable;
                 },
                 else => {},
             }
-            print("Don't accept ascii mark: awn => ăn, doo => dô\n", .{});
+            print("??? Don't accept ascii mark: awn => ăn, doo => dô\n", .{});
             syllable.can_be_vietnamese = false;
             return syllable;
         }
@@ -289,7 +291,7 @@ pub fn parseTokenToGetSyllable(
                 char_stream.buffer[char_stream.len - 3] == 'u' and
                 char_stream.buffer[char_stream.len - 2] == 'o' and
                 char_stream.buffer[char_stream.len - 1] == 'w') return syllable;
-            print("Don't accept redundant suffix: Mộtd, cuốiiii ...\n", .{});
+            print("??? Don't accept redundant suffix: Mộtd, cuốiiii ...\n", .{});
             // print("{s} => {}\n", .{ char_stream.buffer[0..char_stream.len], syllable });
             syllable.can_be_vietnamese = false;
             return syllable;
@@ -405,7 +407,8 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
     }
 
     if (am_giua == .iez and (am_dau == ._none or am_cuoi == ._none)) {
-        print("!!! VIOLATE: 'iê' trước có âm đầu, sau có âm cuối. VD: tiên\n", .{});
+        if (am_cuoi == .c) return true; // ngoại trừ iếc
+        print("!!! VIOLATE: 'iê' trước có âm đầu, sau có âm cuối, ngoại trừ iếc. VD: tiên\n", .{});
         return false;
     }
 
@@ -753,6 +756,8 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrict(""));
+    try expect(canBeVietnameseStrict("iếc")); // trong yêu iếc
+    try expect(canBeVietnameseStrict("miéng"));
     try expect(canBeVietnameseStrict("Nguyen"));
     try expect(canBeVietnameseStrict("nghieng"));
     try expect(canBeVietnameseStrict("khuắng"));
