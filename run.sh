@@ -7,7 +7,9 @@ rm data/0*.txt data/1*.txt
 ~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
 
 # ./zig-out/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram
+# ruby dict/vocab.rb dict/VnVocab.xyz && git diff dict/VnVocab.xyz
 # ./zig-out/bin/telexify dict/wordlist.txt dict/wordlist.xyz dense ngram
+# ruby dict/vocab.rb dict/wordlist.xyz && git diff dict/wordlist.xyz
 
 # ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts ngram
 # ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare ngram
