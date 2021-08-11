@@ -24,7 +24,9 @@ rm data/0*.txt data/1*.txt
 # ~/bin/telexify ~/repos/data/fb_comments.txt ~/repos/data/fb_comments.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vietai_sat.txt ~/repos/data/vietai_sat.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vi_wiki_all.txt ~/repos/data/vi_wiki_all.spare.xyz spare ngram
-~/bin/telexify ~/repos/data/all.txt ~/repos/data/all.dense.xyz dense ngram
+# ~/bin/telexify ~/repos/data/vi_vlsp2020.ac ~/repos/data/vi_vlsp2020.xyz dense ngram
+# ~/bin/telexify ~/repos/data/opensub.vi ~/repos/data/opensub.xyz dense ngram
+~/bin/telexify ~/repos/data/combined.txt ~/repos/data/combined.xyz dense ngram
 
 
 # ~/zig run src/play_with_chars.zig

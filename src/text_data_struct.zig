@@ -213,7 +213,7 @@ pub const Text = struct {
         self.input_bytes = input_bytes;
 
         const input_bytes_size = self.input_bytes.len;
-        self.estimated_tokens_num = (input_bytes_size * 10) / 45;
+        self.estimated_tokens_num = (input_bytes_size * 10) / 42;
         self.estimated_tokens_num += BUFF_SIZE + (BUFF_SIZE * 20 * ONE_MB) / input_bytes_size;
         // std.debug.print("\n!!! {} !!!\n", .{self.estimated_tokens_num});
 
