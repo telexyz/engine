@@ -11,7 +11,7 @@ fn order_by_count_desc(context: void, a: *GramTrie.Node, b: *GramTrie.Node) bool
 }
 
 pub fn writeGramCounts(gram: *GramTrie, len: u8, filename: []const u8) !void {
-    var buffer: [13 * 5]u8 = undefined;
+    var buffer: [13 * 7]u8 = undefined;
 
     var list = gram.n_gram_lists[len];
     // Sort by count desc
@@ -77,7 +77,7 @@ pub const GramTrie = struct {
 
     const NGramList = std.ArrayList(*Node);
 
-    pub const MAX_N = 5;
+    pub const MAX_N = 6;
 
     root: Node = .{ .key = BLANK },
 
@@ -122,10 +122,11 @@ pub const GramTrie = struct {
     pub fn parse(self: *GramTrie, text: Text) !void {
         try self.init_n_gram_lists(text.syllable_types.count());
 
-        var keys: [5]Syllable.UniqueId = .{ BLANK, BLANK, BLANK, BLANK, BLANK };
+        var keys: [6]Syllable.UniqueId = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
 
         for (text.tokens_infos) |token_info| {
             //
+            keys[5] = keys[4];
             keys[4] = keys[3];
             keys[3] = keys[2];
             keys[2] = keys[1];
@@ -139,7 +140,7 @@ pub const GramTrie = struct {
 test "GramTrie" {
     var gt: GramTrie = .{};
     gt.init(std.testing.allocator); // use std.heap.page_allocator for real
-    try gt.init_n_gram_lists(1);
+    try gt.init_n_gram_lists(3);
 
     defer gt.deinit();
 
@@ -190,7 +191,9 @@ test "GramTrie" {
     try std.testing.expect(0 == gt.n_gram_lists[4].items.len);
 }
 
-// try n_gram.writeGramCounts(&gram, 1, "data/17-bi_gram.txt");
-// try n_gram.writeGramCounts(&gram, 2, "data/18-tri_gram.txt");
-// try n_gram.writeGramCounts(&gram, 3, "data/19-four_gram.txt");
-// try n_gram.writeGramCounts(&gram, 4, "data/20-five_gram.txt");
+// try n_gram.writeGramCounts(&gram, 1, "data/22-2_gram.txt");
+// try n_gram.writeGramCounts(&gram, 2, "data/23-3_gram.txt");
+// try n_gram.writeGramCounts(&gram, 3, "data/24-4_gram.txt");
+// try n_gram.writeGramCounts(&gram, 4, "data/25-5_gram.txt");
+// try n_gram.writeGramCounts(&gram, 5, "data/26-6_gram.txt");
+// try n_gram.writeGramCounts(&gram, 6, "data/27-7_gram.txt");

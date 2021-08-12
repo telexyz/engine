@@ -6,11 +6,12 @@ const TextokOutput = @import("./src/textok_output_helpers.zig").TextokOutputHelp
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 const text_utils = @import("./src/text_utils.zig");
 const NGram = @import("./src/n_gram.zig").NGram;
+const NGramTrie = @import("./src/n_gram_trie.zig");
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
 var text: Text = undefined;
-var gram: NGram = undefined;
+var gram: NGram = .{};
 
 var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
@@ -141,25 +142,21 @@ pub fn main() anyerror!void {
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
 
-    if (parse_n_grams) {
-        print("\nSTEP 3: Parse and write n-gram ...\n", .{});
-        gram = .{};
-        gram.init(std.heap.page_allocator);
-        defer gram.deinit();
-
-        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWriteBiTriGram, .{ &gram, text, "data/17-bi_gram.txt", "data/18-tri_gram.txt" });
-        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWriteFourGram, .{ &gram, text, "data/19-four_gram.txt" });
-
+    if (!parse_n_grams) {
         try write_results(step2_time);
-        // gram.parseAndWriteFourGram(text, "data/19-four_gram.txt");
-
-        thread1.join();
-        thread2.join();
-        _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
         //
     } else {
-        //
+        print("\nSTEP 3: Parse and write n-gram ...\n", .{});
+
+        gram.init(std.heap.page_allocator);
+        defer gram.deinit();
+        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWriteBiTriGram, .{ &gram, text, "data/22-bi_gram.txt", "data/23-tri_gram.txt" });
+        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite456Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/25-fifth_grams.txt", "data/26-sixth_grams.txt" });
         try write_results(step2_time);
+        thread1.join();
+        thread2.join();
+
+        _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
     }
     _ = showMeTimeLap(start_time, "FINISHED: Total");
 }
