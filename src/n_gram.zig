@@ -7,6 +7,7 @@ const Gram = Syllable.UniqueId;
 const BLANK: Gram = 0;
 
 pub const NGram = struct {
+    c1_grams: std.AutoHashMap([2]Gram, u32) = undefined,
     c2_grams: std.AutoHashMap([2]Gram, u32) = undefined,
     c3_grams: std.AutoHashMap([3]Gram, u32) = undefined,
     c4_grams: std.AutoHashMap([4]Gram, u32) = undefined,
@@ -19,6 +20,7 @@ pub const NGram = struct {
 
     pub fn init(self: *NGram, init_allocator: *std.mem.Allocator) void {
         self.allocator = init_allocator;
+        self.c1_grams = std.AutoHashMap([2]Gram, u32).init(self.allocator);
         self.c2_grams = std.AutoHashMap([2]Gram, u32).init(self.allocator);
         self.c3_grams = std.AutoHashMap([3]Gram, u32).init(self.allocator);
         self.c4_grams = std.AutoHashMap([4]Gram, u32).init(self.allocator);
@@ -37,7 +39,7 @@ pub const NGram = struct {
 
     const PAD = "                        ";
 
-    pub fn parseAndWriteBiTriGram(self: *NGram, text: Text, bi_filename: []const u8, tri_filename: []const u8) !void {
+    pub fn parseAndWrite123Gram(self: *NGram, text: Text, filename1: []const u8, filename2: []const u8, filename3: []const u8) !void {
         // Record progress
         const ten_percents = text.tokens_number / 10;
         var percents_threshold = ten_percents;
@@ -49,7 +51,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print("{s}{d}% Parsing bi,tri-gram\n", .{ PAD, percents });
+                std.debug.print("{s}{d}% Parsing 1,2,3-gram\n", .{ PAD, percents });
                 percents_threshold += ten_percents;
             }
 
@@ -57,7 +59,11 @@ pub const NGram = struct {
             grams[1] = grams[2];
             grams[2] = text.tokens_infos[i].syllable_id;
 
-            if (grams[1] == BLANK or grams[2] == BLANK) continue;
+            if (grams[2] == BLANK) continue;
+            const gop1 = try self.c1_grams.getOrPutValue(.{ grams[2], 0 }, 0);
+            gop1.value_ptr.* += 1;
+
+            if (grams[1] == BLANK) continue;
             const gop2 = try self.c2_grams.getOrPutValue(grams[1..3].*, 0);
             gop2.value_ptr.* += 1;
 
@@ -66,10 +72,13 @@ pub const NGram = struct {
             gop3.value_ptr.* += 1;
         } // while
 
-        try writeGramCounts(self.c2_grams, bi_filename);
+        try writeGramCounts(self.c1_grams, filename1);
+        self.c1_grams.deinit();
+
+        try writeGramCounts(self.c2_grams, filename2);
         self.c2_grams.deinit();
 
-        try writeGramCounts(self.c3_grams, tri_filename);
+        try writeGramCounts(self.c3_grams, filename3);
         self.c3_grams.deinit();
     }
 
@@ -171,10 +180,11 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8) !void {
         });
 
         var i: u8 = 1;
-        while (i < item.grams.len) : (i += 1)
-            try writer.print(" {s}", .{
-                Syllable.newFromId(item.grams[i]).printBuffUtf8(buff),
-            });
+        while (i < item.grams.len) : (i += 1) {
+            const id: Gram = item.grams[i];
+            if (id == 0) continue;
+            try writer.print(" {s}", .{Syllable.newFromId(id).printBuffUtf8(buff)});
+        }
 
         _ = try writer.write("\n");
     }

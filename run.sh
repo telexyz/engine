@@ -11,16 +11,16 @@ rm data/0*.txt data/1*.txt data/2*.txt
 # ./zig-out/bin/telexify dict/wordlist.txt dict/wordlist.xyz dense ngram
 # ruby dict/vocab.rb dict/wordlist.xyz && git diff dict/wordlist.xyz
 
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts ngram
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare ngram
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt dense ngram
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt spare
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt parts
-# ./zig-out/bin/telexify data/news_titles.txt data/tknz.txt dense ngram
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts ngram
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare ngram
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
 # ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
 # ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense
 
-# ~/bin/telexify ~/repos/data/news_titles.txt ~/repos/data/news_titles.dense.xyz dense ngram
+# ~/bin/telexify ~/repos/data/sample_input.txt ~/repos/data/sample_input.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/fb_comments.txt ~/repos/data/fb_comments.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vietai_sat.txt ~/repos/data/vietai_sat.dense.xyz dense ngram
 # ~/bin/telexify ~/repos/data/vi_wiki_all.txt ~/repos/data/vi_wiki_all.spare.xyz spare ngram
@@ -35,4 +35,4 @@ rm data/0*.txt data/1*.txt data/2*.txt
 # Wine Is Not an Emulator: translates Windows API calls into POSIX calls on-the-fly
 # brew install wine-stable # wine64 file.exe
 # ./clean.sh && zig build -Dtarget=x86_64-windows -Drelease-safe=true
-# wine64 zig-out/bin/telexify.exe data/news_titles.txt data/tknz.txt
+# wine64 zig-out/bin/telexify.exe data/sample_input.txt data/sample_output.txt

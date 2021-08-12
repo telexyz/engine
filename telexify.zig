@@ -134,7 +134,7 @@ pub fn main() anyerror!void {
 
     try tknz.segment(&text, then_parse_syllable);
     text.free_input_bytes();
-    try write_out_samples();
+    // try write_out_samples();
 
     _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
     thread.join(); // Wait for sylabeling thread end
@@ -150,7 +150,7 @@ pub fn main() anyerror!void {
 
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
-        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWriteBiTriGram, .{ &gram, text, "data/22-bi_gram.txt", "data/23-tri_gram.txt" });
+        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite123Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/22-bi_grams.txt", "data/23-tri_grams.txt" });
         const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite456Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/25-fifth_grams.txt", "data/26-sixth_grams.txt" });
         try write_results(step2_time);
         thread1.join();
