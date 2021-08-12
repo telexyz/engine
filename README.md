@@ -2,9 +2,9 @@
 
 [ GOAL ] RE-PRESENTING + INDEXING SAO CHO CÓ THỂ VIEW CORPUS THẬT NHANH, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG ...
 
-[ BY PRODUCT 1 ] token repair, syllables2words, n-gram, spell error correction ...
+[ BY PRODUCT 1 ] token repair, basic n-gram, phoneme based spelling error correction ...
 
-[ BY PRODUCT 2 ] Cải tiến bộ gõ Telex
+[ BY PRODUCT 2 ] Cải tiến bộ gõ Telex, dùng z thay aa,ee,oo; chỉ bỏ dấu thanh cuối âm tiết
 
 [ IMPORTANT ] Yếu điểm có thể coi là lớn nhất của Telex là viết song ngữ rất chậm,
 vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũng rất mất thời gian !!!
@@ -13,38 +13,21 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 [ POSIBLE SOLUTION ] Viết hoàn toàn không dấu và để máy tự bỏ dấu với sự trợ giúp từ người dùng.
 
-## Modules
 
-* Làm Syllable-based Vietnamese Search Engine: 
-    - inverted index, compressed index, searching, scoring ... dựa trên `pisa-engine`
-    - chỉ index và search syllables (có gộp syllables thành words) cho nhỏ và nhanh
-    - dùng n-gram để auto suggest search terms
-    - áp dụng bộ sửa lỗi chính tả lên input search terms
-
-* Làm bộ chữa lỗi chính tả (tham khảo `jamspell, neuspell ...`)
-  - Sinh ra candidates từ edit-distances rồi áp dụng n-gram + beam-search như thêm dấu+thanh
-  - Tìm hiểu các phương pháp khác ...
-
-[ TODO ]
+## TODOs
 
 * Sử dụng stream input từ file để giảm thiểu áp lực lên bộ nhớ
 
-* Làm bộ so khớp từ điển để gộp âm tiết thành từ, áp dụng RDR để tăng độ chính xác: cần cho __INVERTED INDEX VÀ WORD EMBEDDING__
-  (xem `docs/.dict_matching.md`)
-
-* Làm mượt n-gram và viết bộ beam-search decoder để tự động bỏ dấu tiếng Việt
-  (xem `docs/.them_dau_thanh.md`)
-
-
+* Ghi dữ liệu ra files dạng binary để có thể load được từ lần chạy sau
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
+
+* Dùng từ điển để so khớp khởi tạo flag_{1,2,3,4} (xem `.docs/dict_matching.md`) để tạo ứng cử viên cho các tác vụ nâng cao khác như indexing của full-text-search, tác vụ tách từ
 
 * Làm token repair vì nó thú vị và khởi tạo module beam-search nền tảng
   (xem `docs/.token_repairs.md`)
 
 [ >>> DONE <<< ]
-
-
 
 * Viết thẳng tknz output ra file, bỏ qua bộ đệm để không phải khởi tạo nhiều bộ nhớ đệm
 
