@@ -16,18 +16,17 @@ rm data/0*.txt data/1*.txt data/2*.txt
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
-# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
+./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
 # ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
 # ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense
 
-# ~/bin/telexify ~/repos/data/sample_input.txt ~/repos/data/sample_input.dense.xyz dense ngram
-# ~/bin/telexify ~/repos/data/fb_comments.txt ~/repos/data/fb_comments.dense.xyz dense ngram
-# ~/bin/telexify ~/repos/data/vietai_sat.txt ~/repos/data/vietai_sat.dense.xyz dense ngram
-# ~/bin/telexify ~/repos/data/vi_wiki_all.txt ~/repos/data/vi_wiki_all.spare.xyz spare ngram
-# ~/bin/telexify ~/repos/data/vi_vlsp2020.ac ~/repos/data/vi_vlsp2020.xyz dense ngram
-# ~/bin/telexify ~/repos/data/opensub.vi ~/repos/data/opensub.xyz dense ngram
-~/bin/telexify ~/repos/data/combined.txt ~/repos/data/combined.xyz dense ngram
-
+# ~/bin/telexify ../data/sample_input.txt ../data/sample_input.dense.xyz dense ngram
+# ~/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense ngram
+# ~/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense ngram
+# ~/bin/telexify ../data/vi_wiki_all.txt ../data/vi_wiki_all.spare.xyz spare ngram
+# ~/bin/telexify ../data/vi_vlsp2020.ac ../data/vi_vlsp2020.xyz dense ngram
+# ~/bin/telexify ../data/opensub.vi ../data/opensub.xyz dense ngram
+# ~/bin/telexify ../data/combined.txt ../data/combined.xyz dense ngram
 
 # ~/zig run src/play_with_chars.zig
 # - - - - - - - - - - - - - - 

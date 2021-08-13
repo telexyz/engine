@@ -378,6 +378,29 @@ pub const Syllable = packed struct {
         self.can_be_vietnamese = false;
     }
 
+    //
+    // pub fn printBuff(self: *Syllable, buff: []u8, dense: bool) []const u8 {
+    //     const blank = "";
+    //     const giua = switch (self.am_giua) {
+    //         .ooo => "oo",
+    //         else => @tagName(self.am_giua),
+    //     };
+    //     const dau = switch (self.am_dau) {
+    //         ._none => blank,
+    //         .zd => "dd",
+    //         .ng => switch (giua[0]) {
+    //             'e', 'i' => "ngh",
+    //             else => "ng",
+    //         },
+    //         else => @tagName(self.am_dau),
+    //     };
+    //     const cuoi = switch (self.am_cuoi) {
+    //         // tao tau tai tay
+    //         ._none => blank,
+    //         else => @tagName(self.am_cuoi),
+    //     };
+    // }
+
     pub fn printBuffParts(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
         const dau = switch (self.am_dau) {
@@ -450,11 +473,6 @@ pub const Syllable = packed struct {
 
     pub fn printBuffTelex(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
-        const dau = switch (self.am_dau) {
-            ._none => blank,
-            .zd => "dd",
-            else => @tagName(self.am_dau),
-        };
         const giua = switch (self.am_giua) {
             ._none => blank,
             .uoz => "uoo",
@@ -469,6 +487,15 @@ pub const Syllable = packed struct {
             .uyez => "uyee",
             .uow => "uwow",
             else => @tagName(self.am_giua),
+        };
+        const dau = switch (self.am_dau) {
+            ._none => blank,
+            .zd => "dd",
+            .ng => switch (giua[0]) {
+                'e', 'i' => "ngh",
+                else => "ng",
+            },
+            else => @tagName(self.am_dau),
         };
         const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
         const tone = if (self.tone == ._none) blank else @tagName(self.tone);
@@ -492,6 +519,10 @@ pub const Syllable = packed struct {
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "đ",
+            .ng => switch (@tagName(self.am_giua)[0]) {
+                'e', 'i' => "ngh",
+                else => "ng",
+            },
             else => @tagName(self.am_dau),
         };
         const giua = switch (self.tone) {
@@ -722,8 +753,8 @@ test "Syllable's printBuff" {
 
     syll.am_giua = .iez;
     syll.am_cuoi = .n;
-    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngieens");
-    try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngiến");
+    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "nghieens");
+    try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "nghiến");
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng yez n s");
 
     syll.am_giua = .o;
