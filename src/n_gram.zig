@@ -262,7 +262,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
         else
             try writer.print("{d} {s}", .{
                 item.count,
-                Syllable.newFromId(id).printBuffUtf8(buff),
+                Syllable.newFromId(id).printBuff(buff, false),
             });
 
         if (uniGram) {
@@ -276,7 +276,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
             if (id == 0)
                 _ = try writer.write(" #")
             else
-                try writer.print(" {s}", .{Syllable.newFromId(id).printBuffUtf8(buff)});
+                try writer.print(" {s}", .{Syllable.newFromId(id).printBuff(buff, false)});
         }
 
         _ = try writer.write("\n");

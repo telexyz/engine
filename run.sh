@@ -6,14 +6,6 @@ rm data/0*.txt data/1*.txt data/2*.txt data/temp*.txt
 # ~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
 ~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
 
-# cat wordlist.txt wordlist-full.txt VnVocab.txt vndic_multiterm.txt > combined.txt
-./zig-out/bin/telexify dict/combined.txt dict/combined.xyz dense ngram 
-ruby dict/vocab.rb dict/combined.xyz
-# ./zig-out/bin/telexify dict/VnVocab.txt dict/VnVocab.xyz dense ngram
-# ruby dict/vocab.rb dict/VnVocab.xyz && git diff dict/VnVocab.xyz
-# ./zig-out/bin/telexify dict/wordlist.txt dict/wordlist.xyz dense ngram
-# ruby dict/vocab.rb dict/wordlist.xyz && git diff dict/wordlist.xyz
-
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts ngram
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare ngram
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
