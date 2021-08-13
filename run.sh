@@ -26,7 +26,7 @@ rm data/0*.txt data/1*.txt data/2*.txt
 # ~/bin/telexify ../data/vi_wiki_all.txt ../data/vi_wiki_all.spare.xyz spare ngram
 # ~/bin/telexify ../data/vi_vlsp2020.ac ../data/vi_vlsp2020.xyz dense ngram
 # ~/bin/telexify ../data/opensub.vi ../data/opensub.xyz dense ngram
-# ~/bin/telexify ../data/combined.txt ../data/combined.xyz dense ngram
+~/bin/telexify ../data/combined.txt ../data/combined.xyz dense ngram
 
 # ~/zig run src/play_with_chars.zig
 # - - - - - - - - - - - - - - 
