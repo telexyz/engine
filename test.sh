@@ -10,8 +10,6 @@
 
 ~/zig test src/syllable_parsers.zig
 
-~/zig test src/n_gram_trie.zig
-
 ~/zig test src/tokenizer.zig
 
 ~/zig test src/n_gram.zig
