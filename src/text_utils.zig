@@ -92,8 +92,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         //
     } else {
         //
-        var byte: u8 = 0;
-        var mark: u8 = 0;
+        const is_spare_mode = (text.convert_mode == 2);
 
         // 1: Nước => ^nuoc, VIỆT => ^^viet
         if (char_stream.first_char_is_upper) {
@@ -104,57 +103,14 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
                 offset_ptr += 1;
             }
             // 2: Nước => ^ nuoc, VIỆT => ^^ viet
-            if (text.convert_mode == 2) {
+            if (is_spare_mode) {
                 offset_ptr.* = 32;
                 offset_ptr += 1;
             }
         }
 
-        var i: usize = 0;
-        // 2: đầy => d day, con => con
-        if (text.convert_mode == 2 and char_stream.buffer[0] == 'd' and
-            char_stream.buffer[1] == 'd')
-        {
-            offset_ptr.* = 'd';
-            offset_ptr += 1;
-            offset_ptr.* = 32;
-            offset_ptr += 1;
-            i = 1;
-        }
-
-        while (i < char_stream.len) : (i += 1) {
-            byte = char_stream.buffer[i];
-            if (byte == 'w' or (byte == 'z' and i > 0)) {
-                if (mark != 0 and mark != byte) {
-                    // std.debug.print("DUPMARK: {s}\n", .{char_stream.buffer[0..char_stream.len]}); //DEBUG
-                }
-                mark = byte;
-                continue;
-            }
-            offset_ptr.* = byte;
-            offset_ptr += 1;
-        }
-
-        offset_ptr.* = switch (text.convert_mode) {
-            1 => '|',
-            2 => 32,
-            else => unreachable,
-        };
-
-        // 1: Nước =>  ^nuoc|w, VIỆT =>  ^^viet|z, đầy =>  dday|z, con => con|
-        // 2: Nước => ^ nuoc w, VIỆT => ^^ viet z, đầy => d day z, con => con
-        if (mark != 0) {
-            offset_ptr += 1;
-            offset_ptr.* = mark;
-        }
-        // 1: Nước => ^nuoc|ws, VIỆT => ^^viet|zj, đầy => dday|zf, con => con|
-        // 2: Nước =>  nuoc ws, VIỆT =>   viet zj, đầy =>d day zf, con => con
-        if (char_stream.tone != 0) {
-            offset_ptr += 1;
-            offset_ptr.* = char_stream.tone;
-        }
-
-        if (offset_ptr[0] != 32) offset_ptr += 1;
+        const buff = syllable.printBuff(offset_ptr[0..13], is_spare_mode);
+        offset_ptr += buff.len;
     }
 
     // Add double 0 terminators

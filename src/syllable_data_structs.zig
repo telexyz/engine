@@ -128,7 +128,6 @@ pub const AmGiua = enum(u5) {
     oa,
     oe,
     ooo, // boong
-    // uo, // <= 'uoz', 'uow' without mark
     uy,
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
     oaw, // oă
@@ -375,27 +374,64 @@ pub const Syllable = packed struct {
     }
 
     //
-    // pub fn printBuff(self: *Syllable, buff: []u8, dense: bool) []const u8 {
-    //     const blank = "";
-    //     const giua = switch (self.am_giua) {
-    //         .ooo => "oo",
-    //         else => @tagName(self.am_giua),
-    //     };
-    //     const dau = switch (self.am_dau) {
-    //         ._none => blank,
-    //         .zd => "dd",
-    //         .ng => switch (giua[0]) {
-    //             'e', 'i' => "ngh",
-    //             else => "ng",
-    //         },
-    //         else => @tagName(self.am_dau),
-    //     };
-    //     const cuoi = switch (self.am_cuoi) {
-    //         // tao tau tai tay
-    //         ._none => blank,
-    //         else => @tagName(self.am_cuoi),
-    //     };
-    // }
+    pub fn printBuff(self: *Syllable, buff: []u8, spare: bool) []const u8 {
+        const blank = "";
+        const giua = switch (self.am_giua) {
+            .ooo => "oo",
+            else => @tagName(self.am_giua),
+        };
+        const dau = switch (self.am_dau) {
+            ._none => blank,
+            .zd => if (spare) "d d" else "dd",
+            .ng => switch (giua[0]) {
+                'e', 'i' => "ngh",
+                else => "ng",
+            },
+            else => @tagName(self.am_dau),
+        };
+        const cuoi = switch (self.am_cuoi) {
+            ._none => blank,
+            else => @tagName(self.am_cuoi),
+        };
+
+        var n: usize = 0;
+        var mark: u8 = 0;
+        // dau
+        for (dau) |byte| {
+            buff[n] = byte;
+            n += 1;
+        }
+        // giua
+        for (giua) |byte| switch (byte) {
+            'w', 'z' => mark = byte,
+            else => {
+                buff[n] = byte;
+                n += 1;
+            },
+        };
+        // cuoi
+        for (cuoi) |byte| {
+            buff[n] = byte;
+            n += 1;
+        }
+        // ngăn cách với mark+tone
+        buff[n] = if (spare) ' ' else '|';
+        n += 1;
+        // mark
+        if (mark != 0) {
+            buff[n] = mark;
+            n += 1;
+        }
+        // tone
+        if (self.tone != ._none) {
+            buff[n] = @tagName(self.tone)[0];
+            n += 1;
+        }
+        // remove ending space for spare mode
+        if (buff[n - 1] == 32) n -= 1;
+
+        return buff[0..n];
+    }
 
     pub fn printBuffParts(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
