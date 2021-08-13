@@ -107,7 +107,7 @@ test "Enum AmDau" {
 // Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
 
 pub const AmGiua = enum(u5) {
-    // 30 âm giữa
+    // 29 âm giữa
     _none,
     a,
     e,
@@ -128,7 +128,7 @@ pub const AmGiua = enum(u5) {
     oa,
     oe,
     ooo, // boong
-    uo, // <= 'uoz', 'uow' without mark
+    // uo, // <= 'uoz', 'uow' without mark
     uy,
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
     oaw, // oă
@@ -160,9 +160,9 @@ pub const AmGiua = enum(u5) {
     pub fn len(self: AmGiua) u8 {
         return switch (@enumToInt(self)) {
             1...6 => 1,
-            7...19 => 2,
-            20...27 => 3,
-            28, 29 => 4,
+            7...18 => 2,
+            19...26 => 3,
+            27, 28 => 4,
             else => 0,
         };
     }
@@ -170,7 +170,7 @@ pub const AmGiua = enum(u5) {
         if (self.len() == 4 or self.len() == 3) return true;
         if (self.len() == 2) {
             switch (self) {
-                .oa, .ooo, .ua, .uo, .uw, .uy => {
+                .oa, .ooo, .ua, .uw, .uy => { // .uo,
                     return false;
                 },
                 else => {

@@ -137,11 +137,11 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
 
     print("tone: {s}\n", .{syllable.tone});
 
-    if (syllable.am_giua == .uo and syllable.tone != ._none) {
-        print("'uo' viết ko dấu thì chỉ đi được với thanh _none. VD: tuong, tuoi\n", .{});
-        syllable.can_be_vietnamese = false;
-        return;
-    }
+    // if (syllable.am_giua == .uo and syllable.tone != ._none) {
+    //     print("'uo' viết ko dấu thì chỉ đi được với thanh _none. VD: tuong, tuoi\n", .{});
+    //     syllable.can_be_vietnamese = false;
+    //     return;
+    // }
 
     if (syllable.am_cuoi.isStop() and !syllable.tone.isStop()) {
         print("!!! VIOLATE: tone \"{s}\" cannot follow \"c,ch,t,p\".\n", .{syllable.tone});
@@ -299,11 +299,11 @@ pub fn parseTokenToGetSyllable(
         }
 
         // Check #4: not .uo ko dấu thanh
-        if (syllable.am_giua == .uo) {
-            print("!!! Don't accept .uo ko dấu thanh\n", .{});
-            syllable.can_be_vietnamese = false;
-            return syllable;
-        }
+        // if (syllable.am_giua == .uo) {
+        //     print("!!! Don't accept .uo ko dấu thanh\n", .{});
+        //     syllable.can_be_vietnamese = false;
+        //     return syllable;
+        // }
     }
 
     return syllable;
@@ -482,7 +482,7 @@ inline fn _amGiua(str: []const u8) AmGiua {
                 'o' => AmGiua.uoz,
                 'z' => .uoz,
                 'w' => .uow, // tuơm, => tươm, thuở => thủa ??
-                else => .uo, // uoo|uow|uo ('uo' is no-mark)
+                else => .u, // uoo|uow|uo ('uo' is no-mark)
             },
             'y' => switch (c2) { // uy|uya|uye|uyee|uyez
                 'a' => AmGiua.uya,
@@ -688,8 +688,8 @@ test "canBeVietnamese() // Weird cases" {
 }
 
 test "canBeVietnamese() // No-tone and/or no-mark" {
-    try expect(canBeVietnamese("vuong") == true);
-    try expect(canBeVietnamese("chuong") == true);
+    try expect(canBeVietnamese("vuong") == false); // nhập nhằng: k biết là vuông hay vương
+    try expect(canBeVietnamese("chuong") == false); // k biết là chương hay chuông
     try expect(canBeVietnamese("tuoij") == false);
     try expect(canBeVietnamese("chos") == true);
     try expect(canBeVietnamese("ox") == true);
