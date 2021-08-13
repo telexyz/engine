@@ -5,17 +5,22 @@ words = File.open(filename).read.split("\n").uniq
 
 selected = [] 
 words.each{ |w| 
-	w.gsub!(/\s+\d+\s*/, "");
+	w = w.strip.gsub(/\s+\d+/, "");
+	next if w =~ /[^\sa-z\|]/
+
 	a = w.split(" ")
 	n = a.size
-	next if w =~ /[^\sa-z\|]/
-	next if n < 2 or n > 4
+	next if n > 9
 	next if w.count("|") != n
-	selected << a.join(" ").gsub("|","`") 
+
+	selected << [n, a.join(" ").gsub("|","`")]
 }
 
 File.open(filename, "wt") { |f|
-	f.puts selected.sort.map{ |x| x.gsub("`","|") }.uniq
+	f.puts selected.sort { |a, b| 
+		r = a[0] <=> b[0]
+		r == 0 ? a[1] <=> b[1] : r
+	}.map{ |x| x[1].gsub("`","|") }.uniq
 }
  
 # words_sylls = words.map{ |w| w.split(" ") }
