@@ -217,6 +217,6 @@ test "ngram" {
     text.tokens_number_finalized = true;
     text_utils.parseTokens(&text);
 
-    try gram.parseAndWriteBiTriGram(text, "data/temp2.txt", "data/temp3.txt");
+    try gram.parseAndWrite123Gram(text, "data/temp1.txt", "data/temp2.txt", "data/temp3.txt");
     try gram.parseAndWrite456Gram(text, "data/temp4.txt", "data/temp5.txt", "data/temp6.txt");
 }
