@@ -6,7 +6,6 @@ const TextokOutput = @import("./src/textok_output_helpers.zig").TextokOutputHelp
 const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
 const text_utils = @import("./src/text_utils.zig");
 const NGram = @import("./src/n_gram.zig").NGram;
-const NGramTrie = @import("./src/n_gram_trie.zig");
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
@@ -144,18 +143,18 @@ pub fn main() anyerror!void {
 
     if (!parse_n_grams) {
         try write_results(step2_time);
-        //
     } else {
         print("\nSTEP 3: Parse and write n-gram ...\n", .{});
-
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
+
         const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite123Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/22-bi_grams.txt", "data/23-tri_grams.txt" });
         const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite456Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/25-fifth_grams.txt", "data/26-sixth_grams.txt" });
+
         try write_results(step2_time);
+
         thread1.join();
         thread2.join();
-
         _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
     }
     _ = showMeTimeLap(start_time, "FINISHED: Total");
