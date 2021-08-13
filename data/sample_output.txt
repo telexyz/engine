@@ -163,7 +163,7 @@ Serie ^a| : Icardi ghi| cu|s ddup|s , ddua|w Inter len|z ddau|zf bang|r .
 ^nghia|x tinh|f voi|ws ddong|zf ddoi|zj . 
 ^viet|zj ^nam| se|x som|ws cham|zs dut|ws tinh|f trang|j nuoi|z nhot|zs gau|zs . 
 ' ^hoa|s giai|r ' bat|zs cap|zj ve|zf lap|ws ddat|wj bo|s via|r he|f o|wr thanh|f pho|zs ^ha|f ^tinh|x . 
-^tu|wf ^ben|zs ^tre| ra| ^nghe|zj ^an| nhan|zj lai|j xe| may|s bi|j mat|zs trom|zj 1 nam|w truoc|ws . 
+^tu|wf ^ben|zs ^tre| ra| ^nghe|zj ^an| nhan|zj lai|j xe| may|s bi|j mat|zs ^^tu|wj 1 nam|w truoc|ws . 
 ^chu|r ho|zj kinh| doanh| ca|s the|zr co|s ddong|s BHXH bat|ws buoc|zj ?. 
 ^thay|zf tro|f chay|j nuoc|ws rut|s cho| ky|f thi| THPT . 
 ^khong|z ddong|s bao|r hiem|zr , cong|z ty| thua| kien|zj cong|z nhan|z . 
@@ -550,7 +550,7 @@ PwC ^viet|zj ^nam| ky|s ket|zs ^bien|z ban|r ^hop|wj tac|s voi|ws ^to|zr chuc|ws
 ^vo|wj ngoai|j tinh|f , chong|zf ddam|z trong|j thuong|w ca|r nha|f vo|wj . 
 ^lam|f the|zs nao|f khi| bi|j mat|zs giay|zs to|wf hoan|f cong|z ?. 
 ^canh|r sat|s co|w ddong|zj co|s quyen|zf xu|wr phat|j giao| thong|z . 
-^vua|wf ra| tu|f dda|x tai|s pham|j toi|zj trom|zj cap|ws . 
+^vua|wf ra| tu|f dda|x tai|s pham|j toi|zj ^^tu|wj cap|ws . 
 ^cha| muon|zs ban|s nha|f lay|zs vo|wj , cac|s con| ddau| ddau|zf ngan|w can|r . 
 ^vo|wj bo|r nha|f theo| trai| , chong|zf muon|zs ly| hon|z dduoc|wj nuoi|z con| . 
 ^muc|ws giam|r tru|wf gia| canh|r ddoi|zs voi|ws luong|w 15 trieu|zj ddong|zf / thang|s . 
@@ -590,7 +590,7 @@ PwC ^viet|zj ^nam| ky|s ket|zs ^bien|z ban|r ^hop|wj tac|s voi|ws ^to|zr chuc|ws
 ^xet|s xu|wr phuc|s tham|zr vu|j kien|zj ^cong|z ty| BP . 
 ^nhan|z su|wj moi|ws quan|zj 2, TP . HCM . 
 TAND Tp ^ho|zf ^chi|s ^minh| bo|zr nhiem|zj ^chanh|s an|s TAND quan|zj 2. 
-^ddot|zj nhap|zj chung| cu|w , trom|zj ddien|zj thoai|j cua|r nguoi|wf nuoc|ws ngoai|f . 
+^ddot|zj nhap|zj chung| cu|w , ^^tu|wj ddien|zj thoai|j cua|r nguoi|wf nuoc|ws ngoai|f . 
 ^uy|r ban| ^kiem|zr tra| ^trung| uong|w co|s y|s kien|zs ddoi|zs voi|ws ban|r an|s vi| pham|j to|zs tung|j . 
 ^thu|j ly|s 12 nam|w chua|w xet|s xu|wr , toa|f noi|s gi|f ?. 
 TAND TP ^ho|zf ^chi|s ^minh| : ^bo|zr nhiem|zj cac|s chuc|ws vu|j lanh|x ddao|j va|f tham|zr phan|s trung| cap|zs . 
@@ -610,7 +610,7 @@ TP . HCM : ^bat|zs thuong|wf ban|r an|s so|w tham|zr vu|j kien|zj ^hop|wj ddong|
 ^ta|s hoa|r phat|s hien|zj ' nguoi|wf la|j ' so|wr huu|wx nha|f minh|f . 
 ^bo|zr nhiem|zj nhan|z su|wj TP . HCM , ^thua|wf ^thien|z - ^hue|zs , ^tay|z ^ninh| . 
 ^huy|r an|s vu|j tu|wj nguyen|zj cap|zs duong|wx nuoi|z con| 10 ti|r . 
-^chua|w xoa|s an|s tich|s , 9 X tiep|zs tuc|j trom|zj tai|f san|r cua|r nguoi|wf nuoc|ws ngoai|f . 
+^chua|w xoa|s an|s tich|s , 9 X tiep|zs tuc|j ^^tu|wj tai|f san|r cua|r nguoi|wf nuoc|ws ngoai|f . 
 ^co|s khuat|zs tat|zs trong| vu|j ^ngan|z hang|f NCB ban|s ddau|zs gia|s tai|f san|r ' khung|r ' ddang| tranh| chap|zs ?. 
 ^tiep|zs bai|f tram|j tron|zj be|z tong|z vi| pham|j ' kep|s ' tai|j xa|x ^yen|z ^son|w , huyen|zj ^quoc|zs ^oai| : ^vi| pham|j tiep|zs tuc|j dduoc|wj .... keo|s dai|f . 
 ^nen|z ddat|wj chi|r tieu|z an| toan|f hoat|j ddong|zj . 
@@ -904,7 +904,7 @@ IPO ' e|zs am|zr ', ^tap|zj ddoan|f ^cao| su| ^viet|zj ^nam| du|wj kien|zs mo|wr
 ^thuong|wf ^tin|s ( Tp . ^ha|f ^noi|zj ): ^dan|z keu|z troi|wf vi|f bai|x tap|zj ket|zs vat|zj lieu|zj xay|z dung|wj ' lan|zs chiem|zs ', gay|z o|z nhiem|zx moi|z truong|wf ?. 
 FC ^bao|s chi|s ^thanh| ^hoa|s : ^xuat|zs quan|z tham| du|wj vong|f chung| ket|zs ^giai|r bong|s dda|s Press Cup 2017. 
 ' ^hon|w 40 nam|w roi|zf ^ha|f ^noi|zj van|zx khong|z quen|z chung|s toi|z '. 
-^bat|ws ddoi|zs tuong|wj nghien|zj ma| tuy|s trom|zj cap|ws tai|f san|r cong|z dan|z . 
+^bat|ws ddoi|zs tuong|wj nghien|zj ma| tuy|s ^^tu|wj cap|ws tai|f san|r cong|z dan|z . 
 ^ha|f ^noi|zj tiep|zs tuc|j ho|zx tro|wj phat|s trien|zr huyen|zj ^lam|z ^ha|f - tinh|r ^lam|z ^ddong|zf . 
 ^lat|zj tay|zr thu|r ddoan|j ' hon|zf ^truong|w ^ba| , da| hang|f thit|j ' trong| lam|f ho|zj chieu|zs . 
 Campuchia lam|f o|z to|z ddien|zj tu|wf lau|z , VN van|zx tranh| cai|x . 

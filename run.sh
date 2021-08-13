@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm data/0*.txt data/1*.txt data/2*.txt
+rm data/0*.txt data/1*.txt data/2*.txt data/temp*.txt
 # ./clean.sh
 # ~/zig build
 # ~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin

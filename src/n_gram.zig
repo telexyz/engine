@@ -5,7 +5,6 @@ const Text = @import("./text_data_struct.zig").Text;
 const Syllable = @import("./syllable_data_structs.zig").Syllable;
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = 0;
-const SHARP: Gram = 1;
 
 pub const NGram = struct {
     c1_grams: std.AutoHashMap([2]Gram, u32) = undefined,
@@ -14,6 +13,9 @@ pub const NGram = struct {
     c4_grams: std.AutoHashMap([4]Gram, u32) = undefined,
     c5_grams: std.AutoHashMap([5]Gram, u32) = undefined,
     c6_grams: std.AutoHashMap([6]Gram, u32) = undefined,
+    c7_grams: std.AutoHashMap([7]Gram, u32) = undefined,
+    c8_grams: std.AutoHashMap([8]Gram, u32) = undefined,
+    c9_grams: std.AutoHashMap([9]Gram, u32) = undefined,
 
     allocator: *std.mem.Allocator = undefined,
 
@@ -27,6 +29,9 @@ pub const NGram = struct {
         self.c4_grams = std.AutoHashMap([4]Gram, u32).init(self.allocator);
         self.c5_grams = std.AutoHashMap([5]Gram, u32).init(self.allocator);
         self.c6_grams = std.AutoHashMap([6]Gram, u32).init(self.allocator);
+        self.c7_grams = std.AutoHashMap([7]Gram, u32).init(self.allocator);
+        self.c8_grams = std.AutoHashMap([8]Gram, u32).init(self.allocator);
+        self.c9_grams = std.AutoHashMap([9]Gram, u32).init(self.allocator);
     }
 
     pub fn deinit(self: *NGram) void {
@@ -36,6 +41,9 @@ pub const NGram = struct {
         // self.c4_grams.deinit();
         // self.c5_grams.deinit();
         // self.c6_grams.deinit();
+        // self.c7_grams.deinit();
+        // self.c8_grams.deinit();
+        // self.c9_grams.deinit();
     }
 
     const PAD = "                        ";
@@ -52,7 +60,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print("{s}{d}% Parsing 1,2,3-gram\n", .{ PAD, percents });
+                std.debug.print("{d}% Parsing 1,2,3-gram\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -99,7 +107,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print("Parsing 4,5,6-gram {d}%\n", .{percents});
+                std.debug.print(PAD ++ "Parsing 4,5,6-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -140,6 +148,68 @@ pub const NGram = struct {
 
         try writeGramCounts(self.c6_grams, filename6, false);
         self.c6_grams.deinit();
+    }
+
+    pub fn parseAndWrite789Gram(self: *NGram, text: Text, filename7: []const u8, filename8: []const u8, filename9: []const u8) !void {
+        // Record progress
+        const ten_percents = text.tokens_number / 10;
+        var percents_threshold = ten_percents;
+        var percents: u8 = 0;
+
+        var grams: [9]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
+        var i: usize = 0;
+
+        while (i < text.tokens_number) : (i += 1) {
+            // Show progress
+            if (i >= percents_threshold) {
+                percents += 10;
+                std.debug.print(PAD ++ PAD ++ "Parsing 7,8,9-gram {d}%\n", .{percents});
+                percents_threshold += ten_percents;
+            }
+
+            grams[0] = grams[1];
+            grams[1] = grams[2];
+            grams[2] = grams[3];
+            grams[3] = grams[4];
+            grams[4] = grams[5];
+            grams[5] = grams[6];
+            grams[6] = grams[7];
+            grams[7] = grams[8];
+            grams[8] = text.tokens_infos[i].syllable_id;
+
+            if (!(grams[3] == BLANK or grams[4] == BLANK or grams[5] == BLANK or
+                grams[6] == BLANK or grams[7] == BLANK) and
+                !(grams[2] == BLANK and grams[8] == BLANK))
+            {
+                const gop7 = try self.c7_grams.getOrPutValue(grams[2..9].*, 0);
+                gop7.value_ptr.* += 1;
+            }
+
+            if (!(grams[2] == BLANK or grams[3] == BLANK or grams[4] == BLANK or
+                grams[5] == BLANK or grams[6] == BLANK or grams[7] == BLANK) and
+                !(grams[1] == BLANK and grams[8] == BLANK))
+            {
+                const gop8 = try self.c8_grams.getOrPutValue(grams[1..9].*, 0);
+                gop8.value_ptr.* += 1;
+            }
+
+            if (grams[1] == BLANK or grams[2] == BLANK or grams[3] == BLANK) continue;
+            if (grams[4] == BLANK or grams[5] == BLANK) continue;
+            if (grams[6] == BLANK or grams[7] == BLANK) continue;
+            if (grams[0] == BLANK and grams[8] == BLANK) continue;
+
+            const gop9 = try self.c9_grams.getOrPutValue(grams, 0);
+            gop9.value_ptr.* += 1;
+        }
+
+        try writeGramCounts(self.c7_grams, filename7, false);
+        self.c7_grams.deinit();
+
+        try writeGramCounts(self.c8_grams, filename8, false);
+        self.c8_grams.deinit();
+
+        try writeGramCounts(self.c9_grams, filename9, false);
+        self.c9_grams.deinit();
     }
 };
 
@@ -242,4 +312,5 @@ test "ngram" {
 
     try gram.parseAndWrite123Gram(text, "data/temp1.txt", "data/temp2.txt", "data/temp3.txt");
     try gram.parseAndWrite456Gram(text, "data/temp4.txt", "data/temp5.txt", "data/temp6.txt");
+    try gram.parseAndWrite789Gram(text, "data/temp7.txt", "data/temp8.txt", "data/temp9.txt");
 }
