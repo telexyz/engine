@@ -12,7 +12,7 @@ const fmt = std.fmt;
 /// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x.
 /// - 11 nguyên âm: i, e, ê, ư, u, o, ô, ơ, a, ă, â.
 pub const AmDau = enum(u5) {
-    // 28 âm đầu
+    // 27 âm đầu
     _none,
     b,
     c,
@@ -40,18 +40,15 @@ pub const AmDau = enum(u5) {
     qu, // q + âm đệm u, chuyển lên đây để giảm tải cho AmGiua
     th,
     tr,
-    ngh,
     pub fn len(self: AmDau) u8 {
         return switch (@enumToInt(self)) {
             1...15 => 1,
             16...26 => 2,
-            27 => 3,
             else => 0,
         };
     }
     pub fn isSaturated(self: AmDau) bool {
-        if (self.len() == 3) return true;
-        if (self.len() == 2 and self != .ng) return true;
+        if (self.len() == 2) return true;
         if (self.len() == 1) {
             switch (self) {
                 .c, .d, .g, .k, .n, .p, .t => {
@@ -77,7 +74,6 @@ test "Enum AmDau" {
     try expect(AmDau.x.len() == 1);
     try expect(AmDau.ch.len() == 2);
     try expect(AmDau.tr.len() == 2);
-    try expect(AmDau.ngh.len() == 3);
     try expect(AmDau._none.len() == 0);
     try expect(AmDau._none.isSaturated() == false);
     try expect(AmDau.zd.isSaturated() == true);
@@ -186,7 +182,7 @@ pub const AmGiua = enum(u5) {
     }
     pub fn hasAmDem(self: AmGiua) bool {
         return switch (self) {
-            .uaa, .uee, .uy, .uyee, .uya => true,
+            .uaz, .uez, .uy, .uyez, .uya => true,
             .oa, .oaw, .oe, .ooo => true,
             else => false,
         };
@@ -406,7 +402,6 @@ pub const Syllable = packed struct {
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "dd",
-            .ngh => "ng", // ok
             // .gh => "g", // notok: những gì, ghì chặt, gà, gá vs ghá, gia da ...
             .gi => "d",
             .qu => "cu", // ok: qua sẽ được convert hành coa để phân biệt với vs cua
@@ -773,7 +768,7 @@ test "Syllable's printBuff" {
     syll.am_cuoi = .n;
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_c oa n");
 
-    syll.am_dau = .ngh;
+    syll.am_dau = .ng;
     syll.am_giua = .ooo;
     syll.am_cuoi = .ng;
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng oo ng");

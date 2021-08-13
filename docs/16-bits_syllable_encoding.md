@@ -63,12 +63,12 @@ Thay thế `a y => ah i`, `az y => az i`
 
 Total: 16-bits
 
-    // 28 đầu           5-bits (dư 4-slots)
+    // 27 đầu           5-bits (dư 5-slots)
     // 30 giữa          5-bits (dư 2-slots)
     // 62 cuối + tone   6-bits (dư 2-slots)
 
 Tổng số slots `65_536 = 2^16`
-Số slots dùng `52_080 = 28*30*62`
-Số slots dư   `13_456 = 4*32*64 + 28*2*64 + 28*30*2` đủ để chưa OOV (dùng BPE)
+Số slots dùng `50_220 = 27*30*62`
+Số slots dư   `15_316 = 5*32*64 + 27*2*64 + 27*30*2` đủ để chưa OOV (dùng BPE)
 
 Như vậy chỉ cần `16-bits` là đủ để chứa `vocab` tiếng Việt viết thường (lowercase)

@@ -27,8 +27,11 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
         print("am_dau: \"{s}\" => {s}\n", .{ part0, syllable.am_dau });
     }
 
+    var am_dau_len = syllable.am_dau.len();
+    if (syllable.am_dau == .ng and stream.len >= 3 and stream.buffer[2] == 'h')
+        am_dau_len = 3;
+
     // Check if is there any chars left for other parts
-    const am_dau_len = syllable.am_dau.len();
     if (am_dau_len == stream.len) return;
 
     if (!syllable.am_giua.isSaturated()) {
@@ -170,20 +173,20 @@ test "pushCharsToSyllable()" {
 
     try char_stream.push('h');
     pushCharsToSyllable(printNothing, &char_stream, &syllable);
-    try expect(syllable.am_dau == .ngh);
+    try expect(syllable.am_dau == .ng);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('ế');
     try expect(char_stream.tone == 's');
     pushCharsToSyllable(printNothing, &char_stream, &syllable);
-    try expect(syllable.am_dau == .ngh);
+    try expect(syllable.am_dau == .ng);
     try expect(syllable.am_giua == .ez);
     try expect(syllable.tone == .s);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('t');
     pushCharsToSyllable(printNothing, &char_stream, &syllable);
-    try expect(syllable.am_dau == .ngh);
+    try expect(syllable.am_dau == .ng);
     try expect(syllable.am_giua == .ez);
     try expect(syllable.am_cuoi == .t);
     try expect(syllable.tone == .s);
@@ -241,8 +244,6 @@ pub fn parseTokenToGetSyllable(
         } else {
             char = @intCast(u21, byte);
         }
-
-        // if (char == 'ð') std.debug.print("\nparseTokenToGetSyllable char: `{}`, byte: {d}", .{ char, byte });
 
         char_stream.pushCharAndFirstByte(char, byte) catch {
             // Any error with char_stream, just return current parsed syllable
@@ -302,19 +303,13 @@ pub fn parseTokenToGetSyllable(
 }
 
 fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool {
-    if (am_dau == .ngh) {
-        if (am_giua == .oz) {
-            print("!!! VIOLATE: am_dau 'ngh' không đi cùng âm giữa 'ô'\n ", .{});
-            return false;
-        }
-    }
     if (am_dau == .gi) {
         // TODO: Tìm thấy từ Gioóc (có thể là tên riêng) trong corpus
         // => Có nên coi nó là vn syllable ko? Tạm thời bỏ qua luật dưới để coi nó là TV
-        // if (am_giua.hasAmDem() and am_giua != .oaw) {
-        //     print("!!! VIOLATE: am_dau 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng\n ", .{});
-        //     return false;
-        // }
+        if (am_giua.hasAmDem() and am_giua != .oaw and am_giua != .ooo) {
+            print("!!! VIOLATE: am_dau 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng, Gioóc\n", .{});
+            return false;
+        }
         if (am_giua.startWithIY()) {
             print("!!! VIOLATE: am_dau 'gi' không đi nguyên âm bắt đầu bằng 'i', 'y'\n ", .{});
             return false;
@@ -553,9 +548,9 @@ inline fn _amDau(str: []const u8) AmDau {
 
         'k' => if (c1 == 'h') AmDau.kh else .k, // k|kh
 
-        'n' => switch (c1) { // n|nh|ng|ngh
-            'h' => .nh,
-            'g' => if (c2 == 'h') AmDau.ngh else .ng,
+        'n' => switch (c1) { // n|nh|ng|ngh => ng
+            'h' => AmDau.nh,
+            'g' => .ng,
             else => .n,
         },
 
@@ -622,7 +617,7 @@ test "canBeVietnamese()" {
     try expect(canBeVietnamese("huơ") == true);
     try expect(canBeVietnamese("quýt") == true);
     try expect(canBeVietnamese("quýu") == true);
-    try expect(canBeVietnamese("nghộ") == false);
+    try expect(canBeVietnamese("nghộ") == true);
     try expect(canBeVietnamese("Soọc") == true);
     try expect(canBeVietnamese("CÉCI") == false);
     try expect(canBeVietnamese("quyật") == false); // => quật
