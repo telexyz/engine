@@ -297,6 +297,13 @@ pub fn parseTokenToGetSyllable(
             syllable.can_be_vietnamese = false;
             return syllable;
         }
+
+        // Check #4: not .uo ko dấu thanh
+        if (syllable.am_giua == .uo) {
+            print("!!! Don't accept .uo ko dấu thanh\n", .{});
+            syllable.can_be_vietnamese = false;
+            return syllable;
+        }
     }
 
     return syllable;
@@ -752,6 +759,7 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrict(""));
+    try expect(canBeVietnameseStrict("tuon") == false);
     try expect(canBeVietnameseStrict("iếc")); // trong yêu iếc
     try expect(canBeVietnameseStrict("miéng"));
     try expect(canBeVietnameseStrict("Nguyen"));
