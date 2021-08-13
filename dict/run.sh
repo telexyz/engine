@@ -5,6 +5,6 @@
 # ../zig-out/bin/telexify wordlist.txt wordlist.xyz dense ngram
 # ruby vocab.rb wordlist.xyz && git diff wordlist.xyz
 
-cat wordlist.txt wordlist-full.txt VnVocab.txt > my_dict.txt
-../zig-out/bin/telexify my_dict.txt my_dict.xyz
-ruby vocab.rb my_dict.xyz
+cat wordlist.txt wordlist-full.txt VnVocab.txt > vn_wordlist.txt
+../zig-out/bin/telexify vn_wordlist.txt vn_wordlist.xyz
+ruby vocab.rb vn_wordlist.xyz
