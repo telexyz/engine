@@ -5,6 +5,7 @@ const Text = @import("./text_data_struct.zig").Text;
 const Syllable = @import("./syllable_data_structs.zig").Syllable;
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = 0;
+const SHARP: Gram = 1;
 
 pub const NGram = struct {
     c1_grams: std.AutoHashMap([2]Gram, u32) = undefined,
@@ -59,26 +60,29 @@ pub const NGram = struct {
             grams[1] = grams[2];
             grams[2] = text.tokens_infos[i].syllable_id;
 
-            if (grams[2] == BLANK) continue;
-            const gop1 = try self.c1_grams.getOrPutValue(.{ grams[2], 0 }, 0);
-            gop1.value_ptr.* += 1;
+            if (grams[2] != BLANK) {
+                const gop1 = try self.c1_grams.getOrPutValue(.{ grams[2], 0 }, 0);
+                gop1.value_ptr.* += 1;
+            }
+
+            if (!(grams[1] == BLANK and grams[2] == BLANK)) {
+                const gop2 = try self.c2_grams.getOrPutValue(grams[1..3].*, 0);
+                gop2.value_ptr.* += 1;
+            }
 
             if (grams[1] == BLANK) continue;
-            const gop2 = try self.c2_grams.getOrPutValue(grams[1..3].*, 0);
-            gop2.value_ptr.* += 1;
-
-            if (grams[0] == BLANK) continue;
+            if (grams[0] == BLANK and grams[2] == BLANK) continue;
             const gop3 = try self.c3_grams.getOrPutValue(grams, 0);
             gop3.value_ptr.* += 1;
         } // while
 
-        try writeGramCounts(self.c1_grams, filename1);
+        try writeGramCounts(self.c1_grams, filename1, true);
         self.c1_grams.deinit();
 
-        try writeGramCounts(self.c2_grams, filename2);
+        try writeGramCounts(self.c2_grams, filename2, false);
         self.c2_grams.deinit();
 
-        try writeGramCounts(self.c3_grams, filename3);
+        try writeGramCounts(self.c3_grams, filename3, false);
         self.c3_grams.deinit();
     }
 
@@ -106,27 +110,35 @@ pub const NGram = struct {
             grams[4] = grams[5];
             grams[5] = text.tokens_infos[i].syllable_id;
 
-            if (grams[2] == BLANK or grams[3] == BLANK) continue;
-            if (grams[4] == BLANK or grams[5] == BLANK) continue;
-            const gop4 = try self.c4_grams.getOrPutValue(grams[2..6].*, 0);
-            gop4.value_ptr.* += 1;
+            if (!(grams[3] == BLANK or grams[4] == BLANK) and
+                !(grams[2] == BLANK and grams[5] == BLANK))
+            {
+                const gop4 = try self.c4_grams.getOrPutValue(grams[2..6].*, 0);
+                gop4.value_ptr.* += 1;
+            }
 
-            if (grams[1] == BLANK) continue;
-            const gop5 = try self.c5_grams.getOrPutValue(grams[1..6].*, 0);
-            gop5.value_ptr.* += 1;
+            if (!(grams[2] == BLANK or grams[3] == BLANK or grams[4] == BLANK) and
+                !(grams[1] == BLANK and grams[5] == BLANK))
+            {
+                const gop5 = try self.c5_grams.getOrPutValue(grams[1..6].*, 0);
+                gop5.value_ptr.* += 1;
+            }
 
-            if (grams[0] == BLANK) continue;
+            if (grams[1] == BLANK or grams[2] == BLANK) continue;
+            if (grams[3] == BLANK or grams[4] == BLANK) continue;
+            if (grams[0] == BLANK and grams[5] == BLANK) continue;
+
             const gop6 = try self.c6_grams.getOrPutValue(grams, 0);
             gop6.value_ptr.* += 1;
         }
 
-        try writeGramCounts(self.c4_grams, filename4);
+        try writeGramCounts(self.c4_grams, filename4, false);
         self.c4_grams.deinit();
 
-        try writeGramCounts(self.c5_grams, filename5);
+        try writeGramCounts(self.c5_grams, filename5, false);
         self.c5_grams.deinit();
 
-        try writeGramCounts(self.c6_grams, filename6);
+        try writeGramCounts(self.c6_grams, filename6, false);
         self.c6_grams.deinit();
     }
 };
@@ -141,7 +153,7 @@ const GramInfo = struct {
     count: u32,
 };
 
-pub fn writeGramCounts(grams: anytype, filename: []const u8) !void {
+pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !void {
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
 
@@ -174,16 +186,27 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8) !void {
     var writer = wrt.writer();
 
     for (grams_list.items) |item| {
-        try writer.print("{d} {s}", .{
-            item.count,
-            Syllable.newFromId(item.grams[0]).printBuffUtf8(buff),
-        });
+        var id: Gram = item.grams[0];
+        if (id == 0)
+            try writer.print("{d} #", .{item.count})
+        else
+            try writer.print("{d} {s}", .{
+                item.count,
+                Syllable.newFromId(id).printBuffUtf8(buff),
+            });
+
+        if (uniGram) {
+            _ = try writer.write("\n");
+            continue;
+        }
 
         var i: u8 = 1;
         while (i < item.grams.len) : (i += 1) {
-            const id: Gram = item.grams[i];
-            if (id == 0) continue;
-            try writer.print(" {s}", .{Syllable.newFromId(id).printBuffUtf8(buff)});
+            id = item.grams[i];
+            if (id == 0)
+                _ = try writer.write(" #")
+            else
+                try writer.print(" {s}", .{Syllable.newFromId(id).printBuffUtf8(buff)});
         }
 
         _ = try writer.write("\n");
