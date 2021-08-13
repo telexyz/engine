@@ -1,58 +1,4 @@
-```c old telexify write to file on-the-fly
-    var file = try std.fs.cwd().createFile(output_filename, .{});
-    defer file.close();
-    var buff_wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
-    text.writer = buff_wrt.writer();
-    try buff_wrt.flush();
-
-pub const Text = struct {
-    pub const FileWriter = std.io.Writer(std.fs.File, std.os.WriteError, std.fs.File.write);
-    pub const BufferedWriter = std.io.BufferedWriter(ONE_MB / 5, FileWriter);
-    writer: BufferedWriter.Writer = undefined,
-
-
-pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *Text) !void {
-    if (text.keep_origin_amap) {
-        if (attrs.spaceAfter())
-            _ = try text.writer.print("{s} ", .{token})
-        else
-            _ = try text.writer.write(token);
-        return;
-    }
-    // Write space after token
-    if (attrs.isSyllable()) {
-        _ = try text.writer.print("{s} ", .{token});
-        text.prev_token_is_vi = true;
-    } else {
-        switch (token[0]) {
-            '\n' => _ = try text.writer.write("\n"),
-            '_', '-' => if (attrs.surrounded_by_spaces == .none and token.len == 1) return,
-            else => _ = try text.writer.print("{s} ", .{token}),
-        }
-    }
-}
-
-    // Write syllables only
-    if (tk_info.isSyllable()) {
-        _ = try writer.print("{s} ", .{tk_info.trans_slice(text)});
-        text.prev_token_is_vi = true;
-        //
-    } else if (text.prev_token_is_vi) {
-        //
-        const trans_ptr = tk_info.trans_ptr(text);
-
-        const true_joiner = tk_info.attrs.surrounded_by_spaces == .none and trans_ptr[1] == 0 and (trans_ptr[0] == '_' or trans_ptr[0] == '-');
-
-        if (!true_joiner) {
-            _ = try writer.write("\n");
-            text.prev_token_is_vi = false;
-        }
-    }
-```
-
 ```c old TokenCategory struct
-
-
     pub inline fn toByte(self: TokenAttributes) u8 {
         const byte = @bitCast(u8, self);
         if (byte < 12) return byte + 1;
@@ -81,8 +27,6 @@ pub inline fn writeToken(token: []const u8, attrs: Text.TokenAttributes, text: *
         can_be_syllable = 8,
     };
 ```
-
-
 
 # Vietnamese Telex Input Method and Everything Related
 
