@@ -408,9 +408,15 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         return false;
     }
 
-    if (am_giua == .iez and (am_dau == ._none or am_cuoi == ._none)) {
+    // if (am_giua == .iez and (am_dau == ._none or am_cuoi == ._none)) {
+    //     if (am_cuoi == .c) return true; // ngoại trừ iếc
+    //     print("!!! VIOLATE: 'iê' trước có âm đầu, sau có âm cuối, ngoại trừ iếc. VD: tiên\n", .{});
+    //     return false;
+    // }
+
+    if (am_giua == .iez and (am_dau == ._none and am_cuoi == ._none)) {
         if (am_cuoi == .c) return true; // ngoại trừ iếc
-        print("!!! VIOLATE: 'iê' trước có âm đầu, sau có âm cuối, ngoại trừ iếc. VD: tiên\n", .{});
+        print("!!! VIOLATE: 'iê' trước có âm đầu hoặc sau có âm cuối\n", .{});
         return false;
     }
 
@@ -629,7 +635,7 @@ test "canBeVietnamese()" {
     try expect(canBeVietnamese("CÉCI") == false);
     try expect(canBeVietnamese("quyật") == false); // => quật
     try expect(canBeVietnamese("Gioăng") == true);
-    try expect(canBeVietnamese("iệp") == false); // !!! VIOLATE: 'iê' trước có âm đầu, sau có âm cuối. VD: tiên
+    try expect(canBeVietnamese("iệp") == true);
     try expect(canBeVietnamese("GII") == false);
     try expect(canBeVietnamese("Lyn") == false);
     try expect(canBeVietnamese("BÙI") == true);
@@ -641,12 +647,13 @@ test "canBeVietnamese()" {
     try expect(canBeVietnamese("cuoocj") == true);
     try expect(canBeVietnamese("cawtx") == false);
     try expect(canBeVietnamese("nguyee") == false);
+    try expect(canBeVietnamese("nguyeen") == true);
     try expect(canBeVietnamese("cuar") == true);
     try expect(canBeVietnamese("huyeets") == true);
     try expect(canBeVietnamese("huyeet") == false);
     try expect(canBeVietnamese("boong") == true);
     try expect(canBeVietnamese("nieemf") == true);
-    try expect(canBeVietnamese("ieemf") == false);
+    try expect(canBeVietnamese("ieemf") == true);
     try expect(canBeVietnamese("ieef") == false);
     try expect(canBeVietnamese("yeeu") == true);
     try expect(canBeVietnamese("yee") == false);
@@ -760,6 +767,7 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrict(""));
     try expect(canBeVietnameseStrict("tuon") == false);
+    try expect(canBeVietnameseStrict("iến"));
     try expect(canBeVietnameseStrict("iếc")); // trong yêu iếc
     try expect(canBeVietnameseStrict("miéng"));
     try expect(canBeVietnameseStrict("Nguyen"));
