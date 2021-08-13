@@ -383,10 +383,10 @@ pub const Syllable = packed struct {
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "dd",
-            .ngh => "ng",
-            .gh => "g",
+            .ngh => "ng", // ok
+            // .gh => "g", // notok: những gì, ghì chặt, gà, gá vs ghá, gia da ...
             .gi => "d",
-            .qu => "cu",
+            .qu => "cu", // ok: qua sẽ được convert hành coa để phân biệt với vs cua
             else => @tagName(self.am_dau),
         };
         const giua = switch (self.am_giua) {
@@ -748,7 +748,7 @@ test "Syllable's printBuff" {
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng oo ng");
 
     syll.am_dau = .gh;
-    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_g oo ng");
+    try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_gh oo ng");
 
     syll.am_dau = ._none;
     syll.am_giua = .yez;

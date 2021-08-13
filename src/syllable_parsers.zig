@@ -716,6 +716,7 @@ test "iee, yee (uyee), ooo, uee, uaz <= oaz" {
     // .uee <= .ue,
     // .uaz <= oaz
     // the user is aiming for 'ô' or 'oo' (both need to type double 'o')
+    try std.testing.expectEqualStrings(utf8ToAmTiet("tuơ"), "tua");
     try std.testing.expectEqualStrings(utf8ToAmTiet("ngoẩy"), "nguaayr");
     try std.testing.expectEqualStrings(utf8ToAmTiet("toong"), "tooong");
     try std.testing.expectEqualStrings(utf8ToAmTiet("thoọng"), "thooongj");
