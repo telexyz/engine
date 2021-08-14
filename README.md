@@ -20,11 +20,6 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 * Ghi dữ liệu ra files dạng binary để có thể load được từ lần chạy sau
 
-* Dùng từ điển để so khớp khởi tạo flag_{1,2,3,4} (xem `.docs/dict_matching.md`) để tạo ứng cử viên cho các tác vụ nâng cao khác như indexing của full-text-search, tác vụ tách từ
-
-* Làm token repair vì nó thú vị và khởi tạo module beam-search nền tảng
-  (xem `docs/.token_repairs.md`)
-
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
 [ >>> DONE <<< ]
