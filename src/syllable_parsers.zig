@@ -766,6 +766,12 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrict(""));
+
+    try expect(canBeVietnameseStrict("Quấc"));
+    // Gốc là Quấc, do phổ cập Quấc ngữ nên chỉnh lại là Quốc cho dân ta dễ viết
+
+    try expect(canBeVietnameseStrict("quạu"));
+    try expect(canBeVietnameseStrict("quọ"));
     try expect(canBeVietnameseStrict("tuon") == false);
     try expect(canBeVietnameseStrict("iến"));
     try expect(canBeVietnameseStrict("iếc")); // trong yêu iếc
