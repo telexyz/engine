@@ -64,7 +64,7 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
             const cc = stream.buffer[am_dau_len + 3];
             if (n > stream.len or (cc != 'e' and cc != 'z')) n -= 1;
         },
-        .iez, .yez, .uez => {
+        .iez, .uez => {
             const cc = stream.buffer[am_dau_len + 2];
             if (n > stream.len or (cc != 'e' and cc != 'z')) n -= 1;
         },
@@ -272,7 +272,7 @@ pub fn parseTokenToGetSyllable(
                 .uyez => { // 99% nguyen => nguyên
                     return syllable;
                 },
-                .iez, .yez, .uez => { // nghieng => nghiêng
+                .iez, .uez => { // nghieng => nghiêng
                     var score: u8 = if (char_stream.tone == 0) 0 else 2;
                     score += syllable.am_dau.len(); // max +2
                     score += syllable.am_cuoi.len(); // max +2
@@ -339,7 +339,7 @@ fn validateBanAmCuoiVan(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua
             print("!!! VIOLATE: 'e', 'oe' chỉ đi với bán âm cuối vần 'o'", .{});
             return false;
         },
-        .i, .ez, .iez, .uy, .yez => if (am_cuoi != .u) {
+        .i, .ez, .iez, .uy => if (am_cuoi != .u) {
             print("!!! VIOLATE: 'i', 'ê', 'iê', 'uy', 'yê' chỉ đi với bán âm cuối vần 'u'", .{});
             return false;
         },
@@ -394,11 +394,8 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         return false;
     }
 
-    if (am_giua == .yez and ((am_dau != ._none and am_dau != .qu) or am_cuoi == ._none)) {
-        print("!!! VIOLATE: 'yê' trước ko có hoặc chỉ đi với 'qu', sau có âm cuối. VD: yêu, quyên\n", .{});
-        // 'qu' là sự kết hợp của 'q' và âm đệm 'u' nhằm giảm số lượng mã phải lưu.
-        // Tương tự như 'uyee' ... ta ko lưu âm đệm 'u', 'o' mà kết hợp nó với
-        // âm đầu hoặc nguyên âm để giảm số lượng mã phải lưu trữ.
+    if (am_giua == .iez and am_cuoi == ._none) {
+        print("!!! VIOLATE: 'iê/yê' sau có âm cuối. VD: yêu, quyên\n", .{});
         return false;
     }
 
@@ -514,7 +511,7 @@ inline fn _amGiua(str: []const u8) AmGiua {
             'e' => .iez, // ie{e} => iez
             else => .i,
         },
-        'y' => if (c1 == 'e') AmGiua.yez else .y, // y|ye{e}
+        'y' => if (c1 == 'e') AmGiua.iez else .y, // y|ye{e}
         'e' => if (c1 == 'e' or c1 == 'z') AmGiua.ez else .e, // e|ee|ez
         'a' => switch (c1) { // a|aa|aw
             'a' => AmGiua.az,
@@ -657,7 +654,7 @@ test "canBeVietnamese()" {
     try expect(canBeVietnamese("ieef") == false);
     try expect(canBeVietnamese("yeeu") == true);
     try expect(canBeVietnamese("yee") == false);
-    try expect(canBeVietnamese("tyeeu") == false);
+    try expect(canBeVietnamese("tyeeu") == true); // convert to "tiêu"
     try expect(canBeVietnamese("iar") == true);
     try expect(canBeVietnamese("iamr") == false);
 }
@@ -766,10 +763,9 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrict(""));
-
+    try expect(canBeVietnameseStrict("A"));
     try expect(canBeVietnameseStrict("Quấc"));
     // Gốc là Quấc, do phổ cập Quấc ngữ nên chỉnh lại là Quốc cho dân ta dễ viết
-
     try expect(canBeVietnameseStrict("quạu"));
     try expect(canBeVietnameseStrict("quọ"));
     try expect(canBeVietnameseStrict("tuon") == false);

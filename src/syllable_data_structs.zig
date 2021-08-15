@@ -103,24 +103,24 @@ test "Enum AmDau" {
 pub const AmGiua = enum(u5) {
     // 29 âm giữa
     _none,
-    a,
+    a, // 1th
     e,
     i,
     o,
     u,
-    y,
+    y, // nhập làm một với i? í ới, người í, người Ý, người ý ??? => ko nên
 
     az, // â
     aw, // ă
     ez, // ê
     oz, // ô
     ow, // ơ
-    uw, // ư
+    uw, // ư 12th
 
     ua,
     ia,
     oa,
-    oe,
+    oe, // 16th
     ooo, // boong
     uy,
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
@@ -130,8 +130,8 @@ pub const AmGiua = enum(u5) {
     uoz, // uô
     uaw, // ưa
     uya,
-    yez, // yê <= ye (yên <= yen, yeen, yezn)
-    uow, // ươ
+    // yez, // yê <= ye (yên <= yen, yeen, yezn) => nhập làm 1 với iez
+    uow, // ươ 26th
     uyez, // uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
 
     // uow, // “thuở/thủa” => convert to "ủa" nếu muốn chuẩn hoá
@@ -140,13 +140,13 @@ pub const AmGiua = enum(u5) {
 
     pub fn startWithIY(self: AmGiua) bool {
         return switch (self) {
-            .i, .y, .ia, .iez, .yez => true,
+            .i, .y, .ia, .iez => true,
             else => false,
         };
     }
     pub fn hasMark(self: AmGiua) bool {
         return switch (self) {
-            .az, .aw, .ez, .uw, .oz, .ow, .oaw, .uaz, .uez, .uow, .uoz, .uaw, .iez, .yez, .uyez => true,
+            .az, .aw, .ez, .uw, .oz, .ow, .oaw, .uaz, .uez, .uow, .uoz, .uaw, .iez, .uyez => true,
             else => false,
         };
     }
@@ -154,8 +154,8 @@ pub const AmGiua = enum(u5) {
         return switch (@enumToInt(self)) {
             1...6 => 1,
             7...18 => 2,
-            19...26 => 3,
-            27, 28 => 4,
+            19...25 => 3,
+            26, 27 => 4,
             else => 0,
         };
     }
@@ -188,7 +188,7 @@ test "Enum AmGiua" {
     try expect(AmGiua.az.len() == 2);
     try expect(AmGiua.uy.len() == 2);
     try expect(AmGiua.iez.len() == 3);
-    try expect(AmGiua.yez.len() == 3);
+    try expect(AmGiua.uya.len() == 3);
     try expect(AmGiua.uow.len() == 4);
     try expect(AmGiua.uyez.len() == 4);
     try expect(AmGiua._none.len() == 0);
@@ -372,6 +372,7 @@ pub const Syllable = packed struct {
         const blank = "";
         const giua = switch (self.am_giua) {
             .ooo => "oo",
+            .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yez" else "iez",
             else => @tagName(self.am_giua),
         };
         const dau = switch (self.am_dau) {
@@ -511,8 +512,7 @@ pub const Syllable = packed struct {
             .az => "aa",
             .ez => "ee",
             .oz => "oo",
-            .iez => "iee",
-            .yez => "yee",
+            .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yee" else "iee",
             .uyez => "uyee",
             .uow => "uwow",
             else => @tagName(self.am_giua),
@@ -576,8 +576,9 @@ pub const Syllable = packed struct {
                 .az => "â",
                 .ez => "ê",
                 .oz => "ô",
-                .iez => "iê",
-                .yez => "yê",
+                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yê" else "iê",
+                // .iez => ,
+                // .yez => "yê",
                 .uyez => "uyê",
                 .uow => "ươ",
                 .ooo => "oo",
@@ -596,8 +597,9 @@ pub const Syllable = packed struct {
                 .az => "ấ",
                 .ez => "ế",
                 .oz => "ố",
-                .iez => "iế",
-                .yez => "yế",
+                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yế" else "iế",
+                // .iez => "iế",
+                // .yez => "yế",
                 .uyez => "uyế",
                 .uow => "ướ",
                 .a => "á",
@@ -627,8 +629,9 @@ pub const Syllable = packed struct {
                 .az => "ầ",
                 .ez => "ề",
                 .oz => "ồ",
-                .iez => "iề",
-                .yez => "yề",
+                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yề" else "iề",
+                // .iez => "iề",
+                // .yez => "yề",
                 .uyez => "uyề",
                 .uow => "ườ",
                 .a => "à",
@@ -658,8 +661,9 @@ pub const Syllable = packed struct {
                 .az => "ẩ",
                 .ez => "ể",
                 .oz => "ổ",
-                .iez => "iể",
-                .yez => "yể",
+                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yể" else "iể",
+                // .iez => "iể",
+                // .yez => "yể",
                 .uyez => "uyể",
                 .uow => "ưở",
                 .a => "ả",
@@ -689,8 +693,9 @@ pub const Syllable = packed struct {
                 .az => "ẫ",
                 .ez => "ễ",
                 .oz => "ỗ",
-                .iez => "iễ",
-                .yez => "yễ",
+                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yễ" else "iễ",
+                // .iez => "iễ",
+                // .yez => "yễ",
                 .uyez => "uyễ",
                 .uow => "ưỡ",
                 .a => "ã",
@@ -720,8 +725,9 @@ pub const Syllable = packed struct {
                 .az => "ậ",
                 .ez => "ệ",
                 .oz => "ộ",
-                .iez => "iệ",
-                .yez => "yệ",
+                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yệ" else "iệ",
+                // .iez => "iệ",
+                // .yez => "yệ",
                 .uyez => "uyệ",
                 .uow => "ượ",
                 .a => "ạ",
@@ -819,7 +825,7 @@ test "Syllable's printBuff" {
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_gh oo ng");
 
     syll.am_dau = ._none;
-    syll.am_giua = .yez;
+    syll.am_giua = .iez;
     syll.am_cuoi = .u;
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "yez u");
 
@@ -828,14 +834,20 @@ test "Syllable's printBuff" {
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "y");
 
     syll.am_dau = ._none;
-    syll.am_giua = .yez;
+    syll.am_giua = .iez;
     syll.am_cuoi = .u;
     syll.tone = .s;
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "yez u s");
 
     syll.am_dau = .qu;
-    syll.am_giua = .yez;
+    syll.am_giua = .iez;
     syll.am_cuoi = .n;
     syll.tone = .f;
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_c uyez n f");
+
+    syll.am_dau = ._none;
+    syll.am_giua = .a;
+    syll.am_cuoi = ._none;
+    syll.tone = ._none;
+    try std.testing.expectEqualStrings(syll.printBuff(buff, false), "a|");
 }
