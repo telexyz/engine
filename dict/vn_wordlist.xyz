@@ -478,7 +478,6 @@ cay|z
 cay|zf
 cay|zj
 cay|zs
-ceo|
 cha|
 cha|f
 cha|j
@@ -902,6 +901,7 @@ cua|ws
 cuc|j
 cuc|s
 cuc|wj
+cuenh|z
 cui|
 cui|f
 cui|r
@@ -958,7 +958,7 @@ cuu|wj
 cuu|wr
 cuu|ws
 cuu|wx
-cy|
+cuyp|s
 da|
 da|f
 da|j
@@ -2242,9 +2242,6 @@ it|j
 it|s
 iu|
 iu|r
-ka|
-kan|
-kay|
 ke|
 ke|f
 ke|j
@@ -2541,12 +2538,6 @@ kip|j
 kip|s
 kit|j
 kiu|
-koc|zs
-koi|
-kon|
-ku|
-kuenh|z
-kuyp|s
 ky|
 ky|f
 ky|j
@@ -6394,7 +6385,6 @@ yeu|zs
 a| bang|f
 a| bao|r
 a| bung|
-a| cit|s
 a| ddang|r
 a| ddau|zr
 a| ddoi|ws
@@ -6408,6 +6398,7 @@ a| hanh|f
 a| ho|zj
 a| hoan|f
 a| hoanh|f
+a| kit|s
 a| lo|z
 a| lu|f
 a| luoi|ws
@@ -7726,6 +7717,7 @@ bac|ws an|
 bac|ws bac|zj
 bac|ws binh|f
 bac|ws bo|zj
+bac|ws can|j
 bac|ws cau|zf
 bac|ws cuc|wj
 bac|ws cuong|wf
@@ -7737,7 +7729,6 @@ bac|ws hoa|f
 bac|ws hong|zf
 bac|ws hop|wj
 bac|ws hung|w
-bac|ws kan|j
 bac|ws khe|z
 bac|ws ky|f
 bac|ws la|
@@ -11660,6 +11651,7 @@ buu|wr ddao|r
 buu|wr hoa|f
 buu|wr long|
 buu|wr vat|zj
+ca| beo|
 ca| bin|
 ca| bo|z
 ca| ca|
@@ -16734,7 +16726,6 @@ chuyen|zr vi|j
 chuyen|zs bay|
 chuyen|zs ddi|
 chuyen|zs xe|
-ci| ne|z
 co| bop|s
 co| cang|wr
 co| com|r
@@ -24379,11 +24370,11 @@ don|zf phach|s
 don|zf toi|ws
 don|zf tu|j
 don|zf vao|f
+dong| cay|
 dong| cu|r
 dong| dai|r
 dong| ddao|
 dong| dong|r
-dong| kay|
 dong| la|s
 dong| nhan|
 dong| rieng|zf
@@ -28205,6 +28196,7 @@ hinh|f chim|f
 hinh|f chop|s
 hinh|f cong|
 hinh|f cu|j
+hinh|f cum|
 hinh|f cung|
 hinh|f dang|j
 hinh|f dang|s
@@ -28216,7 +28208,6 @@ hinh|f hoa|j
 hinh|f hoc|j
 hinh|f hop|zj
 hinh|f khoi|zs
-hinh|f kum|
 hinh|f luat|zj
 hinh|f mao|j
 hinh|f mau|zx
@@ -30030,7 +30021,6 @@ iu|r nhiu|f
 iu|r nhiu|j
 iu|r xiu|f
 iu|r xiu|j
-ka| beo|
 ke| ga|
 ke|f cap|wj
 ke|f ke|f
@@ -30934,6 +30924,7 @@ khien|z che|zs
 khien|z cuong|wx
 khien|z nguu|w
 khien|zr hung|ws
+khien|zr ma|x
 khien|zr muon|zj
 khien|zr trach|s
 khieng|z vac|s
@@ -31777,6 +31768,7 @@ khuyu|r tay|
 ki| bo|
 ki| cop|s
 ki| lo|z
+ki| ne|z
 ki| ot|zs
 ki|f an|
 ki|f an|s
@@ -45762,7 +45754,7 @@ ro|r rang|f
 ro|r re|r
 ro|r ret|zj
 ro|s ray|s
-ro|w koi|w
+ro|w coi|w
 ro|w le|
 ro|w mooc|s
 ro|w ngao|
@@ -47629,6 +47621,7 @@ song|z boi|z
 song|z cai|s
 song|z cau|zf
 song|z con|
+song|z con|z
 song|z cong|z
 song|z dda|f
 song|z ddao|f
@@ -47638,7 +47631,6 @@ song|z hien|z
 song|z hinh|
 song|z ho|zf
 song|z khoai|
-song|z kon|z
 song|z lo|z
 song|z luy|x
 song|z ma|x
@@ -54860,6 +54852,7 @@ tra|f bui|f
 tra|f cang|
 tra|f co|zr
 tra|f con|z
+tra|f cot|s
 tra|f cu|s
 tra|f dda|
 tra|f dda|s
@@ -54875,7 +54868,6 @@ tra|f giang|
 tra|f giap|s
 tra|f hiep|zj
 tra|f khe|z
-tra|f kot|s
 tra|f la|s
 tra|f lam|z
 tra|f lanh|x
@@ -62920,7 +62912,7 @@ cha| ddo|wr ddau|zf
 cha| ddo|wx ddau|zf
 cha| me|j toi|z
 cha| nha|f tho|wf
-cha|f va|f ku|
+cha|f va|f cu|
 cha|f vao|f nhau|
 cha|r gio|f re|zs
 cha|r may|zs khi|
@@ -74645,7 +74637,6 @@ xe| cho|wr dau|zf
 xe| cho|wr hang|f
 xe| chua|wx chay|s
 xe| co|w gioi|ws
-xe| cut|s cit|s
 xe| cut|s kit|s
 xe| cuu|ws hoa|r
 xe| cuu|ws thuong|w
