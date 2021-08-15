@@ -5,6 +5,7 @@ const fmt = std.fmt;
 // Ref https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=11
 // Tiếng gồm 3 bộ phận: phụ âm đầu, vần và thanh điệu.
 // - Tiếng nào cũng có vần và thanh. Có tiếng không có phụ âm đầu.
+// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x.
 
 pub const AmDau = enum(u5) {
     // 26 âm đầu
@@ -25,8 +26,8 @@ pub const AmDau = enum(u5) {
     x,
     ch,
     zd, // âm đ
-    gh,
-    gi, // dùng như âm d
+    gh, // Viết gh, ngh trước các nguyên âm e, ê, i, iê (ia). ghì làm gì đấy
+    gi, // dùng như âm d, `gì` viết đúng, đủ là `giì`, đọc là `dì`
     kh,
     ng, // 20th
     nh, //
@@ -392,6 +393,7 @@ pub const Syllable = packed struct {
                 'e', 'i', 'y' => "k",
                 else => "c",
             },
+            .gi => if (self.am_giua == .i) "g" else "gi",
             .ng => switch (giua[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",
@@ -534,6 +536,7 @@ pub const Syllable = packed struct {
                 'e', 'i', 'y' => "k",
                 else => "c",
             },
+            .gi => if (self.am_giua == .i) "g" else "gi",
             .ng => switch (giua[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",
@@ -566,6 +569,7 @@ pub const Syllable = packed struct {
                 'e', 'i', 'y' => "k",
                 else => "c",
             },
+            .gi => if (self.am_giua == .i) "g" else "gi",
             .ng => switch (@tagName(self.am_giua)[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",

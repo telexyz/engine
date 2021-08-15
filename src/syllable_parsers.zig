@@ -28,8 +28,8 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
     }
 
     var am_dau_len = syllable.am_dau.len();
-    if (syllable.am_dau == .ng and stream.len >= 3 and stream.buffer[2] == 'h')
-        am_dau_len = 3;
+
+    if (syllable.am_dau == .ng and stream.len >= 3 and stream.buffer[2] == 'h') am_dau_len = 3;
 
     // Check if is there any chars left for other parts
     if (am_dau_len == stream.len) return;
@@ -292,19 +292,18 @@ pub fn parseTokenToGetSyllable(
                 char_stream.buffer[char_stream.len - 3] == 'u' and
                 char_stream.buffer[char_stream.len - 2] == 'o' and
                 char_stream.buffer[char_stream.len - 1] == 'w') return syllable;
+
+            if (syllable.am_dau == .ng and char_stream.len >= 3 and char_stream.buffer[2] == 'h' and char_stream.len - syllable.len() == 1) return syllable;
+
             print("??? Don't accept redundant suffix: Mộtd, cuốiiii ...\n", .{});
-            // print("{s} => {}\n", .{ char_stream.buffer[0..char_stream.len], syllable });
             syllable.can_be_vietnamese = false;
             return syllable;
         }
-
-        // Check #4: not .uo ko dấu thanh
-        // if (syllable.am_giua == .uo) {
-        //     print("!!! Don't accept .uo ko dấu thanh\n", .{});
-        //     syllable.can_be_vietnamese = false;
-        //     return syllable;
-        // }
     }
+
+    // gi => gii
+    if (syllable.am_cuoi == ._none and syllable.am_dau == .g and syllable.am_giua == .i)
+        syllable.am_dau = .gi;
 
     return syllable;
 }
@@ -318,6 +317,7 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
             return false;
         }
         if (am_giua.startWithIY()) {
+            // if (am_giua == .i and am_cuoi == ._none) return true; // except giì
             print("!!! VIOLATE: am_dau 'gi' không đi nguyên âm bắt đầu bằng 'i', 'y'\n ", .{});
             return false;
         }
@@ -763,6 +763,7 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrict(""));
+    try expect(canBeVietnameseStrict("gì"));
     try expect(canBeVietnameseStrict("A"));
     try expect(canBeVietnameseStrict("Quấc"));
     // Gốc là Quấc, do phổ cập Quấc ngữ nên chỉnh lại là Quốc cho dân ta dễ viết
