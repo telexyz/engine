@@ -73,37 +73,42 @@ test "Enum AmDau" {
     try expect(AmDau.zd.isSaturated() == true);
 }
 
-/// https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=12
-/// 2. Vần gồm có 3 phần : âm đệm, âm chính, âm cuối.
-/// - Âm đệm được ghi bằng con chữ u và o.
-///     + Ghi bằng con chữ o khi đứng trước các nguyên âm: a, ă, e.
-///     + Ghi bằng con chữ u khi đứng trước các nguyên âm y, ê, ơ, â.
-/// - Âm đệm không xuất hiện sau các phụ âm b, m, v, ph, n, r, g. Trừ các trường hợp:
-///     + sau ph, b: thùng phuy, voan, ô tô buýt (là từ nước ngoài)
-///     + sau n: thê noa, noãn sào (2 từ Hán Việt)
-///     + sau r: roàn roạt.(1 từ)
-///     + sau g: goá (1 từ)
-/// Trong Tiếng Việt, nguyên âm nào cũng có thể làm âm chính của tiếng.
-/// - Các nguyên âm đơn: (11 nguyên âm ghi ở trên)
-/// - Các nguyên âm đôi: Có 3 nguyên âm đôi và được tách thành 8 nguyên âm sau:
+// https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=12
+// 2. Vần gồm có 3 phần: âm đệm, âm chính, âm cuối.
+// - Âm đệm được ghi bằng con chữ u và o.
+//     + Ghi bằng con chữ o khi đứng trước các nguyên âm: a, ă, e.
+//     + Ghi bằng con chữ u khi đứng trước các nguyên âm y, ê, ơ, â.
+//
+// - Âm đệm không xuất hiện sau các phụ âm b, m, v, ph, n, r, g. Trừ các trường hợp:
+//     + sau ph, b: thùng phuy, voan, ô tô buýt (là từ nước ngoài)
+//     + sau n: thê noa, noãn sào (2 từ Hán Việt)
+//     + sau r: roàn roạt (1 từ)
+//     + sau g: goá (1 từ)
+//
+// Trong Tiếng Việt, nguyên âm nào cũng có thể làm âm chính của tiếng.
+// - Các nguyên âm đơn: (11 nguyên âm ghi ở trên)
+//
+// - Các nguyên âm đôi: Có 3 nguyên âm đôi và được tách thành 8 nguyên âm sau:
+//
 // * iê:
-// Ghi bằng ia khi phía trước không có âm đệm và phía sau không có âm cuối (VD: mía, tia, kia,...)
-// Ghi bằng yê khi phía trước có âm đệm hoặc không có âm nào, phía sau có âm cuối (VD: yêu, chuyên,...)
-// Ghi bằng ya khi phía trước có âm đệm và phía sau không có âm cuối (VD: khuya,...)
-// Ghi bằng iê khi phía trước có phụ âm đầu, phía sau có âm cuối (VD: tiên, kiến,...)
+//   - Ghi bằng ia khi phía trước không có âm đệm và phía sau không có âm cuối
+//     (VD: mía, tia, kia,...)
+//   - Ghi bằng yê khi phía trước có âm đệm hoặc không có âm nào, phía sau có âm cuối
+//     (VD: yêu, chuyên,...)
+//   - Ghi bằng ya khi phía trước có âm đệm và phía sau không có âm cuối (VD: khuya...)
+//   - Ghi bằng iê khi phía trước có phụ âm đầu, phía sau có âm cuối (VD: tiên, kiến...)
 //
 // + uơ:
-// Ghi bằng ươ khi sau nó có âm cuối ( VD: mượn,...)
-// Ghi bằng ưa khi phía sau nó không có âm cuối (VD: mưa,...)
+//   - Ghi bằng ươ khi sau nó có âm cuối ( VD: mượn,...)
+//   - Ghi bằng ưa khi phía sau nó không có âm cuối (VD: mưa,...)
 //
 // + uô:
-// Ghi bằng uô khi sau nó có âm cuối (VD: muốn,...)
-// Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
+//   - Ghi bằng uô khi sau nó có âm cuối (VD: muốn,...)
+//   - Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
 
 pub const AmGiua = enum(u5) {
     // 27 âm giữa
-    _none, // none chỉ để đánh dấu chưa parse, sau bỏ đi
-    a, // 1th
+    a, // 0th
     e,
     i,
     o,
@@ -115,12 +120,12 @@ pub const AmGiua = enum(u5) {
     ez, // ê
     oz, // ô
     ow, // ơ
-    uw, // ư 12th
+    uw, // ư 11th
 
     ua,
     ia,
     oa,
-    oe, // 16th
+    oe, // 15th
     ooo, // boong
     uy,
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
@@ -130,13 +135,16 @@ pub const AmGiua = enum(u5) {
     uoz, // uô
     uaw, // ưa
     uya,
-    // yez, // yê <= ye (yên <= yen, yeen, yezn) => nhập làm 1 với iez
-    uow, // ươ 26th
-    uyez, // uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
 
-    // uow, // “thuở/thủa” => convert to "ủa" nếu muốn chuẩn hoá
+    uow, //  uwow, ươ 25th
+    uyez, // uyez, uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
+
+    _none, // none chỉ để đánh dấu chưa parse, sau bỏ đi
+
+    // “thuở/thủa” => convert to "ủa" nếu muốn chuẩn hoá
     // http://repository.ulis.vnu.edu.vn/handle/ULIS_123456789/164
-    // Về việc hiển thị và bộ gõ thì ko cần convert vì thuở sẽ ko đi cùng âm cuối, và ngược lại ươ ko đứng riêng mà cần âm cuối đi kèm.
+    // Về việc hiển thị và bộ gõ thì ko cần convert vì thuở sẽ ko đi cùng âm cuối,
+    // và ngược lại ươ ko đứng riêng mà cần âm cuối đi kèm.
 
     pub fn startWithIY(self: AmGiua) bool {
         return switch (self) {
@@ -152,10 +160,10 @@ pub const AmGiua = enum(u5) {
     }
     pub fn len(self: AmGiua) u8 {
         return switch (@enumToInt(self)) {
-            1...6 => 1,
-            7...18 => 2,
-            19...25 => 3,
-            26, 27 => 4,
+            0...5 => 1,
+            6...17 => 2,
+            18...24 => 3,
+            25, 26 => 4,
             else => 0,
         };
     }
@@ -301,6 +309,8 @@ pub const Syllable = packed struct {
 
     pub const UniqueId = u16;
 
+    pub const NONE_ID: UniqueId = 0xffff;
+
     pub inline fn hasMark(self: Syllable) bool {
         return self.am_dau == .zd or self.am_giua.hasMark();
     }
@@ -315,22 +325,22 @@ pub const Syllable = packed struct {
 
     pub fn toId(self: Syllable) UniqueId {
         const id =
-            (@intCast(UniqueId, @enumToInt(self.am_dau)) << 11) | // u5 + u11
-            (@intCast(UniqueId, @enumToInt(self.am_giua)) << 6); // u5 + u6
+            (@intCast(UniqueId, @enumToInt(self.am_dau)) << 11) | // u16 <= u5 + u11
+            (@intCast(UniqueId, @enumToInt(self.am_giua)) << 6); //   u5 + u6 => u11
 
         const am_cuoi = @intCast(UniqueId, @enumToInt(self.am_cuoi));
         const tone = @intCast(UniqueId, @enumToInt(self.tone));
 
         const act = if (am_cuoi < 9)
             am_cuoi * 6 + tone
-        else // packing
+        else // am_cuoi `c, ch, p, t` only 2 tone s, j allowed
             54 + (am_cuoi - 9) * 2 + (tone - 4);
 
         return id + act;
     }
 
     pub fn newFromId(id: UniqueId) Syllable {
-        var x = id >> 6;
+        var x = id >> 6; // get rid first 6-bits of am_cuoi + tone
         var syllable = Syllable{
             .am_dau = @intToEnum(AmDau, @truncate(u5, x >> 5)),
             .am_giua = @intToEnum(AmGiua, @truncate(u5, x)),

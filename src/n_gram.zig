@@ -4,7 +4,7 @@ const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 const Syllable = @import("./syllable_data_structs.zig").Syllable;
 const Gram = Syllable.UniqueId;
-const BLANK: Gram = 0;
+const BLANK: Gram = Syllable.NONE_ID;
 
 pub const NGram = struct {
     c1_grams: std.AutoHashMap([2]Gram, u32) = undefined,
@@ -261,7 +261,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
 
     for (grams_list.items) |item| {
         var id: Gram = item.grams[0];
-        if (id == 0)
+        if (id == BLANK)
             try writer.print("{d} #", .{item.count})
         else
             try writer.print("{d} {s}", .{
@@ -277,7 +277,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
         var i: u8 = 1;
         while (i < item.grams.len) : (i += 1) {
             id = item.grams[i];
-            if (id == 0)
+            if (id == BLANK)
                 _ = try writer.write(" #")
             else
                 try writer.print(" {s}", .{Syllable.newFromId(id).printBuff(buff, false)});

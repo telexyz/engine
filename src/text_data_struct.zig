@@ -79,10 +79,10 @@ pub const Text = struct {
     // estimated_tokens_num = 214 * 1024 * 1024 (1024*1024*1024 / 4.8)
     // Mem allocated to tokens_infos = (214 * 6) * 1024 * 1024 = 2562 MB (1.2Gb)
 
-    pub const TokenInfo = struct { //         Total 6-bytes
-        trans_offset: TransOffset = undefined, //   3-bytes
-        attrs: TokenAttributes = undefined, //      1-byte
-        syllable_id: Syllable.UniqueId = 0, //      2-bytes
+    pub const TokenInfo = struct { //                     Total 6-bytes
+        trans_offset: TransOffset = undefined, //               3-bytes
+        attrs: TokenAttributes = undefined, //                  1-byte
+        syllable_id: Syllable.UniqueId = Syllable.NONE_ID, //   2-bytes
 
         pub inline fn trans_ptr(self: TokenInfo, text: *Text) [*]u8 {
             const buff = switch (self.attrs.category) {
@@ -99,7 +99,7 @@ pub const Text = struct {
         }
 
         pub inline fn isSyllable(self: TokenInfo) bool {
-            return self.syllable_id != 0;
+            return self.syllable_id != Syllable.NONE_ID;
         }
     };
 
@@ -115,11 +115,11 @@ pub const Text = struct {
     }
 
     pub const TransOffset = u24; //= 2^4 * 2^10 * 2^10 = 16 * 1024 * 1024 = 16Mb
-    pub const TypeInfo = struct { //         Total 10-bytes (old struct 23-bytes)
-        count: u32 = 0, //                          4-bytes
-        trans_offset: TransOffset = undefined, //   3-bytes
-        category: TokenCategory = undefined, //     1-bytes
-        syllable_id: Syllable.UniqueId = 0, //      2-bytes
+    pub const TypeInfo = struct { //                 Total 10-bytes (old struct 23-bytes)
+        count: u32 = 0, //                                  4-bytes
+        trans_offset: TransOffset = undefined, //           3-bytes
+        category: TokenCategory = undefined, //             1-bytes
+        syllable_id: Syllable.UniqueId = Syllable.NONE_ID, //2-bytes
 
         pub inline fn trans_ptr(self: TypeInfo, text: *Text) [*]u8 {
             return text.syllable_bytes.ptr + self.trans_offset;
@@ -131,7 +131,7 @@ pub const Text = struct {
         }
 
         pub inline fn isSyllable(self: TypeInfo) bool {
-            return self.syllable_id != 0;
+            return self.syllable_id != Syllable.NONE_ID;
         }
 
         pub inline fn haveMarkTone(self: TypeInfo) bool {
@@ -290,7 +290,7 @@ pub const Text = struct {
         }
 
         // Init current token_info
-        var token_info = TokenInfo{ .attrs = attrs, .syllable_id = 0 };
+        var token_info = TokenInfo{ .attrs = attrs, .syllable_id = Syllable.NONE_ID };
 
         // Copied token place holder
         var token: []const u8 = undefined;
