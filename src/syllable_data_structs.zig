@@ -12,6 +12,7 @@ pub const AmDau = enum(u5) {
     _none,
     b, // 1th
     c, // Viết thành k trước các nguyên âm e, ê, i (iê, ia)
+    // Cần kiểm tra từ vay mượn Bắc Kạn
     d,
     g,
     h,
@@ -104,7 +105,7 @@ test "Enum AmDau" {
 //   - Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
 
 pub const AmGiua = enum(u5) {
-    // 27 âm giữa
+    // 23 âm giữa (âm đệm + nguyên âm)
     a, // 0th
     e,
     i,
@@ -119,23 +120,25 @@ pub const AmGiua = enum(u5) {
     ow, // ơ
     uw, // ư 11th
 
-    ua,
-    ia,
     oa,
-    oe, // 15th
-    ooo, // boong
-    uy,
+    oe,
+    ooo,
+    uy, // boong 15th
+
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
     oaw, // oă
     uaz, // uâ (ngoe nguẩy <= ngoẩy)
     uez, // uê <= ue (tuê =< tue, tuee, tuez)
     uoz, // uô
-    uaw, // ưa
-    uya,
 
-    uow, //  uwow, ươ 25th
+    uow, //  uwow, ươ 21th
     uyez, // uyez, uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
 
+    // Transit states
+    ua, // => uoz
+    ia, // => iez
+    uaw, // ưa => ươ
+    uya, // => uyez
     _none, // none chỉ để đánh dấu chưa parse, sau bỏ đi
 
     // “thuở/thủa” => convert to "ủa" nếu muốn chuẩn hoá
@@ -156,13 +159,17 @@ pub const AmGiua = enum(u5) {
         };
     }
     pub fn len(self: AmGiua) u8 {
-        return switch (@enumToInt(self)) {
-            0...5 => 1,
-            6...17 => 2,
-            18...24 => 3,
-            25, 26 => 4,
-            else => 0,
-        };
+        switch (@enumToInt(self)) {
+            0...5 => return 1,
+            6...15 => return 2,
+            16...20 => return 3,
+            21, 22 => return 4,
+            else => switch (self) {
+                .ua, .ia => return 2,
+                .uaw, .uya => return 3,
+                else => return 0,
+            },
+        }
     }
     pub fn isSaturated(self: AmGiua) bool {
         if (self.len() == 4 or self.len() == 3) return true;
@@ -378,8 +385,15 @@ pub const Syllable = packed struct {
     pub fn printBuff(self: *Syllable, buff: []u8, spare: bool) []const u8 {
         const blank = "";
         const giua = switch (self.am_giua) {
+            .uow => if (self.am_cuoi == ._none) "uaw" else "uow",
+            .uoz => if (self.am_cuoi == ._none) "ua" else "uoz",
             .ooo => "oo",
-            .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yez" else "iez",
+            .iez => blk: {
+                if (self.am_cuoi == ._none) break :blk "ia";
+                if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yez";
+                break :blk "iez";
+            },
+            .uyez => if (self.am_cuoi == ._none) "uya" else "uyez",
             else => @tagName(self.am_giua),
         };
         const dau = switch (self.am_dau) {
@@ -485,7 +499,6 @@ pub const Syllable = packed struct {
             if (n > 1 and buff[n - 2] == 'u') { // qu => q u
                 buff[n - 2] = 32;
                 buff[n - 1] = if (giua.len == 1 and giua[0] == 'a') 'o' else 'u';
-                // std.debug.print("\n{s}\n", .{giua});//DEBUG
             }
             for (giua) |byte| {
                 buff[n] = byte;
@@ -517,16 +530,22 @@ pub const Syllable = packed struct {
         const blank = "";
         const giua = switch (self.am_giua) {
             ._none => blank,
-            .uoz => "uoo",
+            .uoz => if (self.am_cuoi == ._none) "ua" else "uoo",
+            .uow => if (self.am_cuoi == ._none) "uaw" else "uow",
             .uaz => "uaa",
             .uaw => "uwa",
             .uez => "uee",
             .az => "aa",
             .ez => "ee",
             .oz => "oo",
-            .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yee" else "iee",
-            .uyez => "uyee",
-            .uow => "uwow",
+            // .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yee" else "iee",
+            // .uyez => "uyee",
+            .iez => blk: {
+                if (self.am_cuoi == ._none) break :blk "ia";
+                if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yee";
+                break :blk "iee";
+            },
+            .uyez => if (self.am_cuoi == ._none) "uya" else "uyee",
             else => @tagName(self.am_giua),
         };
         const dau = switch (self.am_dau) {
@@ -591,18 +610,20 @@ pub const Syllable = packed struct {
                 .aw => "ă",
                 .uw => "ư",
                 .ow => "ơ",
-                .uoz => "uô",
+                .uoz => if (self.am_cuoi == ._none) "ua" else "uô",
+                .uow => if (self.am_cuoi == ._none) "ưa" else "ươ",
                 .uaz => "uâ",
                 .uaw => "ưa",
                 .uez => "uê",
                 .az => "â",
                 .ez => "ê",
                 .oz => "ô",
-                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yê" else "iê",
-                // .iez => ,
-                // .yez => "yê",
-                .uyez => "uyê",
-                .uow => "ươ",
+                .iez => blk: {
+                    if (self.am_cuoi == ._none) break :blk "ia";
+                    if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yê";
+                    break :blk "iê";
+                },
+                .uyez => if (self.am_cuoi == ._none) "uya" else "uyê",
                 .ooo => "oo",
                 else => @tagName(self.am_giua),
             },
@@ -612,18 +633,20 @@ pub const Syllable = packed struct {
                 .aw => "ắ",
                 .uw => "ứ",
                 .ow => "ớ",
-                .uoz => "uố",
+                .uoz => if (self.am_cuoi == ._none) "úa" else "uố",
+                .uow => if (self.am_cuoi == ._none) "ứa" else "ướ",
                 .uaz => "uấ",
                 .uaw => "ứa",
                 .uez => "uế",
                 .az => "ấ",
                 .ez => "ế",
                 .oz => "ố",
-                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yế" else "iế",
-                // .iez => "iế",
-                // .yez => "yế",
-                .uyez => "uyế",
-                .uow => "ướ",
+                .iez => blk: {
+                    if (self.am_cuoi == ._none) break :blk "ía";
+                    if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yế";
+                    break :blk "iế";
+                },
+                .uyez => if (self.am_cuoi == ._none) "uýa" else "uyế",
                 .a => "á",
                 .e => "é",
                 .i => "í",
@@ -644,18 +667,20 @@ pub const Syllable = packed struct {
                 .aw => "ằ",
                 .uw => "ừ",
                 .ow => "ờ",
-                .uoz => "uồ",
+                .uoz => if (self.am_cuoi == ._none) "ùa" else "uồ",
+                .uow => if (self.am_cuoi == ._none) "ừa" else "ườ",
                 .uaz => "uầ",
                 .uaw => "ừa",
                 .uez => "uề",
                 .az => "ầ",
                 .ez => "ề",
                 .oz => "ồ",
-                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yề" else "iề",
-                // .iez => "iề",
-                // .yez => "yề",
-                .uyez => "uyề",
-                .uow => "ườ",
+                .iez => blk: {
+                    if (self.am_cuoi == ._none) break :blk "ìa";
+                    if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yề";
+                    break :blk "iề";
+                },
+                .uyez => if (self.am_cuoi == ._none) "uỳa" else "uyề",
                 .a => "à",
                 .e => "è",
                 .i => "ì",
@@ -676,18 +701,20 @@ pub const Syllable = packed struct {
                 .aw => "ẳ",
                 .uw => "ử",
                 .ow => "ở",
-                .uoz => "uổ",
+                .uoz => if (self.am_cuoi == ._none) "ủa" else "uổ",
+                .uow => if (self.am_cuoi == ._none) "ửa" else "ưở",
                 .uaz => "uẩ",
                 .uaw => "ửa",
                 .uez => "uể",
                 .az => "ẩ",
                 .ez => "ể",
                 .oz => "ổ",
-                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yể" else "iể",
-                // .iez => "iể",
-                // .yez => "yể",
-                .uyez => "uyể",
-                .uow => "ưở",
+                .iez => blk: {
+                    if (self.am_cuoi == ._none) break :blk "ỉa";
+                    if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yể";
+                    break :blk "iể";
+                },
+                .uyez => if (self.am_cuoi == ._none) "uỳa" else "uyể",
                 .a => "ả",
                 .e => "ẻ",
                 .i => "ỉ",
@@ -708,18 +735,20 @@ pub const Syllable = packed struct {
                 .aw => "ẵ",
                 .uw => "ữ",
                 .ow => "ỡ",
-                .uoz => "uỗ",
+                .uoz => if (self.am_cuoi == ._none) "ũa" else "uỗ",
+                .uow => if (self.am_cuoi == ._none) "ữa" else "ưỡ",
                 .uaz => "uẫ",
                 .uaw => "ữa",
                 .uez => "uễ",
                 .az => "ẫ",
                 .ez => "ễ",
                 .oz => "ỗ",
-                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yễ" else "iễ",
-                // .iez => "iễ",
-                // .yez => "yễ",
-                .uyez => "uyễ",
-                .uow => "ưỡ",
+                .iez => blk: {
+                    if (self.am_cuoi == ._none) break :blk "ĩa";
+                    if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yễ";
+                    break :blk "iễ";
+                },
+                .uyez => if (self.am_cuoi == ._none) "uỹa" else "uyễ",
                 .a => "ã",
                 .e => "ẽ",
                 .i => "ĩ",
@@ -740,18 +769,20 @@ pub const Syllable = packed struct {
                 .aw => "ặ",
                 .uw => "ự",
                 .ow => "ợ",
-                .uoz => "uộ",
+                .uoz => if (self.am_cuoi == ._none) "ụa" else "uộ",
+                .uow => if (self.am_cuoi == ._none) "ựa" else "ượ",
                 .uaz => "uậ",
                 .uaw => "ựa",
                 .uez => "uệ",
                 .az => "ậ",
                 .ez => "ệ",
                 .oz => "ộ",
-                .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yệ" else "iệ",
-                // .iez => "iệ",
-                // .yez => "yệ",
-                .uyez => "uyệ",
-                .uow => "ượ",
+                .iez => blk: {
+                    if (self.am_cuoi == ._none) break :blk "ịa";
+                    if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yệ";
+                    break :blk "iệ";
+                },
+                .uyez => if (self.am_cuoi == ._none) "uỵa" else "uyệ",
                 .a => "ạ",
                 .e => "ẹ",
                 .i => "ị",
