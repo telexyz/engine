@@ -101,8 +101,8 @@ test "Enum AmDau" {
 // Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
 
 pub const AmGiua = enum(u5) {
-    // 29 âm giữa
-    _none,
+    // 27 âm giữa
+    _none, // none chỉ để đánh dấu chưa parse, sau bỏ đi
     a, // 1th
     e,
     i,
