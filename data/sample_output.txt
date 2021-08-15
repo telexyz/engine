@@ -1,5 +1,5 @@
-^^tu|wj ^^ddong|zj ^^sua|wr ^^loi|zx ^^phat|s ^^am|z ^^khong|z ^^nhap|zj ^^nhang|wf , ^^ko| ^^de|zx ^^nham|zf : 
-ddao|j ^khoang|ws nghieng|z mieng|zs tuom|w ^^tua| thua|r suon|wf boom| giooc|s nguyen|z tien|zs ien|zs 
+^^tu|wj ^^ddong|zj ^^sua|wr ^^loi|zx ^^phat|s ^^am|z ^^khong|z ^^nhap|zj ^^nhang|wf , ^^co| ^^de|zx ^^nham|zf : 
+ddao|j ^khoang|ws nghieng|z mieng|zs tuom|w ^^tua| thua|r suon|wf boom| giooc|s nguyen|z tien|zs yen|zs 
 
 ^^bo|r ^^qua| ^^loi|zx ^^phat|s ^^am|z ^^nhap|zj ^^nhang|wf : 
 buong 
@@ -158,7 +158,7 @@ Serie ^a| : Icardi ghi| cu|s ddup|s , ddua|w Inter len|z ddau|zf bang|r .
 ^thuc|wj pham|zr cho| tim| va|f nao|x khoe|r . 
 ^bac|ws ^quang| ( ^ha|f ^giang| ): ^dan|z mon|f moi|r mong| dduong|wf tiep|zs tuc|j dduoc|wj lam|f . 
 ^ddat|wj mua| ôtô tai|j VN : ^ddai|j ly|s luon|z nam|ws phan|zf loi|wj , ne|s tranh|s boi|zf thuong|wf . 
-^con| ' ma| ' co|s ten|z ' can|zj huyet|zs ' o|wr lang|f ^kon| K ' rieng|z . 
+^con| ' ma| ' co|s ten|z ' can|zj huyet|zs ' o|wr lang|f ^con| K ' rieng|z . 
 ^qua|f li|f xi|f ddoc|zj ddao|s cua|r bac|s sy|x nguoi|wf ^nghe|zj . 
 ^nghia|x tinh|f voi|ws ddong|zf ddoi|zj . 
 ^viet|zj ^nam| se|x som|ws cham|zs dut|ws tinh|f trang|j nuoi|z nhot|zs gau|zs . 
@@ -347,7 +347,7 @@ Singapore - nhung|wx bai|f hoc|j quy|s ve|zf quan|r ly|s ddo|z thi|j .
 ^nghi|j ddinh|j so|zs 83/2014/ NĐ CP : ^quy| ddinh|j ' ngat|wj ngheo|f ' dda|x pha|s vo|wx tinh|s thi|j truong|wf . 
 ^kinh| doanh| xang|w dau|zf : ^bo|r quy| hoach|j cung|x khong|z de|zx tho|wr hon|w . 
 CAS do|wx bo|r an|s phat|j tron|j ddoi|wf voi|ws 28 VĐV ^nga| . 
-^bac|ws ^kan|j : ^nghi|r huu|w van|zx dduoc|wj xet|s chuyen|zr thanh|f cong|z chuc|ws cap|zs so|wr . 
+^bac|ws ^can|j : ^nghi|r huu|w van|zx dduoc|wj xet|s chuyen|zr thanh|f cong|z chuc|ws cap|zs so|wr . 
 ^ddieu|zf chinh|r thue|zs tieu|z thu|j ddac|wj biet|zj : ^can|zf bao|r ddam|r cong|z bang|wf va|f binh|f ddang|wr . 
 ^huong|ws toi|ws su|wj ton|z nghiêm . 
 ^thao|s go|wx vuong|ws mac|ws dde|zr hut|s doanh| nghiep|zj ^nhat|zj ^ban|r . 
@@ -726,7 +726,7 @@ BOT ^can|zf ^tho|w - ^phung|j ^hiep|zj : ^can|zf ^tho|w kien|zs nghi|j voi|ws ^b
 ^tung|w bung|wf khai| mac|j le|zx hoi|zj hoa| giua|wx long|f di| san|r ^ha|j ^long| . 
 ^cuc|j ^quan|r ly|s xay|z dung|wj va|f chat|zs luong|wj cong|z trinh|f giao| thong|z : ^nhieu|zf sai| pham|j trong| cong|z tac|s tuyen|zr dung|j , su|wr dung|j va|f quan|r ly|s cong|z chuc|ws . 
 ^ha|f ^noi|zj : ^giau|zs ma| tuy|s dda|s trong| cho|zx hiem|zr van|zx khong|z qua| mat|wj dduoc|wj 141. 
-^quy|x ddau|zf tu|w ^hong|zf ^kong|z se|x mua| lai|j san|f giao| dich|j Bitcoin ddau|zf tien|z o|wr ^trung| ^quoc|zs . 
+^quy|x ddau|zf tu|w ^hong|zf ^cong|z se|x mua| lai|j san|f giao| dich|j Bitcoin ddau|zf tien|z o|wr ^trung| ^quoc|zs . 
 ^sa| ^pa| lanh|j 0.3 C trong| ngay|f cuoi|zs tuan|zf . 
 ^bai|f tap|zj giup|s bung|j phang|wr , tu|wj tin| ddon|s ^tet|zs cua|r HLV 9 X . 
 ' ^chung|ws khoan|s ^viet|zj ^nam| dda|x tang|w truong|wr manh|j ve|zf luong|wj va|f bay|z gio|wf la|f luc|s nha|f ddau|zf tu|w can|zf tang|w truong|wr ve|zf chat|zs '. 
@@ -852,7 +852,7 @@ IPO ' e|zs am|zr ', ^tap|zj ddoan|f ^cao| su| ^viet|zj ^nam| du|wj kien|zs mo|wr
 ^chang|f trai| ^khanh|s ^hoa|f to|r tinh|f bang|wf ban|r thiet|zs ke|zs ngoi|z nha|f tuong|w lai| . 
 ^tong|zr ^bi|s thu|w , ^chu|r tich|j ^trung| ^quoc|zs ^tap|zj ^can|zj ^binh|f vieng|zs ^lang|w ^chu|r tich|j ^ho|zf ^chi|s ^minh| . 
 ^nhin|f lai|j chuyen|zs tham|w ^viet|zj ^nam| cua|r ^tong|zr thong|zs Trump . 
-^bao|s ^hong| ^kong| ddang|w tai|r ddam|zj net|s ve|zf quan| he|zj ^viet|zj ^nam| ^trung| ^quoc|zs . 
+^bao|s ^hong| ^cong| ddang|w tai|r ddam|zj net|s ve|zf quan| he|zj ^viet|zj ^nam| ^trung| ^quoc|zs . 
 ^truy| tim|f ke|r gay|z tai| nan|j con|f ddanh|s nguoi|wf . 
 ^can|r tro|wr co|w quan| cong|z an| xu|wr ly|s xe| vi| pham|j . 
 ^cong|z ^vinh| , bac|s si|x va|f chuyen|zj ' noi|s xau|zs lanh|x ddao|j '. 
