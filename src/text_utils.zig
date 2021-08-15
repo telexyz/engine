@@ -137,12 +137,9 @@ pub fn parseTokens(text: *Text) void {
     var percents_threshold = ten_percents;
     var percents: u8 = 0;
 
-    var i: *usize = &text.parsed_tokens_num;
-    text.prev_token_is_vi = true;
-
-    while (i.* <= text.tokens_num) : (i.* += 1) {
+    while (text.parsed_tokens_num <= text.tokens_num) : (text.parsed_tokens_num += 1) {
         // Check if reach the end of tokens list
-        if (i.* == text.tokens_num) {
+        if (text.parsed_tokens_num == text.tokens_num) {
             // Segmentation ended => no more tokens for sure then return
             if (text.tokens_num_finalized) return;
 
@@ -150,19 +147,19 @@ pub fn parseTokens(text: *Text) void {
             std.debug.print("{s}... wait new tokens\n", .{PAD});
 
             // No new token and timeout
-            if (i.* == text.tokens_num) return;
+            if (text.parsed_tokens_num == text.tokens_num) return;
         }
 
-        const token_info = &text.tokens_infos[i.*];
+        const token_info = text.tokens_infos.get(text.parsed_tokens_num);
 
         // Init token and attrs shortcuts
         var token = token_info.trans_slice(text);
-        var attrs = &token_info.attrs;
         text.parsed_input_bytes += token.len + 1;
 
         // Parse alphabet and not too long token only
-        if (attrs.category != .nonalpha and token.len <= U2ACharStream.MAX_LEN) {
-
+        if (token_info.attrs.category != .nonalpha and
+            token.len <= U2ACharStream.MAX_LEN)
+        {
             // Show progress
             if (text.parsed_input_bytes >= percents_threshold) {
                 percents += 10;
@@ -174,11 +171,11 @@ pub fn parseTokens(text: *Text) void {
             // Init type_info shortcut
             var ptr = text.alphabet_types.getPtr(token);
             if (ptr == null) {
-                std.debug.print("!!! SYLLABLE CANDIDATE `{s}` INDEX {d} ???\n", .{ token, i.* });
+                std.debug.print("!!! SYLLABLE CANDIDATE `{s}` INDEX {d} ???\n", .{ token, text.parsed_tokens_num });
 
                 std.debug.print("CONTEXT: {s} {s} {s}", .{
-                    text.tokens_infos[i.* - 2].trans_slice(text),
-                    text.tokens_infos[i.* - 1].trans_slice(text),
+                    text.tokens_infos.get(text.parsed_tokens_num - 2).trans_slice(text),
+                    text.tokens_infos.get(text.parsed_tokens_num - 1).trans_slice(text),
                     token,
                 });
 
@@ -194,13 +191,17 @@ pub fn parseTokens(text: *Text) void {
             const type_info = ptr.?;
 
             // Over-write type_info's category, syllable_id, trans_offset
-            token2Syllable(token, attrs.*, type_info, text);
+            token2Syllable(token, token_info.attrs, type_info, text);
 
-            if (type_info.isSyllable()) {
-                attrs.category = type_info.category;
-                token_info.syllable_id = type_info.syllable_id;
-                token_info.trans_offset = type_info.trans_offset;
-            }
+            if (type_info.isSyllable())
+                text.tokens_infos.set(text.parsed_tokens_num, .{
+                    .attrs = .{
+                        .surrounded_by_spaces = token_info.attrs.surrounded_by_spaces,
+                        .category = type_info.category,
+                    },
+                    .trans_offset = type_info.trans_offset,
+                    .syllable_id = type_info.syllable_id,
+                });
         } // END parse alphabet token to get syllable
     } // while loop
 }

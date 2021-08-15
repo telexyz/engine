@@ -56,6 +56,8 @@ pub const NGram = struct {
         var grams: [3]Gram = .{ BLANK, BLANK, BLANK };
 
         var i: usize = 0;
+        const syllable_ids = text.tokens_infos.items(.syllable_id);
+
         while (i < text.tokens_num) : (i += 1) {
             // Show progress
             if (i >= percents_threshold) {
@@ -66,7 +68,7 @@ pub const NGram = struct {
 
             grams[0] = grams[1];
             grams[1] = grams[2];
-            grams[2] = text.tokens_infos[i].syllable_id;
+            grams[2] = syllable_ids[i];
 
             if (grams[2] != BLANK) {
                 const gop1 = try self.c1_grams.getOrPutValue(.{ grams[2], 0 }, 0);
@@ -102,6 +104,7 @@ pub const NGram = struct {
 
         var grams: [6]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
         var i: usize = 0;
+        const syllable_ids = text.tokens_infos.items(.syllable_id);
 
         while (i < text.tokens_num) : (i += 1) {
             // Show progress
@@ -116,7 +119,7 @@ pub const NGram = struct {
             grams[2] = grams[3];
             grams[3] = grams[4];
             grams[4] = grams[5];
-            grams[5] = text.tokens_infos[i].syllable_id;
+            grams[5] = syllable_ids[i];
 
             if (!(grams[3] == BLANK or grams[4] == BLANK) and
                 !(grams[2] == BLANK and grams[5] == BLANK))
@@ -158,6 +161,7 @@ pub const NGram = struct {
 
         var grams: [9]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
         var i: usize = 0;
+        const syllable_ids = text.tokens_infos.items(.syllable_id);
 
         while (i < text.tokens_num) : (i += 1) {
             // Show progress
@@ -175,7 +179,7 @@ pub const NGram = struct {
             grams[5] = grams[6];
             grams[6] = grams[7];
             grams[7] = grams[8];
-            grams[8] = text.tokens_infos[i].syllable_id;
+            grams[8] = syllable_ids[i];
 
             if (!(grams[3] == BLANK or grams[4] == BLANK or grams[5] == BLANK or
                 grams[6] == BLANK or grams[7] == BLANK) and

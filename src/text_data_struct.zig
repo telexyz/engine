@@ -73,7 +73,7 @@ pub const Text = struct {
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_num: usize = undefined,
-    tokens_infos: []TokenInfo = undefined,
+    tokens_infos: std.MultiArrayList(TokenInfo) = undefined,
 
     // For 1Gb text input (1024*1024*1024 bytes)
     // estimated_tokens_num = 214 * 1024 * 1024 (1024*1024*1024 / 4.8)
@@ -202,14 +202,10 @@ pub const Text = struct {
         self.initAllocatorIfNeeded();
         self.input_bytes = input_bytes;
 
-        const input_bytes_size = self.input_bytes.len;
-        self.estimated_tokens_num = (input_bytes_size * 10) / 42;
-        self.estimated_tokens_num += BUFF_SIZE + (BUFF_SIZE * 20 * ONE_MB) / input_bytes_size;
-        // std.debug.print("\n!!! {} !!!\n", .{self.estimated_tokens_num});
-
-        // Init tokens infos list
-        self.tokens_infos = try self.allocator.alloc(
-            TokenInfo,
+        self.estimated_tokens_num = self.input_bytes.len / 5; // avg 5 bytes per token
+        self.tokens_infos = std.MultiArrayList(TokenInfo){};
+        try self.tokens_infos.ensureTotalCapacity(
+            self.init_allocator,
             self.estimated_tokens_num,
         );
 
@@ -245,13 +241,14 @@ pub const Text = struct {
 
     pub fn deinit(self: *Text) void {
         self.free_input_bytes();
+        self.tokens_infos.deinit(self.init_allocator);
         // Since we use ArenaAllocator, simply deinit arena itself to
         // free all allocated memories
         self.arena.deinit();
     }
 
     pub fn getToken(self: *Text, n: usize) []const u8 {
-        return self.tokens_infos[n].trans_slice(self);
+        return self.tokens_infos.get(n).trans_slice(self);
     }
 
     inline fn copyToken(token: []const u8, token_info: *TokenInfo, bytes_ptr: [*]u8, bytes_len: *TransOffset) []const u8 {
@@ -283,7 +280,7 @@ pub const Text = struct {
 
     pub fn recordToken(self: *Text, _token: []const u8, attrs: TokenAttributes, then_parse_syllable: bool) !void {
 
-        // Escape first empty token
+        // Skip first empty token, yield error for any other empty token
         if (_token.len == 0) {
             if (self.tokens_num > 0) {
                 std.debug.print("!!! TOKEN ĐẦU VÀO KHÔNG THỂ EMPTY !!!", .{});
@@ -292,18 +289,8 @@ pub const Text = struct {
             return;
         }
 
-        // Guarding
-        if (self.tokens_num >= self.estimated_tokens_num) {
-            std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
-            unreachable;
-        }
-
-        // Get token_info, its value is random because of mem alloc
-        const token_info = &self.tokens_infos[self.tokens_num];
-
-        // Init token_info
-        token_info.attrs = attrs;
-        token_info.syllable_id = 0;
+        // Init current token_info
+        var token_info = TokenInfo{ .attrs = attrs, .syllable_id = 0 };
 
         // Copied token place holder
         var token: []const u8 = undefined;
@@ -315,11 +302,14 @@ pub const Text = struct {
 
             if (entry == null) {
                 // Write _token to token_bytes and update token_info.trans_offset
-                token = copyToken(_token, token_info, start_ptr, &self.nonalpha_bytes_len);
-
+                token = copyToken(
+                    _token,
+                    &token_info,
+                    start_ptr,
+                    &self.nonalpha_bytes_len,
+                );
                 // Count token type
                 try self.nonalpha_types.put(token, 1);
-                //
             } else {
                 //
                 const kv = entry.?;
@@ -328,24 +318,26 @@ pub const Text = struct {
                 token_info.trans_offset = @intCast(TransOffset, offset);
                 kv.value_ptr.* += 1;
             }
-            //
-        } else { // alphabet token
-            //
+        } else {
+            // alphabet token
             const entry = self.alphabet_types.getEntry(_token);
             const start_ptr = self.alphabet_bytes.ptr;
             var kv: std.StringHashMap(TypeInfo).Entry = undefined;
 
             if (entry == null) {
                 // Write _token to token_bytes and update token_info.trans_offset
-                token = copyToken(_token, token_info, start_ptr, &self.alphabet_bytes_len);
-
+                token = copyToken(
+                    _token,
+                    &token_info,
+                    start_ptr,
+                    &self.alphabet_bytes_len,
+                );
                 // Count token type and mark to parse syllable later
                 const not_too_long = (token.len <= U2ACharStream.MAX_LEN);
                 kv = try self.alphabet_types.getOrPutValue(token, TypeInfo{
                     .count = 1,
                     .category = if (not_too_long) .to_parse_syllable else attrs.category,
                 });
-                //
             } else {
                 //
                 kv = entry.?;
@@ -370,8 +362,12 @@ pub const Text = struct {
         }
 
         // increare tokens_num only when everything is finalized
+        try self.tokens_infos.append(self.init_allocator, token_info);
         self.tokens_num += 1;
-        if (then_parse_syllable) self.parsed_tokens_num = self.tokens_num;
+
+        if (then_parse_syllable) {
+            self.parsed_tokens_num = self.tokens_num;
+        }
     }
 
     pub fn processAlphabetTypes(self: *Text) !void {
@@ -449,7 +445,9 @@ test "Text" {
         text.tokens_num_finalized = true;
         thread.join();
         text_utils.parseTokens(&text);
+        //
     } else {
+        //
         try text.recordToken(token.?, attrs, true);
         try std.testing.expect(text.tokens_num == 1);
         try std.testing.expectEqualStrings(text.getToken(0), "^ca|r");

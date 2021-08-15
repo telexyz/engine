@@ -156,7 +156,7 @@ pub const TextokOutputHelpers = struct {
 
         var i: usize = 0;
         while (i < n) : (i += 1) {
-            const token_info = text.tokens_infos[i];
+            const token_info = text.tokens_infos.get(i);
             _ = try writer.write(token_info.trans_slice(text));
             if (token_info.attrs.spaceAfter()) _ = try writer.write(" ");
         }
@@ -173,7 +173,7 @@ pub const TextokOutputHelpers = struct {
         text.prev_token_is_vi = false;
 
         while (i < text.tokens_num) : (i += 1)
-            try text_utils.writeTokenInfo(text.tokens_infos[i], text, writer);
+            try text_utils.writeTokenInfo(text.tokens_infos.get(i), text, writer);
 
         try wrt.flush();
     }
