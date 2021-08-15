@@ -301,7 +301,7 @@ pub const Tokenizer = struct {
             } // End else char_type => .alphabet_char, or .nonalpha_char
         } // End main loop
         // Notify text that there is no more token
-        text.tokens_number_finalized = true;
+        text.tokens_num_finalized = true;
     }
 };
 
@@ -381,13 +381,13 @@ test "Tokenizer" {
     }
 
     // Second passes, parseTokens
-    try testing.expect(text.parsed_tokens_number == 0);
-    // print("\ntokens_number: {}\n", .{text.tokens_number});
-    try testing.expect(text.tokens_number == 15 + 15 + 19 + 3); // 3 * \n
+    try testing.expect(text.parsed_tokens_num == 0);
+    // print("\ntokens_num: {}\n", .{text.tokens_num});
+    try testing.expect(text.tokens_num == 15 + 15 + 19 + 3); // 3 * \n
 
-    try testing.expect(text.tokens_number_finalized == true);
+    try testing.expect(text.tokens_num_finalized == true);
     text_utils.parseTokens(&text);
-    try testing.expect(text.parsed_tokens_number == text.tokens_number);
+    try testing.expect(text.parsed_tokens_num == text.tokens_num);
 
     const s1_parsed_tokens = "^gia|s trung|s binh| quan|z 13.011 ddong|zf / cp , thu| ve|zf hon|w 1.300 vooc|j .";
     s1_tkcats = &[15]Text.TokenCategory{ .syllmark, .syllmark, .syll0m0t, .syllmark, .nonalpha, .syllmark, .nonalpha, .alph0m0t, .nonalpha, .syll0m0t, .syllmark, .syllmark, .nonalpha, .syllmark, .nonalpha };

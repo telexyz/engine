@@ -145,7 +145,7 @@ pub const TextokOutputHelpers = struct {
     }
 
     pub fn write_text_tokens_to_file(text: *Text, filename: []const u8, max: usize) !void {
-        var n = text.tokens_number;
+        var n = text.tokens_num;
         if (max > 0 and n > max) n = max;
 
         var file = try std.fs.cwd().createFile(filename, .{});
@@ -172,7 +172,7 @@ pub const TextokOutputHelpers = struct {
         var i: usize = 0;
         text.prev_token_is_vi = false;
 
-        while (i < text.tokens_number) : (i += 1)
+        while (i < text.tokens_num) : (i += 1)
             try text_utils.writeTokenInfo(text.tokens_infos[i], text, writer);
 
         try wrt.flush();

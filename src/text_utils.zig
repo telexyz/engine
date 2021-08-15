@@ -137,20 +137,20 @@ pub fn parseTokens(text: *Text) void {
     var percents_threshold = ten_percents;
     var percents: u8 = 0;
 
-    var i: *usize = &text.parsed_tokens_number;
+    var i: *usize = &text.parsed_tokens_num;
     text.prev_token_is_vi = true;
 
-    while (i.* <= text.tokens_number) : (i.* += 1) {
+    while (i.* <= text.tokens_num) : (i.* += 1) {
         // Check if reach the end of tokens list
-        if (i.* == text.tokens_number) {
+        if (i.* == text.tokens_num) {
             // Segmentation ended => no more tokens for sure then return
-            if (text.tokens_number_finalized) return;
+            if (text.tokens_num_finalized) return;
 
             std.time.sleep(WAIT_NANOSECS);
             std.debug.print("{s}... wait new tokens\n", .{PAD});
 
             // No new token and timeout
-            if (i.* == text.tokens_number) return;
+            if (i.* == text.tokens_num) return;
         }
 
         const token_info = &text.tokens_infos[i.*];

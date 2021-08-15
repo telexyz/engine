@@ -137,7 +137,7 @@ pub fn main() anyerror!void {
 
     _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
     thread.join(); // Wait for sylabeling thread end
-    if (text.parsed_tokens_number != text.tokens_number) std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{}); // unreachable;
+    if (text.parsed_tokens_num != text.tokens_num) std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{}); // unreachable;
 
     var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
 

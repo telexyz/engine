@@ -65,11 +65,11 @@ pub const Text = struct {
     syllow00_bytes: []u8 = undefined,
     syllow00_bytes_len: usize = 0,
 
-    // Start the text with empty tokens list, hence tokens_number = 0
-    tokens_number: usize = 0,
+    // Start the text with empty tokens list, hence tokens_num = 0
+    tokens_num: usize = 0,
     parsed_input_bytes: usize = 0,
-    parsed_tokens_number: usize = 0,
-    tokens_number_finalized: bool = false,
+    parsed_tokens_num: usize = 0,
+    tokens_num_finalized: bool = false,
 
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_num: usize = undefined,
@@ -95,13 +95,6 @@ pub const Text = struct {
 
         pub inline fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
             var ptr = self.trans_ptr(text);
-            // var n: usize = self.attrs.length;
-            // if (n == 0) {
-            //     n = 9;
-            //     while (ptr[n] != 0) : (n += 2) {}
-            //     if (ptr[n - 1] == 0) n -= 1;
-            // }
-            // return ptr[0..n];
             return ptr[0..double_0_trans_len(ptr)];
         }
 
@@ -152,7 +145,6 @@ pub const Text = struct {
     pub const TokenAttributes = packed struct {
         surrounded_by_spaces: TokenSurroundedBySpaces,
         category: TokenCategory,
-        length: TokenLen = 0,
 
         pub inline fn spaceAfter(self: TokenAttributes) bool {
             return self.surrounded_by_spaces == .right or
@@ -167,8 +159,6 @@ pub const Text = struct {
             return self.category == .syllmark or self.category == .alphmark;
         }
     };
-
-    pub const TokenLen = u3;
 
     pub const TokenCategory = enum(u3) {
         to_parse_syllable,
@@ -243,7 +233,7 @@ pub const Text = struct {
         self.syllow00_bytes_len = 0;
 
         // Start empty token list and empty transfomed bytes
-        self.tokens_number = 0;
+        self.tokens_num = 0;
     }
 
     pub fn free_input_bytes(self: *Text) void {
@@ -295,7 +285,7 @@ pub const Text = struct {
 
         // Escape first empty token
         if (_token.len == 0) {
-            if (self.tokens_number > 0) {
+            if (self.tokens_num > 0) {
                 std.debug.print("!!! TOKEN ĐẦU VÀO KHÔNG THỂ EMPTY !!!", .{});
                 unreachable;
             }
@@ -303,17 +293,16 @@ pub const Text = struct {
         }
 
         // Guarding
-        if (self.tokens_number >= self.estimated_tokens_num) {
+        if (self.tokens_num >= self.estimated_tokens_num) {
             std.debug.print("!!! Need to adjust Text.estimated_tokens_num !!!", .{});
             unreachable;
         }
 
         // Get token_info, its value is random because of mem alloc
-        const token_info = &self.tokens_infos[self.tokens_number];
+        const token_info = &self.tokens_infos[self.tokens_num];
 
         // Init token_info
         token_info.attrs = attrs;
-        // token_info.attrs.length = if (_token.len < 8) @intCast(u3, _token.len) else 0;
         token_info.syllable_id = 0;
 
         // Copied token place holder
@@ -380,9 +369,9 @@ pub const Text = struct {
             }
         }
 
-        // increare tokens_number only when everything is finalized
-        self.tokens_number += 1;
-        if (then_parse_syllable) self.parsed_tokens_number = self.tokens_number;
+        // increare tokens_num only when everything is finalized
+        self.tokens_num += 1;
+        if (then_parse_syllable) self.parsed_tokens_num = self.tokens_num;
     }
 
     pub fn processAlphabetTypes(self: *Text) !void {
@@ -450,27 +439,27 @@ test "Text" {
 
     if (true) {
         try text.recordToken(token.?, attrs, false);
-        try std.testing.expect(text.tokens_number == 1);
+        try std.testing.expect(text.tokens_num == 1);
         try std.testing.expectEqualStrings(text.getToken(0), "Cả");
         try text.recordToken(it.next().?, attrs, false);
         try text.recordToken(it.next().?, attrs, false);
 
         const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
         while (it.next()) |tkn| try text.recordToken(tkn, attrs, false);
-        text.tokens_number_finalized = true;
+        text.tokens_num_finalized = true;
         thread.join();
         text_utils.parseTokens(&text);
     } else {
         try text.recordToken(token.?, attrs, true);
-        try std.testing.expect(text.tokens_number == 1);
+        try std.testing.expect(text.tokens_num == 1);
         try std.testing.expectEqualStrings(text.getToken(0), "^ca|r");
         try text.recordToken(it.next().?, attrs, true);
         try text.recordToken(it.next().?, attrs, true);
         while (it.next()) |tkn| try text.recordToken(tkn, attrs, true);
-        text.tokens_number_finalized = true;
+        text.tokens_num_finalized = true;
     }
 
-    try std.testing.expect(text.tokens_number == 12);
+    try std.testing.expect(text.tokens_num == 12);
     try std.testing.expectEqualStrings(text.getToken(9), "nha|f");
     try std.testing.expect(text.alphabet_types.get("!").?.count == 1);
     try std.testing.expect(text.alphabet_types.get(",").?.count == 2);

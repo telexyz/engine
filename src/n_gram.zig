@@ -50,13 +50,13 @@ pub const NGram = struct {
 
     pub fn parseAndWrite123Gram(self: *NGram, text: Text, filename1: []const u8, filename2: []const u8, filename3: []const u8) !void {
         // Record progress
-        const ten_percents = text.tokens_number / 10;
+        const ten_percents = text.tokens_num / 10;
         var percents_threshold = ten_percents;
         var percents: u8 = 0;
         var grams: [3]Gram = .{ BLANK, BLANK, BLANK };
 
         var i: usize = 0;
-        while (i < text.tokens_number) : (i += 1) {
+        while (i < text.tokens_num) : (i += 1) {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
@@ -96,14 +96,14 @@ pub const NGram = struct {
 
     pub fn parseAndWrite456Gram(self: *NGram, text: Text, filename4: []const u8, filename5: []const u8, filename6: []const u8) !void {
         // Record progress
-        const ten_percents = text.tokens_number / 10;
+        const ten_percents = text.tokens_num / 10;
         var percents_threshold = ten_percents;
         var percents: u8 = 0;
 
         var grams: [6]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
         var i: usize = 0;
 
-        while (i < text.tokens_number) : (i += 1) {
+        while (i < text.tokens_num) : (i += 1) {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
@@ -152,14 +152,14 @@ pub const NGram = struct {
 
     pub fn parseAndWrite789Gram(self: *NGram, text: Text, filename7: []const u8, filename8: []const u8, filename9: []const u8) !void {
         // Record progress
-        const ten_percents = text.tokens_number / 10;
+        const ten_percents = text.tokens_num / 10;
         var percents_threshold = ten_percents;
         var percents: u8 = 0;
 
         var grams: [9]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
         var i: usize = 0;
 
-        while (i < text.tokens_number) : (i += 1) {
+        while (i < text.tokens_num) : (i += 1) {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
@@ -307,7 +307,7 @@ test "ngram" {
         try text.recordToken(tkn, attrs, false);
     }
 
-    text.tokens_number_finalized = true;
+    text.tokens_num_finalized = true;
     text_utils.parseTokens(&text);
 
     try gram.parseAndWrite123Gram(text, "data/temp1.txt", "data/temp2.txt", "data/temp3.txt");
