@@ -9,13 +9,13 @@
 
 Total: 16-bits
 
-    // 26 đầu           5-bits (dư 6-slots)
-    // 27 giữa          5-bits (dư 5-slots)
-    // 62 cuối + tone   6-bits (dư 2-slots)
+    // 25 đầu           5-bits
+    // 27 giữa          5-bits
+    // 62 cuối + tone   6-bits
 
 Tổng số slots `65_536 = 2^16`
-Số slots dùng `43_524 = 26*27*62`
-Số slots dư   `22_012` đủ để chứa OOV (dùng BPE)
+Số slots dùng `41_850 = 25*27*62`
+Số slots dư   `23_686` dư chứa OOV (dùng BPE)
 
 Như vậy chỉ cần `16-bits` là đủ để chứa `vocab` tiếng Việt viết thường (lowercase) + OOV
 
@@ -52,10 +52,10 @@ Thay thế `a y => ah i`, `az y => az i`
 
 => Vẫn cần 16-bits nhưng dư nhiều slots hơn
 
-    // 26 đầu           5-bits (dư 06-slots)
+    // 25 đầu           5-bits (dư 06-slots)
     // 29 giữa          5-bits (dư 03-slots)
     // 42 cuối + tone   6-bits (dư 22-slots)
 
 Tổng số slots `65_536 = 2^16`
-Số slots dùng `31_668 = 26*29*42`
-Số slots dư   `33_868` thoải mái chứa OOV (dùng BPE)
+Số slots dùng `30_450 = 25*29*42`
+Số slots dư   `35_086` thoải mái chứa OOV (dùng BPE)

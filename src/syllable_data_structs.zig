@@ -5,10 +5,10 @@ const fmt = std.fmt;
 // Ref https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=11
 // Tiếng gồm 3 bộ phận: phụ âm đầu, vần và thanh điệu.
 // - Tiếng nào cũng có vần và thanh. Có tiếng không có phụ âm đầu.
-// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x.
+// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x. (+ qu, gi, _none => 25)
 
 pub const AmDau = enum(u5) {
-    // 26 âm đầu
+    // 25 âm đầu
     _none,
     b, // 1th
     c, // Viết thành k trước các nguyên âm e, ê, i (iê, ia)
@@ -26,35 +26,31 @@ pub const AmDau = enum(u5) {
     x,
     ch,
     zd, // âm đ
-    gh, // Viết gh, ngh trước các nguyên âm e, ê, i, iê (ia). ghì làm gì đấy
     gi, // dùng như âm d, `gì` viết đúng, đủ là `giì`, đọc là `dì`
     kh,
-    ng, // 20th
-    nh, //
-    ph, //
+    ng,
+    nh, // 20th
+    ph,
     qu, // q chỉ đi với + âm đệm u, `qu` là 1 âm độc lập
     th,
-    tr, // 25th
+    tr, // 24th
+    // Transit states: gh, ngh trước các nguyên âm e, ê, i, iê (ia).
+    gh, // => g
+    ngh, // ng
+
     pub fn len(self: AmDau) u8 {
         return switch (@enumToInt(self)) {
             0 => 0,
             1...14 => 1,
+            26 => 3,
             else => 2,
         };
     }
     pub fn isSaturated(self: AmDau) bool {
-        if (self.len() == 2) return true;
-        if (self.len() == 1) {
-            switch (self) {
-                .c, .d, .g, .n, .p, .t => {
-                    return false;
-                },
-                else => {
-                    return true;
-                },
-            }
-        }
-        return false;
+        return switch (self) {
+            .c, .d, .g, .n, .p, .t, ._none, .ng => false,
+            else => return true,
+        };
     }
     pub fn noMark(self: AmDau) AmDau {
         return switch (self) {
@@ -394,6 +390,10 @@ pub const Syllable = packed struct {
                 else => "c",
             },
             .gi => if (self.am_giua == .i) "g" else "gi",
+            .g => switch (giua[0]) {
+                'e', 'i' => "gh",
+                else => "g",
+            },
             .ng => switch (giua[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",
@@ -537,6 +537,10 @@ pub const Syllable = packed struct {
                 else => "c",
             },
             .gi => if (self.am_giua == .i) "g" else "gi",
+            .g => switch (giua[0]) {
+                'e', 'i' => "gh",
+                else => "g",
+            },
             .ng => switch (giua[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",
@@ -570,6 +574,10 @@ pub const Syllable = packed struct {
                 else => "c",
             },
             .gi => if (self.am_giua == .i) "g" else "gi",
+            .g => switch (@tagName(self.am_giua)[0]) {
+                'e', 'i' => "gh",
+                else => "g",
+            },
             .ng => switch (@tagName(self.am_giua)[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",

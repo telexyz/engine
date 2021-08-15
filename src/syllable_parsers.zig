@@ -29,8 +29,6 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
 
     var am_dau_len = syllable.am_dau.len();
 
-    if (syllable.am_dau == .ng and stream.len >= 3 and stream.buffer[2] == 'h') am_dau_len = 3;
-
     // Check if is there any chars left for other parts
     if (am_dau_len == stream.len) return;
 
@@ -137,12 +135,6 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
 
     print("tone: {s}\n", .{syllable.tone});
 
-    // if (syllable.am_giua == .uo and syllable.tone != ._none) {
-    //     print("'uo' viết ko dấu thì chỉ đi được với thanh _none. VD: tuong, tuoi\n", .{});
-    //     syllable.can_be_vietnamese = false;
-    //     return;
-    // }
-
     if (syllable.am_cuoi.isStop() and !syllable.tone.isStop()) {
         print("!!! VIOLATE: tone \"{s}\" cannot follow \"c,ch,t,p\".\n", .{syllable.tone});
         syllable.can_be_vietnamese = false;
@@ -173,20 +165,20 @@ test "pushCharsToSyllable()" {
 
     try char_stream.push('h');
     pushCharsToSyllable(printNothing, &char_stream, &syllable);
-    try expect(syllable.am_dau == .ng);
+    try expect(syllable.am_dau == .ngh);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('ế');
     try expect(char_stream.tone == 's');
     pushCharsToSyllable(printNothing, &char_stream, &syllable);
-    try expect(syllable.am_dau == .ng);
+    try expect(syllable.am_dau == .ngh);
     try expect(syllable.am_giua == .ez);
     try expect(syllable.tone == .s);
     try expect(syllable.isSaturated() == false);
 
     try char_stream.push('t');
     pushCharsToSyllable(printNothing, &char_stream, &syllable);
-    try expect(syllable.am_dau == .ng);
+    try expect(syllable.am_dau == .ngh);
     try expect(syllable.am_giua == .ez);
     try expect(syllable.am_cuoi == .t);
     try expect(syllable.tone == .s);
@@ -293,17 +285,20 @@ pub fn parseTokenToGetSyllable(
                 char_stream.buffer[char_stream.len - 2] == 'o' and
                 char_stream.buffer[char_stream.len - 1] == 'w') return syllable;
 
-            if (syllable.am_dau == .ng and char_stream.len >= 3 and char_stream.buffer[2] == 'h' and char_stream.len - syllable.len() == 1) return syllable;
-
             print("??? Don't accept redundant suffix: Mộtd, cuốiiii ...\n", .{});
             syllable.can_be_vietnamese = false;
             return syllable;
         }
     }
 
-    // gi => gii
-    if (syllable.am_cuoi == ._none and syllable.am_dau == .g and syllable.am_giua == .i)
-        syllable.am_dau = .gi;
+    switch (syllable.am_dau) {
+        .g => {
+            if (syllable.am_giua == .i) syllable.am_dau = .gi;
+        }, // gì => giì, gìm => giìm
+        .ngh => syllable.am_dau = .ng, // ngh => ng
+        .gh => syllable.am_dau = .g, // gh => g
+        else => {},
+    }
 
     return syllable;
 }
@@ -317,7 +312,6 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
             return false;
         }
         if (am_giua.startWithIY()) {
-            // if (am_giua == .i and am_cuoi == ._none) return true; // except giì
             print("!!! VIOLATE: am_dau 'gi' không đi nguyên âm bắt đầu bằng 'i', 'y'\n ", .{});
             return false;
         }
@@ -560,7 +554,7 @@ inline fn _amDau(str: []const u8) AmDau {
 
         'n' => switch (c1) { // n|nh|ng|ngh => ng
             'h' => AmDau.nh,
-            'g' => .ng,
+            'g' => if (c2 == 'h') AmDau.ngh else .ng,
             else => .n,
         },
 
