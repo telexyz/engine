@@ -559,7 +559,7 @@ inline fn _amDau(str: []const u8) AmDau {
             else => .g,
         },
 
-        'k' => if (c1 == 'h') AmDau.kh else .k, // k|kh
+        'k' => if (c1 == 'h') AmDau.kh else .c, // k|kh
 
         'n' => switch (c1) { // n|nh|ng|ngh => ng
             'h' => AmDau.nh,

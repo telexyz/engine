@@ -3,55 +3,49 @@ const expect = std.testing.expect;
 const fmt = std.fmt;
 
 // Ref https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=11
+// Tiếng gồm 3 bộ phận: phụ âm đầu, vần và thanh điệu.
+// - Tiếng nào cũng có vần và thanh. Có tiếng không có phụ âm đầu.
 
-/// Tiếng gồm 3 bộ phận : phụ âm đầu, vần và thanh điệu.
-/// - Tiếng nào cũng có vần và thanh. Có tiếng không có phụ âm đầu.
-/// - Tiếng Việt có 6 thanh: thanh ngang (còn gọi là thanh không), thanh huyền, thanh sắc, thanh hỏi, thanh ngã, thanh nặng.
-
-// Các phụ âm đầu, vần (nguyên âm và phụ âm cuối) được tạo thành từ:
-/// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x.
-/// - 11 nguyên âm: i, e, ê, ư, u, o, ô, ơ, a, ă, â.
 pub const AmDau = enum(u5) {
-    // 27 âm đầu
+    // 26 âm đầu
     _none,
-    b,
-    c,
+    b, // 1th
+    c, // Viết thành k trước các nguyên âm e, ê, i (iê, ia)
     d,
     g,
     h,
-    k,
     l,
     m,
     n,
     p,
-    r,
+    r, // 10th
     s,
     t,
     v,
     x,
     ch,
-    zd,
+    zd, // âm đ
     gh,
     gi, // dùng như âm d
     kh,
-    ng,
-    nh,
-    ph,
-    qu, // q + âm đệm u, chuyển lên đây để giảm tải cho AmGiua
+    ng, // 20th
+    nh, //
+    ph, //
+    qu, // q chỉ đi với + âm đệm u, `qu` là 1 âm độc lập
     th,
-    tr,
+    tr, // 25th
     pub fn len(self: AmDau) u8 {
         return switch (@enumToInt(self)) {
-            1...15 => 1,
-            16...26 => 2,
-            else => 0,
+            0 => 0,
+            1...14 => 1,
+            else => 2,
         };
     }
     pub fn isSaturated(self: AmDau) bool {
         if (self.len() == 2) return true;
         if (self.len() == 1) {
             switch (self) {
-                .c, .d, .g, .k, .n, .p, .t => {
+                .c, .d, .g, .n, .p, .t => {
                     return false;
                 },
                 else => {
@@ -80,7 +74,7 @@ test "Enum AmDau" {
 }
 
 /// https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=12
-/// 2.Vần gồm có 3 phần : âm đệm, âm chính, âm cuối.
+/// 2. Vần gồm có 3 phần : âm đệm, âm chính, âm cuối.
 /// - Âm đệm được ghi bằng con chữ u và o.
 ///     + Ghi bằng con chữ o khi đứng trước các nguyên âm: a, ă, e.
 ///     + Ghi bằng con chữ u khi đứng trước các nguyên âm y, ê, ơ, â.
@@ -383,6 +377,10 @@ pub const Syllable = packed struct {
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => if (spare) "d d" else "dd",
+            .c => switch (giua[0]) {
+                'e', 'i', 'y' => "k",
+                else => "c",
+            },
             .ng => switch (giua[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",
@@ -440,7 +438,7 @@ pub const Syllable = packed struct {
             .zd => "dd",
             // .gh => "g", // notok: những gì, ghì chặt, gà, gá vs ghá, gia da ...
             .gi => "d",
-            .qu => "cu", // ok: qua sẽ được convert hành coa để phân biệt với vs cua
+            .qu => "cu", // ok: qua sẽ được convert thành coa để phân biệt với vs cua
             else => @tagName(self.am_dau),
         };
         const giua = switch (self.am_giua) {
@@ -522,6 +520,10 @@ pub const Syllable = packed struct {
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "dd",
+            .c => switch (giua[0]) {
+                'e', 'i', 'y' => "k",
+                else => "c",
+            },
             .ng => switch (giua[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",
@@ -550,6 +552,10 @@ pub const Syllable = packed struct {
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "đ",
+            .c => switch (@tagName(self.am_giua)[0]) {
+                'e', 'i', 'y' => "k",
+                else => "c",
+            },
             .ng => switch (@tagName(self.am_giua)[0]) {
                 'e', 'i' => "ngh",
                 else => "ng",
