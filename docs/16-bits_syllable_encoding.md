@@ -80,7 +80,9 @@ Số slots dùng `28_750 = 25*23*50`
 Số slots dư   `36_786` thoải mái chứa OOV (dùng BPE)
 
 
-REFs
+## REFs
 
-https://sites.google.com/site/sachquocngu/chuong-5/bai-75
-xoèng xoèng
+[1/ Liệt kê cách đánh vần tiếng Việt đầy đủ các âm vị](https://sites.google.com/site/sachquocngu/chuong-5/bai-75)
+
+[2/ Phiên âm vị tiếng Việt](https://vnlp.net/tiếng-việt-cơ-bản/hệ-thống-am-vị)
+![](files/bg_nguyen_am.png)
