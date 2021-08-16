@@ -510,26 +510,32 @@ pub const Syllable = packed struct {
 
     pub fn printBuffParts(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
+        // n(dau) = 23 (25 - 2)
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "dd",
-            // .gh => "g", // notok: những gì, ghì chặt, gà, gá vs ghá, gia da ...
             .gi => "d",
-            .qu => "cu", // ok: qua sẽ được convert thành coa để phân biệt với vs cua
+            .qu => "cu", // ok: qua sẽ được convert thành coa
             else => @tagName(self.am_dau),
         };
+        // n(giua) = 22 (23 - 1)
         const giua = switch (self.am_giua) {
             .ooo => "oo",
             .iez => "yez",
             .i => "y",
+            .a => if (self.am_cuoi == .y or self.am_cuoi == .o) "aw" else "a",
+            .oa => if (self.am_cuoi == .y) "oaw" else "oa",
             else => @tagName(self.am_giua),
         };
+        // n(cuoi) = 11 (13 - 2)
         const cuoi = switch (self.am_cuoi) {
-            // tao tau tai tay
+            .o => "u",
+            .y => "i",
             ._none => blank,
             else => @tagName(self.am_cuoi),
         };
 
+        // => n(parts) = 62 (23 + 22 + 11 + 6 (tones))
         var n: usize = 0;
 
         // dau
