@@ -29,6 +29,7 @@ Như vậy chỉ cần `16-bits` là đủ để chứa `vocab` tiếng Việt v
     u,      au
     o,  -   ao   eo   oao   oeo
 
+                            HOÀNG OANH HOẰNG
     ng,     ang             oang  oăng
     nh, -?  anh  ênh  inh   oanh         uênh  uynh
 
