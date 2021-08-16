@@ -217,8 +217,8 @@ pub const AmCuoi = enum(u4) {
     u,
     o,
     m,
-    n,
-    ng, // 7
+    n, // 6
+    ng,
     nh,
     ch, // 9
     c,
@@ -403,7 +403,7 @@ pub const Syllable = packed struct {
                 'e', 'i', 'y' => "k",
                 else => "c",
             },
-            .gi => if (self.am_giua == .i) "g" else "gi",
+            .gi => if (giua[0] == 'i') "g" else "gi",
             .g => switch (giua[0]) {
                 'e', 'i' => "gh",
                 else => "g",
@@ -555,7 +555,7 @@ pub const Syllable = packed struct {
                 'e', 'i', 'y' => "k",
                 else => "c",
             },
-            .gi => if (self.am_giua == .i) "g" else "gi",
+            .gi => if (giua[0] == 'i') "g" else "gi",
             .g => switch (giua[0]) {
                 'e', 'i' => "gh",
                 else => "g",
@@ -592,7 +592,7 @@ pub const Syllable = packed struct {
                 'e', 'i', 'y' => "k",
                 else => "c",
             },
-            .gi => if (self.am_giua == .i) "g" else "gi",
+            .gi => if (@tagName(self.am_giua)[0] == 'i') "g" else "gi",
             .g => switch (@tagName(self.am_giua)[0]) {
                 'e', 'i' => "gh",
                 else => "g",
