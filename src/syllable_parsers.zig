@@ -1308,7 +1308,7 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(canBeVietnameseStrict("oắp"));
     try expect(canBeVietnameseStrict("oặt"));
     //
-    try expect(canBeVietnameseStrict("oăng"));
+    try expect(canBeVietnameseStrict("oăng")); // hoăng hoắc
     try expect(!canBeVietnameseStrict("oănh"));
     try expect(canBeVietnameseStrict("oặc"));
     try expect(!canBeVietnameseStrict("oắch"));
