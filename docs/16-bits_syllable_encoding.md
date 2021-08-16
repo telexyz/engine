@@ -1,27 +1,4 @@
-## `syllable_data_structs.zig`
-
-### Compact `am_cuoi + tone` to `6-bits`
-
-`62 = 13*6 - 4*4` // 4 âm cuối `c,ch,p,t` ko dùng 4 thanh `_none,f,r,x`
-=> 62 slots to store `am_cuoi + tone` combinations (__lucky :D__)
-
-### Final results
-
-Total: 16-bits
-
-    // 25 đầu           5-bits
-    // 23 giữa          5-bits
-    // 62 cuối + tone   6-bits
-
-Tổng số slots `65_536 = 2^16`
-Số slots dùng `35_650 = 25*23*62`
-Số slots dư   `29_886` dư chứa OOV (dùng BPE)
-
-Như vậy chỉ cần `16-bits` là đủ để chứa `vocab` tiếng Việt viết thường (lowercase) + OOV
-
-- - -
-
-### Thử rút gọn `âm_cuối`
+## Rút gọn `âm_cuối`
 
     i,      ai        oái
     y,  -   ay   ây   oáy   uây
@@ -47,9 +24,13 @@ o/
 
 !! Cách thay này phù hợp với phiên âm quốc tế [2/] !!
 
-=> âm cuối bỏ được `y,o`, còn 11 âm cuối (âm cuối + tone <= `50 = 11*6 - 4*4`)
+=> âm cuối bỏ được `y,o`, còn 11 âm cuối.
 
-=> Vẫn cần 16-bits nhưng dư nhiều slots hơn
+`50 = 11*6 - 4*4` // 4 âm cuối `c,ch,p,t` ko dùng 4 thanh `_none,f,r,x`
+
+=> Need 50 slots to store `am_cuoi + tone` combinations
+
+## Final results
 
     // 25 đầu           5-bits
     // 23 giữa          5-bits
