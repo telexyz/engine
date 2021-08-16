@@ -1279,7 +1279,7 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(canBeVietnameseStrict("oép"));
     try expect(canBeVietnameseStrict("oẹt"));
     //
-    try expect(canBeVietnameseStrict("oeng")); // hoeng
+    try expect(canBeVietnameseStrict("oeng")); // xoèng xoèng, linh tinh xoèng
     try expect(!canBeVietnameseStrict("oenh"));
     try expect(canBeVietnameseStrict("oéc"));
     try expect(!canBeVietnameseStrict("oéch"));

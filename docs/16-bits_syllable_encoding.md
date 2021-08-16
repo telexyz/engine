@@ -30,7 +30,7 @@ Như vậy chỉ cần `16-bits` là đủ để chứa `vocab` tiếng Việt v
     o,  -   ao   eo   oao   oeo
 
                             HOÀNG OANH HOẰNG
-    ng,     ang             oang  oăng
+    ng,     ang  ăng        oang  oăng
     nh, -?  anh  ênh  inh   oanh         uênh  uynh
 
     c,      ac   êc         oác
@@ -54,17 +54,17 @@ o/
 
 nh?
 
-     a  nh =>  aw ng
      ez nh =>  ez ng
      i  nh =>  i  ng
     uez nh => uez ng
     uy  nh => uy  ng
-    oanh?
+     anh? !=> aw ng
+    oanh? !=> oă ng
+    oách? !=> oắ c
 
 ch?
 
-    ếc?
-    ếch?
+    ếch? !=> ếc
 
 
 => âm cuối bỏ được `y,o`, còn 11 âm cuối (âm cuối + tone <= `50 = 11*6 - 4*4`)
@@ -78,3 +78,9 @@ ch?
 Tổng số slots `65_536 = 2^16`
 Số slots dùng `28_750 = 25*23*50`
 Số slots dư   `36_786` thoải mái chứa OOV (dùng BPE)
+
+
+REFs
+
+https://sites.google.com/site/sachquocngu/chuong-5/bai-75
+xoèng xoèng
