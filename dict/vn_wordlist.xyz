@@ -176,7 +176,6 @@ ben|zr
 ben|zs
 beng|
 beng|s
-benh|
 benh|z
 benh|zf
 benh|zj
@@ -581,7 +580,6 @@ chen|j
 chen|s
 chen|x
 cheng|
-chenh|
 chenh|z
 cheo|
 cheo|f
@@ -1347,7 +1345,6 @@ den|z
 den|zf
 den|zj
 deng|
-denh|
 denh|zf
 deo|
 deo|r
@@ -1536,7 +1533,6 @@ em|zs
 en|
 en|s
 eng|
-enh|
 enh|zf
 enh|zj
 enh|zx
@@ -1623,8 +1619,6 @@ gay|zj
 gay|zr
 gay|zs
 gay|zx
-ge|
-gen|
 ghe|
 ghe|f
 ghe|j
@@ -1639,7 +1633,6 @@ ghem|
 ghem|s
 ghen|
 ghen|f
-ghenh|
 ghenh|zf
 ghenh|zr
 ghenh|zx
@@ -2001,7 +1994,6 @@ hen|j
 hen|s
 hen|z
 hen|zs
-henh|
 henh|zr
 heo|
 heo|f
@@ -2269,7 +2261,6 @@ ken|z
 ken|zf
 keng|
 keng|r
-kenh|
 kenh|z
 kenh|zf
 kenh|zj
@@ -2352,7 +2343,6 @@ khen|
 khen|f
 khen|s
 kheng|
-khenh|
 khenh|z
 khenh|zf
 khenh|zr
@@ -2657,7 +2647,6 @@ len|r
 len|s
 len|z
 leng|
-lenh|
 lenh|zf
 lenh|zj
 leo|
@@ -3022,7 +3011,6 @@ men|zf
 men|zs
 meng|
 meng|f
-menh|
 menh|zj
 meo|
 meo|f
@@ -3312,7 +3300,6 @@ nen|z
 nen|zf
 nen|zj
 nen|zs
-nenh|
 neo|
 neo|f
 neo|r
@@ -3400,19 +3387,24 @@ ngay|z
 ngay|zf
 ngay|zj
 ngay|zs
+nghe|
 nghe|f
 nghe|s
+nghe|z
 nghe|zf
 nghe|zj
 nghe|zr
 nghech|zj
 nghech|zs
+nghen|
 nghen|f
 nghen|j
 nghen|s
 nghen|x
 nghen|zr
+nghenh|z
 nghenh|zr
+ngheo|
 ngheo|f
 ngheo|j
 ngheo|r
@@ -3420,8 +3412,10 @@ ngheo|x
 nghet|j
 nghet|s
 nghet|zj
+ngheu|z
 ngheu|zf
 ngheu|zx
+nghi|
 nghi|f
 nghi|j
 nghi|r
@@ -3429,16 +3423,22 @@ nghi|x
 nghia|
 nghia|x
 nghich|j
+nghiem|z
 nghiem|zj
+nghien|z
 nghien|zf
 nghien|zj
 nghien|zs
 nghieng|z
 nghiep|zj
 nghiet|zj
+nghieu|z
+nghim|
 nghim|r
+nghin|
 nghin|f
 nghin|r
+nghinh|
 nghinh|r
 nghit|j
 nghit|s
@@ -3534,7 +3534,6 @@ ngong|x
 ngong|z
 ngong|zf
 ngong|zx
-ngoo|
 ngoong|
 ngop|s
 ngop|wj
@@ -3698,7 +3697,6 @@ nhem|r
 nhen|
 nhen|j
 nhen|zj
-nhenh|
 nheo|
 nheo|f
 nheo|s
@@ -4147,7 +4145,6 @@ phen|zx
 pheng|
 pheng|f
 pheng|s
-phenh|
 phenh|zf
 phenh|zj
 pheo|
@@ -4365,7 +4362,6 @@ quen|z
 quen|zj
 quen|zs
 queng|
-quenh|
 queo|
 queo|f
 queo|j
@@ -4515,7 +4511,6 @@ ren|s
 ren|z
 ren|zf
 reng|
-renh|
 reo|
 reo|r
 reo|s
@@ -4795,7 +4790,6 @@ sen|
 sen|r
 sen|z
 sen|zs
-senh|
 senh|z
 senh|zr
 seo|
@@ -4816,7 +4810,6 @@ si|x
 sia|
 sia|j
 sia|r
-sic|s
 sich|j
 siec|zs
 sien|zx
@@ -5059,7 +5052,6 @@ ten|
 ten|x
 ten|z
 teng|
-tenh|
 tenh|z
 tenh|zf
 teo|
@@ -5154,7 +5146,6 @@ them|z
 them|zf
 then|
 then|j
-thenh|
 theo|
 theo|j
 theo|r
@@ -5378,7 +5369,6 @@ tim|s
 tin|
 tin|s
 tin|x
-ting|
 tinh|
 tinh|f
 tinh|j
@@ -5568,7 +5558,6 @@ tren|x
 tren|z
 tren|zr
 treng|
-trenh|
 treo|
 treo|f
 treo|j
@@ -5972,7 +5961,6 @@ ven|s
 ven|z
 ven|zf
 ven|zj
-venh|
 venh|z
 venh|zr
 veo|
@@ -6188,7 +6176,6 @@ xen|z
 xeng|
 xeng|f
 xeng|r
-xenh|
 xeo|
 xeo|f
 xeo|j
@@ -6225,7 +6212,6 @@ xin|
 xin|j
 xin|r
 xin|s
-xing|
 xinh|
 xinh|f
 xit|j
@@ -6411,14 +6397,12 @@ a| nguy|j
 a| phien|zs
 a| roang|f
 a| tieng|z
-a| ting|
 a| tong|f
 a| tuc|s
 a| tung|f
 a| vao|
 a| vuong|w
 a| xan|
-a| xing|
 a| xit|s
 a|f a|f
 a|f nay|f
@@ -10149,6 +10133,7 @@ binh|f luu|w
 binh|f minh|
 binh|f my|x
 binh|f nam|
+binh|f nghi|
 binh|f nghi|j
 binh|f nghia|x
 binh|f ngoc|j
@@ -10768,6 +10753,7 @@ boi|w ddung|ws
 boi|w ech|zs
 boi|w loi|zj
 boi|w moc|s
+boi|w nghieng|z
 boi|w ngua|wr
 boi|w nhai|s
 boi|w sai|r
@@ -11617,6 +11603,7 @@ but|s luc|wj
 but|s mac|wj
 but|s may|s
 but|s muc|wj
+but|s nghien|z
 but|s ngong|zx
 but|s phap|s
 but|s phot|ws
@@ -11789,6 +11776,7 @@ ca|r mui|f
 ca|r mung|wf
 ca|r ne|zr
 ca|r ngay|f
+ca|r nghe|
 ca|r nghi|x
 ca|r nhung|wx
 ca|r quay|zx
@@ -14815,6 +14803,7 @@ chet|zs tu|wr
 chet|zs tuoi|w
 chet|zs xac|s
 chet|zs yeu|zr
+cheu|z ngheu|z
 chi| bang|wf
 chi| bay|zs
 chi| bien|zj
@@ -15371,6 +15360,7 @@ chinh|r lai|j
 chinh|r li|s
 chinh|r luu|w
 chinh|r ly|s
+chinh|r nghi|
 chinh|r phan|z
 chinh|r phong|
 chinh|r quan|z
@@ -16178,6 +16168,7 @@ chu|wx long|r
 chu|wx mon|z
 chu|wx nga|r
 chu|wx nghia|x
+chu|wx nghieng|z
 chu|wx ngoay|s
 chu|wx ngu|x
 chu|wx nhan|z
@@ -19055,6 +19046,7 @@ dai|f loi|wf
 dai|f long|
 dai|f lung|w
 dai|f mom|zf
+dai|f ngheu|z
 dai|f ngoang|wf
 dai|f ngoang|wx
 dai|f nhang|wf
@@ -19794,6 +19786,7 @@ dda| muu|w
 dda| nang|
 dda| nang|w
 dda| nganh|f
+dda| nghi|
 dda| nghia|x
 dda| ngon|z
 dda| ngu|wx
@@ -20254,6 +20247,7 @@ ddam|z lung|r
 ddam|z luoi|wf
 ddam|z mam|zf
 ddam|z mong|zj
+ddam|z nghi|
 ddam|z ra|
 ddam|z re|zr
 ddam|z re|zx
@@ -20430,6 +20424,7 @@ ddang|s li|s
 ddang|s ly|s
 ddang|s mat|wj
 ddang|s mung|wf
+ddang|s nghi|
 ddang|s ngo|wf
 ddang|s phat|j
 ddang|s ra|
@@ -22004,6 +21999,7 @@ ddieu|zf luat|zj
 ddieu|zf muc|j
 ddieu|zf nay|f
 ddieu|zf nghi|x
+ddieu|zf nghien|z
 ddieu|zf nhiet|zj
 ddieu|zf phoi|zs
 ddieu|zf quan|z
@@ -23706,6 +23702,7 @@ dduong|wf ngam|ws
 dduong|wf ngam|zf
 dduong|wf ngang|
 dduong|wf ngao|f
+dduong|wf nghien|z
 dduong|wf ngoai|f
 dduong|wf ngoi|z
 dduong|wf nguoc|wj
@@ -23863,6 +23860,7 @@ de|zx ddau|z
 de|zx ghet|s
 de|zx gi|f
 de|zx hieu|zr
+de|zx nghe|
 de|zx ot|wj
 de|zx so|wj
 de|zx tho|wr
@@ -24591,6 +24589,7 @@ dung| luong|wj
 dung| mao|j
 dung| moi|z
 dung| nap|j
+dung| nghi|
 dung| nham|
 dung| nhan|
 dung| nhan|zj
@@ -24878,7 +24877,6 @@ en| en|
 en|s bac|j
 eng| ec|s
 eng|f eng|f
-eng|zx bung|j
 enh|zf ech|zj
 enh|zf enh|zf
 enh|zf enh|zx
@@ -25228,7 +25226,6 @@ gap|wj rui|r
 gap|wj thoi|wf
 gap|wj van|zj
 gap|ws tham|w
-gap|zj genh|zf
 gap|zj ghenh|zf
 gap|zj ghinh|f
 gap|zj go|wx
@@ -25388,7 +25385,6 @@ ghe|s non|s
 ghe|s tai|
 ghe|s vai|
 ghe|z ghe|z
-ghe|z ghom|ws
 ghe|z gom|ws
 ghe|z hon|zf
 ghe|z nguoi|wf
@@ -25524,6 +25520,7 @@ gia| ke|zs
 gia| khach|s
 gia| le|zx
 gia| mien|zj
+gia| nghiem|z
 gia| nghiep|zj
 gia| nhan|z
 gia| nhap|zj
@@ -26533,6 +26530,7 @@ gioi|ws ddan|f
 gioi|ws han|j
 gioi|ws hinh|f
 gioi|ws luat|zj
+gioi|ws nghiem|z
 gioi|ws ngu|wx
 gioi|ws sac|ws
 gioi|ws sat|s
@@ -27980,6 +27978,7 @@ hi|s truong|wf
 hi|s vien|zj
 hiem|zf khich|s
 hiem|zf ky|j
+hiem|zf nghi|
 hiem|zf oan|s
 hiem|zf thu|f
 hiem|zf vi|f
@@ -28337,6 +28336,7 @@ ho|zf lo|z
 ho|zf ly|
 ho|zf mat|wj
 ho|zf nau|zs
+ho|zf nghi|
 ho|zf phen|f
 ho|zf quang|
 ho|zf so|w
@@ -28655,6 +28655,7 @@ hoai|f hoai|f
 hoai|f hoi|w
 hoai|f huy|r
 hoai|f mo|zj
+hoai|f nghi|
 hoai|f nhan|z
 hoai|f niem|zj
 hoai|f phi|s
@@ -28674,6 +28675,8 @@ hoan| hi|r
 hoan| ho|z
 hoan| hy|r
 hoan| lac|j
+hoan| nghenh|z
+hoan| nghinh|
 hoan| tong|zs
 hoan|f bi|j
 hoan|f bich|s
@@ -30342,6 +30345,7 @@ kha|r dung|j
 kha|r kien|zs
 kha|r kinh|s
 kha|r nang|w
+kha|r nghi|
 kha|r nghich|j
 kha|r o|zs
 kha|r pe|r
@@ -30947,8 +30951,6 @@ khieu|zs oan|
 khieu|zs to|zs
 khin| khit|s
 khin|f khit|j
-khing| suat|zs
-khing| thuong|wf
 khinh| bac|j
 khinh| bi|r
 khinh| binh|
@@ -31022,6 +31024,7 @@ kho|s hieu|zr
 kho|s khan|w
 kho|s khuay|z
 kho|s long|f
+kho|s nghe|
 kho|s ngheo|f
 kho|s nghi|r
 kho|s nghi|x
@@ -31479,6 +31482,7 @@ khong|z moc|j
 khong|z mon|f
 khong|z mon|z
 khong|z muon|zs
+khong|z nghe|
 khong|z ngo|wf
 khong|z ngoi|z
 khong|z ngot|ws
@@ -31751,6 +31755,7 @@ khuyet|zs danh|
 khuyet|zs ddiem|zr
 khuyet|zs ham|s
 khuyet|zs ham|x
+khuyet|zs nghi|
 khuyet|zs tat|zj
 khuyet|zs thieu|zs
 khuyet|zs tich|j
@@ -32250,6 +32255,7 @@ kinh|f cang|f
 kinh|f ddich|j
 kinh|f kich|j
 kinh|f ngac|j
+kinh|f nghe|z
 kinh|f ngu|w
 kinh|s ai|s
 kinh|s anh|r
@@ -32773,6 +32779,7 @@ lam|f nga|x
 lam|f ngay|
 lam|f nghe|zf
 lam|f nghet|j
+lam|f nghieng|z
 lam|f ngo|w
 lam|f nguoi|wf
 lam|f nguoi|z
@@ -33166,6 +33173,7 @@ lang|ws can|wj
 lang|ws ddang|ws
 lang|ws ddong|j
 lang|ws diu|j
+lang|ws nghe|
 lang|ws nhang|ws
 lang|ws tai|
 lang|ws xang|ws
@@ -33369,6 +33377,7 @@ lap|zj lo|wf
 lap|zj loe|f
 lap|zj luan|zj
 lap|zj muu|w
+lap|zj nghiem|z
 lap|zj nghiep|zj
 lap|zj ngon|z
 lap|zj o|zr
@@ -33600,6 +33609,7 @@ le|z let|zs
 le|z me|z
 le|z minh|
 le|z ne|z
+le|z nghi|
 le|z the|z
 le|z thu|ws
 le|zf dduong|wf
@@ -33628,6 +33638,7 @@ le|zr bai|s
 le|zr cuoi|ws
 le|zr ddo|zj
 le|zr hoi|r
+le|zr nghi|
 le|zr phep|s
 le|zr phuc|j
 le|zr thuc|ws
@@ -33647,6 +33658,7 @@ le|zx loc|zj
 le|zx lon|ws
 le|zx mao|j
 le|zx me|zx
+le|zx nghi|
 le|zx nghia|x
 le|zx pham|zr
 le|zx phep|s
@@ -33754,6 +33766,7 @@ lenh|z chenh|z
 lenh|z ddenh|z
 lenh|z khenh|z
 lenh|z lang|s
+lenh|z nghenh|z
 lenh|z phenh|z
 lenh|zf benh|zf
 lenh|zf ddenh|zf
@@ -33771,6 +33784,7 @@ lenh|zj huynh|
 lenh|zj khenh|zj
 lenh|zj lang|
 lenh|zj muoi|zj
+lenh|zj nghiem|z
 lenh|zj tien|zx
 lenh|zj toc|zj
 lenh|zj truyen|zf
@@ -33834,6 +33848,7 @@ leu|z ddeu|z
 leu|z leu|z
 leu|z long|r
 leu|z long|zr
+leu|z ngheu|z
 leu|z pheu|z
 leu|z teu|z
 leu|zf beu|zf
@@ -34746,6 +34761,7 @@ long|r vong|r
 long|s can|wj
 long|s cong|s
 long|s lanh|s
+long|s nghe|
 long|s ngong|s
 long|s nhong|s
 long|s ray|f
@@ -35315,6 +35331,7 @@ luong|wx hinh|f
 luong|wx hop|wj
 luong|wx kha|r
 luong|wx lu|wj
+luong|wx nghi|
 luong|wx phan|z
 luong|wx quyen|zf
 luong|wx the|z
@@ -36280,6 +36297,7 @@ mau|zx hau|zj
 mau|zx he|zj
 mau|zx ma|x
 mau|zx muc|wj
+mau|zx nghi|
 mau|zx quan|s
 mau|zx quoc|zs
 mau|zx quyen|zf
@@ -36374,6 +36392,7 @@ may|s may|
 may|s mieng|zj
 may|s mo|s
 may|s moc|s
+may|s nghe|
 may|s nghien|zf
 may|s no|zr
 may|s noi|s
@@ -37261,6 +37280,7 @@ mu|x mang|x
 mu|x mao|x
 mu|x mien|zj
 mu|x nan|
+mu|x nghe|
 mu|x ni|
 mu|x noi|zf
 mu|x non|s
@@ -37687,6 +37707,7 @@ nam|wf mong|zj
 nam|wf nep|s
 nam|wf ngang|
 nam|wf nghi|x
+nam|wf nghieng|z
 nam|wf ngu|r
 nam|wf ngu|x
 nam|wf ngua|wr
@@ -38077,6 +38098,7 @@ nga|r ma|j
 nga|r mu|x
 nga|r muc|j
 nga|r nghen|zs
+nga|r nghieng|z
 nga|r ngon|ws
 nga|r ngon|zs
 nga|r nguoi|wf
@@ -38283,6 +38305,8 @@ ngang| trai|s
 ngang| vai|
 ngang| voi|ws
 ngang|s tro|wr
+ngang|wr ngheo|
+ngang|wr nghiu|
 ngang|zr ddau|zf
 ngang|zr mat|wj
 nganh|f doc|j
@@ -38440,9 +38464,36 @@ ngay|zf nga|f
 ngay|zf ngay|zj
 ngay|zf ngua|j
 ngay|zs sot|zs
+nghe| benh|zj
+nghe| chung|wf
+nghe| ddau|z
+nghe| ddon|zf
+nghe| dduoc|wj
+nghe| hoi|w
+nghe| loi|wf
+nghe| lom|r
+nghe| lom|s
+nghe| lom|x
+nghe| long|s
+nghe| ngong|s
+nghe| nhin|f
+nghe| nhu|w
+nghe| noi|s
+nghe| ra|
+nghe| sach|s
+nghe| tam|w
+nghe| thay|zs
+nghe| theo|
+nghe| thu|wr
+nghe| tieng|zs
+nghe| tin|
+nghe| trom|zj
 nghe|f bo|z
 nghe|s mat|ws
 nghe|s ngo|j
+nghe|z kinh|f
+nghe|z nga|
+nghe|z thuong|wf
 nghe|zf choi|w
 nghe|zf ddoi|wf
 nghe|zf hat|s
@@ -38479,6 +38530,20 @@ nghen|j u|ws
 nghen|x mach|j
 nghen|zf nghet|zj
 nghen|zr co|zr
+nghenh|z chien|zs
+nghenh|z ddich|j
+nghenh|z ddon|s
+nghenh|z gia|s
+nghenh|z hon|z
+nghenh|z ngang|
+nghenh|z ngao|s
+nghenh|z nghech|zs
+nghenh|z nghenh|z
+nghenh|z phong|
+nghenh|z tan|z
+nghenh|z tiep|zs
+nghenh|z tong|zs
+nghenh|z xuan|z
 nghenh|zf ngang|f
 nghenh|zf nghech|zj
 nghenh|zx ngang|x
@@ -38497,8 +38562,33 @@ ngheo|f xo|w
 nghet|j hong|j
 nghet|j mui|x
 nghet|j tho|wr
+ngheu|z ngao|
 ngheu|zf ngheu|zx
 ngheu|zx nghen|zj
+nghi| an|s
+nghi| binh|
+nghi| du|j
+nghi| dung|
+nghi| gia|
+nghi| hoac|wj
+nghi| ki|j
+nghi| ky|j
+nghi| le|zr
+nghi| le|zx
+nghi| mon|z
+nghi| nan|
+nghi| ngai|j
+nghi| nghia|x
+nghi| ngo|wf
+nghi| ngoe|
+nghi| ngut|s
+nghi| thuc|ws
+nghi| tiet|zs
+nghi| tinh|f
+nghi| trang|
+nghi| truong|wj
+nghi| van|zs
+nghi| ve|zj
 nghi|j an|s
 nghi|j ddinh|j
 nghi|j gat|zj
@@ -38616,6 +38706,32 @@ nghich|j thuyet|zs
 nghich|j tinh|
 nghich|j tu|wr
 nghich|j y|s
+nghiem|z cach|s
+nghiem|z cam|zs
+nghiem|z can|zr
+nghiem|z chinh|r
+nghiem|z chinh|s
+nghiem|z dduong|wf
+nghiem|z han|f
+nghiem|z huan|zs
+nghiem|z khac|ws
+nghiem|z khoc|zs
+nghiem|z lau|z
+nghiem|z lenh|zj
+nghiem|z mat|zj
+nghiem|z minh|
+nghiem|z ngan|ws
+nghiem|z ngat|wj
+nghiem|z nghi|j
+nghiem|z nhat|wj
+nghiem|z phong|f
+nghiem|z phu|j
+nghiem|z su|w
+nghiem|z trang|
+nghiem|z tri|j
+nghiem|z trong|j
+nghiem|z tu|wf
+nghiem|z tuc|s
 nghiem|zj ddung|s
 nghiem|zj hinh|f
 nghiem|zj phap|s
@@ -38623,6 +38739,9 @@ nghiem|zj so|zs
 nghiem|zj thu|
 nghiem|zj thuc|wj
 nghiem|zx nhien|z
+nghien|z but|s
+nghien|z cuu|ws
+nghien|z ddau|zf
 nghien|zf nat|s
 nghien|zf ngam|zx
 nghien|zj hut|s
@@ -38632,6 +38751,16 @@ nghien|zs ngam|zs
 nghien|zs ngau|zs
 nghien|zs rang|w
 nghien|zs rut|ws
+nghieng|z long|f
+nghieng|z minh|f
+nghieng|z nga|r
+nghieng|z nghe|s
+nghieng|z nghieng|z
+nghieng|z ngo|s
+nghieng|z ngua|wr
+nghieng|z tai|
+nghieng|z thanh|f
+nghieng|z ve|zf
 nghiep|zj bao|s
 nghiep|zj can|w
 nghiep|zj chu|r
@@ -38644,6 +38773,8 @@ nghiep|zj nho|
 nghiep|zj vu|j
 nghiet|zj nga|x
 nghiet|zj ngong|x
+nghieu|z khe|z
+nghim| nghim|r
 nghin|f dam|wj
 nghin|f nam|w
 nghin|f nghit|j
@@ -38651,6 +38782,18 @@ nghin|f thu|
 nghin|f trung|f
 nghin|f vang|f
 nghin|f xua|w
+nghinh| chien|zs
+nghinh| ddich|j
+nghinh| ddon|s
+nghinh| gia|s
+nghinh| hon|z
+nghinh| ngang|
+nghinh| nghinh|r
+nghinh| phong|
+nghinh| tan|z
+nghinh| tiep|zs
+nghinh| tong|zs
+nghinh| xuan|z
 ngo| ngo|s
 ngo| ngoe|
 ngo|f gai|
@@ -38667,6 +38810,7 @@ ngo|r loi|wf
 ngo|r long|f
 ngo|r y|s
 ngo|s ngang|f
+ngo|s nghieng|z
 ngo|s ngoay|s
 ngo|s sen|
 ngo|s tran|z
@@ -38694,6 +38838,7 @@ ngo|z ddong|zf
 ngo|z khoai|
 ngo|z lai|
 ngo|z nep|zs
+ngo|z nghe|z
 ngo|z ngo|zs
 ngo|z ngong|j
 ngo|zf ngo|zj
@@ -39017,6 +39162,7 @@ ngong|s tin|
 ngong|s trong|z
 ngong|z cuong|zf
 ngong|z ngao|s
+ngong|z nghenh|z
 ngong|zf nghenh|zf
 ngong|zf ngong|zf
 ngong|zr troi|wf
@@ -39082,6 +39228,7 @@ ngu|r lim|j
 ngu|r me|z
 ngu|r ngay|f
 ngu|r ngay|s
+ngu|r nghe|z
 ngu|r ngon|
 ngu|r nhe|f
 ngu|r nho|wf
@@ -39204,6 +39351,7 @@ ngua|wj troi|wf
 ngua|wj van|wf
 ngua|wj xam|s
 ngua|wj xe|
+ngua|wr nghieng|z
 ngua|wr tay|
 ngua|wr trong|z
 ngua|ws ddit|s
@@ -39351,6 +39499,7 @@ nguoi|wf nam|ws
 nguoi|wf nao|f
 nguoi|wf nao|j
 nguoi|wf ngap|s
+nguoi|wf nghe|
 nguoi|wf ngheo|f
 nguoi|wf ngoai|f
 nguoi|wf ngom|wj
@@ -39420,6 +39569,7 @@ nguong|wj ngung|f
 nguong|wj nguong|wj
 nguong|wx cua|wr
 nguong|wx mo|zj
+nguong|wx nghe|
 nguong|wx thien|z
 nguong|wx trong|z
 nguong|wx vong|j
@@ -41958,6 +42108,7 @@ nuot|zs tuoi|w
 nuot|zs vao|f
 nup|s bong|s
 nup|s minh|f
+nup|s nghe|
 nut|s ao|s
 nut|s bam|zs
 nut|s chai|
@@ -42099,6 +42250,8 @@ oac|s oac|s
 oai| danh|
 oai| hung|f
 oai| linh|
+oai| nghi|
+oai| nghiem|z
 oai| oai|s
 oai| phong|
 oai| quyen|zf
@@ -42382,6 +42535,7 @@ ong|zs lenh|zj
 ong|zs long|z
 ong|zs long|zf
 ong|zs mang|s
+ong|zs nghe|
 ong|zs nghiem|zj
 ong|zs ngoay|s
 ong|zs nho|zr
@@ -43479,6 +43633,7 @@ phong| loi|z
 phong| luu|w
 phong| mao|j
 phong| moi|z
+phong| nghi|
 phong| nguyet|zj
 phong| nha|x
 phong| nhi|j
@@ -43910,6 +44065,7 @@ phung|j chieu|zs
 phung|j duong|wx
 phung|j hoang|f
 phung|j menh|zj
+phung|j nghenh|z
 phung|j pheu|zj
 phung|j phiu|j
 phung|j su|wj
@@ -45112,6 +45268,7 @@ quyen|zf luc|wj
 quyen|zf mon|z
 quyen|zf muu|w
 quyen|zf nang|w
+quyen|zf nghi|
 quyen|zf nhiep|zs
 quyen|zf qui|s
 quyen|zf quy|s
@@ -46399,6 +46556,7 @@ sam|z banh|
 sam|z cam|zf
 sam|z khoe|s
 sam|z lam|z
+sam|z nghiem|z
 sam|z nhung|
 sam|z sam|zr
 sam|z si|
@@ -47095,6 +47253,7 @@ sinh|f lay|zf
 sinh|f sich|j
 sinh|s le|zx
 sinh|s lung|f
+sinh|s nghi|
 sinh|s phinh|f
 sit|j mui|x
 sit|s rang|w
@@ -47855,6 +48014,8 @@ su|wj nam|ws
 su|wj nan|wj
 su|wj nau|zs
 su|wj nem|s
+su|wj nghe|
+su|wj nghien|z
 su|wj nghien|zf
 su|wj nghiep|zj
 su|wj ngo|s
@@ -48311,7 +48472,6 @@ ta|f da|
 ta|f dam|z
 ta|f ddanh|r
 ta|f ddao|j
-ta|f dding|
 ta|f dung|w
 ta|f duong|w
 ta|f gian|
@@ -48461,6 +48621,7 @@ tai| mat|ws
 tai| meo|f
 tai| nan|f
 tai| nan|j
+tai| nghe|
 tai| nguoc|wj
 tai| phon|z
 tai| quai|s
@@ -48743,6 +48904,7 @@ tam|z luc|wj
 tam|z ly|s
 tam|z nao|x
 tam|z ngam|zr
+tam|z nghieng|z
 tam|z ngoai|f
 tam|z nguyen|zj
 tam|z nhang|
@@ -48985,6 +49147,7 @@ tan|z moc|zj
 tan|z my|x
 tan|z nam|
 tan|z ngai|x
+tan|z nghenh|z
 tan|z nghia|x
 tan|z ngu|wx
 tan|z nguyen|z
@@ -49723,7 +49886,6 @@ thach|j hoc|zj
 thach|j hoi|zj
 thach|j hung|w
 thach|j huong|w
-thach|j keng|z
 thach|j khe|z
 thach|j khi|s
 thach|j khoan|s
@@ -49946,6 +50108,7 @@ tham|z hau|zj
 tham|z hiem|zr
 tham|z hut|j
 tham|z khue|z
+tham|z nghiem|z
 tham|z nhap|zj
 tham|z nhiem|zx
 tham|z nho|
@@ -50092,6 +50255,8 @@ than|z mem|zf
 than|z mem|zs
 than|z men|zs
 than|z minh|f
+than|z nghenh|z
+than|z nghinh|
 than|z ngoai|j
 than|z nhan|z
 than|z nhiet|zj
@@ -51260,6 +51425,7 @@ thich|s hon|w
 thich|s hop|wj
 thich|s khach|s
 thich|s khau|zr
+thich|s nghi|
 thich|s nghia|x
 thich|s thoi|wf
 thich|s thu|s
@@ -51775,6 +51941,7 @@ tho|zr huyet|zs
 tho|zr lo|zj
 tho|zr mo|zj
 tho|zr moc|zj
+tho|zr nghi|
 tho|zr ngoi|w
 tho|zr ngu|wx
 tho|zr nhuong|wx
@@ -51922,6 +52089,7 @@ thoi|wf loan|j
 thoi|wf luan|zj
 thoi|wf luong|wj
 thoi|wf nay|
+thoi|wf nghi|
 thoi|wf nhan|z
 thoi|wf su|wj
 thoi|wf the|zs
@@ -53521,6 +53689,7 @@ tien|zj ich|s
 tien|zj ki|x
 tien|zj ky|x
 tien|zj loi|wj
+tien|zj nghi|
 tien|zj nhan|z
 tien|zj noi|zj
 tien|zj nu|wx
@@ -54015,6 +54184,7 @@ tinh|f khuc|s
 tinh|f lang|
 tinh|f luy|j
 tinh|f me|j
+tinh|f nghi|
 tinh|f nghia|x
 tinh|f nguyen|zj
 tinh|f nhan|z
@@ -54621,6 +54791,7 @@ ton|z len|z
 ton|z mau|zx
 ton|z mieu|zs
 ton|z mui|s
+ton|z nghiem|z
 ton|z nu|wx
 ton|z ong|z
 ton|z phai|s
@@ -54651,6 +54822,7 @@ ton|zf giu|wx
 ton|zf kho|
 ton|zf khoan|r
 ton|zf luu|w
+ton|zf nghi|
 ton|zf qui|x
 ton|zf quy|x
 ton|zf sinh|
@@ -55219,6 +55391,7 @@ trang| hoang|f
 trang| kim|
 trang| lua|ws
 trang| muc|j
+trang| nghiem|z
 trang| nha|x
 trang| phuc|j
 trang| sach|s
@@ -55655,6 +55828,7 @@ trieu|zf dduong|wf
 trieu|zf kien|zs
 trieu|zf luu|w
 trieu|zf mieu|zs
+trieu|zf nghi|
 trieu|zf phuc|j
 trieu|zf suy|
 trieu|zf than|zf
@@ -55891,6 +56065,7 @@ trom|f trom|x
 trom|s trem|s
 trom|zj cap|ws
 trom|zj cuop|ws
+trom|zj nghe|
 trom|zj nghi|x
 trom|zj phep|s
 trom|zj via|s
@@ -57596,6 +57771,7 @@ tuy|f but|s
 tuy|f co|w
 tuy|f hanh|f
 tuy|f hung|ws
+tuy|f nghi|
 tuy|f nhi|
 tuy|f phai|s
 tuy|f tam|z
@@ -58035,6 +58211,8 @@ uy| danh|
 uy| hiep|zs
 uy| linh|
 uy| luc|wj
+uy| nghi|
+uy| nghiem|z
 uy| no|zx
 uy| phong|
 uy| quyen|zf
@@ -60537,6 +60715,7 @@ xich|s tu|wr
 xich|s ve|zj
 xich|s xieng|zf
 xiem|z ao|s
+xiem|z nghe|z
 xiem|z y|
 xiem|zr ninh|j
 xien|z goc|s
@@ -62747,6 +62926,7 @@ cao| hon|w het|zs
 cao| hut|s mu|r
 cao| len|z da|
 cao| leu|z ddeu|z
+cao| leu|z ngheu|z
 cao| nhu|w nui|s
 cao| nhu|w seu|zs
 cao| phan|z tu|wr
@@ -63308,7 +63488,7 @@ cho|zr dien|zr tuong|zf
 cho|zr dua|wj vao|f
 cho|zr duoi|ws lung|w
 cho|zr giua|wx cay|z
-cho|zr go|zf ge|zf
+cho|zr go|zf ghe|zf
 cho|zr goi|wr hang|f
 cho|zr hung|x vao|f
 cho|zr lam|f viec|zj
@@ -65025,6 +65205,7 @@ ddieu|zf tat|zs yeu|zs
 ddieu|zf thong|zs kho|zr
 ddieu|zf thu|s vi|j
 ddieu|zf ti|r mi|r
+ddieu|zf tien|zj nghi|
 ddieu|zf tra| vien|z
 ddieu|zf trai|s nguoc|wj
 ddieu|zf trong|j yeu|zs
@@ -66425,7 +66606,6 @@ keu|z ri|f ram|zf
 keu|z roc|s rach|s
 keu|z se|f se|f
 keu|z thet|s len|z
-keu|z tic|s tac|ws
 keu|z tich|s tac|ws
 keu|z u|f u|f
 keu|z vo| vo|
@@ -66718,6 +66898,7 @@ khong|z hap|zs dan|zx
 khong|z hay| biet|zs
 khong|z hien|zj thuc|wj
 khong|z hieu|zj qua|r
+khong|z ho|zf nghi|
 khong|z hoa|f hop|wj
 khong|z hoa|f thuan|zj
 khong|z hoan|f toan|f
@@ -66777,11 +66958,14 @@ khong|z minh| xac|s
 khong|z mo|w mang|
 khong|z mot|zj ai|
 khong|z mui|f vi|j
+khong|z muon|zs nghe|
 khong|z nan|r long|f
 khong|z ngang| nhau|
 khong|z ngay| thang|wr
 khong|z ngay| that|zj
+khong|z nghe| loi|wf
 khong|z nghia|x ly|s
+khong|z nghiem|z khac|ws
 khong|z ngo|s thay|zs
 khong|z ngui|wr dduoc|wj
 khong|z nguoi|wf nao|f
@@ -66869,6 +67053,7 @@ khong|z the|zr uon|zs
 khong|z thich|s ddang|s
 khong|z thich|s dung|f
 khong|z thich|s hop|wj
+khong|z thich|s nghi|
 khong|z thien|z vi|j
 khong|z thiet|zs yeu|zs
 khong|z thoai|r mai|s
@@ -67349,9 +67534,11 @@ lam|f nga|x long|f
 lam|f ngac|j nhien|z
 lam|f ngan|zr nguoi|wf
 lam|f ngap|zj lut|j
+lam|f nghe| theo|
 lam|f nghen|r tac|ws
 lam|f nghen|x tac|ws
 lam|f nghet|j tho|wr
+lam|f nghi| ngo|wf
 lam|f nghia|x vu|j
 lam|f nghich|j y|s
 lam|f ngung|w lai|j
@@ -67520,6 +67707,7 @@ lan|zr nhu|w chach|j
 lan|zx lon|zj nhau|
 lang|f chien|zs ddau|zs
 lang|wj nhu|w to|wf
+lang|ws tai| nghe|
 lang|ws xuong|zs dday|s
 lang|x man|j hoa|s
 lanh|f manh|j hoa|s
@@ -67725,12 +67913,14 @@ loi|wf khan|zr nguyen|zj
 loi|wf khen| ngoi|wj
 loi|wf khen| tang|wj
 loi|wf khien|zr trach|s
+loi|wf kho|s nghe|
 loi|wf khoe| khoang|
 loi|wf khuyen|z bao|r
 loi|wf khuyen|zs cao|s
 loi|wf mo|wr ddau|zf
 loi|wf nai|f ni|r
 loi|wf nghi|j an|s
+loi|wf nghiem|z khac|ws
 loi|wf ngot|j ngao|f
 loi|wf nguyen|zf rua|r
 loi|wf nham|r nhi|s
@@ -67967,7 +68157,6 @@ mac|wj ddong|zf phuc|j
 mac|wj hang|f ngay|f
 mac|wj quan|zf ao|s
 mac|ws binh|j cui|f
-mac|ws binh|j suyem|zr
 mac|ws va|j vit|j
 mac|ws vao|f khuon|z
 mac|ws vao|f vanh|f
@@ -68028,6 +68217,7 @@ mat|wj giap|s mat|wj
 mat|wj khong|z rau|z
 mat|wj la| ban|f
 mat|wj luoi|wx cay|f
+mat|wj phang|wr nghieng|z
 mat|wj trai|s xoan|
 mat|wj troi|wf lan|wj
 mat|wj troi|wf moc|j
@@ -68554,6 +68744,10 @@ ngay|s nhu|w sam|zs
 ngay|z can|s tan|f
 ngay|z nhu|w go|zx
 ngay|z nhu|w phong|zx
+nghe| khong|z ro|r
+nghe| mang| mang|s
+nghe| o|zf o|zf
+nghe| phong| thanh|
 nghe|zf ban|s thit|j
 nghe|zf cao|j giay|zs
 nghe|zf chua|wr rang|w
@@ -68580,6 +68774,11 @@ nghia|r sau|z xa|
 nghia|x dung|x quan|z
 nghia|x vo|wj chong|zf
 nghia|x vu|j hoc|j
+nghien|z cuu|ws sinh|
+nghien|z cuu|ws vien|z
+nghien|z ddau|zf xuong|zs
+nghien|z thinh|f linh|f
+nghien|z ve|zf phia|s
 nghien|zf khoang|s chat|zs
 nghien|zf thanh|f bot|zj
 ngo|z huyet|zs du|j
@@ -69336,6 +69535,7 @@ nha|f mo|z pham|j
 nha|f mo|zr xe|r
 nha|f my|x thuat|zj
 nha|f nghe|zj thuat|zj
+nha|f nghien|z cuu|ws
 nha|f ngoai|j giao|
 nha|f nhap|zj cang|r
 nha|f nuoc|ws hoa|s
@@ -70240,10 +70440,12 @@ qua|s ddi| chu|ws
 qua|s ky|r luong|wr
 qua|s lam|ws chi|r
 qua|s le|zr phep|s
+qua|s nghiem|z khac|ws
 qua|s sot|zs sang|ws
 qua|s van|w hoa|
 qua|s xa| xoi|z
 quach|s ddinh|f bao|r
+quach|s huu|wx nghiem|z
 quai| va| li|
 quai|s luong|w xe|zs
 quai|s thai| hoc|j
@@ -70565,6 +70767,8 @@ sach|j sanh|f sanh|
 sach|s chi|r nam|
 sach|s cong|z cu|j
 sach|s giao|s khoa|
+sach|s nghi| le|zr
+sach|s nghi| thuc|ws
 sach|s tong|zr ke|z
 sach|s van|w pham|j
 sach|s yeu|zs luoc|wj
@@ -71180,6 +71384,7 @@ su|wj day|j do|zr
 su|wj day|j do|zx
 su|wj day|r dua|j
 su|wj day|zr dua|j
+su|wj dda| nghi|
 su|wj dda| ngon|z
 su|wj ddac|wj biet|zj
 su|wj ddac|wj hua|ws
@@ -71711,8 +71916,11 @@ su|wj ngay|z tho|w
 su|wj nghen|x tac|ws
 su|wj ngheo|f nan|f
 su|wj nghet|j u|ws
+su|wj nghi| ngo|wf
 su|wj nghi|x ngoi|wj
+su|wj nghiem|z khac|ws
 su|wj nghiem|zj ddoan|s
+su|wj nghien|z cuu|ws
 su|wj ngo|w ngac|s
 su|wj ngo|wf vuc|wj
 su|wj ngo|zj nhan|zj
@@ -71866,6 +72074,7 @@ su|wj quang|w luoi|ws
 su|wj quat|j ra|
 su|wj quay| thit|j
 su|wj quay| ve|zf
+su|wj queo|j nghien|z
 su|wj quo|w tay|
 su|wj quyen|z tien|zf
 su|wj quyen|zs ru|x
@@ -72014,6 +72223,7 @@ su|wj thi| rot|ws
 su|wj thi|s nghiem|zj
 su|wj thich|s ddang|s
 su|wj thich|s hop|wj
+su|wj thich|s nghi|
 su|wj thich|s y|s
 su|wj thiet|zj hai|j
 su|wj thiet|zs lap|zj
@@ -72124,7 +72334,6 @@ su|wj tri|f ddon|zj
 su|wj tri|j binh|j
 su|wj tri|j vi|j
 su|wj trieu|zj hon|zf
-su|wj tring| bach|j
 su|wj trinh| bach|j
 su|wj trinh| tiet|zs
 su|wj trinh|f bay|f
@@ -72784,6 +72993,8 @@ theo| ddung|s luat|zj
 theo| hiep|zj ddinh|j
 theo| hiep|zj uoc|ws
 theo| hinh|f thuc|ws
+theo| nghi| le|zr
+theo| nghi| thuc|ws
 theo| nguyen|z tac|ws
 theo| phap|s luat|zj
 theo| su|wj that|zj
@@ -72837,7 +73048,9 @@ thieu|zs le|zr phep|s
 thieu|zs nang|w luc|wj
 thieu|zs sinh| quan|z
 thieu|zs thu|r ddoan|j
+thieu|zs tien|zj nghi|
 thieu|zs tin| tuong|wr
+thieu|zs trang| nghiem|z
 thieu|zs trat|zj tu|wj
 thieu|zs tu|w cach|s
 thieu|zs tu|wj tin|
@@ -73349,7 +73562,6 @@ tin| set|s ddanh|s
 tin| via|r he|f
 tin|s dung|j thu|w
 tin|s hieu|zj hoc|j
-ting|f trang|j chung|
 tinh| hong|zf nhiet|zj
 tinh| than|zf hoa|s
 tinh| the|zr hoc|j
@@ -73447,6 +73659,7 @@ tinh|s tu|wj nhien|z
 tinh|s tu|wj phu|j
 tinh|s tuong|w ddoi|zs
 tinh|s tuong|w to|wj
+tinh|s uy| nghi|
 tinh|s vui| ddua|f
 tinh|s vui| ve|r
 tinh|s xac|s that|zj
@@ -73701,6 +73914,8 @@ trang| thiet|zs bi|j
 trang|j thai|s chin|s
 trang|j thai|s dday|zf
 trang|j thai|s mo|wf
+trang|j thai|s nghien|z
+trang|j thai|s nghieng|z
 trang|j thai|s trong|zs
 trang|j tu|wf hoa|s
 trang|w luoi|wx liem|zf
@@ -74265,9 +74480,11 @@ ve|r lon|ws them|z
 ve|r long| trong|j
 ve|r long|zj lay|zr
 ve|r mat|wj tot|zs
+ve|r nghiem|z trang|
 ve|r oai| ve|zj
 ve|r phac|s lai|j
 ve|r ruc|wj ro|wr
+ve|r trang| nghiem|z
 ve|r viec|zj gi|f
 ve|s khu|ws hoi|zf
 ve|x bang|wf than|
@@ -74391,6 +74608,7 @@ vinh|x thanh| van|z
 vinh|x thanh|j trung|
 vinh|x thuan|zj tay|z
 vit|j con|f nho|r
+vit|j nghe| sam|zs
 vo|f chin|s khuc|s
 vo|r ddia|j cau|zf
 vo|r trai|s cay|z
@@ -74676,6 +74894,7 @@ xem| tu|wr vi|
 xem| xet|s lai|j
 xen|s la|s cay|z
 xep|zs bang|wf tron|f
+xep|zs but|s nghien|z
 xep|zs dduong|wf nep|zs
 xet|s cho| cung|f
 xet|s dden|zs cung|f
@@ -75234,6 +75453,7 @@ ban|s than|z nuoi|z mieng|zj
 ban|s than|zf buon|z thanh|s
 ban|s thit|j buon|z nguoi|wf
 ban|s thuong|wj ban|s ha|j
+ban|s tin|s ban|s nghi|
 ban|s tong|zs ban|s tang|s
 ban|s tong|zs ban|s thao|s
 ban|s tra|r tien|zf mat|wj
@@ -75307,6 +75527,7 @@ bao|r ho|zj mau|zj dich|j
 bao|r hoang|f hon|w vua|
 bao|r luu|w y|s kien|zs
 bao|r mat|zj phong|f gian|
+bao|r sao| nghe| vay|zj
 bao|r ton|zf bao|r tang|f
 bao|r ton|zf danh| du|wj
 bao|r ve|zj thuc|wj vat|zj
@@ -75794,6 +76015,7 @@ buon|z trau|z ban|s cha|r
 buon|z van|j ban|s nghin|f
 buon|z xuoi|z ban|s nguoc|wj
 buon|zf cam|r van|zx vo|w
+buon|zf ngu|r buon|zf nghe|z
 buon|zf ngu|r dip|s mat|ws
 buon|zf nhu|w chau|zs can|ws
 buon|zf nhu|w trau|zs can|ws
@@ -75896,6 +76118,7 @@ cach|s ve|r phac|s hoa|j
 cach|s xa| ddeu|zf nhau|
 cach|s xep|zs giay|zs sach|s
 cai| tri|j khac|ws nghiet|zj
+cai| tri|j nghiem|z khac|ws
 cai|r ac|s qui| thien|zj
 cai|r bap|ws la|s quan|w
 cai|r cach|s ddien|zf ddia|j
@@ -76362,6 +76585,7 @@ che| mieng|zj the|zs gian|
 che|f tren|z chao|s duoi|ws
 che|r ddoi|z soi|wj toc|s
 che|r ra| lam|f ddoi|z
+che|r tre| nghe| giong|s
 che|z ong|r che|z eo|
 che|zs ddinh|j khau|zr kinh|
 che|zs ddo|zj bao|j nguoc|wj
@@ -76810,6 +77034,7 @@ chu|r nghia|x hien|zj thuc|wj
 chu|r nghia|x hien|zj tuong|wj
 chu|r nghia|x hinh|f thuc|ws
 chu|r nghia|x hoa|f binh|f
+chu|r nghia|x hoai|f nghi|
 chu|r nghia|x hu|w vo|z
 chu|r nghia|x huyen|zf bi|s
 chu|r nghia|x khac|ws ki|r
@@ -76892,6 +77117,7 @@ chua|f ddat|zs phat|zj vang|f
 chua|f nat|s but|j vang|f
 chua|f rach|s but|j vang|f
 chua|f rach|s phat|zj vang|f
+chua|s tau|f nghe| ken|f
 chua|w chet|zs dda|x thoi|zs
 chua|w co|s kinh| nghiem|zj
 chua|w dduoc|wj giao|s hoa|s
@@ -76899,11 +77125,14 @@ chua|w dduoc|wj khai| hoa|s
 chua|w dduoc|wj khai| pha|s
 chua|w giap|zj mieng|zs giau|zf
 chua|w hieu|zr ngo|z khoai|
+chua|w lan|zf nao|f nghe|
 chua|w noi|s dda|x cuoi|wf
 chua|w rao|s mau|s ddau|zf
 chua|w sach|j hoi|w sua|wx
 chua|w sach|j nuoc|ws can|r
 chua|w thao|j viec|zj ddoi|wf
+chua|w tung|wf nghe| dden|zs
+chua|w tung|wf nghe| thay|zs
 chua|w vo|wx bong|j cut|ws
 chua|wr la|f cua|wr ma|r
 chua|wr ngoai|f da|j con|
@@ -76925,6 +77154,7 @@ chui|wr canh|j chui|wr khoe|s
 chui|wr cho|s chui|wr meo|f
 chui|wr cho|s mang|ws meo|f
 chui|wr lam|ws moi|r mom|zf
+chui|wr lam|ws nghe| nhieu|zf
 chui|wr len|z mang|ws xuong|zs
 chui|wr meo|f mang|ws cho|s
 chui|wr meo|f queo|f cho|s
@@ -77837,6 +78067,7 @@ ddan|f ong|z ddan|f ang|
 ddan|f tam| thap|zj luc|j
 ddan|j lac|j ten|z bay|
 ddan|j sung|s ddai|j bac|s
+ddang| dduoc|wj hoan| nghinh|
 ddang|w cao| vien|zx chieu|zs
 ddang|w cao| vien|zx vong|j
 ddang|wf van|z gia|s vu|x
@@ -78665,6 +78896,7 @@ gat|zj ga|f gat|zj gu|f
 gat|zj ga|f gat|zj guong|wx
 gat|zj go|wf gat|zj guong|wx
 gay|r khuc|s cau|zf hoang|f
+gay|x nghe| cai|s rac|ws
 gay|z go|zr so|w sai|f
 gay|z lon|zj gay|z lao|j
 gay|z su|wj phan|r ung|ws
@@ -79663,6 +79895,7 @@ khong|z ddau|zf khong|z ddua|x
 khong|z ddau|zf khong|z dduoi|z
 khong|z dde|r khong|z ddau|
 khong|z dde|zr y|s dden|zs
+khong|z dde|zr y|s nghe|
 khong|z ddoi|zj troi|wf chung|
 khong|z ddoi|zr ra| dduoc|wj
 khong|z ddoi|zr sac|ws dien|zj
@@ -80613,6 +80846,7 @@ mat|ws mu|f tai| ddiec|zs
 mat|ws nham|ws mat|ws mo|wr
 mat|ws phuong|wj may|f ngai|f
 mat|ws sac|ws nhu|w dao|
+mat|ws thay|zs tai| nghe|
 mat|ws to| hon|w bung|j
 mat|ws tron|f mat|ws det|j
 mat|ws truoc|ws mat|ws sau|
@@ -80725,6 +80959,7 @@ mieng|zj lan|wf luoi|wx moi|zs
 mieng|zj mat|zj long|f dao|
 mieng|zj nhu|w gau|zf dai|
 mieng|zj noi|s chan|z ddi|
+mieng|zj noi|s tai| nghe|
 mieng|zj noi|s tay| lam|f
 mieng|zj quan| tron|z tre|r
 mieng|zs com|w manh| ao|s
@@ -81063,6 +81298,7 @@ nam|w thi|f muoi|wf hoa|j
 nam|w xung| thang|s han|j
 nam|wf gai| nem|zs mat|zj
 nam|wf gia|s khoc|s mang|w
+nam|wf nga|r nam|wf nghieng|z
 nam|wf ngua|wr an|w san|wx
 nam|wf ngua|wr nho|zr nguoc|wj
 nam|wf suong|w goi|zs ddat|zs
@@ -81194,6 +81430,9 @@ ngay|s nhu|w keo|s go|zx
 ngay|s nhu|w ruc|s ken|f
 ngay|z nhu|w tuong|wj go|zx
 ngay|zs dden|zs mang| tai|
+nghe| ga|f hoa|s cuoc|zs
+nghe| hoi|w noi|zf cho|x
+nghe| noi|s bui|f tai|
 nghe|zf ban|s dao| keo|s
 nghe|zf ddoi|wf no|s the|zs
 nghe|zf lam|f ddo|zf go|zx
@@ -81206,11 +81445,14 @@ nghe|zj thuat|zj man|f anh|r
 nghe|zj thuat|zj pho|zr nhac|j
 nghe|zj thuat|zj san|z khau|zs
 nghe|zj thuat|zj thu|ws bay|r
+nghenh|z tan|z tong|zs cuu|wj
 ngheo|f rot|ws mong|zf toi|w
 ngheo|f rot|ws mung|f toi|w
 ngheo|f xac|s ngheo|f xo|w
 ngheo|f xo|w ngheo|f xac|s
 ngheu|zx nga|f ngheu|zx nghen|zj
+nghi| gia| nghi| that|zs
+nghi| thuc|ws ngoai|j giao|
 nghi|s nga| nghi|s ngoay|s
 nghi|s nga| nghi|s ngon|wr
 nghi|x ddi| nghi|x lai|j
@@ -81227,8 +81469,16 @@ nghia|x trong|j tinh|f tham|z
 nghia|x vu|j quan|z su|wj
 nghich|j nhi|x nghich|j phach|s
 nghich|j nhu|w qui|r su|ws
+nghiem|z quan|z tuyen|zr tuong|ws
 nghiem|zj so|zs vo|z ti|r
+nghien|z cuu|ws kha|r thi|
+nghien|z cuu|ws ti|r mi|r
+nghien|z qua| mot|zj ben|z
+nghien|z ruong|zj but|s cay|f
 nghien|zf thanh|f hot|zj nho|r
+nghieng|z minh|f toi|ws truoc|ws
+nghieng|z nuoc|ws nghieng|z thanh|f
+nghieng|z troi|wf lech|zj ddat|zs
 nghiep|zj ddoan|f cong|z nhan|z
 nghin|f nam|w co|s mot|zj
 nghin|f tia|s muon|z hong|zf
@@ -81291,6 +81541,7 @@ ngon|z ngu|wx van|w hoa|s
 ngon|z ngu|wx van|w hoc|j
 ngon|z ngu|wx viet|zj nam|
 ngon|z qua|s ki|f thuc|wj
+ngong|z ngong|z nghenh|z nghenh|z
 ngong|zx ong|z le|zx ong|z
 ngot|j lot|j dden|zs xuong|w
 ngot|j nhu|w dduong|wf phen|f
@@ -81757,6 +82008,7 @@ nhu|w tro|wr ban|f tay|
 nhu|w tu|f giam| long|r
 nhu|w vac|j an|w ddem|z
 nhu|w vet|zs dau|zf loang|
+nhu|w vit|j nghe| sam|zs
 nhu|w vo|wj chong|zf ngau|z
 nhu|w xam|zr so|wf gay|zj
 nhu|w y|s so|wr cau|zf
@@ -81852,6 +82104,7 @@ noi|s leu|zs noi|s lao|s
 noi|s loi|wf kho|s hieu|zr
 noi|s nang|wj noi|s nhe|
 noi|s nay|f noi|s no|j
+noi|s nga|r noi|s nghieng|z
 noi|s ngang| canh|f bua|ws
 noi|s ngon| noi|s ngot|j
 noi|s nham|r noi|s nhi|s
@@ -83027,6 +83280,7 @@ tai| bay| hoa|j gio|s
 tai| bay| va|j gio|s
 tai| hoa|j bat|zs ky|f
 tai| nan|j xay|r dden|zs
+tai| nghe| mat|ws thay|zs
 tai| qua| nan|j khoi|r
 tai| to| mat|wj lon|ws
 tai| va|j nang|wj ne|zf
@@ -83485,7 +83739,7 @@ thuc|wj dung|j chu|r nghia|x
 thuc|wj hien|zj ke|zs hoach|j
 thuc|wj muc|j so|wr thi|j
 thuc|wj nghiep|zj dan|z bao|s
-thuc|wj pham|zr chuyen|zr gen|
+thuc|wj pham|zr chuyen|zr ghen|
 thuc|wj su|wj cau|zf thi|j
 thuc|wj tai|j khach|s quan|
 thuc|wj tai|j menh|zj dde|zf
@@ -83943,6 +84197,8 @@ tong|zr kiem|zr sat|s truong|wr
 tong|zr lanh|x su|wj quan|s
 tong|zr tham| muu|w truong|wr
 tong|zs co|zr nguoi|wf nao|f
+tong|zs cuu|wj nghenh|z tan|z
+tong|zs cuu|wj nghinh| tan|z
 tong|zs mot|zj qua|r ddam|zs
 top|s ta| top|s tep|s
 tot|zs ddoi|z vua|wf lua|ws
@@ -84106,6 +84362,7 @@ troi|wf ddanh|s thanh|s vat|zj
 troi|wf khong|z co|s mat|ws
 troi|wf long| ddat|zs lo|wr
 troi|wf nam| bien|zr bac|ws
+troi|wf nghieng|z ddat|zs nga|r
 troi|wf oi|w ddat|zs hoi|wx
 troi|wf quang| may|z tanh|j
 troi|wf sau|zf ddat|zs tham|r
@@ -85357,6 +85614,8 @@ day|z ca|f ra| day|z muong|zs
 day|z keo|s truc|j buom|zf duoi|ws
 day|z thong|f dde|zr bat|ws thu|s
 day|z thong|f dde|zr san|w thu|s
+dda| nghi| nhu|w tao|f thao|s
+dda| nghi| va|f quy|r quyet|zj
 dda|x kho|s cho|s can|ws them|z
 dda|x trot|s thi|f phai|r tret|s
 ddac|wj ong|zs trong| thanh|f pho|zs
@@ -85671,6 +85930,7 @@ khong|z co|s hinh|f nhat|zs ddinh|j
 khong|z co|s lam|f nen|z toi|zj
 khong|z dde|zr di| chuc|s lai|j
 khong|z ddi| dden|zs ket|zs qua|r
+khong|z nghi| ngo|wf gi|f ca|r
 khong|z noi|s ro|r rang|f dduoc|wj
 khong|z phan|z biet|zj dduc|wj cai|s
 khong|z phan|z biet|zj trai| gai|s
@@ -85719,6 +85979,7 @@ lam|f mat|zs su|wj lien|z ket|zs
 lam|f mom|f vi|f dung|f lau|z
 lam|f mon|f vi|f co|j xat|s
 lam|f mot|zj cach|s vung|j ve|zf
+lam|f nghe| tieng|zs ddong|zj nho|r
 lam|f nguoi|wf nao|f bi|j thuong|w
 lam|f nguoi|wf nao|f chai| long|f
 lam|f nguoi|wf nao|f kho|s chiu|j
@@ -85905,6 +86166,8 @@ ngan|w ddat|zs bang|wf hang|f rao|f
 ngay|f dde|zf truoc|ws ngay|f that|zj
 ngay|f thu|ws bay|r cong|zj san|r
 ngay|f thu|ws tu|w trong| tuan|zf
+nghe| nhu|w ddam|zs vao|f tai|
+nghe| nhu|w rot|s vao|f tai|
 nghe|zf ban|s ddo|zf chau|z bau|s
 nghe|zf ban|s ddo|zf kim| hoan|f
 nghe|zf mua| ban|s ddo|zf cu|r
@@ -86005,6 +86268,7 @@ nha|f ddau|zf tu|w cong|z nghiep|zj
 nha|f go|zx o|wr thuy|j si|x
 nha|f kho|s dde|r con| khon|z
 nha|f ngan|w trong| truong|wf hoc|j
+nha|f nghien|z cuu|ws thien|z van|w
 nha|f o|wr co|s nhieu|zf phong|f
 nha|f phan|z tich|s ddau|zf tu|w
 nha|f phan|z tich|s kinh| te|zs
@@ -86199,7 +86463,7 @@ say|zr vai| xuong|w canh|s tay|
 senh|zr nha|f ra| that|zs nghiep|zj
 sieu|z xa| lo|zj thong|z tin|
 sinh| duc|j cua|r ddong|zj vat|zj
-sinh| vat|zj bien|zs ddoi|zr gen|
+sinh| vat|zj bien|zs ddoi|zr ghen|
 sinh| vien|z nam|w thu|ws hai|
 sinh| vien|z nam|w thu|ws nhat|zs
 so| sanh|s voi|ws vat|zj gi|f
@@ -86413,6 +86677,7 @@ tieng|zs keu|z hoc|zj cua|r heo|
 tieng|zs keu|z len|z vi|f vui|
 tieng|zs nguoi|wf canh| gac|s goi|j
 tieng|zs rieng|z cua|r mot|zj nghe|zf
+tieng|zs rot|ws nghe| nang|wj ne|zf
 tiet|zs lo|zj ddieu|zf bi|s mat|zj
 tin| phong|s su|wj tren|z bao|s
 tin|s ddo|zf co|w ddoc|zs giao|s
@@ -87016,6 +87281,7 @@ ddinh|j luat|zj van|j vat|zj hap|zs dan|zx
 ddo|zf cham|zs co|s chat|zs ca|f chua|
 ddo|zf te|zr ddanh|s nhau| nong| thit|j
 ddo|zf trang| suc|ws khong|z ddang|s gia|s
+ddo|zj nghien|z cua|r kim| chi|r nam|
 ddo|zj xe|z dich|j cua|r lop|ws ddat|zs
 ddo|zr mo|zf hoi|z soi|z nuoc|ws mat|ws
 ddo|zr thoc|s giong|zs ra| ma|f an|w
@@ -87332,6 +87598,7 @@ ngan|ws tay| voi|ws chang|wr dden|zs troi|wf
 ngan|z hang|f thuong|w mai|j co|zr phan|zf
 ngay|f ddang|f khong|z bang|wf gang| nuoc|ws
 ngay|f lam|ws moi|zs toi|zs nam|wf khong|z
+nghieng|z ddong|zf ddo|zr nuoc|ws ra| song|z
 ngo|r cua|wr cho| gio|s lot|j vao|f
 ngo|w ngao|s nhu|w nguoi|wf mat|zs cap|ws
 ngoai|f anh| em| trong| co|wf bac|j
@@ -87590,6 +87857,7 @@ tong|zr san|r pham|zr quoc|zs dan|z thuan|zf
 tot|zs go|zx hon|w tot|zs nuoc|ws son|w
 tram|w dduong|wf tranh|s chang|wr khoi|r so|zs
 tram|w hay| khong|z bang|wf tay| quen|
+tram|w nghe| khong|z bang|wf mot|zj thay|zs
 tram|w song|z ddo|zr ca|r ra| bien|zr
 tranh|s vo|r dua|w gap|wj vo|r dua|wf
 tranh|s voi| chang|wr xau|zs mat|wj nao|f
@@ -87768,6 +88036,7 @@ lua|wr thu|wr vang|f gian| nan| thu|wr suc|ws
 luat|zj cua|r ke|r manh|j dde|f ke|r yeu|zs
 luoi|wx khong|z xuong|w nhieu|zf dduong|wf lat|ws leo|s
 manh|r bat|s ngo|z hon|w bo|zf bat|s dda|s
+mat|wj ngay| nhu|w chu|s tau|f nghe| ken|f
 mat|wj tai|s met|s noi|s phet|s thanh|f than|zf
 mieng|zj ba|f ddong|zf nhu|w long|zf chim| khuou|ws
 mieng|zj ke|r sang| co|s gang| co|s thep|s
@@ -87790,6 +88059,8 @@ muon|zs lam|f ong|z cai|s long|z chang|wr mat|zs
 nam| vo|z tuu|wr nhu|w ki|f vo|z phong|
 nang|w no|r mat|zs ca|r ngo|x lan|zx mom|zf
 nang|ws thang|s ba| cho|s gia|f le|f luoi|wx
+ngay|z ngo|z nhu|w chua|s tau|f nghe| ken|f
+nghe| con| lon| xon| mang|ws lang|s gieng|zf
 ngon|z ngu|wx ddanh|s dau|zs sieu|z van|w ban|r
 ngu|x hinh|f trong| bo|zj luat|zj gia| long|
 nguoi|wf lam|f sao| bao|f hao| lam|f vay|zj
