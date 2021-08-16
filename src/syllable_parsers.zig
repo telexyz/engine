@@ -422,8 +422,8 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         return false;
     }
 
-    if (am_giua == .ua and am_cuoi != ._none) {
-        print("!!! VIOLATE: 'ua' không đi với âm cuối\n", .{});
+    if ((am_giua == .ua or am_giua == .uaw) and am_cuoi != ._none) {
+        print("!!! VIOLATE: 'ua, ưa' không đi với âm cuối\n", .{});
         return false;
     }
 
@@ -435,6 +435,14 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
     if (am_giua == .oaw) switch (am_cuoi) {
         .nh, .ch, .o, .u, .i, .y => {
             print("!!! VIOLATE: 'oă' không đi với `nh, ch, o, u, i, y`\n", .{});
+            return false;
+        },
+        else => return true,
+    };
+
+    if (am_giua == .uez) switch (am_cuoi) {
+        .ng, .c, .o, .i, .y => {
+            print("!!! VIOLATE: 'uê' không đi với `ng, c, o, i, y`\n", .{});
             return false;
         },
         else => return true,
@@ -1187,19 +1195,19 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(!canBeVietnameseStrict("uâu"));
 
     // uê
-    // try expect(canBeVietnameseStrict("am"));
-    // try expect(canBeVietnameseStrict("an"));
-    // try expect(canBeVietnameseStrict("áp"));
-    // try expect(canBeVietnameseStrict("ạt"));
-    // //
-    // try expect(canBeVietnameseStrict("ang"));
-    // try expect(canBeVietnameseStrict("anh"));
-    // try expect(canBeVietnameseStrict("ác"));
-    // try expect(canBeVietnameseStrict("ách"));
-    // try expect(canBeVietnameseStrict("ai"));
-    // try expect(canBeVietnameseStrict("ay"));
-    // try expect(canBeVietnameseStrict("ao"));
-    // try expect(canBeVietnameseStrict("au"));
+    try expect(canBeVietnameseStrict("uêm"));
+    try expect(canBeVietnameseStrict("uên"));
+    try expect(canBeVietnameseStrict("uếp"));
+    try expect(canBeVietnameseStrict("uệt"));
+    //
+    try expect(!canBeVietnameseStrict("uêng"));
+    try expect(canBeVietnameseStrict("uênh"));
+    try expect(!canBeVietnameseStrict("uếc"));
+    try expect(canBeVietnameseStrict("uếch"));
+    try expect(!canBeVietnameseStrict("uêi"));
+    try expect(!canBeVietnameseStrict("uêy"));
+    try expect(!canBeVietnameseStrict("uêo"));
+    try expect(!canBeVietnameseStrict("uêu"));
 
     try expect(!canBeVietnameseStrict("uym"));
     try expect(canBeVietnameseStrict("uyn")); // màn tuyn
@@ -1248,6 +1256,7 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(!canBeVietnameseStrict("uau"));
     try expect(!canBeVietnameseStrict("uao"));
 
+    // ươ, ưa
     try expect(canBeVietnameseStrict("ưỡm"));
     try expect(canBeVietnameseStrict("ưõn"));
     try expect(canBeVietnameseStrict("ượp"));
@@ -1263,6 +1272,23 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(!canBeVietnameseStrict("uơo"));
     try expect(canBeVietnameseStrict("ươu"));
     try expect(!canBeVietnameseStrict("ươo"));
+
+    try expect(canBeVietnameseStrict("ưa"));
+    try expect(!canBeVietnameseStrict("ưam"));
+    try expect(!canBeVietnameseStrict("ưan"));
+    try expect(!canBeVietnameseStrict("ứap"));
+    try expect(!canBeVietnameseStrict("ứat"));
+    //
+    try expect(!canBeVietnameseStrict("ưang"));
+    try expect(!canBeVietnameseStrict("ưanh"));
+    try expect(!canBeVietnameseStrict("ưác"));
+    try expect(!canBeVietnameseStrict("ứach"));
+    try expect(!canBeVietnameseStrict("ưai"));
+    try expect(!canBeVietnameseStrict("ưay"));
+    try expect(!canBeVietnameseStrict("ưau"));
+    try expect(!canBeVietnameseStrict("ưao"));
+    try expect(!canBeVietnameseStrict("ưau"));
+    try expect(!canBeVietnameseStrict("ưao"));
 
     // iê, ia, uyê, uya (tổ  hợp âm đệm `u` với nguyên âm đôi `iê`)
     try expect(canBeVietnameseStrict("iêm"));
@@ -1325,6 +1351,6 @@ test "Support obvious rules nguyên âm đôi / ba" {
 }
 
 fn canBeVietnameseStrict(am_tiet: []const u8) bool {
-    return parseAmTietToGetSyllable(true, std.debug.print, am_tiet).can_be_vietnamese;
-    // return parseAmTietToGetSyllable(true, printNothing, am_tiet).can_be_vietnamese;
+    // return parseAmTietToGetSyllable(true, std.debug.print, am_tiet).can_be_vietnamese;
+    return parseAmTietToGetSyllable(true, printNothing, am_tiet).can_be_vietnamese;
 }
