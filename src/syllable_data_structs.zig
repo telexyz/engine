@@ -213,21 +213,21 @@ pub const AmCuoi = enum(u4) {
     // 13 âm cuối
     _none, // 0
     i,
-    y,
     u,
-    o,
     m,
-    n, // 6
+    n, // 4
     ng,
     nh,
-    ch, // 9
+    ch, // 7
     c,
     p,
-    t,
+    t, // 10
+    y,
+    o,
     pub fn len(self: AmCuoi) u8 {
         return switch (@enumToInt(self)) {
             0 => 0,
-            7...9 => 2,
+            5...7 => 2,
             else => 1,
         };
     }
@@ -328,17 +328,37 @@ pub const Syllable = packed struct {
     }
 
     pub fn toId(self: Syllable) UniqueId {
+        var am_giua = self.am_giua;
+        var am_cuoi = self.am_cuoi;
+        //  a  y =>  aw i
+        //  az y =>  az i
+        // oa  y => oaw i
+        // uaz y => uaz i
+        if (am_cuoi == .y) {
+            am_cuoi = .i;
+            if (am_giua == .a) am_giua = .aw;
+            if (am_giua == .oa) am_giua = .oaw;
+        }
+        //  a o => aw u
+        //  e o =>  e u
+        // oa o => oa u
+        // oe o => oe u
+        if (am_cuoi == .o) {
+            am_cuoi = .u;
+            if (am_giua == .a) am_giua = .aw;
+        }
+
         const id =
             (@intCast(UniqueId, @enumToInt(self.am_dau)) << 11) | // u16 <= u5 + u11
-            (@intCast(UniqueId, @enumToInt(self.am_giua)) << 6); //   u5 + u6 => u11
+            (@intCast(UniqueId, @enumToInt(am_giua)) << 6); //        u5 + u6 => u11
 
-        const am_cuoi = @intCast(UniqueId, @enumToInt(self.am_cuoi));
+        const am_cuoi_id = @intCast(UniqueId, @enumToInt(am_cuoi));
         const tone = @intCast(UniqueId, @enumToInt(self.tone));
 
-        const act = if (am_cuoi < 9)
-            am_cuoi * 6 + tone
+        const act = if (am_cuoi_id < 7)
+            am_cuoi_id * 6 + tone
         else // am_cuoi `c, ch, p, t` only 2 tone s, j allowed
-            54 + (am_cuoi - 9) * 2 + (tone - 4);
+            42 + (am_cuoi_id - 7) * 2 + (tone - 4);
 
         return id + act;
     }
@@ -353,14 +373,44 @@ pub const Syllable = packed struct {
             .tone = ._none,
         };
         x = @truncate(u6, id); // am_cuoi + tone is last 6-bits value
-        if (x < 54) {
+        if (x < 42) {
             syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 6));
             syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 6)));
         } else { // unpacking
-            x -= 54;
-            syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 2 + 9));
+            x -= 42;
+            syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 2 + 7));
             syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 2) + 4));
         }
+
+        //  a  y <=  aw i
+        //  az y <=  az i
+        // oa  y <= oaw i
+        // uaz y <= uaz i
+        if (syllable.am_cuoi == .i) switch (syllable.am_giua) {
+            .aw => {
+                syllable.am_cuoi = .y;
+                syllable.am_giua = .a;
+            },
+            .oaw => {
+                syllable.am_cuoi = .y;
+                syllable.am_giua = .oa;
+            },
+            .az, .uaz => syllable.am_cuoi = .y,
+            else => {},
+        };
+        //  a o <= aw u
+        //  e o <=  e u
+        // oa o <= oa u
+        // oe o <= oe u
+        if (syllable.am_cuoi == .u) switch (syllable.am_giua) {
+            .aw => {
+                syllable.am_cuoi = .o;
+                syllable.am_giua = .a;
+            },
+            .e, .oa, .oe => syllable.am_cuoi = .o,
+            else => {},
+        };
+
         return syllable;
     }
 
