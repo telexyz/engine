@@ -41,6 +41,7 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
         syllable.am_giua = _amGiua(part1);
         print("am_giua: \"{s}\" => {s}\n", .{ part1, syllable.am_giua });
     }
+    print("am_giua: \"{s}\"\n", .{syllable.am_giua});
 
     if (syllable.am_giua.len() == 0) {
         print("!!! VIOLATE: am_giua luôn phải có\n ", .{});
@@ -528,7 +529,55 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         else => return true,
     };
 
-    //
+    if (am_giua == .iez and (am_dau == ._none and am_cuoi == ._none)) {
+        if (am_cuoi == .c) return true; // ngoại trừ iếc
+        print("!!! VIOLATE: 'iê' trước có âm đầu hoặc sau có âm cuối\n", .{});
+        return false;
+    }
+
+    if (am_giua == .uow and am_cuoi == ._none) {
+        print("!!! VIOLATE: 'ươ' sau có âm cuối. VD: mượn\n", .{});
+        return false;
+    }
+    if (am_giua == .uow) switch (am_cuoi) {
+        .ch, .nh, .o, .y => {
+            print("!!! VIOLATE: 'ươ' không đi cùng `ch, nh, o, y`\n", .{});
+            return false;
+        },
+        ._none => {
+            print("!!! VIOLATE: 'ươ' sau có âm cuối. VD: mượn\n", .{});
+            return false;
+        },
+        else => {
+            return true;
+        },
+    };
+
+    if (am_giua == .uaw and am_cuoi != ._none) {
+        print("!!! VIOLATE: 'ưa' sau không có âm cuối. VD: ưa\n", .{});
+        return false;
+    }
+
+    if (am_giua == .uoz) switch (am_cuoi) {
+        .ch, .nh, .u, .o, .y => {
+            print("!!! VIOLATE: 'uô' không đi cùng `ch, nh, u, o, y`\n", .{});
+            return false;
+        },
+        ._none => {
+            print("!!! VIOLATE: 'uô' sau có âm cuối. VD: muốn\n", .{});
+            return false;
+        },
+        else => {
+            return true;
+        },
+    };
+
+    if (am_giua == .ua and am_cuoi != ._none) {
+        print("!!! VIOLATE: 'ua' sau không có âm cuối. VD: mua\n", .{});
+        return false;
+    }
+
+    // Validate by am_cuoi last
     if (am_cuoi == .nh) switch (am_giua) {
         .e, .iez, .uoz, .uow => {
             print("!!! VIOLATE: 'e, iê, uô, ươ' không đi với `nh`\n", .{});
@@ -562,32 +611,6 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         },
         else => return true,
     };
-
-    if (am_giua == .iez and (am_dau == ._none and am_cuoi == ._none)) {
-        if (am_cuoi == .c) return true; // ngoại trừ iếc
-        print("!!! VIOLATE: 'iê' trước có âm đầu hoặc sau có âm cuối\n", .{});
-        return false;
-    }
-
-    if (am_giua == .uow and am_cuoi == ._none) {
-        print("!!! VIOLATE: 'ươ' sau có âm cuối. VD: mượn\n", .{});
-        return false;
-    }
-
-    if (am_giua == .uaw and am_cuoi != ._none) {
-        print("!!! VIOLATE: 'ưa' sau không có âm cuối. VD: ưa\n", .{});
-        return false;
-    }
-
-    if (am_giua == .uoz and am_cuoi == ._none) {
-        print("!!! VIOLATE: 'uô' sau có âm cuối. VD: muốn\n", .{});
-        return false;
-    }
-
-    if (am_giua == .ua and am_cuoi != ._none) {
-        print("!!! VIOLATE: 'ua' sau không có âm cuối. VD: mua\n", .{});
-        return false;
-    }
 
     return true;
 }
@@ -946,6 +969,121 @@ test "canBeVietnamese() // alphamarks exceptions" {
     try expect(canBeVietnameseStrict("nội"));
 }
 
+test "khả năng kết hợp âm cuối hiếm y, o, nh, ch" {
+    try expect(canBeVietnameseStrict("ách"));
+    try expect(canBeVietnameseStrict("ích"));
+    try expect(canBeVietnameseStrict("ếch"));
+    try expect(canBeVietnameseStrict("oách"));
+    try expect(canBeVietnameseStrict("uỵch"));
+    try expect(canBeVietnameseStrict("uệch"));
+    //
+    try expect(!canBeVietnameseStrict("uâch"));
+    try expect(!canBeVietnameseStrict("ấch"));
+    try expect(!canBeVietnameseStrict("ắch"));
+    try expect(!canBeVietnameseStrict("ých"));
+    try expect(!canBeVietnameseStrict("éch"));
+    try expect(!canBeVietnameseStrict("ưch"));
+    try expect(!canBeVietnameseStrict("óch"));
+    try expect(!canBeVietnameseStrict("ốch"));
+    try expect(!canBeVietnameseStrict("ớch"));
+    try expect(!canBeVietnameseStrict("oẹch"));
+    try expect(!canBeVietnameseStrict("oọch"));
+    try expect(!canBeVietnameseStrict("oặch"));
+    // std.debug.print("\n\n$$$ uộch $$$\n", .{});
+    try expect(!canBeVietnameseStrict("uộch"));
+    try expect(!canBeVietnameseStrict("uạch"));
+    try expect(!canBeVietnameseStrict("ượch"));
+    try expect(!canBeVietnameseStrict("ưạch"));
+    try expect(!canBeVietnameseStrict("iệch"));
+    try expect(!canBeVietnameseStrict("iạch"));
+    try expect(!canBeVietnameseStrict("uyệch"));
+    try expect(!canBeVietnameseStrict("uyạch"));
+
+    try expect(canBeVietnameseStrict("anh"));
+    try expect(canBeVietnameseStrict("inh"));
+    try expect(canBeVietnameseStrict("ênh"));
+    try expect(canBeVietnameseStrict("oanh"));
+    try expect(canBeVietnameseStrict("uênh")); // huênh hoang
+    try expect(canBeVietnameseStrict("uynh")); // huỳnh huỵch
+    try expect(canBeVietnameseStrict("huỵch"));
+    //
+    try expect(!canBeVietnameseStrict("ânh"));
+    try expect(!canBeVietnameseStrict("uânh"));
+    try expect(!canBeVietnameseStrict("ănh"));
+    try expect(!canBeVietnameseStrict("ynh"));
+    try expect(!canBeVietnameseStrict("enh"));
+    try expect(!canBeVietnameseStrict("ưnh"));
+    try expect(!canBeVietnameseStrict("onh"));
+    try expect(!canBeVietnameseStrict("ônh"));
+    try expect(!canBeVietnameseStrict("ơnh"));
+    try expect(!canBeVietnameseStrict("oenh"));
+    try expect(!canBeVietnameseStrict("oonh"));
+    try expect(!canBeVietnameseStrict("oănh"));
+    try expect(!canBeVietnameseStrict("uônh"));
+    try expect(!canBeVietnameseStrict("uanh"));
+    try expect(!canBeVietnameseStrict("uơnh"));
+    try expect(!canBeVietnameseStrict("ưanh"));
+    try expect(!canBeVietnameseStrict("iênh"));
+    try expect(!canBeVietnameseStrict("ianh"));
+    try expect(!canBeVietnameseStrict("uyênh"));
+    try expect(!canBeVietnameseStrict("uyanh"));
+
+    // âm cuối y
+    try expect(canBeVietnameseStrict("ay"));
+    try expect(canBeVietnameseStrict("ây")); // tây
+    try expect(canBeVietnameseStrict("oay")); // loay hoay
+    try expect(canBeVietnameseStrict("uây")); // quây
+    try expect(!canBeVietnameseStrict("ăy"));
+    try expect(!canBeVietnameseStrict("iy"));
+    try expect(!canBeVietnameseStrict("yy"));
+    try expect(!canBeVietnameseStrict("ey"));
+    try expect(!canBeVietnameseStrict("êy"));
+    try expect(!canBeVietnameseStrict("ưy"));
+    try expect(!canBeVietnameseStrict("oy"));
+    try expect(!canBeVietnameseStrict("ôy"));
+    try expect(!canBeVietnameseStrict("ơy"));
+    try expect(!canBeVietnameseStrict("oey"));
+    try expect(!canBeVietnameseStrict("ooy"));
+    try expect(!canBeVietnameseStrict("oăy"));
+    try expect(!canBeVietnameseStrict("uêy"));
+    try expect(!canBeVietnameseStrict("uyy"));
+    try expect(!canBeVietnameseStrict("uôy"));
+    try expect(!canBeVietnameseStrict("uay"));
+    try expect(!canBeVietnameseStrict("uơy"));
+    try expect(!canBeVietnameseStrict("ưay"));
+    try expect(!canBeVietnameseStrict("iêy"));
+    try expect(!canBeVietnameseStrict("iay"));
+    try expect(!canBeVietnameseStrict("uyêy"));
+    try expect(!canBeVietnameseStrict("uyay"));
+
+    try expect(canBeVietnameseStrict("ao"));
+    try expect(canBeVietnameseStrict("eo"));
+    try expect(canBeVietnameseStrict("oao")); // khoào
+    try expect(canBeVietnameseStrict("oeo")); // toeo toét
+    try expect(!canBeVietnameseStrict("âo"));
+    try expect(!canBeVietnameseStrict("uâo"));
+    try expect(!canBeVietnameseStrict("ăo"));
+    try expect(!canBeVietnameseStrict("io"));
+    try expect(!canBeVietnameseStrict("yo"));
+    try expect(!canBeVietnameseStrict("êo"));
+    // try expect(!canBeVietnameseStrict("ưo")); // auto convert to ươ
+    try expect(!canBeVietnameseStrict("oo"));
+    try expect(!canBeVietnameseStrict("ôo"));
+    try expect(!canBeVietnameseStrict("ơo"));
+    try expect(!canBeVietnameseStrict("ooo"));
+    try expect(!canBeVietnameseStrict("oăo"));
+    try expect(!canBeVietnameseStrict("uêo"));
+    try expect(!canBeVietnameseStrict("uyo"));
+    try expect(!canBeVietnameseStrict("uôo"));
+    try expect(!canBeVietnameseStrict("uao"));
+    try expect(!canBeVietnameseStrict("uơo"));
+    try expect(!canBeVietnameseStrict("ưao"));
+    try expect(!canBeVietnameseStrict("iêo"));
+    try expect(!canBeVietnameseStrict("iao"));
+    try expect(!canBeVietnameseStrict("uyêo"));
+    try expect(!canBeVietnameseStrict("uyao"));
+}
+
 test "Support obvious rules nguyên âm đơn" {
     // a, â, ă
     try expect(canBeVietnameseStrict("am"));
@@ -1201,7 +1339,7 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(canBeVietnameseStrict("uệt"));
     //
     try expect(!canBeVietnameseStrict("uêng"));
-    try expect(canBeVietnameseStrict("uênh"));
+    try expect(canBeVietnameseStrict("uênh")); // huênh hoang
     try expect(!canBeVietnameseStrict("uếc"));
     try expect(canBeVietnameseStrict("uếch"));
     try expect(!canBeVietnameseStrict("uêi"));
@@ -1232,7 +1370,7 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(canBeVietnameseStrict("uông"));
     try expect(canBeVietnameseStrict("uốc"));
     try expect(canBeVietnameseStrict("uộp"));
-    try expect(!canBeVietnameseStrict("uôch"));
+    // try expect(!canBeVietnameseStrict("uộch"));
     try expect(!canBeVietnameseStrict("uônh"));
     try expect(canBeVietnameseStrict("uôi"));
     try expect(!canBeVietnameseStrict("uôy"));
@@ -1265,7 +1403,7 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(canBeVietnameseStrict("ương"));
     try expect(!canBeVietnameseStrict("uơnh"));
     try expect(canBeVietnameseStrict("ước"));
-    try expect(!canBeVietnameseStrict("uơch"));
+    try expect(!canBeVietnameseStrict("uớch"));
     try expect(canBeVietnameseStrict("ươi"));
     try expect(!canBeVietnameseStrict("uơy"));
     try expect(canBeVietnameseStrict("uơu"));
@@ -1348,6 +1486,10 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(!canBeVietnameseStrict("uyay"));
     try expect(!canBeVietnameseStrict("uyao"));
     try expect(!canBeVietnameseStrict("uyau"));
+}
+
+fn canBeVietnameseDebug(am_tiet: []const u8) bool {
+    return parseAmTietToGetSyllable(true, std.debug.print, am_tiet).can_be_vietnamese;
 }
 
 fn canBeVietnameseStrict(am_tiet: []const u8) bool {
