@@ -510,7 +510,7 @@ pub const Syllable = packed struct {
 
     pub fn printBuffParts(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
-        // n(dau) = 23 (25 - 2)
+        // n(dau) = 22 (25 - 3 (_none, gi, qu))
         const dau = switch (self.am_dau) {
             ._none => blank,
             .zd => "dd",
@@ -527,7 +527,7 @@ pub const Syllable = packed struct {
             .oa => if (self.am_cuoi == .y) "oaw" else "oa",
             else => @tagName(self.am_giua),
         };
-        // n(cuoi) = 11 (13 - 2)
+        // n(cuoi) = 10 (13 - 3 (_none, o, y))
         const cuoi = switch (self.am_cuoi) {
             .o => "u",
             .y => "i",
@@ -535,7 +535,8 @@ pub const Syllable = packed struct {
             else => @tagName(self.am_cuoi),
         };
 
-        // => n(parts) = 62 (23 + 22 + 11 + 6 (tones))
+        // => n(parts) = 59 (22 + 22 + (10-1) + 6 (tones)) => u6
+        // 10-1: trùng âm cuối `u` với âm giữa `u`
         var n: usize = 0;
 
         // dau
