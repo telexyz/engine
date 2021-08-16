@@ -535,7 +535,7 @@ pub const Syllable = packed struct {
             else => @tagName(self.am_cuoi),
         };
 
-        // => n(parts) = 59 (22 + 22 + (10-1) + 6 (tones)) => u6
+        // => n(parts) = 58 (22 + 22 + (10-1) + 5 (tones)) => u6
         // 10-1: trùng âm cuối `u` với âm giữa `u`
         var n: usize = 0;
 
