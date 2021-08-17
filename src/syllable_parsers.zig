@@ -1489,8 +1489,8 @@ test "Support obvious rules âm đầu không đi với nguyên âm" {
 test "Syllable.normalize" {
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
-    var syll = parseAmTietToGetSyllable(true, std.debug.print, "nghuyen");
-    std.debug.print("Syll: {}", .{syll});
+    var syll = parseAmTietToGetSyllable(true, printNothing, "nghuyen");
+    // std.debug.print("Syll: {}", .{syll});
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "nguyên");
 }
 
