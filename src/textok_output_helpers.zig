@@ -212,9 +212,15 @@ pub const TextokOutputHelpers = struct {
         var i: usize = 0;
         text.prev_token_is_vi = false;
 
-        while (i < text.tokens_num) : (i += 1)
-            try text_utils.writeTokenInfo(text.tokens_infos.get(i), text, writer);
+        const trans_offsets = text.tokens_infos.items(.trans_offset);
+        const token_attrs = text.tokens_infos.items(.attrs);
 
+        while (i < text.tokens_num) : (i += 1) {
+            try text_utils.writeTokenInfo(.{
+                .trans_offset = trans_offsets[i],
+                .attrs = token_attrs[i],
+            }, text, writer);
+        }
         try wrt.flush();
     }
 };

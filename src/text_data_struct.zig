@@ -99,7 +99,7 @@ pub const Text = struct {
         }
 
         pub inline fn isSyllable(self: TokenInfo) bool {
-            return self.syllable_id != Syllable.NONE_ID;
+            return self.attrs.category.isSyllable();
         }
     };
 
@@ -131,11 +131,11 @@ pub const Text = struct {
         }
 
         pub inline fn isSyllable(self: TypeInfo) bool {
-            return self.syllable_id != Syllable.NONE_ID;
+            return self.category.isSyllable();
         }
 
         pub inline fn haveMarkTone(self: TypeInfo) bool {
-            return self.category == .syllmark or self.category == .alphmark;
+            return self.category.haveMarkTone();
         }
     };
 
@@ -149,14 +149,6 @@ pub const Text = struct {
         pub inline fn spaceAfter(self: TokenAttributes) bool {
             return self.fenced_by_spaces == .right or
                 self.fenced_by_spaces == .both;
-        }
-
-        pub inline fn isSyllable(self: TokenAttributes) bool {
-            return self.category == .syllmark or self.category == .syll0m0t;
-        }
-
-        pub inline fn haveMarkTone(self: TypeInfo) bool {
-            return self.category == .syllmark or self.category == .alphmark;
         }
 
         pub inline fn toByte(self: TokenAttributes) u8 {
@@ -189,6 +181,14 @@ pub const Text = struct {
         // Supplement category ids 8-63
         // used as an intialized / transit states
         to_parse_syllable = 8,
+
+        pub inline fn isSyllable(self: TokenCategory) bool {
+            return self == .syllmark or self == .syll0m0t;
+        }
+
+        pub inline fn haveMarkTone(self: TokenCategory) bool {
+            return self == .syllmark or self == .alphmark;
+        }
     };
 
     pub const TokenFencedBySpaces = enum(u2) {
