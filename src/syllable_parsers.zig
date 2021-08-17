@@ -263,22 +263,25 @@ pub fn parseTokenToGetSyllable(
         // Check #2: Filter out ascii-telex syllable like:
         // awn => ăn, doo => dô
         if (syllable.hasMark() and !char_stream.has_mark) {
+            var good_enough = false;
             // Ngoại trừ tự bỏ dấu của những âm tiết chắc chắn 99% là tiếng việt
             switch (syllable.am_giua) {
                 .uyez => { // 99% nguyen => nguyên
-                    return syllable;
+                    good_enough = true;
                 },
                 .iez, .uez => { // nghieng => nghiêng
                     var score: u8 = if (char_stream.tone == 0) 0 else 2;
                     score += syllable.am_dau.len(); // max +2
                     score += syllable.am_cuoi.len(); // max +2
-                    if (score >= 4) return syllable;
+                    if (score >= 4) good_enough = true;
                 },
                 else => {},
             }
-            print("??? Don't accept ascii mark: awn => ăn, doo => dô\n", .{});
-            syllable.can_be_vietnamese = false;
-            return syllable;
+            if (!good_enough) {
+                print("??? Don't accept ascii mark: awn => ăn, doo => dô\n", .{});
+                syllable.can_be_vietnamese = false;
+                return syllable;
+            }
         }
 
         // Check #3: Filter out suffix look like syllable but it's not:
@@ -1481,8 +1484,14 @@ test "Support obvious rules âm đầu không đi với nguyên âm" {
 
     try expect(!canBeVietnameseStrict("coăn"));
     try expect(canBeVietnameseStrict("quăn"));
+}
 
-    try expect(canBeVietnameseDebug("nghuyen"));
+test "Syllable.normalize" {
+    var buffer: [13]u8 = undefined;
+    const buff = buffer[0..];
+    var syll = parseAmTietToGetSyllable(true, std.debug.print, "nghuyen");
+    std.debug.print("Syll: {}", .{syll});
+    try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "nguyên");
 }
 
 fn canBeVietnameseDebug(am_tiet: []const u8) bool {
