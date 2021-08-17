@@ -18,9 +18,11 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 * Sử dụng stream input từ file để giảm thiểu áp lực lên bộ nhớ
 
-* Ghi dữ liệu ra files dạng binary để có thể load được từ lần chạy sau
-
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
+
+* Tối ưu hoá tốc độ ghi ra bằng cách thêm length vào đầu type's value
+
+* Ghi kèm invisible token's attrs char, base32 syllable_id ra file text output
 
 [ >>> DONE <<< ]
 
