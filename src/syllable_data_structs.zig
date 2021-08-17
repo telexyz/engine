@@ -341,20 +341,19 @@ pub const Syllable = packed struct {
         self.am_giua = self.am_giua.normalize();
 
         switch (self.am_dau) {
-            .g => { // gì => gi+ì, gìm => gi+ìm
-                if (self.am_giua == .i)
-                    self.am_dau = .gi;
-                // phân biệt gì ghì, gìm ghìm
-                // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-gìm
-                // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-ghìm
-            },
             .gi => {
                 if (self.am_giua == .ez and self.am_cuoi != ._none)
                     self.am_giua = .iez;
             },
             .ngh => self.am_dau = .ng, // ngh => ng
             .gh => self.am_dau = .g, // gh => g
-            else => {},
+            else => {
+                if (self.am_dau == .g and self.am_giua == .i) self.am_dau = .gi;
+                // gì => gi+ì, gìm => gi+ìm
+                // phân biệt gì ghì, gìm ghìm
+                // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-gìm
+                // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-ghìm
+            },
         }
     }
 
