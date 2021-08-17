@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm data/0*.txt data/1*.txt data/2*.txt data/temp*.txt
+# rm data/0*.txt data/1*.txt data/2*.txt data/temp*.txt
 # ./clean.sh
 # ~/zig build
 # ~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
@@ -14,7 +14,7 @@ rm data/0*.txt data/1*.txt data/2*.txt data/temp*.txt
 # ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
 # ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense
 
-./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
 ~/bin/telexify ../data/combined.txt ../data/combined.xyz dense
 
 # ~/bin/telexify ../data/sample_input.txt ../data/sample_input.dense.xyz dense ngram
