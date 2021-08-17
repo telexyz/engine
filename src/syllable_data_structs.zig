@@ -7,7 +7,7 @@ const fmt = std.fmt;
 // - Tiếng nào cũng có vần và thanh. Có tiếng không có phụ âm đầu.
 // - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x. (+ qu, gi, _none => 25)
 
-pub const AmDau = enum(u5) {
+pub const AmDau = enum {
     // 25 âm đầu
     _none,
     b, // 1th
@@ -104,7 +104,7 @@ test "Enum AmDau" {
 //   - Ghi bằng uô khi sau nó có âm cuối (VD: muốn,...)
 //   - Ghi bằng ua khi sau nó không có âm cuối (VD: mua,...)
 
-pub const AmGiua = enum(u5) {
+pub const AmGiua = enum {
     // 23 âm giữa (âm đệm + nguyên âm)
     a, // 0th
     e,
@@ -219,7 +219,7 @@ test "Enum AmGiua" {
 /// * Âm cuối:
 /// - Các phụ âm cuối vần : p, t, c (ch), m, n, ng (nh)
 /// - 2 bán âm cuối vần : i (y), u (o)
-pub const AmCuoi = enum(u4) {
+pub const AmCuoi = enum {
     // 13 âm cuối
     _none, // 0
     i,
@@ -312,14 +312,13 @@ test "Enum Tone.isHarsh" {
     try expect(Tone.s.isHarsh() == false);
 }
 
-pub const Syllable = packed struct {
-    am_dau: AmDau, //           5 bits
-    am_giua: AmGiua, //         5 bits
-    am_cuoi: AmCuoi, //         4 bits
-    tone: Tone, //              3 bits
-    can_be_vietnamese: bool, // 1 bit
-    //                         - - - -
-    //                   Total 18 bits
+pub const Syllable = struct {
+    am_dau: AmDau,
+    am_giua: AmGiua,
+    am_cuoi: AmCuoi,
+    tone: Tone,
+    can_be_vietnamese: bool,
+    normalized: bool = false,
 
     pub const UniqueId = u16;
 
@@ -338,6 +337,9 @@ pub const Syllable = packed struct {
     }
 
     pub fn normalize(self: *Syllable) void {
+        // std.debug.print("\n!!!! normalizing !!!!\n", .{});
+        if (self.normalized) return;
+
         self.am_giua = self.am_giua.normalize();
 
         switch (self.am_dau) {
@@ -355,6 +357,8 @@ pub const Syllable = packed struct {
                 // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-ghìm
             },
         }
+
+        self.normalized = true;
     }
 
     pub fn toId(self: *Syllable) UniqueId {
