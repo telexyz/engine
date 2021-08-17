@@ -184,9 +184,9 @@ pub const TextokOutputHelpers = struct {
         for (tokens) |token, j| {
             n += token.value.len + PAD.len;
             const nn = if (j < tokens_len_1) tokens[j + 1].value.len else 0;
-            var pad = &PAD;
+            var pad = PAD;
             if (n + nn >= BYTES_PER_LINE) {
-                pad = &"\n\n";
+                pad = "\n\n";
                 n = 0;
             }
             try types_writer.print("{s}{s}", .{ token.value, pad });
