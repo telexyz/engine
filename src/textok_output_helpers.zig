@@ -83,13 +83,7 @@ pub const TextokOutputHelpers = struct {
         //
         for (tokens) |token| {
             // if (token.have_marktone) {
-            if (token.have_marktone or (token.is_syllable and blk: {
-                // double check marktone for syllable
-                switch (token.value[token.value.len - 1]) {
-                    's', 'f', 'r', 'x', 'j', 'w', 'z' => break :blk true,
-                    else => break :blk false,
-                }
-            })) {
+            if (token.have_marktone) {
                 try fm_writer.print("{d} {s}\n", .{ token.count, token.value });
             } else {
                 try f0_writer.print("{d} {s}\n", .{ token.count, token.value });
@@ -104,13 +98,7 @@ pub const TextokOutputHelpers = struct {
             const nn = if (j < tokens_len_1) tokens[j + 1].value.len else 0;
             var pad = PAD;
             // if (token.have_marktone) {
-            if (token.have_marktone or (token.is_syllable and blk: {
-                // double check marktone for syllable
-                switch (token.value[token.value.len - 1]) {
-                    's', 'f', 'r', 'x', 'j', 'w', 'z' => break :blk true,
-                    else => break :blk false,
-                }
-            })) {
+            if (token.have_marktone) {
                 nm += token.value.len + PAD.len;
                 if (nm + nn >= BYTES_PER_LINE) {
                     pad = "\n\n";

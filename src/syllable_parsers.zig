@@ -267,13 +267,17 @@ pub fn parseTokenToGetSyllable(
             // Ngoại trừ tự bỏ dấu của những âm tiết chắc chắn 99% là tiếng việt
             switch (syllable.am_giua) {
                 .uyez => { // 99% nguyen => nguyên
+                    char_stream.has_mark = true;
                     good_enough = true;
                 },
                 .iez, .uez => { // nghieng => nghiêng
                     var score: u8 = if (char_stream.tone == 0) 0 else 2;
                     score += syllable.am_dau.len(); // max +2
                     score += syllable.am_cuoi.len(); // max +2
-                    if (score >= 4) good_enough = true;
+                    if (score >= 4) {
+                        char_stream.has_mark = true;
+                        good_enough = true;
+                    }
                 },
                 else => {},
             }
@@ -287,19 +291,22 @@ pub fn parseTokenToGetSyllable(
         // Check #3: Filter out suffix look like syllable but it's not:
         // Mộtd, cuốiiii ...
         if (char_stream.len > syllable.len()) {
+            var good_enough = false;
+
             if (syllable.am_giua == .ua and
                 char_stream.buffer[char_stream.len - 3] == 'u' and
                 char_stream.buffer[char_stream.len - 2] == 'o' and
-                char_stream.buffer[char_stream.len - 1] == 'w') return syllable;
+                char_stream.buffer[char_stream.len - 1] == 'w') good_enough = true;
 
-            print("??? Don't accept redundant suffix: Mộtd, cuốiiii ...\n", .{});
-            syllable.can_be_vietnamese = false;
-            return syllable;
+            if (!good_enough) {
+                print("??? Don't accept redundant suffix: Mộtd, cuốiiii ...\n", .{});
+                syllable.can_be_vietnamese = false;
+                return syllable;
+            }
         }
     }
 
     syllable.normalize();
-
     return syllable;
 }
 

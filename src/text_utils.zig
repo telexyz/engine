@@ -66,11 +66,7 @@ pub inline fn token2Syllable(
 
         if (syllable.can_be_vietnamese) {
             // Token is vietnamese syllable
-            type_info.category = switch (attrs.category) {
-                .alphmark => .syllmark,
-                .alph0m0t => .syll0m0t,
-                else => unreachable,
-            };
+            type_info.category = if (char_stream.hasMarkOrTone()) .syllmark else .syll0m0t;
             type_info.syllable_id = syllable.toId();
             type_info.trans_offset = saveAsciiTransform(
                 text,
