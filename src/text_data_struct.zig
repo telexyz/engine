@@ -143,12 +143,12 @@ pub const Text = struct {
     // Each attribute is re-presented by an enum
     // The final encoded attribute is re-presented by a struct
     pub const TokenAttributes = packed struct {
-        surrounded_by_spaces: TokenSurroundedBySpaces,
+        fenced_by_spaces: TokenFencedBySpaces,
         category: TokenCategory,
 
         pub inline fn spaceAfter(self: TokenAttributes) bool {
-            return self.surrounded_by_spaces == .right or
-                self.surrounded_by_spaces == .both;
+            return self.fenced_by_spaces == .right or
+                self.fenced_by_spaces == .both;
         }
 
         pub inline fn isSyllable(self: TokenAttributes) bool {
@@ -191,7 +191,7 @@ pub const Text = struct {
         to_parse_syllable = 8,
     };
 
-    pub const TokenSurroundedBySpaces = enum(u2) {
+    pub const TokenFencedBySpaces = enum(u2) {
         // Use 2-bits to describle
         none, //  0|0
         right, // 0|1
@@ -452,7 +452,7 @@ test "Text" {
     var token = it.next();
     var attrs: Text.TokenAttributes = .{
         .category = .alphmark,
-        .surrounded_by_spaces = .both,
+        .fenced_by_spaces = .both,
     };
 
     if (true) {

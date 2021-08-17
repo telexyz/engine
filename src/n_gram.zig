@@ -305,7 +305,7 @@ test "ngram" {
     var it = std.mem.tokenize(u8, text.input_bytes, " ");
     var attrs: Text.TokenAttributes = .{
         .category = .alphmark,
-        .surrounded_by_spaces = .both,
+        .fenced_by_spaces = .both,
     };
     while (it.next()) |tkn| {
         try text.recordToken(tkn, attrs, false);

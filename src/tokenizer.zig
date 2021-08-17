@@ -13,7 +13,7 @@ inline fn printToken(token: []const u8, attrs: Text.TokenAttributes) void {
         print("\"{s}\" => {}, {}\n", .{
             token,
             attrs.category,
-            attrs.surrounded_by_spaces,
+            attrs.fenced_by_spaces,
         });
     }
 }
@@ -195,7 +195,7 @@ pub const Tokenizer = struct {
                     if (in_alphabet_token_zone) {
                         //
                         const token = input_bytes[alphabet_token_start_at..index];
-                        const attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .alphmark else .alph0m0t, .surrounded_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
+                        const attrs: Text.TokenAttributes = .{ .category = if (contains_marktone_char) .alphmark else .alph0m0t, .fenced_by_spaces = if (alphabet_token_start_at > nonspace_token_start_at) .right else .both };
                         try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
                         //
@@ -204,7 +204,7 @@ pub const Tokenizer = struct {
                         const token = input_bytes[nonalpha_token_start_at..index];
                         const attrs: Text.TokenAttributes = .{
                             .category = .nonalpha,
-                            .surrounded_by_spaces = if (nonalpha_token_start_at > nonspace_token_start_at) .right else .both,
+                            .fenced_by_spaces = if (nonalpha_token_start_at > nonspace_token_start_at) .right else .both,
                         };
                         try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
@@ -219,7 +219,7 @@ pub const Tokenizer = struct {
                     const token = input_bytes[index .. index + 1];
                     const attrs = Text.TokenAttributes{
                         .category = .nonalpha,
-                        .surrounded_by_spaces = .none,
+                        .fenced_by_spaces = .none,
                     };
                     try text.recordToken(token, attrs, then_parse_syllable);
                     //
@@ -271,7 +271,7 @@ pub const Tokenizer = struct {
                         const token = input_bytes[alphabet_token_start_at..index];
                         const attrs: Text.TokenAttributes = .{
                             .category = if (contains_marktone_char) .alphmark else .alph0m0t,
-                            .surrounded_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
+                            .fenced_by_spaces = if (alphabet_token_start_at == nonspace_token_start_at) .left else .none,
                         };
                         try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
@@ -287,7 +287,7 @@ pub const Tokenizer = struct {
                         const token = input_bytes[nonalpha_token_start_at..index];
                         const attrs: Text.TokenAttributes = .{
                             .category = .nonalpha,
-                            .surrounded_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
+                            .fenced_by_spaces = if (nonalpha_token_start_at == nonspace_token_start_at) .left else .none,
                         };
                         try text.recordToken(token, attrs, then_parse_syllable);
                         if (counting_lines) printToken(token, attrs);
@@ -326,7 +326,7 @@ test "Tokenizer" {
 
     const s1_tokens = "Giá trúng binh quân 13.011 đồng / cp , thu về hơn 1.300 voọc .";
     var s1_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alph0m0t, .alphmark, .nonalpha, .alphmark, .nonalpha, .alph0m0t, .nonalpha, .alph0m0t, .alphmark, .alphmark, .nonalpha, .alphmark, .nonalpha };
-    const s1_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .both, .both, .both, .left, .none, .none, .right, .both, .both, .both, .both, .left, .right };
+    const s1_surrds = &[15]Text.TokenFencedBySpaces{ .both, .both, .both, .both, .both, .left, .none, .none, .right, .both, .both, .both, .both, .left, .right };
 
     var it = std.mem.split(u8, s1_tokens, " ");
     var i: usize = 0;
@@ -334,13 +334,13 @@ test "Tokenizer" {
         // print("Token: {s}\n", .{text.getToken(i)}); //DEBUG
         try testing.expectEqualStrings(token, text.getToken(i));
         try testing.expectEqual(s1_tkcats[i], text.tokens_infos.get(i).attrs.category);
-        try testing.expectEqualStrings(@tagName(s1_surrds[i]), @tagName(text.tokens_infos.get(i).attrs.surrounded_by_spaces));
+        try testing.expectEqualStrings(@tagName(s1_surrds[i]), @tagName(text.tokens_infos.get(i).attrs.fenced_by_spaces));
     }
 
     try std.testing.expectEqualStrings("\n", text.getToken(i));
     const s2_tokens = "HeirsNguyễn tránh TP . Long Xuyên sẽ ' khai tử ' trạm BOT T 2.";
     var s2_tkcats = &[15]Text.TokenCategory{ .alphmark, .alphmark, .alph0m0t, .nonalpha, .alph0m0t, .alphmark, .alphmark, .nonalpha, .alph0m0t, .alphmark, .nonalpha, .alphmark, .alph0m0t, .alph0m0t, .nonalpha };
-    const s2_surrds = &[15]Text.TokenSurroundedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
+    const s2_surrds = &[15]Text.TokenFencedBySpaces{ .both, .both, .left, .none, .right, .both, .both, .left, .right, .left, .right, .both, .both, .left, .right };
     it = std.mem.split(u8, s2_tokens, " ");
     i += 1;
     var j: usize = 0;
@@ -348,7 +348,7 @@ test "Tokenizer" {
         // print("Token: {s}\n", .{token});
         try testing.expectEqualStrings(token, text.getToken(i));
         try testing.expectEqualStrings(@tagName(s2_tkcats[j]), @tagName(text.tokens_infos.get(i).attrs.category));
-        try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_infos.get(i).attrs.surrounded_by_spaces));
+        try testing.expectEqualStrings(@tagName(s2_surrds[j]), @tagName(text.tokens_infos.get(i).attrs.fenced_by_spaces));
         i += 1;
         j += 1;
     }
@@ -360,11 +360,11 @@ test "Tokenizer" {
     j = 0;
     while (it.next()) |token| {
         try testing.expectEqualStrings(token, text.getToken(i));
-        const surrounded_by_spaces = text.tokens_infos.get(i).attrs.surrounded_by_spaces;
+        const fenced_by_spaces = text.tokens_infos.get(i).attrs.fenced_by_spaces;
         switch (j) {
-            0 => try testing.expect(surrounded_by_spaces == .left),
-            18 => try testing.expect(surrounded_by_spaces == .right),
-            else => try testing.expect(surrounded_by_spaces == .none),
+            0 => try testing.expect(fenced_by_spaces == .left),
+            18 => try testing.expect(fenced_by_spaces == .right),
+            else => try testing.expect(fenced_by_spaces == .none),
         }
 
         const category = text.tokens_infos.get(i).attrs.category;

@@ -10,24 +10,33 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.
     if (text.keep_origin_amap) {
         // Write all tokens
         _ = try writer.write(tk_info.trans_slice(text));
-        if (tk_info.attrs.spaceAfter()) _ = try writer.write(" ");
+
+        if (tk_info.attrs.spaceAfter()) {
+            _ = try writer.write(" ");
+        }
         return;
     }
 
     // Write space after token
     const token = tk_info.trans_slice(text);
+
     if (tk_info.isSyllable()) {
         _ = try writer.print("{s} ", .{token});
         text.prev_token_is_vi = true;
-    } else {
-        switch (token[0]) {
-            '\n' => _ = try writer.write("\n"),
-            '_', '-' => { // skip true_joiner
-                if (!(tk_info.attrs.surrounded_by_spaces == .none and token.len == 1))
-                    try writer.print("{s} ", .{token});
-            },
-            else => _ = try writer.print("{s} ", .{token}),
-        }
+        //
+    } else switch (token[0]) {
+        //
+        '\n' => _ = {
+            _ = try writer.write("\n");
+        },
+        '_', '-' => { // skip true_joiner
+            if (!(tk_info.attrs.fenced_by_spaces == .none and token.len == 1)) {
+                try writer.print("{s} ", .{token});
+            }
+        },
+        else => {
+            _ = try writer.print("{s} ", .{token});
+        },
     }
 }
 
@@ -196,7 +205,7 @@ pub fn parseTokens(text: *Text) void {
             if (type_info.isSyllable())
                 text.tokens_infos.set(text.parsed_tokens_num, .{
                     .attrs = .{
-                        .surrounded_by_spaces = token_info.attrs.surrounded_by_spaces,
+                        .fenced_by_spaces = token_info.attrs.fenced_by_spaces,
                         .category = type_info.category,
                     },
                     .trans_offset = type_info.trans_offset,
