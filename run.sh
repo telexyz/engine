@@ -12,17 +12,14 @@
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
-# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
+./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
 # ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
 # ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense
 
 ~/bin/telexify ../data/combined.txt ../data/combined.xyz dense
-
-# ~/bin/telexify ../data/sample_input.txt ../data/sample_input.dense.xyz dense ngram
 # ~/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense ngram
 # ~/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense ngram
 # ~/bin/telexify ../data/vi_wiki_all.txt ../data/vi_wiki_all.spare.xyz spare ngram
-# ~/bin/telexify ../data/vi_vlsp2020.ac ../data/vi_vlsp2020.xyz dense ngram
 # ~/bin/telexify ../data/opensub.vi ../data/opensub.xyz dense ngram
 
 # ~/zig run src/play_with_chars.zig

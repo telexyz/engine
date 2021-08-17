@@ -362,6 +362,7 @@ pub const Syllable = struct {
     }
 
     pub fn toId(self: *Syllable) UniqueId {
+        std.debug.assert(self.normalized);
         var am_giua = self.am_giua;
         var am_cuoi = self.am_cuoi;
         //  a  y =>  aw i
