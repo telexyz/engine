@@ -2,9 +2,8 @@ const std = @import("std");
 const Text = @import("./text_data_struct.zig").Text;
 const text_utils = @import("./text_utils.zig");
 
-const TOKENS_PER_LINE = 10;
-const MAX_FREQ_LEN = 9;
-const PAD = "   ";
+const BYTES_PER_LINE = 80;
+const PAD = "  ";
 
 pub const TextokOutputHelpers = struct {
     //
@@ -20,6 +19,11 @@ pub const TextokOutputHelpers = struct {
         return a.count > b.count;
     }
 
+    fn order_by_len_desc(context: void, a: TokenInfo, b: TokenInfo) bool {
+        _ = context;
+        return a.value.len > b.value.len;
+    }
+
     pub fn write_mktn_vs_0m0t_types_to_files(
         types: std.StringHashMap(Text.TypeInfo),
         skip_syllables: bool,
@@ -32,55 +36,88 @@ pub const TextokOutputHelpers = struct {
         var f0_file = try std.fs.cwd().createFile(freqs_0m0t_filename, .{});
         var tm_file = try std.fs.cwd().createFile(types_mktn_filename, .{});
         var t0_file = try std.fs.cwd().createFile(types_0m0t_filename, .{});
+
         defer fm_file.close();
         defer f0_file.close();
         defer tm_file.close();
         defer t0_file.close();
 
         // Init 2 counters and the main iterator
-        var n1: u32 = 0;
-        var n2: u32 = 0;
+        var n0: usize = 0;
+        var nm: usize = 0;
         var it = types.iterator();
-        // Init 4 writers
+
+        // Init 4 buffered writers
         var fm_wrt = std.io.bufferedWriter(fm_file.writer());
         var f0_wrt = std.io.bufferedWriter(f0_file.writer());
         var tm_wrt = std.io.bufferedWriter(tm_file.writer());
         var t0_wrt = std.io.bufferedWriter(t0_file.writer());
 
-        // Init a list of token and it's count
-        var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
-        defer tokens_list.deinit();
+        // Init 4 writers
+        var fm_writer = fm_wrt.writer();
+        var f0_writer = f0_wrt.writer();
+        var tm_writer = tm_wrt.writer();
+        var t0_writer = t0_wrt.writer();
 
-        // Add items
+        // Init a list of TokenInfo
+        var tokens_ = try std.heap.page_allocator.alloc(TokenInfo, types.count());
+        defer std.heap.page_allocator.free(tokens_);
+        var tokens = tokens_[0..];
+
+        // Add items to tokens
+        var i: usize = 0;
         while (it.next()) |kv| {
             if (skip_syllables and kv.value_ptr.isSyllable()) continue;
-            try tokens_list.append(.{
+            tokens[i] = .{
                 .value = kv.key_ptr.*,
                 .count = kv.value_ptr.count,
                 .is_syllable = kv.value_ptr.isSyllable(),
                 .have_marktone = kv.value_ptr.haveMarkTone(),
-            });
+            };
+            i += 1;
+        }
+        tokens = tokens_[0..i];
+
+        // if (token.have_marktone or token.is_syllable and blk: {
+        //     // double check marktone for syllable
+        //     switch (token.value[token.value.len - 1]) {
+        //         's', 'f', 'r', 'x', 'j', 'w', 'z' => break :blk true,
+        //         else => break :blk false,
+        //     }
+        // }) {
+
+        // Sort by type count desc
+        std.sort.sort(TokenInfo, tokens, {}, order_by_count_desc);
+        //
+        for (tokens) |token| {
+            if (token.have_marktone) {
+                try fm_writer.print("{d} {s}\n", .{ token.count, token.value });
+            } else {
+                try f0_writer.print("{d} {s}\n", .{ token.count, token.value });
+            }
         }
 
-        // Sort by count desc
-        std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
-
-        for (tokens_list.items) |token| {
-            if (!token.have_marktone) {
-                if (token.is_syllable) {
-                    // double check marktone for syllable
-                    switch (token.value[token.value.len - 1]) {
-                        's', 'f', 'r', 'x', 'j', 'w', 'z' => {
-                            // have marktone
-                            try writeToken(token, &fm_wrt, &tm_wrt, &n1);
-                            continue;
-                        },
-                        else => {},
-                    }
+        // Sort by type length desc
+        std.sort.sort(TokenInfo, tokens, {}, order_by_len_desc);
+        const tokens_len_1 = tokens.len - 1;
+        //
+        for (tokens) |token, j| {
+            const nn = if (j < tokens_len_1) tokens[j + 1].value.len else 0;
+            var pad = PAD;
+            if (token.have_marktone) {
+                nm += token.value.len + PAD.len;
+                if (nm + nn >= BYTES_PER_LINE) {
+                    pad = "\n\n";
+                    nm = 0;
                 }
-                try writeToken(token, &f0_wrt, &t0_wrt, &n2);
+                try tm_writer.print("{s}{s}", .{ token.value, pad });
             } else {
-                try writeToken(token, &fm_wrt, &tm_wrt, &n1);
+                n0 += token.value.len + PAD.len;
+                if (n0 + nn >= BYTES_PER_LINE) {
+                    pad = "\n\n";
+                    n0 = 0;
+                }
+                try t0_writer.print("{s}{s}", .{ token.value, pad });
             }
         }
 
@@ -88,15 +125,6 @@ pub const TextokOutputHelpers = struct {
         try f0_wrt.flush();
         try tm_wrt.flush();
         try t0_wrt.flush();
-    }
-
-    fn writeToken(token: TokenInfo, freqs_wrt: anytype, types_wrt: anytype, count: *u32) !void {
-        // write freq and token pair to file
-        _ = try freqs_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
-        count.* += 1;
-        // write token to file
-        const pad = if (@rem(count.*, TOKENS_PER_LINE) == 0) "\n\n" else PAD;
-        _ = try types_wrt.writer().print("{s}{s}", .{ token.value, pad });
     }
 
     pub fn write_types_to_files(
@@ -112,32 +140,50 @@ pub const TextokOutputHelpers = struct {
         var freqs_wrt = std.io.bufferedWriter(freqs_file.writer());
         var types_wrt = std.io.bufferedWriter(types_file.writer());
 
-        // Init list
-        var tokens_list = try std.ArrayList(TokenInfo).initCapacity(std.heap.page_allocator, types.count());
-        defer tokens_list.deinit();
+        var freqs_writer = freqs_wrt.writer();
+        var types_writer = types_wrt.writer();
 
-        // Add items
+        // Init a list of TokenInfo
+        var tokens_ = try std.heap.page_allocator.alloc(TokenInfo, types.count());
+        defer std.heap.page_allocator.free(tokens_);
+        var tokens = tokens_[0..];
+
+        // Add items to tokens
+        var i: usize = 0;
         var it = types.iterator();
         while (it.next()) |kv| {
-            try tokens_list.append(.{
+            tokens[i] = .{
                 .value = kv.key_ptr.*,
                 .count = comptime switch (@TypeOf(types)) {
                     std.StringHashMap(Text.TypeInfo) => kv.value_ptr.count,
                     std.StringHashMap(u32) => kv.value_ptr.*,
                     else => unreachable,
                 },
-            });
+            };
+            i += 1;
+        }
+        tokens = tokens_[0..i];
+
+        // Sort by type count desc
+        std.sort.sort(TokenInfo, tokens, {}, order_by_count_desc);
+        for (tokens) |token| {
+            try freqs_writer.print("{d} {s}\n", .{ token.count, token.value });
         }
 
-        // Sort by count desc
-        std.sort.sort(TokenInfo, tokens_list.items, {}, order_by_count_desc);
+        // Sort by type len desc
+        std.sort.sort(TokenInfo, tokens, {}, order_by_len_desc);
+        const tokens_len_1 = tokens.len - 1;
 
-        for (tokens_list.items) |token, i| {
-            // write freq and token pair to file
-            _ = try freqs_wrt.writer().print("{d} {s}\n", .{ token.count, token.value });
-            // write token to file
-            const pad = if (@rem(i + 1, TOKENS_PER_LINE) == 0) "\n\n" else PAD;
-            _ = try types_wrt.writer().print("{s}{s}", .{ token.value, pad });
+        var n: usize = 0;
+        for (tokens) |token, j| {
+            n += token.value.len + PAD.len;
+            const nn = if (j < tokens_len_1) tokens[j + 1].value.len else 0;
+            var pad = PAD;
+            if (n + nn >= BYTES_PER_LINE) {
+                pad = "\n\n";
+                n = 0;
+            }
+            try types_writer.print("{s}{s}", .{ token.value, pad });
         }
 
         try freqs_wrt.flush();
