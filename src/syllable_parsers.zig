@@ -292,27 +292,7 @@ pub fn parseTokenToGetSyllable(
         }
     }
 
-    switch (syllable.am_dau) {
-        .g => { // gì => giì, gìm => giìm
-            if (syllable.am_giua == .i)
-                syllable.am_dau = .gi;
-        },
-        .gi => {
-            if (syllable.am_giua == .ez and syllable.am_cuoi != ._none)
-                syllable.am_giua = .iez;
-        },
-        .ngh => syllable.am_dau = .ng, // ngh => ng
-        .gh => syllable.am_dau = .g, // gh => g
-        else => {},
-    }
-
-    switch (syllable.am_giua) {
-        .ua => syllable.am_giua = .uoz,
-        .ia => syllable.am_giua = .iez,
-        .uya => syllable.am_giua = .uyez,
-        .uaw => syllable.am_giua = .uow,
-        else => {},
-    }
+    syllable.normalize();
 
     return syllable;
 }

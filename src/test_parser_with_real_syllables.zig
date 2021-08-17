@@ -40,14 +40,16 @@ test "all(-most) vn syllables in UPPERCASE" {
     var revertedSyll: parsers.Syllable = undefined;
 
     while (it.next()) |am_tiet| {
-        // std.debug.print("\nam_tiet: {s}\n", .{am_tiet});
-        // syll = parsers.parseAmTietToGetSyllable(true, std.debug.print, am_tiet);
-        syll = parsers.parseAmTietToGetSyllable(true, print, am_tiet);
+        std.debug.print("\nam_tiet: {s}\n", .{am_tiet});
+        syll = parsers.parseAmTietToGetSyllable(true, std.debug.print, am_tiet);
+        // syll = parsers.parseAmTietToGetSyllable(true, print, am_tiet);
+        // std.debug.print("\n !!! {}", .{syll});
         try expect(syll.can_be_vietnamese);
         try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), am_tiet);
 
         syllId = syll.toId();
         revertedSyll = parsers.Syllable.newFromId(syllId);
+        // std.debug.print("\n !!! {}", .{revertedSyll});
         try std.testing.expectEqualStrings(revertedSyll.printBuffUtf8(buff), am_tiet);
     }
 }

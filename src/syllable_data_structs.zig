@@ -146,6 +146,16 @@ pub const AmGiua = enum(u5) {
     // Về việc hiển thị và bộ gõ thì ko cần convert vì thuở sẽ ko đi cùng âm cuối,
     // và ngược lại ươ ko đứng riêng mà cần âm cuối đi kèm.
 
+    pub fn normalize(self: AmGiua) AmGiua {
+        return switch (self) {
+            .ua => .uoz,
+            .ia => .iez,
+            .uaw => .uow,
+            .uya => .uyez,
+            else => self,
+        };
+    }
+
     pub fn startWithIY(self: AmGiua) bool {
         return switch (self) {
             .i, .y, .ia, .iez => true,
@@ -327,7 +337,28 @@ pub const Syllable = packed struct {
         return self.hasMark() or self.hasTone();
     }
 
-    pub fn toId(self: Syllable) UniqueId {
+    pub fn normalize(self: *Syllable) void {
+        self.am_giua = self.am_giua.normalize();
+
+        switch (self.am_dau) {
+            .g => { // gì => gi+ì, gìm => gi+ìm
+                if (self.am_giua == .i)
+                    self.am_dau = .gi;
+                // phân biệt gì ghì, gìm ghìm
+                // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-gìm
+                // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-ghìm
+            },
+            .gi => {
+                if (self.am_giua == .ez and self.am_cuoi != ._none)
+                    self.am_giua = .iez;
+            },
+            .ngh => self.am_dau = .ng, // ngh => ng
+            .gh => self.am_dau = .g, // gh => g
+            else => {},
+        }
+    }
+
+    pub fn toId(self: *Syllable) UniqueId {
         var am_giua = self.am_giua;
         var am_cuoi = self.am_cuoi;
         //  a  y =>  aw i
