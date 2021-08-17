@@ -182,7 +182,7 @@ pub fn parseTokens(text: *Text) void {
             if (ptr == null) {
                 std.debug.print("!!! SYLLABLE CANDIDATE `{s}` INDEX {d} ???\n", .{ token, text.parsed_tokens_num });
 
-                std.debug.print("CONTEXT: {s} {s} {s}", .{
+                std.debug.print("CONTEXT: `{s}` `{s}` `{s}`\n", .{
                     text.tokens_infos.get(text.parsed_tokens_num - 2).trans_slice(text),
                     text.tokens_infos.get(text.parsed_tokens_num - 1).trans_slice(text),
                     token,

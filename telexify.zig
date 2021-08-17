@@ -107,7 +107,7 @@ fn write_results(step2_time: i64) !void {
 
     // print("\nWriting tokenized results to {s} ...\n", .{output_filename});
     // try TextokOutput.write_transforms_to_file(&text, output_filename);
-    _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
+    // _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 }
 
 pub fn main() anyerror!void {
