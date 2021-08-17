@@ -105,9 +105,9 @@ fn write_results(step2_time: i64) !void {
     try write_out_types();
     _ = showMeTimeLap(step2_time, "Writing types to files done!");
 
-    // print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-    // try TextokOutput.write_transforms_to_file(&text, output_filename);
-    // _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
+    print("\nWriting tokenized results to {s} ...\n", .{output_filename});
+    try TextokOutput.write_transforms_to_file(&text, output_filename);
+    _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 }
 
 pub fn main() anyerror!void {

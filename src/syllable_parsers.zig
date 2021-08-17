@@ -93,6 +93,9 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
     }
     print("am_cuoi: \"{s}\" => {s}\n", .{ part3, syllable.am_cuoi });
 
+    // Auto-correct uaw => oaw
+    // if (syllable.am_giua == .uaw and syllable.am_dau != ._none and syllable.am_cuoi != ._none) syllable.am_giua = .oaw;
+
     if (!validateNguyenAm(print, syllable.am_dau, syllable.am_giua, syllable.am_cuoi) or
         !validateBanAmCuoiVan(print, syllable.am_dau, syllable.am_giua, syllable.am_cuoi))
     {
@@ -302,13 +305,18 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
         // TODO: Tìm thấy từ Gioóc (có thể là tên riêng) trong corpus
         // => Có nên coi nó là vn syllable ko? Tạm thời bỏ qua luật dưới để coi nó là TV
         if (am_giua.hasAmDem() and am_giua != .oaw and am_giua != .ooo) {
-            print("!!! VIOLATE: am_dau 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng, Gioóc\n", .{});
+            print("!!! VIOLATE: âm đầu 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng, Gioóc\n", .{});
             return false;
         }
         if (am_giua.startWithIY()) {
-            print("!!! VIOLATE: am_dau 'gi' không đi nguyên âm bắt đầu bằng 'i', 'y'\n ", .{});
+            print("!!! VIOLATE: âm đầu 'gi' không đi nguyên âm bắt đầu bằng 'i', 'y'\n ", .{});
             return false;
         }
+    }
+
+    if (am_dau == .c and (am_giua == .oa or am_giua == .oaw)) {
+        print("!!! VIOLATE: âm đầu 'c' không đi nguyên âm 'oa'\n ", .{});
+        return false;
     }
     return true;
 }
@@ -626,15 +634,15 @@ inline fn _amGiua(str: []const u8) AmGiua {
         'u' => switch (c1) { // u|uw|uwa|uwow|ua|uaa|uee|uy|uyee|uya|uoo
             'a' => switch (c2) {
                 'a', 'z' => AmGiua.uaz, // uaa quan,quân
-                'w' => .oaw, // auto correct .oaw <= uaw
-                else => .ua, // ua
+                'w' => .uaw,
+                else => .ua,
             },
             // 'e' => if (c2 == 'e') AmGiua.uez else .ue, // ue|uee quen,quên
             'e' => AmGiua.uez, // ue{e} => uez
             'w' => switch (c2) {
                 'a' => AmGiua.uaw,
                 'o' => .uow, // uwo{w} => uow, handle uwow len in parser
-                else => .uw, // not uwow|uwa => uw
+                else => .uw,
             },
             'o' => switch (c2) {
                 'o' => AmGiua.uoz,
@@ -921,7 +929,6 @@ test "canBeVietnamese() // Auto-repair obvious cases" {
     try expect(canBeVietnamese("tiem")); // tiêm
     try expect(canBeVietnamese("tiém")); // tiếm
     try expect(canBeVietnamese("tuyen")); // tuyên
-    try expect(canBeVietnamese("cuă")); // cưa
     try expect(canBeVietnamese("cưă")); // cưa
 }
 
@@ -941,7 +948,7 @@ test "canBeVietnamese() // alphamarks exceptions" {
     try expect(canBeVietnameseStrict("miéng"));
     try expect(canBeVietnameseStrict("Nguyen"));
     try expect(canBeVietnameseStrict("nghieng"));
-    try expect(canBeVietnameseStrict("khuắng"));
+    try expect(!canBeVietnameseStrict("khuắng"));
     try expect(canBeVietnameseStrict("khuều"));
     try expect(canBeVietnameseStrict("ngoẩy"));
     try expect(canBeVietnameseStrict("ðạo"));
@@ -1466,6 +1473,16 @@ test "Support obvious rules nguyên âm đôi / ba" {
     try expect(!canBeVietnameseStrict("uyay"));
     try expect(!canBeVietnameseStrict("uyao"));
     try expect(!canBeVietnameseStrict("uyau"));
+}
+
+test "Support obvious rules âm đầu không đi với nguyên âm" {
+    try expect(!canBeVietnameseStrict("coan"));
+    try expect(canBeVietnameseStrict("quan"));
+
+    try expect(!canBeVietnameseStrict("coăn"));
+    try expect(canBeVietnameseStrict("quăn"));
+
+    try expect(canBeVietnameseDebug("nghuyen"));
 }
 
 fn canBeVietnameseDebug(am_tiet: []const u8) bool {
