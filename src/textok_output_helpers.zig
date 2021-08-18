@@ -203,20 +203,42 @@ pub const TextokOutputHelpers = struct {
         try wrt.flush();
     }
 
-    pub fn write_transforms_to_file(text: *Text, filename: []const u8) !void {
-        var file = try std.fs.cwd().createFile(filename, .{});
-        defer file.close();
-        var wrt = Text.BufferedWriter{ .unbuffered_writer = file.writer() };
-        const writer = wrt.writer();
+    pub fn write_transforms_to_file(text: *Text, txt_filename: []const u8) !void {
+        var buffer: [200]u8 = undefined;
+        // Extend .cdx to txt_filename
+        std.mem.copy(u8, buffer[0..], txt_filename);
+        std.mem.copy(u8, buffer[txt_filename.len..], ".cdx");
+        const cdx_filename = buffer[0 .. txt_filename.len + 4];
+
+        var txt_file = try std.fs.cwd().createFile(txt_filename, .{});
+        var cdx_file = try std.fs.cwd().createFile(cdx_filename, .{});
+
+        defer txt_file.close();
+        defer cdx_file.close();
+
+        var txt_wrt = Text.BufferedWriter{ .unbuffered_writer = txt_file.writer() };
+        const txt_writer = txt_wrt.writer();
+
+        var cdx_wrt = Text.BufferedWriter{ .unbuffered_writer = cdx_file.writer() };
+        const cdx_writer = cdx_wrt.writer();
 
         var i: usize = 0;
+
         while (i < text.tokens_num) : (i += 1) {
-            try text_utils.writeTokenInfo(text.tokens_infos.get(i), text, writer);
+            if (text_utils.writeTokenInfo(text.tokens_infos.get(i), text)) {
+                // Write to file line by line
+                text.line_bytes[text.line_bytes_len] = '\n';
+                text.code_bytes[text.code_bytes_len] = '\n';
+
+                _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+                _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
+
+                text.line_bytes_len = 0;
+                text.code_bytes_len = 0;
+            }
         }
-        try wrt.flush();
+
+        try txt_wrt.flush();
+        try cdx_wrt.flush();
     }
 };
-
-// const trans_offsets = text.tokens_infos.items(.trans_offset);
-// const token_attrs = text.tokens_infos.items(.attrs);
-// try text_utils.writeTokenInfo(.{ .trans_offset = trans_offsets[i], .attrs = token_attrs[i] }, text, writer);

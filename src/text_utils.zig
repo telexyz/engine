@@ -7,20 +7,11 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 const Base64Encoder = std.base64.standard.Encoder;
 
-pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.BufferedWriter.Writer) !void {
+pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     const ptr = tk_info.trans_ptr(text);
 
     if (ptr[1] == '\n') {
-        // Write to file line by line
-        if (text.line_bytes_len > 0) {
-            text.line_bytes[text.line_bytes_len] = '\n';
-            _ = try writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
-            _ = try writer.write(text.code_bytes[0..text.code_bytes_len]);
-            _ = try writer.write("\n\n");
-        }
-        text.line_bytes_len = 0;
-        text.code_bytes_len = 0;
-        return;
+        return true; // end of line
     }
 
     const len = ptr[0];
@@ -29,7 +20,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.
         // std.debug.print("\n!!! TOO LONG TOKEN !!!", .{});
         text.line_bytes_len = 0;
         text.code_bytes_len = 0;
-        return;
+        return false;
     }
 
     if (text.keep_origin_amap) {
@@ -43,7 +34,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.
             text.line_bytes[text.line_bytes_len] = 32;
             text.line_bytes_len += 1;
         }
-        return;
+        return false;
     }
 
     // const is_true_joiners = switch (ptr[1]) {
@@ -75,6 +66,8 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.
     // Write space after
     text.line_bytes[text.line_bytes_len] = 32;
     text.line_bytes_len += 1;
+
+    return false;
 }
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
