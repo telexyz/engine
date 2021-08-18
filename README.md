@@ -1,22 +1,31 @@
-# Vietnamese Telex Input Method and Anything Related
+# Bộ tách token và phân tích âm vị học âm tiết tiếng Việt và trình bày lại thành kiểu gõ Telex cải tiến
 
-[ GOAL ] RE-PRESENTING + INDEXING SAO CHO CÓ THỂ VIEW CORPUS THẬT NHANH, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG ...
+[ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
 
-[ BY PRODUCT 1 ] token repair, basic n-gram, phoneme based spelling error correction ...
 
-[ BY PRODUCT 2 ] Cải tiến bộ gõ Telex, dùng z thay aa,ee,oo; chỉ bỏ dấu thanh cuối âm tiết
+## Thành tựu chính
 
-[ IMPORTANT ] Yếu điểm có thể coi là lớn nhất của Telex là viết song ngữ rất chậm,
+* Tối ưu hoá việc nhận dạng ký tự đặc trưng tiếng Việt (kí tự có dấu + thanh): khi mã hoá bằng utf-8, dùng tới 2-3 bytes để lưu trữ rồi phải chuyển đổi thành `u21` mới trở thành dạng mã hoá cuối cùng của một ký tự utf-8. Tìm cách không phải chuyển đổi mà dùng trực tiếp giá trị của 1 hoặc 2 byte đầu tiên để tra xét nhanh. Trình bày lại một dạng ký tự tiếng Việt bằng `u10` đã tách thanh điệu, đánh dấu viết hoa vs viết thường để tối ưu việc phân tích âm vị (xem `src/telex_utils.zig`). Xử lý cả mã unicode tổ hợp lẫn cách viết telex ...
+
+* Dùng âm vị học để phân tích và định danh nhanh mọi âm tiết TV viết thường thành 16-bits mà không cần dùng dữ liệu đối chiếu (lookup-table, trie, ...) để chuyển từ dạng text thành định danh cũng như từ định danh 16-bits khôi phục lại dạng text của âm tiết. (xem `src/syllable_data_struct.zig`)
+
+* Dùng 16-bits đủ để định danh token types. Số lượng âm tiết tiếng Việt viết thường rơi vào khoảng 12k. Như vậy ít nhất phải dùng 14-bits để định danh. Cách định danh nhanh trên dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư 36_786 để làm việc khác như lưu từ điển TV và chứa OOV ... (xem `docs/16-bits_syllable_encoding.md`)
+
+* Thống kê và liệt kê token types theo freqs và length, phân chia thành token trong bảng chữ cái có dấu + thanh `alphamark`, token trong bảng chữ cái không dấu thanh `alpha0m0t`, token không thuộc bảng chữ cái `nonalpha`, nhờ đó phát hiện nhanh token bất thường, token lỗi ... (xem https://github.com/telexyz/results#readme)
+
+- - -
+
+[ BY PRODUCT 1 ] Thống kê từ vựng và n-gram cơ bản, sửa lỗi chính tả đơn giản dựa trên phân tích âm vị học ...
+
+[ BY PRODUCT 2 ] Cải tiến bộ gõ Telex, dùng `az,ez,oz` thay `aa,ee,oo` để thống nhất với cách bỏ dấu như `aw,ow,uw`; chỉ bỏ dấu và thanh cuối âm tiết `nuoc|ws`
+
+Yếu điểm có thể coi là lớn nhất của Telex là viết song ngữ rất chậm,
 vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũng rất mất thời gian !!!
-
-[ QUESTION ] Làm thế nào để giảm thiểu sự nhầm lẫn khi gõ tiếng Anh lẫn lộn với tiếng Việt ???
-
-[ POSIBLE SOLUTION ] Viết hoàn toàn không dấu và để máy tự bỏ dấu với sự trợ giúp từ người dùng.
+Làm thế nào để giảm thiểu sự nhầm lẫn khi gõ tiếng Anh lẫn lộn với tiếng Việt ???
+Viết hoàn toàn không dấu và để máy tự bỏ dấu với sự trợ giúp từ người dùng ???
 
 
 ## TODOs
-
-* Sử dụng stream input từ file để giảm thiểu áp lực lên bộ nhớ
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
@@ -24,7 +33,9 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 [ >>> DONE <<< ]
 
-* Dùng base64 để ghi syllable_ids, ghi token's attrs và syllable_ids ở 1 dòng riêng
+- - -
+
+* 18/08/2012: Dùng base64 để ghi syllable_ids, ghi token's attrs và syllable_ids ở 1 dòng riêng
 
 * Tối ưu hoá tốc độ ghi ra bằng cách thêm length vào đầu type's value, bỏ qua line có too long token
 
@@ -52,4 +63,4 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 * Thống kê đầu ra gồm `types + freqs` âm tiết tiếng Việt, các `tokens` được phân loại `alphamark, alph0m0t, nonalpha` để tiện tìm hiểu và phân tích thêm. Ví dụ các từ sai chính tả tiếng Việt thường rơi vào các `alphamark tokens` ...
 
-* Thống kê `bi,tri và four-grams`
+* Thống kê `bi,tri, four-grams ...`
