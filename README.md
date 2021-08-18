@@ -19,6 +19,8 @@
 
 [ BY PRODUCT 2 ] Cải tiến bộ gõ Telex, dùng `az,ez,oz` thay `aa,ee,oo` để thống nhất với cách bỏ dấu như `aw,ow,uw`; chỉ bỏ dấu và thanh cuối âm tiết `nuoc|ws`
 
+__Câu hỏi đặt ra:__
+
 Yếu điểm có thể coi là lớn nhất của Telex là viết song ngữ rất chậm,
 vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũng rất mất thời gian !!!
 Làm thế nào để giảm thiểu sự nhầm lẫn khi gõ tiếng Anh lẫn lộn với tiếng Việt ???
@@ -46,7 +48,7 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 [ >>> DONE <<< ]
 
-- - -
+CHANGELOG
 
 * 18/08/2012: Dùng base64 để ghi syllable_ids, ghi token's attrs và syllable_ids ở 1 dòng riêng
 
