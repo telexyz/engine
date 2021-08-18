@@ -3,9 +3,8 @@ const expect = std.testing.expect;
 const fmt = std.fmt;
 
 // Ref https://tieuluan.info/ti-liu-bdhsg-mn-ting-vit-lp-4-5.html?page=11
-// Tiếng gồm 3 bộ phận: phụ âm đầu, vần và thanh điệu.
-// - Tiếng nào cũng có vần và thanh. Có tiếng không có phụ âm đầu.
-// - 22 phụ âm : b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh), p, ph, r, s, t, tr, th, v, x. (+ qu, gi, _none => 25)
+// - 22 phụ âm: b, c (k,q), ch, d, đ, g (gh), h, kh, l, m, n, nh, ng (ngh),
+// p, ph, r, s, t, tr, th, v, x. (+ qu, gi, _none => 25)
 
 pub const AmDau = enum {
     // 25 âm đầu
