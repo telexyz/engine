@@ -65,6 +65,10 @@ pub const Text = struct {
     syllow00_bytes: []u8 = undefined,
     syllow00_bytes_len: usize = 0,
 
+    // Data buffer for write-out line
+    line_bytes: []u8 = undefined,
+    line_bytes_len: usize = 0,
+
     // Start the text with empty tokens list, hence tokens_num = 0
     tokens_num: usize = 0,
     parsed_input_bytes: usize = 0,
@@ -95,7 +99,7 @@ pub const Text = struct {
 
         pub inline fn trans_slice(self: TokenInfo, text: *Text) []const u8 {
             var ptr = self.trans_ptr(text);
-            return ptr[0..double_0_trans_len(ptr)];
+            return ptr[1 .. get_trans_len(ptr) + 1];
         }
 
         pub inline fn isSyllable(self: TokenInfo) bool {
@@ -107,10 +111,13 @@ pub const Text = struct {
     const MAX_INPUT_FILE_SIZE = 2048 * ONE_MB; // 1336 ~ 1.3Gb
     const BUFF_SIZE = 1024; // incase input is small, estimated not correct
 
-    pub inline fn double_0_trans_len(ptr: [*]u8) usize {
-        var n: usize = 2;
-        while (ptr[n] != 0) : (n += 2) {}
-        if (ptr[n - 1] == 0) n -= 1;
+    pub inline fn get_trans_len(ptr: [*]u8) usize {
+        var n: usize = ptr[0];
+        if (n == 0) {
+            n = 255;
+            while (ptr[n] != '\n') : (n += 2) {}
+            if (ptr[n - 1] == '\n') n -= 1;
+        }
         return n;
     }
 
@@ -127,7 +134,7 @@ pub const Text = struct {
 
         pub inline fn trans_slice(self: TypeInfo, text: *Text) []const u8 {
             const ptr = text.syllable_bytes.ptr + self.trans_offset;
-            return ptr[0..double_0_trans_len(ptr)];
+            return ptr[1 .. get_trans_len(ptr) + 1];
         }
 
         pub inline fn isSyllable(self: TypeInfo) bool {
@@ -241,6 +248,9 @@ pub const Text = struct {
         self.alphabet_bytes_len = 0;
         self.nonalpha_bytes_len = 0;
 
+        self.line_bytes = try self.allocator.alloc(u8, ONE_MB / 5);
+        self.line_bytes_len = 0;
+
         // Init syllable...
         self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
         self.syllable_bytes_len = 0;
@@ -277,24 +287,32 @@ pub const Text = struct {
         var token_len = @intCast(Text.TransOffset, token.len);
         var token_ptr = bytes_ptr + bytes_len.*;
 
-        const copied_token = token_ptr[0..token_len];
+        const too_long_token = (token_len > 255);
+        token_ptr.* = if (too_long_token) 0 else @intCast(u8, token.len);
 
-        // Copy input _token to token_bytes
+        token_len += 1;
+        const copied_token = token_ptr[1..token_len];
+
+        // Copy input token to token_bytes
         for (token) |byte| {
-            token_ptr.* = byte;
             token_ptr += 1;
+            token_ptr.* = byte;
         }
 
-        // Add double 0 terminators
-        token_ptr.* = 0;
-        token_ptr += 1;
-        token_ptr.* = 0;
+        token_ptr[1] = '\n';
+        token_len += 1;
+
+        if (too_long_token) {
+            // Add double '\n' terminators
+            token_ptr[2] = '\n';
+            token_len += 1;
+        }
 
         // Remember copied one index in token_info.trans_offset
         token_info.trans_offset = bytes_len.*;
 
         // Then increase token_bytes_len to reach the end of token_bytes
-        bytes_len.* += token_len + 2; // <= double 0 terminators
+        bytes_len.* += token_len;
 
         // Return copied token
         return copied_token;
@@ -337,7 +355,7 @@ pub const Text = struct {
                 const kv = entry.?;
                 token = kv.key_ptr.*;
                 const offset = @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr);
-                token_info.trans_offset = @intCast(TransOffset, offset);
+                token_info.trans_offset = @intCast(TransOffset, offset) - 1;
                 kv.value_ptr.* += 1;
             }
         } else {
@@ -365,7 +383,7 @@ pub const Text = struct {
                 kv = entry.?;
                 token = kv.key_ptr.*;
                 const offset = @ptrToInt(kv.key_ptr.*.ptr) - @ptrToInt(start_ptr);
-                token_info.trans_offset = @intCast(TransOffset, offset);
+                token_info.trans_offset = @intCast(TransOffset, offset) - 1;
                 kv.value_ptr.count += 1;
             }
 

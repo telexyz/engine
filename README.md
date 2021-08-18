@@ -20,11 +20,11 @@ vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũn
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-* Tối ưu hoá tốc độ ghi ra bằng cách thêm length vào đầu type's value
-
 * Ghi kèm invisible token's attrs char, base32 syllable_id ra file text output
 
 [ >>> DONE <<< ]
+
+* Tối ưu hoá tốc độ ghi ra bằng cách thêm length vào đầu type's value, bỏ qua line có too long token
 
 * Tối ưu hoá tốc độ ghi ra bằng cách bỏ qua syllable_id khi đọc tokens_infos
 

@@ -7,36 +7,58 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
 
 pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.BufferedWriter.Writer) !void {
-    if (text.keep_origin_amap) {
-        // Write all tokens
-        _ = try writer.write(tk_info.trans_slice(text));
+    const ptr = tk_info.trans_ptr(text);
 
+    if (ptr[1] == '\n') {
+        // Write to file line by line
+        text.line_bytes[text.line_bytes_len] = '\n';
+        _ = try writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+        text.line_bytes_len = 0;
+        return;
+    }
+
+    const len = ptr[0];
+    // Skip too long token
+    if (len == 0) {
+        // std.debug.print("\n!!! TOO LONG TOKEN !!!", .{});
+        text.line_bytes_len = 0;
+    }
+
+    // std.debug.print("\n- {d} -\n{s}\n- - -\n", .{
+    //     text.line_bytes_len,
+    //     text.line_bytes[0..text.line_bytes_len],
+    // });
+
+    if (text.keep_origin_amap) {
+        // Write token to line_bytes
+        var i: usize = 1;
+        while (i <= len) : (i += 1) {
+            text.line_bytes[text.line_bytes_len] = ptr[i];
+            text.line_bytes_len += 1;
+        }
         if (tk_info.attrs.spaceAfter()) {
-            _ = try writer.write(" ");
+            text.line_bytes[text.line_bytes_len] = 32;
+            text.line_bytes_len += 1;
         }
         return;
     }
 
     // Write space after token
-    const token = tk_info.trans_slice(text);
+    const is_true_joiners = switch (ptr[1]) {
+        '_', '-' => tk_info.attrs.fenced_by_spaces == .none and len == 1,
+        else => false,
+    };
 
-    if (tk_info.isSyllable()) {
-        _ = try writer.print("{s} ", .{token});
-        text.prev_token_is_vi = true;
-        //
-    } else switch (token[0]) {
-        //
-        '\n' => _ = {
-            _ = try writer.write("\n");
-        },
-        '_', '-' => { // skip true_joiner
-            if (!(tk_info.attrs.fenced_by_spaces == .none and token.len == 1)) {
-                try writer.print("{s} ", .{token});
-            }
-        },
-        else => {
-            _ = try writer.print("{s} ", .{token});
-        },
+    if (!is_true_joiners) {
+        // Write token to line_bytes
+        var i: usize = 1;
+        while (i <= len) : (i += 1) {
+            text.line_bytes[text.line_bytes_len] = ptr[i];
+            text.line_bytes_len += 1;
+        }
+        // Write space after
+        text.line_bytes[text.line_bytes_len] = 32;
+        text.line_bytes_len += 1;
     }
 }
 
@@ -82,7 +104,8 @@ pub inline fn token2Syllable(
 
 pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllable: *parsers.Syllable) Text.TransOffset {
     const trans_start_at = text.syllable_bytes_len;
-    var offset_ptr = text.syllable_bytes.ptr + text.syllable_bytes_len;
+    const first_byte_ptr = text.syllable_bytes.ptr + text.syllable_bytes_len;
+    var offset_ptr = first_byte_ptr + 1;
 
     if (text.convert_mode == 3) {
         //
@@ -118,12 +141,12 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         offset_ptr += buff.len;
     }
 
-    // Add double 0 terminators
-    offset_ptr.* = 0;
-    offset_ptr += 1;
-    offset_ptr.* = 0;
+    // Add '\n' terminator
+    offset_ptr.* = '\n';
     offset_ptr += 1;
 
+    const token_len = @intCast(u8, @ptrToInt(offset_ptr) - @ptrToInt(first_byte_ptr) - 2);
+    first_byte_ptr.* = token_len;
     text.syllable_bytes_len = @intCast(Text.TransOffset, @ptrToInt(offset_ptr) - @ptrToInt(text.syllable_bytes.ptr));
 
     return trans_start_at;
