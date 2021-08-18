@@ -69,6 +69,9 @@ pub const Text = struct {
     line_bytes: []u8 = undefined,
     line_bytes_len: usize = 0,
 
+    code_bytes: []u8 = undefined,
+    code_bytes_len: usize = 0,
+
     // Start the text with empty tokens list, hence tokens_num = 0
     tokens_num: usize = 0,
     parsed_input_bytes: usize = 0,
@@ -248,8 +251,11 @@ pub const Text = struct {
         self.alphabet_bytes_len = 0;
         self.nonalpha_bytes_len = 0;
 
-        self.line_bytes = try self.allocator.alloc(u8, ONE_MB / 5);
+        self.line_bytes = try self.allocator.alloc(u8, ONE_MB / 2);
         self.line_bytes_len = 0;
+
+        self.code_bytes = try self.allocator.alloc(u8, ONE_MB / 2);
+        self.code_bytes_len = 0;
 
         // Init syllable...
         self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);

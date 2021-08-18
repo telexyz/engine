@@ -5,15 +5,21 @@ const parsers = @import("./syllable_parsers.zig");
 const telex_char_stream = @import("./telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("./text_data_struct.zig").Text;
+const Base64Encoder = std.base64.standard.Encoder;
 
 pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.BufferedWriter.Writer) !void {
     const ptr = tk_info.trans_ptr(text);
 
     if (ptr[1] == '\n') {
         // Write to file line by line
-        text.line_bytes[text.line_bytes_len] = '\n';
-        _ = try writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+        if (text.line_bytes_len > 0) {
+            text.line_bytes[text.line_bytes_len] = '\n';
+            _ = try writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+            _ = try writer.write(text.code_bytes[0..text.code_bytes_len]);
+            _ = try writer.write("\n\n");
+        }
         text.line_bytes_len = 0;
+        text.code_bytes_len = 0;
         return;
     }
 
@@ -22,12 +28,9 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.
     if (len == 0) {
         // std.debug.print("\n!!! TOO LONG TOKEN !!!", .{});
         text.line_bytes_len = 0;
+        text.code_bytes_len = 0;
+        return;
     }
-
-    // std.debug.print("\n- {d} -\n{s}\n- - -\n", .{
-    //     text.line_bytes_len,
-    //     text.line_bytes[0..text.line_bytes_len],
-    // });
 
     if (text.keep_origin_amap) {
         // Write token to line_bytes
@@ -43,23 +46,35 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, writer: Text.
         return;
     }
 
-    // Write space after token
-    const is_true_joiners = switch (ptr[1]) {
-        '_', '-' => tk_info.attrs.fenced_by_spaces == .none and len == 1,
-        else => false,
-    };
+    // const is_true_joiners = switch (ptr[1]) {
+    //     '_', '-' => tk_info.attrs.fenced_by_spaces == .none and len == 1,
+    //     else => false,
+    // };
 
-    if (!is_true_joiners) {
-        // Write token to line_bytes
-        var i: usize = 1;
-        while (i <= len) : (i += 1) {
-            text.line_bytes[text.line_bytes_len] = ptr[i];
-            text.line_bytes_len += 1;
-        }
-        // Write space after
-        text.line_bytes[text.line_bytes_len] = 32;
+    // CODE_BYTES
+    // Write token attrs as an invisible-char at first
+    text.code_bytes[text.code_bytes_len] = tk_info.attrs.toByte();
+    text.code_bytes_len += 1;
+    if (tk_info.isSyllable()) {
+        // Write syllable id
+        const buff = text.code_bytes[text.code_bytes_len .. text.code_bytes_len + 4];
+        const id = [2]u8{
+            @intCast(u8, tk_info.syllable_id >> 8),
+            @truncate(u8, tk_info.syllable_id),
+        };
+        text.code_bytes_len += Base64Encoder.encode(buff, id[0..2]).len;
+    }
+
+    // LINE_BYTES
+    // Write token to line_bytes
+    var i: usize = 1;
+    while (i <= len) : (i += 1) {
+        text.line_bytes[text.line_bytes_len] = ptr[i];
         text.line_bytes_len += 1;
     }
+    // Write space after
+    text.line_bytes[text.line_bytes_len] = 32;
+    text.line_bytes_len += 1;
 }
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
