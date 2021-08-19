@@ -65,18 +65,25 @@ pub const TextokOutputHelpers = struct {
         var tokens = tokens_[0..];
 
         // Add items to tokens
+        var tokens_count: usize = 0;
         var i: usize = 0;
+
         while (it.next()) |kv| {
-            if (skip_syllables and kv.value_ptr.isSyllable()) continue;
+            if (skip_syllables and kv.value_ptr.isSyllable()) {
+                continue;
+            }
             tokens[i] = .{
                 .value = kv.key_ptr.*,
                 .count = kv.value_ptr.count,
                 .is_syllable = kv.value_ptr.isSyllable(),
                 .have_marktone = kv.value_ptr.haveMarkTone(),
             };
+            tokens_count += kv.value_ptr.count;
             i += 1;
         }
         tokens = tokens_[0..i];
+
+        std.debug.print("\n\n >> `{s}` + `{s}` NUMBER OF TOKENS {d} <<\n\n", .{ freqs_mktn_filename, freqs_0m0t_filename, tokens_count });
 
         // Sort by type count desc
         std.sort.sort(TokenInfo, tokens, {}, order_by_count_desc);
@@ -204,7 +211,7 @@ pub const TextokOutputHelpers = struct {
     }
 
     pub fn write_transforms_to_file(text: *Text, txt_filename: []const u8) !void {
-        var buffer: [200]u8 = undefined;
+        var buffer: [100]u8 = undefined;
         // Extend .cdx to txt_filename
         std.mem.copy(u8, buffer[0..], txt_filename);
         std.mem.copy(u8, buffer[txt_filename.len..], ".cdx");

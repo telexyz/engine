@@ -946,6 +946,7 @@ test "canBeVietnamese() // Auto-repair obvious cases" {
 
 test "canBeVietnamese() // alphamarks exceptions" {
     // try expect(canBeVietnameseStrict(""));
+
     try expect(canBeVietnameseStrict("gì"));
     try expect(canBeVietnameseStrict("A"));
     try expect(canBeVietnameseStrict("Quấc"));
@@ -1486,7 +1487,7 @@ test "Support obvious rules nguyên âm đôi / ba" {
 }
 
 test "Support obvious rules âm đầu không đi với nguyên âm" {
-    try expect(!canBeVietnameseStrict("coan"));
+    try expect(!canBeVietnameseStrict("coachuan"));
     try expect(canBeVietnameseStrict("quan"));
 
     try expect(!canBeVietnameseStrict("coăn"));
@@ -1497,7 +1498,6 @@ test "Syllable.normalize" {
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
     var syll = parseAmTietToGetSyllable(true, printNothing, "nghuyen");
-    // std.debug.print("Syll: {}", .{syll});
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "nguyên");
 }
 
@@ -1508,4 +1508,12 @@ fn canBeVietnameseDebug(am_tiet: []const u8) bool {
 fn canBeVietnameseStrict(am_tiet: []const u8) bool {
     // return parseAmTietToGetSyllable(true, std.debug.print, am_tiet).can_be_vietnamese;
     return parseAmTietToGetSyllable(true, printNothing, am_tiet).can_be_vietnamese;
+}
+
+test "Spelling errors" {
+    // try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
+    // try expect(!canBeVietnameseStrict("quyểng")); // => quyển
+    // try expect(!canBeVietnameseStrict("quyểm")); // => quyển
+    // try expect(!canBeVietnameseStrict("quyếc")); // quyếch
+    // try expect(!canBeVietnameseStrict("loao")); // khoào
 }

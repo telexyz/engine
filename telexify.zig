@@ -52,15 +52,6 @@ fn initConfigsFromArgs() void {
     parse_n_grams = (temp != null);
 }
 
-fn write_out_samples() !void {
-    // Write sample of final output to preview
-    try TextokOutput.write_text_tokens_to_file(
-        &text,
-        "data/07-tokens_sample.txt",
-        77_777,
-    );
-}
-
 fn write_out_types() !void {
     try TextokOutput.write_mktn_vs_0m0t_types_to_files(
         text.syllable_types,
@@ -133,7 +124,8 @@ pub fn main() anyerror!void {
 
     try tknz.segment(&text, then_parse_syllable);
     text.free_input_bytes();
-    // try write_out_samples();
+
+    std.debug.print("\n\n >> TOTAL NUMBER OF TOKENS {d} <<\n\n", .{text.tokens_num});
 
     _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
     thread.join(); // Wait for sylabeling thread end
@@ -148,14 +140,17 @@ pub fn main() anyerror!void {
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
 
-        const thread3 = try std.Thread.spawn(.{}, NGram.parseAndWrite789Gram, .{ &gram, text, "data/27-seventh_grams.txt", "data/28-eighth_grams.txt", "data/29-ninth_grams.txt" });
-        try write_results(step2_time);
-        thread3.join();
+        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite157Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt", "data/27-seventh_grams.txt" });
 
-        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite123Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/22-bi_grams.txt", "data/23-tri_grams.txt" });
-        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite456Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/25-fifth_grams.txt", "data/26-sixth_grams.txt" });
+        try write_results(step2_time);
+
+        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite236Gram, .{ &gram, text, "data/22-bi_grams.txt", "data/23-tri_grams.txt", "data/26-sixth_grams.txt" });
+
+        const thread3 = try std.Thread.spawn(.{}, NGram.parseAndWrite48Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/28-eighth_grams.txt" });
+
         thread1.join();
         thread2.join();
+        thread3.join();
 
         _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
     }
