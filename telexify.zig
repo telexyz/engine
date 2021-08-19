@@ -96,7 +96,7 @@ fn write_out_types() !void {
     );
 
     try TextokOutput.write_types_to_files(
-        text.syllower_types,
+        text.syllovan_types,
         "data/09-syllovan_freqs.txt",
         "data/19-syllovan_types.txt",
     );

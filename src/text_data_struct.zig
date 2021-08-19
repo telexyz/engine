@@ -48,9 +48,9 @@ pub const Text = struct {
 
     // Use data of syllable_bytes
     syllable_types: std.StringHashMap(TypeInfo) = undefined,
-    syllower_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower
-    syllow00_types: std.StringHashMap(TypeInfo) = undefined, // syllower - mark - tone
-    syllovan_types: std.StringHashMap(TypeInfo) = undefined, // syllow00 - phụ âm đầu
+    syllower_types: std.StringHashMap(u32) = undefined, // syllable.toLower
+    syllow00_types: std.StringHashMap(u32) = undefined, // syllower - mark - tone
+    syllovan_types: std.StringHashMap(u32) = undefined, // syllow00 - phụ âm đầu
 
     // Data buffer for both alphabet_types and nonalpha_types
     alphabet_bytes: []u8 = undefined,
@@ -230,39 +230,42 @@ pub const Text = struct {
 
     pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {
         self.initAllocatorIfNeeded();
+
         self.input_bytes = input_bytes;
 
         self.estimated_tokens_num = self.input_bytes.len / 5; // avg 5 bytes per token
+
         self.tokens_infos = std.MultiArrayList(TokenInfo){};
+
         try self.tokens_infos.ensureTotalCapacity(
             self.init_allocator,
             self.estimated_tokens_num,
         );
 
-        // Init types count
+        // Init types
         self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
         self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
+        self.syllower_types = std.StringHashMap(u32).init(self.allocator);
+        self.syllow00_types = std.StringHashMap(u32).init(self.allocator);
+        self.syllovan_types = std.StringHashMap(u32).init(self.allocator);
+
+        // Init bytes
         self.alphabet_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
-        self.nonalpha_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
         self.alphabet_bytes_len = 0;
+
+        self.nonalpha_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
         self.nonalpha_bytes_len = 0;
+
+        self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
+        self.syllable_bytes_len = 0;
 
         self.line_bytes = try self.allocator.alloc(u8, ONE_MB / 2);
         self.line_bytes_len = 0;
 
         self.code_bytes = try self.allocator.alloc(u8, ONE_MB / 2);
         self.code_bytes_len = 0;
-
-        // Init syllable...
-        self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
-        self.syllable_bytes_len = 0;
-
-        // Init syllower...
-        self.syllower_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllow00_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllovan_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
         // Start empty token list and empty transfomed bytes
         self.tokens_num = 0;
@@ -426,36 +429,31 @@ pub const Text = struct {
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
 
-        // Count syllower
         // Convert syllable to syllower
         var i: u8 = if (syllable[0] == '^') 1 else 0;
         if (i == 1 and (syllable[1] == '^' or syllable[1] == 32)) i = 2;
         if (i == 2 and syllable[2] == 32) i = 3;
 
+        // Count syllower
         var n = syllable.len;
-        const syllower = syllable[i..n];
+        const gop2 = try self.syllower_types.getOrPutValue(syllable[i..n], 0);
+        gop2.value_ptr.* += type_info.count;
 
-        const gop2 = try self.syllower_types.getOrPutValue(syllower, TypeInfo{ .category = type_info.category });
-        gop2.value_ptr.count += type_info.count;
+        // Remove tone [sfrxj] and mark [wz]
+        while (syllable[n - 1] != '|') : (n -= 1) {}
 
         // Count syllow00 (0-mark, 0-tone)
-        // Remove tone [sfrxj] and mark [wz]
-        while (syllable[n - 1] != '|') n -= 1;
+        const gop3 = try self.syllow00_types.getOrPutValue(syllable[i..n], 0);
+        gop3.value_ptr.* += type_info.count;
 
-        const syllow00 = syllable[i..n];
-        const gop3 = try self.syllow00_types.getOrPutValue(syllow00, TypeInfo{ .category = type_info.category });
-        gop3.value_ptr.count += type_info.count;
-
-        // Count syllovan (only vần)
         // Remove phụ âm đầu
         while (true) switch (syllable[i]) {
             'a', 'e', 'y', 'u', 'i', 'o' => break,
             else => i += 1,
         };
-
-        const syllovan = syllable[i..n];
-        const gop4 = try self.syllovan_types.getOrPutValue(syllovan, TypeInfo{ .category = type_info.category });
-        gop4.value_ptr.count += type_info.count;
+        // Count syllovan (only vần)
+        const gop4 = try self.syllovan_types.getOrPutValue(syllable[i..n], 0);
+        gop4.value_ptr.* += type_info.count;
     }
 };
 
