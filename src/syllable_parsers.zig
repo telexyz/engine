@@ -1510,10 +1510,11 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
     return parseAmTietToGetSyllable(true, printNothing, am_tiet).can_be_vietnamese;
 }
 
-test "Spelling errors" {
+test "Spelling errors @ 21-uni_grams.txt" {
+    // quyeu, quuyen, quyng, cuyen, huyu, quung, queng
     // try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
     // try expect(!canBeVietnameseStrict("quyểng")); // => quyển
     // try expect(!canBeVietnameseStrict("quyểm")); // => quyển
     // try expect(!canBeVietnameseStrict("quyếc")); // quyếch
-    // try expect(!canBeVietnameseStrict("loao")); // khoào
+    // try expect(!canBeVietnameseStrict("loao")); // OK: khoào
 }

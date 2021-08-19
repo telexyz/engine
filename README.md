@@ -46,6 +46,8 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 * Kiểm tra tính đúng đắn của syllable_id
 
+* Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
+
 [ >>> DONE <<< ]
 
 CHANGELOG
