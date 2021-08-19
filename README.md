@@ -1,6 +1,6 @@
 # Bộ tách token và phân tích âm vị học âm tiết tiếng Việt và trình bày lại thành kiểu gõ Telex cải tiến
 
-[ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
+[ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, LOẠI BỎ DỮ LIỆU TRÙNG LẶP, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
 
 
 ## Thành tựu chính
@@ -57,6 +57,10 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 * Kiểm tra tính đúng đắn của syllable_id
 
 * Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
+
+* Loại bỏ câu có lượng âm tiết < lượng token khác
+
+* Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều) https://github.com/ekzhu/datasketch
 
 [ >>> DONE <<< ]
 
