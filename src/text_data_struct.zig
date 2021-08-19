@@ -46,9 +46,11 @@ pub const Text = struct {
     alphabet_types: std.StringHashMap(TypeInfo) = undefined,
     nonalpha_types: std.StringHashMap(u32) = undefined,
 
-    // Use data of syllable_bytes and syllow00_bytes
-    syllow00_types: std.StringHashMap(TypeInfo) = undefined, // = syllable.toLower -mark - tone
+    // Use data of syllable_bytes
     syllable_types: std.StringHashMap(TypeInfo) = undefined,
+    syllower_types: std.StringHashMap(TypeInfo) = undefined, // syllable.toLower
+    syllow00_types: std.StringHashMap(TypeInfo) = undefined, // syllower - mark - tone
+    syllovan_types: std.StringHashMap(TypeInfo) = undefined, // syllow00 - phụ âm đầu
 
     // Data buffer for both alphabet_types and nonalpha_types
     alphabet_bytes: []u8 = undefined,
@@ -60,10 +62,6 @@ pub const Text = struct {
     // Data buffer for syllable_types
     syllable_bytes: []u8 = undefined,
     syllable_bytes_len: TransOffset = 0,
-
-    // Data buffer for syllow00_types
-    syllow00_bytes: []u8 = undefined,
-    syllow00_bytes_len: usize = 0,
 
     // Data buffer for write-out line
     line_bytes: []u8 = undefined,
@@ -262,9 +260,9 @@ pub const Text = struct {
         self.syllable_bytes_len = 0;
 
         // Init syllower...
+        self.syllower_types = std.StringHashMap(TypeInfo).init(self.allocator);
         self.syllow00_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.syllow00_bytes = try self.allocator.alloc(u8, ONE_MB);
-        self.syllow00_bytes_len = 0;
+        self.syllovan_types = std.StringHashMap(TypeInfo).init(self.allocator);
 
         // Start empty token list and empty transfomed bytes
         self.tokens_num = 0;
@@ -424,39 +422,40 @@ pub const Text = struct {
     }
 
     pub fn countSyllableAndSyllow0t(self: *Text, syllable: []const u8, type_info: *const Text.TypeInfo) !void {
-        // std.debug.print("\nSyllable: \"{s}\"", .{syllable});//DEBUG
-        // Record and count syllable
+        // Count syllable
         const gop1 = try self.syllable_types.getOrPutValue(syllable, TypeInfo{ .category = type_info.category });
         gop1.value_ptr.count += type_info.count;
 
-        // Convert syllable to syllow00
+        // Count syllower
+        // Convert syllable to syllower
         var i: u8 = if (syllable[0] == '^') 1 else 0;
         if (i == 1 and (syllable[1] == '^' or syllable[1] == 32)) i = 2;
         if (i == 2 and syllable[2] == 32) i = 3;
 
-        // Remove tone "[sfrxj]"
-        var n = syllable.len - 1;
-        switch (syllable[n]) {
-            's', 'f', 'r', 'x', 'j' => n -= 1,
-            else => {},
-        }
-        // Remove mark
-        switch (syllable[n]) {
-            'w', 'z' => n -= 1,
-            else => {},
-        }
+        var n = syllable.len;
+        const syllower = syllable[i..n];
 
-        var next = self.syllow00_bytes_len;
-        while (i <= n) : (i += 1) {
-            self.syllow00_bytes[next] = syllable[i];
-            next += 1;
-        }
-
-        const syllow00 = self.syllow00_bytes[self.syllow00_bytes_len..next];
-        self.syllow00_bytes_len = next;
-
-        const gop2 = try self.syllow00_types.getOrPutValue(syllow00, TypeInfo{ .category = type_info.category });
+        const gop2 = try self.syllower_types.getOrPutValue(syllower, TypeInfo{ .category = type_info.category });
         gop2.value_ptr.count += type_info.count;
+
+        // Count syllow00 (0-mark, 0-tone)
+        // Remove tone [sfrxj] and mark [wz]
+        while (syllable[n - 1] != '|') n -= 1;
+
+        const syllow00 = syllable[i..n];
+        const gop3 = try self.syllow00_types.getOrPutValue(syllow00, TypeInfo{ .category = type_info.category });
+        gop3.value_ptr.count += type_info.count;
+
+        // Count syllovan (only vần)
+        // Remove phụ âm đầu
+        while (true) switch (syllable[i]) {
+            'a', 'e', 'y', 'u', 'i', 'o' => break,
+            else => i += 1,
+        };
+
+        const syllovan = syllable[i..n];
+        const gop4 = try self.syllovan_types.getOrPutValue(syllovan, TypeInfo{ .category = type_info.category });
+        gop4.value_ptr.count += type_info.count;
     }
 };
 

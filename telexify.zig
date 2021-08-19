@@ -61,11 +61,13 @@ fn write_out_types() !void {
         "data/11-syllmark_types.txt",
         "data/12-syll0m0t_types.txt",
     );
+
     try TextokOutput.write_types_to_files(
         text.syllow00_types,
         "data/03-syllow00_freqs.txt",
         "data/13-syllow00_types.txt",
     );
+
     try TextokOutput.write_mktn_vs_0m0t_types_to_files(
         text.alphabet_types,
         true, // skip syllable
@@ -74,10 +76,29 @@ fn write_out_types() !void {
         "data/14-alphmark_types.txt",
         "data/15-alph0m0t_types.txt",
     );
+
     try TextokOutput.write_types_to_files(
         text.nonalpha_types,
         "data/06-nonalpha_freqs.txt",
         "data/16-nonalpha_types.txt",
+    );
+
+    try TextokOutput.write_types_to_files(
+        text.syllable_types,
+        "data/07-syllable_freqs.txt",
+        "data/17-syllable_types.txt",
+    );
+
+    try TextokOutput.write_types_to_files(
+        text.syllower_types,
+        "data/08-syllower_freqs.txt",
+        "data/18-syllower_types.txt",
+    );
+
+    try TextokOutput.write_types_to_files(
+        text.syllower_types,
+        "data/09-syllovan_freqs.txt",
+        "data/19-syllovan_types.txt",
     );
 }
 
