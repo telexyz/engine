@@ -61,7 +61,8 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 * Loại bỏ câu có lượng âm tiết < lượng token khác
 
-* Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều) https://github.com/ekzhu/datasketch
+* Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
+  https://github.com/ekzhu/datasketch/issues/76
 
 [ >>> DONE <<< ]
 
