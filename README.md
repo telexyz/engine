@@ -13,6 +13,16 @@
 
 * Thống kê và liệt kê token types theo freqs và length, phân chia thành token trong bảng chữ cái có dấu + thanh `alphamark`, token trong bảng chữ cái không dấu thanh `alpha0m0t`, token không thuộc bảng chữ cái `nonalpha`, nhờ đó phát hiện nhanh token bất thường, token lỗi ... (xem https://github.com/telexyz/results#readme)
 
+* Thử nghiệm với gần 1Gb text trộn từ Facebook comments, news titles, viet opensub, wikipedia, sách, truyện .. Trong vòng 45 giây phân tách được: 
+```py
+ 73% tokens âm tiết tiếng Việt  148_280_481 (của và có không là được cho các)
+  6% tokens thuộc bảng chữ cái   11_953_258 (đ đc NĐ ĐH TP USD inbox shop)
+ 21% tokens ngoài bảng chữ cái   43_576_527 (. , - : ? ; '' "" 1 ! 2 / ... 2020 🤣 19000019)
+- - - - - - - - - - - - - - - - - - - - - -
+100% tổng tokens                203_810_266
+```
+TRUNG BÌNH MỘT GIÂY PHÂN TÁCH VÀ PHÂN LOẠI 5 TRIỆU TOKENS, ĐỊNH DANH 3.65 TRIỆU ÂM TIẾT TV.
+
 - - -
 
 [ BY PRODUCT 1 ] Thống kê từ vựng và n-gram cơ bản, sửa lỗi chính tả đơn giản dựa trên phân tích âm vị học ...
