@@ -161,13 +161,13 @@ pub fn main() anyerror!void {
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
 
-        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite157Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt", "data/27-seventh_grams.txt" });
+        const thread3 = try std.Thread.spawn(.{}, NGram.parseAndWrite48Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/28-eighth_grams.txt" });
 
         try write_results(step2_time);
 
-        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite236Gram, .{ &gram, text, "data/22-bi_grams.txt", "data/23-tri_grams.txt", "data/26-sixth_grams.txt" });
+        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite157Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt", "data/27-seventh_grams.txt" });
 
-        const thread3 = try std.Thread.spawn(.{}, NGram.parseAndWrite48Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/28-eighth_grams.txt" });
+        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite236Gram, .{ &gram, text, "data/22-bi_grams.txt", "data/23-tri_grams.txt", "data/26-sixth_grams.txt" });
 
         thread1.join();
         thread2.join();
