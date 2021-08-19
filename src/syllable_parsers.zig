@@ -1510,11 +1510,47 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
     return parseAmTietToGetSyllable(true, printNothing, am_tiet).can_be_vietnamese;
 }
 
-test "Spelling errors @ 21-uni_grams.txt" {
+test "Spelling errors @ 08-syllower_freqs.txt and 09-syllovan_freqs.txt" {
     // quyeu, quuyen, quyng, cuyen, huyu, quung, queng
-    // try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
-    // try expect(!canBeVietnameseStrict("quyểng")); // => quyển
-    // try expect(!canBeVietnameseStrict("quyểm")); // => quyển
-    // try expect(!canBeVietnameseStrict("quyếc")); // quyếch
-    // try expect(!canBeVietnameseStrict("loao")); // OK: khoào
+    try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
+    try expect(!canBeVietnameseStrict("quyểng")); // => quyển
+    try expect(!canBeVietnameseStrict("quyểm")); // => quyển
+    try expect(!canBeVietnameseStrict("quyếc")); // quyếch
+    try expect(!canBeVietnameseStrict("loao")); // OK: khoào
+    // 9 uua|
+    // 8 oep|
+    // 7 iuoi|
+    // 7 uoe|
+    // 6 yec|
+    // 6 uoan|
+    // 6 uoay|
+    // 5 uoang|
+    // 4 uec|
+    // 4 uich|
+    // 4 uia|
+    // 3 oec|
+    // 3 uuyen|
+    // 3 ueu|
+    // 3 uuynh|
+    // 2 uyng|
+    // 2 uuan|
+    // 2 uut|
+    // 2 uyem|
+    // 2 uuen|
+    // 2 iuon|
+    // 2 yep|
+    // 2 uoen|
+    // 1 uyeng|
+    // 1 iuom|
+    // 1 iach|
+    // 1 uep|
+    // 1 uung|
+    // 1 uoat|
+    // 1 uyeu|
+    // 1 uuyet|
+    // 1 uyec|
+    // 1 uym|
+    // 1 uoach|
+    // 1 uoet|
+    // 1 uoac|
 }
