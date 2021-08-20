@@ -66,6 +66,7 @@ pub const Text = struct {
     // Data buffer for write-out line
     line_bytes: []u8 = undefined,
     line_bytes_len: usize = 0,
+    line_normal_len: u32 = 0,
 
     code_bytes: []u8 = undefined,
     code_bytes_len: usize = 0,
@@ -79,6 +80,12 @@ pub const Text = struct {
     // Try to predict maxium number of token to alloc mememory in advance
     estimated_tokens_num: usize = undefined,
     tokens_infos: std.MultiArrayList(TokenInfo) = undefined,
+
+    pub fn initNewLine(self: *Text) void {
+        self.line_normal_len = 0;
+        self.line_bytes_len = 0;
+        self.code_bytes_len = 0;
+    }
 
     // For 1Gb text input (1024*1024*1024 bytes)
     // estimated_tokens_num = 214 * 1024 * 1024 (1024*1024*1024 / 4.8)

@@ -15,11 +15,13 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     }
 
     const len = ptr[0];
-    // Skip too long token
-    if (len == 0) {
+    if (len == 0) { // handle token len > 255
         // std.debug.print("\n!!! TOO LONG TOKEN !!!", .{});
-        text.line_bytes_len = 0;
-        text.code_bytes_len = 0;
+        // text.initNewLine();
+        for ("TOO_LONG_TOKEN") |byte| {
+            text.line_bytes[text.line_bytes_len] = byte;
+            text.line_bytes_len += 1;
+        }
         return false;
     }
 

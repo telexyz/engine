@@ -240,8 +240,7 @@ pub const TextokOutputHelpers = struct {
                 _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
 
-                text.line_bytes_len = 0;
-                text.code_bytes_len = 0;
+                text.initNewLine();
             }
         }
 

@@ -53,15 +53,17 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 ## TODOs
 
-[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
-
 * Tìm một thuật toán hashing để encode n-gram (n > 4) về u64 (hoặc nhỏ hơn) để tiết kiệm bộ nhớ khi đếm n-gram
 
 * Kiểm tra tính đúng đắn của syllable_id, đảm bảo càng nhiều chỗ trống càng tốt cho OOV
 
 * Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
 
-* Loại bỏ câu có lượng âm tiết < lượng token khác
+[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
+
+ABNORMAL DETECT
+
+* Loại bỏ câu có lượng âm tiết + alphamark < 60% (nên tính theo bytes length)
 
 * Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
   https://github.com/ekzhu/datasketch/issues/76
@@ -70,7 +72,7 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 CHANGELOG
 
-* 18/08/2012: Dùng base64 để ghi syllable_ids, ghi token's attrs và syllable_ids ở 1 dòng riêng
+* 18/08/2021: Dùng base64 để ghi syllable_ids, ghi token's attrs và syllable_ids ở 1 dòng riêng
 
 * Tối ưu hoá tốc độ ghi ra bằng cách thêm length vào đầu type's value, bỏ qua line có too long token
 
