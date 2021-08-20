@@ -489,7 +489,7 @@ pub const Syllable = struct {
             },
             .gi => if (giua[0] == 'i') "g" else "gi",
             .g => switch (giua[0]) {
-                'e', 'i' => "gh",
+                'e', 'i', 'y' => "gh",
                 else => "g",
             },
             .ng => switch (giua[0]) {
@@ -648,7 +648,7 @@ pub const Syllable = struct {
             },
             .gi => if (giua[0] == 'i') "g" else "gi",
             .g => switch (giua[0]) {
-                'e', 'i' => "gh",
+                'e', 'i', 'y' => "gh",
                 else => "g",
             },
             .ng => switch (giua[0]) {
@@ -685,7 +685,7 @@ pub const Syllable = struct {
             },
             .gi => if (@tagName(self.am_giua)[0] == 'i') "g" else "gi",
             .g => switch (@tagName(self.am_giua)[0]) {
-                'e', 'i' => "gh",
+                'e', 'i', 'y' => "gh",
                 else => "g",
             },
             .ng => switch (@tagName(self.am_giua)[0]) {
@@ -805,7 +805,7 @@ pub const Syllable = struct {
                     if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yể";
                     break :blk "iể";
                 },
-                .uyez => if (self.am_cuoi == ._none) "uỳa" else "uyể",
+                .uyez => if (self.am_cuoi == ._none) "uỷa" else "uyể",
                 .a => "ả",
                 .e => "ẻ",
                 .i => "ỉ",
