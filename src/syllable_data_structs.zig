@@ -127,7 +127,7 @@ pub const AmGiua = enum {
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
     oaw, // oă
     uaz, // uâ (ngoe nguẩy <= ngoẩy)
-    uez, // uê <= ue (tuê =< tue, tuee, tuez)
+    uez, // uê <= ue (tuê =< tue, tuee, tuez) tuềnh toàng
     uoz, // uô
 
     uow, //  uwow, ươ 21th

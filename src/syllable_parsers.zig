@@ -405,10 +405,31 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         return false;
     }
 
-    if (am_giua == .uyez and (am_cuoi == ._none)) {
-        print("!!! VIOLATE: 'uyê' sau có âm cuối. VD: chuyên\n", .{});
-        return false;
+    if (am_giua == .uyez or (am_dau == .qu and am_giua == .iez)) {
+        if (am_dau == .c) {
+            print("!!! VIOLATE: 'uyê' ko đi với âm đầu 'c': cuyên\n", .{});
+            return false;
+        }
+        switch (am_cuoi) {
+            ._none => {
+                print("!!! VIOLATE: 'uyê' sau phải có âm cuối. VD: chuyên\n", .{});
+                return false;
+            },
+            .ng, .nh, .c, .p => {
+                print("!!! VIOLATE: 'uyê' không đi với ng, nh, c, p\n", .{});
+                return false;
+            },
+            else => {},
+        }
     }
+
+    if (am_dau == .c) switch (am_giua) {
+        .uyez, .uaz, .uez, .uy => {
+            print("!!! VIOLATE: Âm đầu `c` không đi cùng `uyê, uâ, uê, uy` mà là `qu` đi cùng `yê, â, ê, y`", .{});
+            return false;
+        },
+        else => {},
+    };
 
     if (am_giua == .iez and am_cuoi == ._none) {
         print("!!! VIOLATE: 'iê/yê' sau phải có âm cuối. VD: yêu, quyên\n", .{});
@@ -595,7 +616,7 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
     };
 
     if (am_cuoi == .ng) switch (am_giua) {
-        .i, .ez => {
+        .y, .i, .ez => {
             if (am_dau == .gi) return true; // skip giêng
             print("!!! VIOLATE: 'i, ê' không đi với `ng`\n", .{});
             return false;
@@ -1526,47 +1547,21 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 }
 
 test "Spelling errors @ 08-syllower_freqs.txt and 09-syllovan_freqs.txt" {
+    try expect(!canBeVietnameseStrict("quyeu"));
+    try expect(!canBeVietnameseStrict("quuyen"));
+    try expect(!canBeVietnameseStrict("quyng"));
+    try expect(!canBeVietnameseStrict("cuyen"));
+    try expect(!canBeVietnameseStrict("huiu"));
+    try expect(canBeVietnameseStrict("huyu")); // ok vì khuỵu
+    try expect(!canBeVietnameseStrict("quung"));
+    try expect(canBeVietnameseStrict("queng")); // ok vì keng
     try expect(!canBeVietnameseStrict("quước"));
-    // quyeu, quuyen, quyng, cuyen, huyu, quung, queng
-    // try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
-    // try expect(!canBeVietnameseStrict("quyểng")); // => quyển
-    // try expect(!canBeVietnameseStrict("quyểm")); // => quyển
-    // try expect(!canBeVietnameseStrict("quyếc")); // quyếch
-    // try expect(!canBeVietnameseStrict("loao")); // OK: khoào
-    // 9 uua|
-    // 8 oep|
-    // 7 iuoi|
-    // 7 uoe|
-    // 6 yec|
-    // 6 uoan|
-    // 6 uoay|
-    // 5 uoang|
-    // 4 uec|
-    // 4 uich|
-    // 4 uia|
-    // 3 oec|
-    // 3 uuyen|
-    // 3 ueu|
-    // 3 uuynh|
-    // 2 uyng|
-    // 2 uuan|
-    // 2 uut|
-    // 2 uyem|
-    // 2 uuen|
-    // 2 iuon|
-    // 2 yep|
-    // 2 uoen|
-    // 1 uyeng|
-    // 1 iuom|
-    // 1 iach|
-    // 1 uep|
-    // 1 uung|
-    // 1 uoat|
-    // 1 uyeu|
-    // 1 uuyet|
-    // 1 uyec|
-    // 1 uym|
-    // 1 uoach|
-    // 1 uoet|
-    // 1 uoac|
+
+    try expect(!canBeVietnameseStrict("chuẩnh"));
+    try expect(!canBeVietnameseStrict("quyểng"));
+    try expect(!canBeVietnameseStrict("quyểnh"));
+    try expect(!canBeVietnameseStrict("quyểp"));
+    try expect(!canBeVietnameseStrict("quyếc"));
+    // try expect(canBeVietnameseStrict("quyểm")); // => ok vì giống quyển
+    // try expect(canBeVietnameseStrict("loao")); // OK: khoào
 }
