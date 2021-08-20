@@ -8,7 +8,7 @@ const Text = @import("./text_data_struct.zig").Text;
 const Base64Encoder = std.base64.standard.Encoder;
 
 pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
-    const ptr = tk_info.trans_ptr(text);
+    var ptr = tk_info.trans_ptr(text);
 
     if (ptr[1] == '\n') {
         return true; // end of line
@@ -16,13 +16,21 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
 
     const len = ptr[0];
     if (len == 0) { // handle token len > 255
-        // std.debug.print("\n!!! TOO LONG TOKEN !!!", .{});
-        // text.initNewLine();
-        for ("TOO_LONG_TOKEN") |byte| {
+        var byte: u8 = undefined;
+        while (true) {
+            ptr += 1;
+            byte = ptr[0];
+            if (byte == '\n') break;
             text.line_bytes[text.line_bytes_len] = byte;
             text.line_bytes_len += 1;
         }
+        text.line_bytes[text.line_bytes_len] = ' ';
+        text.line_bytes_len += 1;
         return false;
+    }
+
+    if (tk_info.isSyllable() or (len <= 20 and tk_info.attrs.category == .alphmark)) {
+        text.line_normal_len += len + 1; // len(token + space)
     }
 
     if (text.keep_origin_amap) {
@@ -33,7 +41,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
             text.line_bytes_len += 1;
         }
         if (tk_info.attrs.spaceAfter()) {
-            text.line_bytes[text.line_bytes_len] = 32;
+            text.line_bytes[text.line_bytes_len] = ' ';
             text.line_bytes_len += 1;
         }
         return false;
@@ -66,7 +74,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
         text.line_bytes_len += 1;
     }
     // Write space after
-    text.line_bytes[text.line_bytes_len] = 32;
+    text.line_bytes[text.line_bytes_len] = ' ';
     text.line_bytes_len += 1;
 
     return false;

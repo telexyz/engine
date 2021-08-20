@@ -63,14 +63,14 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 ABNORMAL DETECT
 
-* Loại bỏ câu có lượng âm tiết + alphamark < 60% (nên tính theo bytes length)
-
 * Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
   https://github.com/ekzhu/datasketch/issues/76
 
 [ >>> DONE <<< ]
 
 CHANGELOG
+
+* Loại bỏ câu có lượng âm tiết + alphamark < 50% (tính theo bytes length)
 
 * 18/08/2021: Dùng base64 để ghi syllable_ids, ghi token's attrs và syllable_ids ở 1 dòng riêng
 

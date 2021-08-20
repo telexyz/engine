@@ -66,7 +66,7 @@ pub const Text = struct {
     // Data buffer for write-out line
     line_bytes: []u8 = undefined,
     line_bytes_len: usize = 0,
-    line_normal_len: u32 = 0,
+    line_normal_len: usize = 0,
 
     code_bytes: []u8 = undefined,
     code_bytes_len: usize = 0,

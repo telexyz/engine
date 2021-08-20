@@ -5,14 +5,9 @@ ddao|j nghieng|z mieng|zs tuom|w ^^tua| thua|r suon|wf giooc|s nguyen|z ^^nguyen
 Khuắng nưan nuăn 
 
 ^^bo|r ^^qua| ^^loi|zx ^^phap|s ^^am|z ^^de|zx ^^nham|zf ^^voi|ws ^^tieng|zs ^^anh| : 
-Yen , Tien buong boom 
 
-- - - 
 ^hanh| phuc lam| thay| va| yen tinh| khi| xem| nhung| gi| thay| di| va| lam| chuc thay| som| hoan| thanh| uoc nguyen|z a| 
 ^loi| noi| cua| em| noi| trieng|z de| thuong qua| vay| co| oi| xa| lam| nhung| ma| em| de| thuong 
-- - - 
-TOO_LONG_TOKEN
-- - - 
 chua|s _ te|zr muon|z thu|s nguyen|z ten|z tieng|zs anh| la|f beastmaster la|f mot|zj bo|zj phim| truyen|zf _ hinh|f do| canada san|r _ xuat|zs dduoc|wj phat|s _ song|s tu|wf nam|w 1999 dden|zs 2002 
 bo|zj phim| dduoc|wj dua|wj tren|z nguyen|z _ ban|r tu|wf bo|zj phim| ddien|zj _ anh|r cung|f ten|z nam|w 1982 cua|r hang|x mgm the| _ beastmaster 
 bo|zj phim| dduoc|wj hoan|f _ tat|zs sau| 3 phan|zf voi|ws 66 tap|zj 
@@ -22,7 +17,6 @@ dua|wj tren|z truyen|zj the| _ beast _ master cua|r andré _ norton ke|zr ve|zf 
 kyra _ nguoi|wf anh| yeu|z bi|j terron nhung|wx chien|zs _ binh| hung| _ ac|s tan|f _ bao|j bat|ws lam|f no|z _ le|zj cung|x chinh|s la|f nhung|wx ke|r dda|x tieu|z _ diet|zj nguoi|wf trong| bo|zj _ lac|j cua|r anh| 
 viec|zj tim|f _ kiem|zs kyra dday|zr anh| toi|ws nhung|wx chuyen|zs phieu|z _ luu|w dday|zf mao|j _ hiem|zr o|wr vung|f _ ddat|zs hoang| _ da|x 
 ddong|zf _ hanh|f cung|f voi|ws anh| la|f chu|s ho|zr ruh co|s _ the|zr phan|z _ biet|zj dduoc|wj nguoi|wf tot|zs va|f ke|r xau|zs sharak – chu|s ddai|j _ bang|f bat|zs _ tu|wr co|s _ the|zr cho| phep|s dar nhin|f thay|zs moi|j thu|ws tu|wf cap|wj mat|ws cua|r minh|f kodo va|f podo – hai| con| chon|zf tinh| _ nghich|j 
-- - - 
 ^chay|z i|f nop|zj phat|j nguoi|zj . 
 ^chau|s ddoi|f tien|zf com|w , di|f ddoi|f tien|zf nha|f . 
 ^dda|f ^nang|wx nghien|z cuu|ws tien|zj ich|s nhan|ws tin| khi| vi| pham|j dden|zs chu|r phuong|w tien|zj . 
@@ -1022,4 +1016,3 @@ BOT ^can|zf ^tho|w - ^phung|j ^hiep|zj lai|j un|f tac|ws vi|f tai|f xe|zs dung|f
 ^tu|wf thang|s 2/2018, boi|w loi|zj trong| cang|r bien|zr co|s the|zr bi|j phat|j dden|zs 300.000 ddong|zf . 
 ^tu|wf 12/2/2018: ^nguoi|wf ban|s , tang|wj xe| o|z to|z khong|z phai|r thong|z bao|s voi|ws cong|z an| . 
 ^tuyen|zs tranh|s TP . ^long| ^xuyen|z se|x ' khai| tu|wr ' tram|j BOT T 2. 
-https :// vnexpress . net / cdc - tinh| - dong| - thap - dong| - cua| -4299620. html 
