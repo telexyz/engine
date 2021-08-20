@@ -55,7 +55,9 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-* Kiểm tra tính đúng đắn của syllable_id
+* Tìm một thuật toán hashing để encode n-gram (n > 4) về u64 (hoặc nhỏ hơn) để tiết kiệm bộ nhớ khi đếm n-gram
+
+* Kiểm tra tính đúng đắn của syllable_id, đảm bảo càng nhiều chỗ trống càng tốt cho OOV
 
 * Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
 
