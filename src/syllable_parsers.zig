@@ -241,15 +241,18 @@ pub fn parseTokenToGetSyllable(
             char = @intCast(u21, byte);
         }
 
-        char_stream.pushCharAndFirstByte(char, byte) catch {
+        char_stream.pushCharAndFirstByte(char, byte) catch |err| {
             // Any error with char_stream, just return current parsed syllable
             // The error should not affect the result of the parse
+            print("char_stream error: {}", .{err});
             syllable.can_be_vietnamese = false;
             return syllable;
         };
         pushCharsToSyllable(print, char_stream, &syllable);
         index = next_index;
     }
+
+    if (!syllable.can_be_vietnamese) return syllable;
 
     if (strict) {
         // Check #1: Filter out ascii-telex syllable like:
@@ -306,7 +309,7 @@ pub fn parseTokenToGetSyllable(
         }
     }
 
-    syllable.normalize();
+    if (syllable.can_be_vietnamese) syllable.normalize();
     return syllable;
 }
 
@@ -324,8 +327,8 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
         }
     }
 
-    if (am_dau == .c and (am_giua == .oa or am_giua == .oaw)) {
-        print("!!! VIOLATE: âm đầu 'c' không đi nguyên âm 'oa'\n ", .{});
+    if (am_dau == .c and (am_giua == .oa or am_giua == .oaw or am_giua == .oe)) {
+        print("!!! VIOLATE: âm đầu 'c' không đi nguyên âm 'oa, oă, oe'\n ", .{});
         return false;
     }
     return true;
@@ -1487,8 +1490,13 @@ test "Support obvious rules nguyên âm đôi / ba" {
 }
 
 test "Support obvious rules âm đầu không đi với nguyên âm" {
-    try expect(!canBeVietnameseStrict("coachuan"));
+    try expect(!canBeVietnameseStrict("coa"));
     try expect(canBeVietnameseStrict("quan"));
+
+    try expect(!canBeVietnameseStrict("coen"));
+    try expect(canBeVietnameseStrict("quen"));
+
+    try expect(!canBeVietnameseStrict("chuan"));
 
     try expect(!canBeVietnameseStrict("coăn"));
     try expect(canBeVietnameseStrict("quăn"));
@@ -1512,11 +1520,11 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 
 test "Spelling errors @ 08-syllower_freqs.txt and 09-syllovan_freqs.txt" {
     // quyeu, quuyen, quyng, cuyen, huyu, quung, queng
-    try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
-    try expect(!canBeVietnameseStrict("quyểng")); // => quyển
-    try expect(!canBeVietnameseStrict("quyểm")); // => quyển
-    try expect(!canBeVietnameseStrict("quyếc")); // quyếch
-    try expect(!canBeVietnameseStrict("loao")); // OK: khoào
+    // try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
+    // try expect(!canBeVietnameseStrict("quyểng")); // => quyển
+    // try expect(!canBeVietnameseStrict("quyểm")); // => quyển
+    // try expect(!canBeVietnameseStrict("quyếc")); // quyếch
+    // try expect(!canBeVietnameseStrict("loao")); // OK: khoào
     // 9 uua|
     // 8 oep|
     // 7 iuoi|
