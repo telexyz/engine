@@ -10,7 +10,7 @@ dưới góc nhìn quản trị dữ liệu còn rất nhiều việc thú vị 
 
 * Dùng âm vị học để phân tích và định danh nhanh mọi âm tiết TV viết thường thành 16-bits mà không cần dùng dữ liệu đối chiếu (lookup-table, trie, ...) để chuyển từ dạng text thành định danh cũng như từ định danh 16-bits khôi phục lại dạng text của âm tiết. (xem `src/syllable_data_struct.zig`)
 
-* Dùng 16-bits đủ để định danh token types. Số lượng âm tiết tiếng Việt viết thường rơi vào khoảng 12k. Như vậy ít nhất phải dùng 14-bits để định danh. Cách định danh nhanh trên dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư 36_786 để làm việc khác như lưu từ điển TV và chứa OOV ... (xem `docs/16-bits_syllable_encoding.md`)
+* Dùng 16-bits đủ để định danh token types. Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi vào khoảng 12k. http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html chỉ ra rằng có khoảng 18k âm tiết như vậy, chứng tỏ có khoản 6k (33%) âm tiết có thể đúng về mặt ghép âm nhưng rất ít khi được sử dụng. Từ đó suy ra ít nhất phải dùng 15-bits để định danh các âm tiết tiếng Việt viết không dấu. Cách định danh nhanh trên dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư 36_786 để làm việc khác như lưu từ điển TV và chứa OOV ... (xem `docs/16-bits_syllable_encoding.md`)
 
 * Thống kê và liệt kê token types theo freqs và length, phân chia thành token trong bảng chữ cái có dấu + thanh `alphamark`, token trong bảng chữ cái không dấu thanh `alpha0m0t`, token không thuộc bảng chữ cái `nonalpha`, nhờ đó phát hiện nhanh token bất thường, token lỗi ... (xem https://github.com/telexyz/results#readme)
 
