@@ -525,6 +525,6 @@ test "Text" {
     try std.testing.expect(text.syllable_types.count() == 7); // Cả != cả
     try std.testing.expect(text.syllable_types.get("nha|f").?.count == 2);
     try std.testing.expect(text.syllow00_types.count() == 6); // Cả => cả
-    try std.testing.expect(text.syllow00_types.get("ca|").?.count == 2);
+    try std.testing.expect(text.syllow00_types.get("ca|").? == 2);
     try std.testing.expect(text.nonalpha_types.count() == 0); // cauz all is alphabet
 }
