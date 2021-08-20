@@ -423,6 +423,14 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
         }
     }
 
+    // if (am_giua == .uy) switch (am_cuoi) {
+    //     .ng => { // màn tuyn(m)
+    //         print("!!! VIOLATE: 'uy' không đi với `ng`\n", .{});
+    //         return false;
+    //     },
+    //     else => {},
+    // };
+
     if (am_dau == .c) switch (am_giua) {
         .uyez, .uaz, .uez, .uy => {
             print("!!! VIOLATE: Âm đầu `c` không đi cùng `uyê, uâ, uê, uy` mà là `qu` đi cùng `yê, â, ê, y`", .{});
