@@ -2,7 +2,9 @@
 
 # ./clean.sh
 
-~/zig test src/test_parser_with_real_syllables.zig
+~/zig test src/test_parse_real_syllables1.zig
+
+~/zig test src/test_parse_real_syllables2.zig
 
 ~/zig test src/syllable_data_structs.zig
 

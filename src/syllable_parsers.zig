@@ -131,7 +131,8 @@ pub fn pushCharsToSyllable(comptime print: print_op, stream: *U2ACharStream, syl
         'x' => syllable.tone = .x,
         'j' => syllable.tone = .j,
         else => {
-            print("!!! VIOLATE: \"{s}{c}\" is not toneable\n", .{ stream.buffer[0..stream.len], stream.tone });
+            const s: usize = syllable.am_dau.len() + syllable.am_giua.len();
+            print("!!! VIOLATE: \"{s}\" không thể là âm cuối hoặc thanh điệu\n", .{stream.buffer[s..stream.len]});
             syllable.can_be_vietnamese = false;
             return;
         },
@@ -331,6 +332,12 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
         print("!!! VIOLATE: âm đầu 'c' không đi nguyên âm 'oa, oă, oe'\n ", .{});
         return false;
     }
+
+    if (am_dau == .qu and (@tagName(am_giua)[0] == 'u')) {
+        print("!!! VIOLATE: âm đầu 'qu' không đi nguyên âm 'u, ư, ươ, uô, uy ...'\n ", .{});
+        return false;
+    }
+
     return true;
 }
 
@@ -404,7 +411,7 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
     }
 
     if (am_giua == .iez and am_cuoi == ._none) {
-        print("!!! VIOLATE: 'iê/yê' sau có âm cuối. VD: yêu, quyên\n", .{});
+        print("!!! VIOLATE: 'iê/yê' sau phải có âm cuối. VD: yêu, quyên\n", .{});
         return false;
     }
 
@@ -1519,6 +1526,7 @@ fn canBeVietnameseStrict(am_tiet: []const u8) bool {
 }
 
 test "Spelling errors @ 08-syllower_freqs.txt and 09-syllovan_freqs.txt" {
+    try expect(!canBeVietnameseStrict("quước"));
     // quyeu, quuyen, quyng, cuyen, huyu, quung, queng
     // try expect(!canBeVietnameseStrict("chuẩm")); // => chuẩn or chẩm
     // try expect(!canBeVietnameseStrict("quyểng")); // => quyển

@@ -493,7 +493,7 @@ pub const Syllable = struct {
                 else => "g",
             },
             .ng => switch (giua[0]) {
-                'e', 'i' => "ngh",
+                'e', 'i', 'y' => "ngh",
                 else => "ng",
             },
             else => @tagName(self.am_dau),
@@ -652,7 +652,7 @@ pub const Syllable = struct {
                 else => "g",
             },
             .ng => switch (giua[0]) {
-                'e', 'i' => "ngh",
+                'e', 'i', 'y' => "ngh",
                 else => "ng",
             },
             else => @tagName(self.am_dau),
@@ -689,7 +689,7 @@ pub const Syllable = struct {
                 else => "g",
             },
             .ng => switch (@tagName(self.am_giua)[0]) {
-                'e', 'i' => "ngh",
+                'e', 'i', 'y' => "ngh",
                 else => "ng",
             },
             else => @tagName(self.am_dau),
