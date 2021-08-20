@@ -317,10 +317,10 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
     if (am_dau == .gi) {
         // TODO: Tìm thấy từ Gioóc (có thể là tên riêng) trong corpus
         // => Có nên coi nó là vn syllable ko? Tạm thời bỏ qua luật dưới để coi nó là TV
-        if (am_giua.hasAmDem() and am_giua != .oaw and am_giua != .ooo) {
-            print("!!! VIOLATE: âm đầu 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng, Gioóc\n", .{});
-            return false;
-        }
+        // if (am_giua.hasAmDem() and am_giua != .oaw and am_giua != .ooo) {
+        //     print("!!! VIOLATE: âm đầu 'gi' không đi cùng âm đệm u,o trừ trường hợp gioăng, Gioóc\n", .{});
+        //     return false;
+        // }
         if (am_giua.startWithIY()) {
             print("!!! VIOLATE: âm đầu 'gi' không đi nguyên âm bắt đầu bằng 'i', 'y'\n ", .{});
             return false;
@@ -850,12 +850,12 @@ test "canBeVietnamese() // Edge cases" {
 }
 
 test "canBeVietnamese() // am_dau gi ko di cung am dem u, o" {
-    try expect(canBeVietnamese("gioaj") == false);
-    try expect(canBeVietnamese("gioas") == false);
-    try expect(canBeVietnamese("giueej") == false);
-    try expect(canBeVietnamese("giuyeen") == false);
-    try expect(canBeVietnamese("giuyeetj") == false);
-    try expect(canBeVietnamese("giuy") == false);
+    // try expect(canBeVietnamese("gioaj") == false);
+    // try expect(canBeVietnamese("gioas") == false);
+    // try expect(canBeVietnamese("giueej") == false);
+    // try expect(canBeVietnamese("giuyeen") == false);
+    // try expect(canBeVietnamese("giuyeetj") == false);
+    // try expect(canBeVietnamese("giuy") == false);
 }
 
 test "canBeVietnamese() // Weird cases" {
