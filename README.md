@@ -46,7 +46,7 @@ BPE quan trọng trong việc chia nhỏ OOV và ánh xạ OOV về một tập 
 
 * _Word2Vec_ https://github.com/zhezhaoa/ngram2vec/blob/master/word2vec/word2vec.c
 
-Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train rnnlm, dùng trong re-raking, re-scoring ...
+Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train NN/LM, re-raking, re-scoring ...
 
 Luận văn tiến sĩ của Mikolov, tác giả word2vec, cô đọng, dễ hiểu rất đáng để đọc
 https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
