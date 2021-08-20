@@ -210,7 +210,13 @@ pub const TextokOutputHelpers = struct {
         try wrt.flush();
     }
 
-    pub fn write_transforms_to_file(text: *Text, txt_filename: []const u8, abnormal_filename: []const u8) !void {
+    pub fn write_transforms_to_file(
+        text: *Text,
+        txt_filename: []const u8,
+        no_vi_filename: []const u8,
+        low_vi_filename: []const u8,
+    ) !void {
+        //
         var buffer: [100]u8 = undefined;
         // Extend .cdx to txt_filename
         std.mem.copy(u8, buffer[0..], txt_filename);
@@ -219,11 +225,13 @@ pub const TextokOutputHelpers = struct {
 
         var txt_file = try std.fs.cwd().createFile(txt_filename, .{});
         var cdx_file = try std.fs.cwd().createFile(cdx_filename, .{});
-        var abn_file = try std.fs.cwd().createFile(abnormal_filename, .{});
+        var low_file = try std.fs.cwd().createFile(low_vi_filename, .{});
+        var nvi_file = try std.fs.cwd().createFile(no_vi_filename, .{});
 
         defer txt_file.close();
         defer cdx_file.close();
-        defer abn_file.close();
+        defer low_file.close();
+        defer nvi_file.close();
 
         var txt_wrt = Text.BufferedWriter{ .unbuffered_writer = txt_file.writer() };
         const txt_writer = txt_wrt.writer();
@@ -231,8 +239,11 @@ pub const TextokOutputHelpers = struct {
         var cdx_wrt = Text.BufferedWriter{ .unbuffered_writer = cdx_file.writer() };
         const cdx_writer = cdx_wrt.writer();
 
-        var abn_wrt = Text.BufferedWriter{ .unbuffered_writer = abn_file.writer() };
-        const abn_writer = abn_wrt.writer();
+        var low_wrt = Text.BufferedWriter{ .unbuffered_writer = low_file.writer() };
+        const low_writer = low_wrt.writer();
+
+        var nvi_wrt = Text.BufferedWriter{ .unbuffered_writer = nvi_file.writer() };
+        const nvi_writer = nvi_wrt.writer();
 
         var i: usize = 0;
 
@@ -240,10 +251,13 @@ pub const TextokOutputHelpers = struct {
             if (text_utils.writeTokenInfo(text.tokens_infos.get(i), text)) {
                 text.line_bytes[text.line_bytes_len] = '\n';
                 text.code_bytes[text.code_bytes_len] = '\n';
-                if (text.line_bytes_len > text.line_normal_len * 2) {
-                    _ = try abn_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+
+                if (text.line_vi_tokens_len == 0) {
+                    _ = try nvi_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+                    //
+                } else if (text.line_bytes_len > text.line_vi_tokens_len * 2) {
+                    _ = try low_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 } else {
-                    // Write to file line by line
                     _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                     _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
                 }
@@ -254,6 +268,7 @@ pub const TextokOutputHelpers = struct {
 
         try txt_wrt.flush();
         try cdx_wrt.flush();
-        try abn_wrt.flush();
+        try low_wrt.flush();
+        try nvi_wrt.flush();
     }
 };

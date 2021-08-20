@@ -30,7 +30,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     }
 
     if (tk_info.isSyllable() or (len <= 20 and tk_info.attrs.category == .alphmark)) {
-        text.line_normal_len += len + 1; // len(token + space)
+        text.line_vi_tokens_len += len + 1; // len(token + space)
     }
 
     if (text.keep_origin_amap) {
