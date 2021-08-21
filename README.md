@@ -62,18 +62,19 @@ https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 * Kiểm tra tính đúng đắn của syllable_id, đảm bảo càng nhiều chỗ trống càng tốt cho OOV
 
-* Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
-
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
 ABNORMAL DETECT
 
 * Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
   https://github.com/ekzhu/datasketch/issues/76
+  https://www.pinecone.io/learn/locality-sensitive-hashing
 
 [ >>> DONE <<< ]
 
 CHANGELOG
+
+* Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
 
 * Loại bỏ câu có lượng âm tiết + alphamark < 50% (tính theo bytes length)
 
