@@ -1,4 +1,4 @@
-Telexyz nên theo hướng data-centric của https://www.snorkel.org/features
+Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-centric-ai
 
 - - -
 
