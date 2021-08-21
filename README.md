@@ -1,4 +1,4 @@
-# Bộ tách token và phân tích âm vị học âm tiết tiếng Việt và trình bày lại thành kiểu gõ Telex cải tiến
+# Bộ tách token và phân tích âm vị học tiếng Việt
 
 [ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, LOẠI BỎ DỮ LIỆU TRÙNG LẶP, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
 
