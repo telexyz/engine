@@ -333,8 +333,8 @@ fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool 
         return false;
     }
 
-    if (am_dau == .qu and (@tagName(am_giua)[0] == 'u')) {
-        print("!!! VIOLATE: âm đầu 'qu' không đi nguyên âm 'u, ư, ươ, uô, uy ...'\n ", .{});
+    if (am_dau == .qu and (am_giua == .oe or @tagName(am_giua)[0] == 'u')) {
+        print("!!! VIOLATE: âm đầu 'qu' không đi nguyên âm 'oe / u, ư, ươ, uô, uy ...'\n ", .{});
         return false;
     }
 
@@ -1564,6 +1564,7 @@ test "Spelling errors @ 08-syllower_freqs.txt and 09-syllovan_freqs.txt" {
     try expect(!canBeVietnameseStrict("quung"));
     try expect(canBeVietnameseStrict("queng")); // ok vì keng
     try expect(!canBeVietnameseStrict("quước"));
+    try expect(!canBeVietnameseStrict("quoẹt"));
 
     try expect(!canBeVietnameseStrict("chuẩnh"));
     try expect(!canBeVietnameseStrict("quyểng"));
