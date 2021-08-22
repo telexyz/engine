@@ -4,7 +4,9 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 Xem `docs/_0{1,2,3}-xxxx.md`
 
-## Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig
+## REWRITE
+
+_Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig_
 
 * _BPE sub-word_ https://github.com/telexyz/tools/tree/master/vocab/fastBPE/fastBPE
 
@@ -14,7 +16,7 @@ BPE quan trọng trong việc chia nhỏ OOV và ánh xạ OOV về một tập 
 
 Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train NN/LM, re-raking, re-scoring ...
 
-Luận văn tiến sĩ của Mikolov, tác giả word2vec, cô đọng, dễ hiểu rất đáng để đọc
+Luận văn tiến sĩ của Mikolov, tác giả word2vec, cô đọng, dễ hiểu
 https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
 
 - - -
