@@ -1,6 +1,6 @@
 const std = @import("std");
 const fmt = std.fmt;
-const parsers = @import("../../libs/phoneme/syllable_parsers.zig");
+const parsers = @import("../../src/phoneme/syllable_parsers.zig");
 const parseAmTietToGetSyllable = parsers.parseAmTietToGetSyllable;
 
 // Flexible print function so it can print debug info to various

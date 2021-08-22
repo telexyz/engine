@@ -19,8 +19,8 @@
 //      % 3 = 16.6
 
 const std = @import("std");
-const Text = @import("../textoken/text_data_struct.zig").Text;
-const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
+const Text = @import("./textoken/text_data_struct.zig").Text;
+const Syllable = @import("./phoneme/syllable_data_structs.zig").Syllable;
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;
 
@@ -305,7 +305,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
 }
 
 test "ngram" {
-    const text_utils = @import("../textoken/text_utils.zig");
+    const text_utils = @import("./textoken/text_utils.zig");
     var gram: NGram = .{};
     gram.init(std.testing.allocator);
     defer gram.deinit();

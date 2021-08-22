@@ -1,11 +1,11 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const Text = @import("./libs/textoken/text_data_struct.zig").Text;
-const TextokenOutput = @import("./libs/textoken/output_helpers.zig");
-const Tokenizer = @import("./libs/textoken/tokenizer.zig").Tokenizer;
-const text_utils = @import("./libs/textoken/text_utils.zig");
-const NGram = @import("./libs/ngrams/n_gram.zig").NGram;
+const Text = @import("./src/textoken/text_data_struct.zig").Text;
+const TextokenOutput = @import("./src/textoken/output_helpers.zig");
+const Tokenizer = @import("./src/textoken/tokenizer.zig").Tokenizer;
+const text_utils = @import("./src/textoken/text_utils.zig");
+const NGram = @import("./src/n_gram.zig").NGram;
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
