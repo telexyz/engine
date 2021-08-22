@@ -1,8 +1,23 @@
 Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-centric-ai
 
-- - -
+## TODO
 
-# Bộ tách token và phân tích âm vị học tiếng Việt
+Xem `docs/_0x-xxxx.md`
+
+## Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig
+
+* _BPE sub-word_ https://github.com/telexyz/tools/tree/master/vocab/fastBPE/fastBPE
+
+BPE quan trọng trong việc chia nhỏ OOV và ánh xạ OOV về một tập tokens có số lượng định trước, nhờ đó kiểm soát tốt số lượng từ vựng, hợp với việc huấn luyện mô hình có tài nguyên hạn chế.
+
+* _Word2Vec_ https://github.com/zhezhaoa/ngram2vec/blob/master/word2vec/word2vec.c
+
+Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train NN/LM, re-raking, re-scoring ...
+
+Luận văn tiến sĩ của Mikolov, tác giả word2vec, cô đọng, dễ hiểu rất đáng để đọc
+https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
+
+- - -
 
 [ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, LOẠI BỎ DỮ LIỆU TRÙNG LẶP, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
 
@@ -12,12 +27,11 @@ Nếu coi corpus là một file text lớn, mỗi câu được chứa trên m�
 
 Dùng `u32` để định danh thì sẽ chứa được gần 4.3 tỉ đầu mục, tương đương với 1 file text copus 2.1Tb. Dư lớn vì dữ liệu https://pile.eleuther.ai, dữ liệu mở tiếng Anh lớn nhất để huấn luyện mô hình ngôn ngữ siêu khủng mới chỉ ở mức 0.8Tb (800GB).
 
-
 ## Thành tựu chính
 
 * Dùng âm vị học để phân tích và định danh nhanh mọi âm tiết TV viết thường thành 16-bits mà không cần dùng dữ liệu đối chiếu (lookup-table, trie, ...) để chuyển từ dạng text thành định danh cũng như từ định danh 16-bits khôi phục lại dạng text của âm tiết. (xem `src/syllable_data_struct.zig`). 
 
-Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi vào khoảng 12k. http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html chỉ ra rằng có khoảng 18k âm tiết như vậy, chứng tỏ có khoảng 6k (33%) âm tiết có thể đúng về mặt ghép âm nhưng không được hoặc rất ít khi được sử dụng. Với khoảng 18k âm tiết viết thường phải dùng 15-bits để định danh. Cách định danh nhanh dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư `36_786 slots` để làm việc khác như lưu từ điển TV và chứa OOV ... (Từ điển khoảng 34k => còn 2.8k cho OOV. Xem `docs/16-bits_syllable_encoding.md`).
+Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi vào khoảng 12k. http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html chỉ ra rằng có khoảng 18k âm tiết như vậy, chứng tỏ có khoảng 6k (33%) âm tiết có thể đúng về mặt ghép âm nhưng không được hoặc rất ít khi được sử dụng. Với khoảng 18k âm tiết viết thường phải dùng 15-bits để định danh. Cách định danh nhanh dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư `36_786 slots` để làm việc khác như lưu từ điển TV và chứa OOV ... (Từ điển khoảng 34k => còn 2.8k cho OOV. Xem `docs/token_ids.md`).
 
 * Thống kê và liệt kê token types theo freqs và length, phân chia thành token trong bảng chữ cái có dấu + thanh `alphamark`, token trong bảng chữ cái không dấu thanh `alpha0m0t`, token không thuộc bảng chữ cái `nonalpha`, nhờ đó phát hiện nhanh token bất thường, token lỗi ... (xem https://github.com/telexyz/results#readme)
 
@@ -43,71 +57,3 @@ Yếu điểm có thể coi là lớn nhất của Telex là viết song ngữ r
 vì hay bị hiểu lầm thành dấu mũ. Việc chuyển bàn phím thì cũng rất mất thời gian !!!
 Làm thế nào để giảm thiểu sự nhầm lẫn khi gõ tiếng Anh lẫn lộn với tiếng Việt ???
 Viết hoàn toàn không dấu và để máy tự bỏ dấu với sự trợ giúp từ người dùng ???
-
-
-## Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig
-
-* _BPE sub-word_ https://github.com/telexyz/tools/tree/master/vocab/fastBPE/fastBPE
-
-BPE quan trọng trong việc chia nhỏ OOV và ánh xạ OOV về một tập tokens có số lượng định trước, nhờ đó kiểm soát tốt số lượng từ vựng, hợp với việc huấn luyện mô hình có tài nguyên hạn chế.
-
-* _Word2Vec_ https://github.com/zhezhaoa/ngram2vec/blob/master/word2vec/word2vec.c
-
-Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train NN/LM, re-raking, re-scoring ...
-
-Luận văn tiến sĩ của Mikolov, tác giả word2vec, cô đọng, dễ hiểu rất đáng để đọc
-https://www.fit.vutbr.cz/~imikolov/rnnlm/thesis.pdf
-
-## TODOs
-
-* Tìm một thuật toán hashing để encode n-gram (n > 4) về u64 (hoặc nhỏ hơn) để tiết kiệm bộ nhớ khi đếm n-gram
-
-* Kiểm tra tính đúng đắn của syllable_id, đảm bảo càng nhiều chỗ trống càng tốt cho OOV
-
-[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
-
-ABNORMAL DETECT
-
-* Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
-  https://github.com/ekzhu/datasketch/issues/76
-  https://www.pinecone.io/learn/locality-sensitive-hashing
-
-[ >>> DONE <<< ]
-
-CHANGELOG
-
-* Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
-
-* Loại bỏ câu có lượng âm tiết + alphamark < 50% (tính theo bytes length)
-
-* 18/08/2021: Dùng base64 để ghi syllable_ids, ghi token's attrs và syllable_ids ở 1 dòng riêng
-
-* Tối ưu hoá tốc độ ghi ra bằng cách thêm length vào đầu type's value, bỏ qua line có too long token
-
-* Tối ưu hoá tốc độ ghi ra bằng cách bỏ qua syllable_id khi đọc tokens_infos
-
-* Viết thẳng tknz output ra file, bỏ qua bộ đệm để không phải khởi tạo nhiều bộ nhớ đệm
-
-*  08/08/2021: Nén input vào bộ tự điển `alphabet_types` và `nonalpha_types` vừa giữ được đầu vào nguyên bản của `token` vừa đếm `types`. Dùng `trans_offset + alphabet_bytes/nonalpha_bypes` để tính ra `trans_ptr`. `trans` viết tắt của `transit` (dịch chuyển) hoặc `transform` (biến đổi), hoặc `translate` (dịch (ngôn ngữ))
-
-* Tối ưu hoá việc nhận dạng ký tự đặc trưng tiếng Việt (kí tự có dấu + thanh): khi mã hoá bằng utf-8, dùng tới 2-3 bytes để lưu trữ rồi phải chuyển đổi thành `u21` mới trở thành dạng mã hoá cuối cùng của một ký tự utf-8. Tìm cách không phải chuyển đổi mà dùng trực tiếp giá trị của 1 hoặc 2 byte đầu tiên để tra xét nhanh. Trình bày lại một dạng ký tự tiếng Việt bằng `u10` đã tách thanh điệu, đánh dấu viết hoa vs viết thường để tối ưu việc phân tích âm vị (xem `src/telex_utils.zig`). Xử lý cả mã unicode tổ hợp lẫn cách viết telex ...
-
-* Dự đoán ký tự utf-8 nào thuộc bảng chữ cái tiếng Việt để segment văn bản thật nhanh thành `alphamark`, `alph0m0t`, `nonalpha`
-
-* Parse `alphamark` và `alph0m0t` có độ dài <= 10 bytes để tìm ra các `syllables` tiếng Việt
-
-* Mỗi `syllable` được gán với 1 universal id 16-bits. Từ id này có thể dựng lại âm tiết tiếng Việt không dấu mà không cần từ điển
-
-* Khi parse syllable tiếng Việt tự động sửa lỗi những trường hợp hiển nhiên như `tiéng => tiếng` (`ie,ye` chỉ có thể bỏ dấu `iê,yê`), `mưón => mướn`, chuẩn hoá `thuở => thủa` ...
-
-* `syllable pasing` hỗ trợ nhiều bảng mã, nhiều kiểu viết tiếng Việt, có dấu và không dấu ...
-
-* `syllables` có thể được trình bày lại dưới nhiều dạng khác nhau:
-    - utf-8 `điếng`
-    - dạng telex `đieengs`
-    - dạng telex cải tiến `ddieng|zs`
-    - dạng tách biệt âm đầu + vần + âm cuối + thanh điệu `_dd iez ng s`
-
-* Thống kê đầu ra gồm `types + freqs` âm tiết tiếng Việt, các `tokens` được phân loại `alphamark, alph0m0t, nonalpha` để tiện tìm hiểu và phân tích thêm. Ví dụ các từ sai chính tả tiếng Việt thường rơi vào các `alphamark tokens` ...
-
-* Thống kê `bi,tri, four-grams ...`
