@@ -3,9 +3,9 @@
 # rm data/0*.txt data/1*.txt data/2*.txt data/temp*.txt
 # ./clean.sh
 
-~/zig build
+# ~/zig build
 # ~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
-# ~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
+~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
 
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts

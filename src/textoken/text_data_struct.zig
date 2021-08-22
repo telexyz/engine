@@ -449,7 +449,15 @@ pub const Text = struct {
         gop2.value_ptr.* += type_info.count;
 
         // Remove tone [sfrxj] and mark [wz]
-        while (syllable[n - 1] != '|') : (n -= 1) {}
+        switch (syllable[n - 1]) {
+            's', 'f', 'r', 'x', 'j' => n -= 1,
+            else => {},
+        }
+        // Remove mark
+        switch (syllable[n - 1]) {
+            'w', 'z' => n -= 1,
+            else => {},
+        }
 
         // Count syllow00 (0-mark, 0-tone)
         const gop3 = try self.syllow00_types.getOrPutValue(syllable[i..n], 0);
