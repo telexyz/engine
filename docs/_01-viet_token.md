@@ -6,8 +6,6 @@
 
 * Dùng `transit sang splitted_tokens_infos` có điểm dở là chỉ đi tiến, ko đi lùi được nên khi matching với 1 đoạn token và cần matching theo cả 2 chiều thì dùng `TokensChunk = [64]*TokenInfo` để có để di chuyển tiến và lùi.
 
-* ??? Dồn `trans_offset + syllable_id` vào làm một (`5-bytes`), dùng `token_info.attrs.isSyllable()` để xem `syllable_id` có dùng tới ko? Nếu ko dùng thì `1-byte` để lưu `token.len`, với `token.len <= 4` `4-bytes` còn lại lưu trực tiếp `token`, nếu ko thì dùng `trans_slice()` ???
-
 * Kiểm tra tính đúng đắn của syllable_id, đảm bảo càng nhiều chỗ trống càng tốt cho OOV
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]

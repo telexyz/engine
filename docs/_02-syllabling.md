@@ -9,14 +9,11 @@ Phần này tập trung khai thác tối đa âm tiết tiếng Việt, các t�
 Vì đó là điểm khác biệt lớn nhất giữa tiếng Việt một ngôn ngữ đơn thể với tiếng Anh - ngôn ngữ giao thể. Xem:
 
 * https://vi.wikipedia.org/wiki/Ngôn_ngữ_đơn_lập
-
 * https://vi.wikipedia.org/wiki/Hình_vị
 
 Các cách kỹ thuật xử lý hình vị tiếng Anh như stemming (trong IR), sub-word tokenizing (trong BERT language model) ... phần lớn sẽ không tương thích với tiếng Việt. Ngược lại các kỹ thuật xử lý hình vị tiếng Trung, Thái, Nhật, Hàn ... nhiều khả năng độ tương thích cao hơn. CHỈ TẬP TRUNG KHAI THÁC ÂM TIẾT TIẾNG VIỆT LÀ ĐỂ LÀM RÕ XEM KỸ THUẬT NÀO PHÙ HỢP.
 
 Trong các ngôn ngữ trên, phân tích hình vị tiếng Nhật được làm chỉnh chu, có độ chính xác tới hơn 99% cho lĩnh vực cụ thể như tin tức chẳng hạn. Nhiều bộ công cụ mã nguồn mở, kèm theo báo cáo kỹ thuật được tối ưu hoá và phát triển có tính kế thừa: từ JUMAN, ChaSen, MeCab, KyTea, Jumanpp, Sudachi ... Sử dụng đa dạng kỹ thuật như từ điển (vocab matching), dựa trên luật (rule-based), pointwise, máy học, mô hình ngôn ngữ (n-gram, nn). 
-
-Phần này sẽ kế thừa kết quả tách âm tiết và thống kê từ điển, thống kê n-gram đã trình bày tại https://github.com/telexyz/results và sử dụng lại cách các kỹ thuật, kiến trúc, cách tiếp cận của tiếng Nhật kể trên cho tiếng Việt.
 
 
 ## Nền tảng
@@ -45,38 +42,67 @@ __Bước 8__: Quay lại bước 1, dùng dữ liệu được chữa để nâ
 * Dùng từ điển để so khớp khởi tạo flag_{1,2,3,4,5,6,7,8} (1-byte) (xem `.docs/dict_matching.md`) để tạo ứng cử viên cho các tác vụ nâng cao khác như indexing của full-text-search, tách từ / gán nhãn từ ... Để tối ưu hoá nên dừng lại mẫu so khớp 4 ký tự vì 4-syllables vừa 64-bits. Trường hợp cần khớp nhiều hơn thì chia ra làm đôi, ví dụ để mark 8-flags ở trên thì dùng `hai 4-gram` như là prefix và suffix ... (Cần tìm hiểu kỹ hơn để không phức tạp hoá việc thực thi)
 
 * Tham khảo kiến trúc tích hợp Jumanpp
-
 * Xây dựng kiến trúc lattice tích hợp được nhiều features & methods
-
 * Viết beam-search decoder cho kiến trúc nói trên
-
 * Huấn luyện mô hình ngôn ngữ RNN cho âm tiết tiếng Việt
 
 - - -
 
+### Module 0/ n-gram nâng cao
+
+* Làm mượt n-gram `data/2{n}_{n}-grams.txt`
+
+* Tìm một thuật toán hashing để encode n-gram (n > 4) về u64 (hoặc nhỏ hơn) để tiết kiệm bộ nhớ khi đếm n-gram
+
 
 ### Module 1/ `syllables2words`: gộp âm tiết thành từ
-(xem `docs/.tach_tu_Nhat.md`)
+
+* Step 1: Dùng từ điển liệt kê mọi khả năng tách từ, 
+          scoring dựa trên syllable n-grams, giữ lại 5-best
+
+* Step 2: Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
+
 
 ### Module 2/ Tự động bỏ dấu và thanh tiếng Việt
 (xem `docs/.them_dau_thanh.md`)
+
 
 ### Module 3/ Làm bộ chữa lỗi chính tả 
 (xem `doc/.loi_chinh_ta.md`)
 *  Sinh ra candidates từ edit-distances rồi áp dụng n-gram/nn + beam-search như thêm dấu+thanh
 *  Tìm hiểu các phương pháp khác ...
 
+
 ### Module 4/ Tách các âm tiết dính liền nhau (thiếu dấu cách)
 (xem `doc/.token_repairs.md`)
 
+
+### Module 5/ Viết BPE để định danh OOV 
+OVV gồm tiếng dân tộc thiểu số (như Đắk Lắk) và tiếng nước ngoài 
 
 ## Mở rộng
 
 Phần mở rộng kế thừa các `modules` trong phần nền tảng để xây dựng công cụ có thể tìm kiếm và xem dữ liệu trong corpus thật nhanh, phát hiện các trường hợp bất thuòng, gợi ý sửa lỗi, gợi ý bỏ đi những đoạn text kém chất lượng ... để làm dữ liệu thật tốt cho các tác vụ nâng cao.
 
-### Module x/ Làm Syllable-based Vietnamese Full-Text Search
+### Module a/ Làm search-engine dựa trên token_ids
+
+Định đanh được tới đâu thì search được tới đó, làm xong `module 1/` thì sẽ có syllable_ids và word_ids, có n-best word_ids thì index hết n-best. Làm xong `module 5/` thì phải hỗ trợ  positional indexing thì mới search được word dựa trên sub-word tokens. Điều này cũng không ảnh hưởng tới perf  nhiều vì OOV chiếm khoảng 25% tổng tokens và chỉ cần làm positional indexing cho sub-word tokens thôi (khoảng 2.8k)
 
 *  inverted index, compressed index, searching, scoring ...
 *  chỉ index và search syllables (có gộp syllables thành words) cho nhỏ và nhanh
 *  dùng n-gram/nn để auto suggest search terms
 *  áp dụng bộ sửa lỗi chính tả lên input search terms
+
+
+### Module b/ Làm word2vec
+
+Cách tiếp cận hệt như search-engine: Định đanh được tới đâu thì search được tới đó, làm xong `module 1/` thì sẽ có syllable_ids và word_ids, có n-best word_ids thì vectorlize hết n-best.
+
+Viết lại word2vec từ C sang Zig sẽ rất thú vị và hiểu thêm về NN. Làm tiền đề cho RNNLM.
+
+Tìm hiểu https://github.com/zhezhaoa/ngram2vec để nhúng được nhiều phương án (n-best) vào trong không gian vector
+
+
+### Module c/ Làm sent2vec
+
+Để tìm câu gần giống nhau về ngữ nghĩa.

@@ -2,7 +2,7 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 ## TODO
 
-Xem `docs/_0x-xxxx.md`
+Xem `docs/_0{1,2,3}-xxxx.md`
 
 ## Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig
 
