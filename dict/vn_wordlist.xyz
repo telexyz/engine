@@ -899,7 +899,6 @@ cua|ws
 cuc|j
 cuc|s
 cuc|wj
-cuenh|z
 cui|
 cui|f
 cui|r
@@ -956,7 +955,6 @@ cuu|wj
 cuu|wr
 cuu|ws
 cuu|wx
-cuyp|s
 da|
 da|f
 da|j
@@ -1764,6 +1762,8 @@ gio|z
 gio|zf
 gio|zj
 gio|zx
+gioang|
+gioang|f
 gioang|w
 gioc|s
 gioc|zs
@@ -4386,7 +4386,6 @@ quo|w
 quo|wf
 quo|wr
 quo|ws
-quoang|
 quoc|zs
 quoi|
 quoi|ws
@@ -44845,7 +44844,6 @@ quay| phai|r
 quay| phat|ws
 quay| phim|
 quay| quat|ws
-quay| quoat|ws
 quay| rao|s
 quay| sap|zs
 quay| so|zs
@@ -44968,9 +44966,7 @@ quen|zs do|zx
 quen|zs ru|x
 queng| quec|s
 quenh|zf quang|f
-quenh|zf quoang|f
 quenh|zj quang|j
-quenh|zj quoang|j
 quenh|zs quang|s
 queo| quat|ws
 queo| rau|z
@@ -57203,7 +57199,6 @@ tu|wj phong|
 tu|wj phu|j
 tu|wj quan|r
 tu|wj quan|z
-tu|wj quuyet|zs
 tu|wj quyen|zf
 tu|wj quyet|zs
 tu|wj rut|s

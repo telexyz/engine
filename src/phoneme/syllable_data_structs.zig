@@ -31,7 +31,7 @@ pub const AmDau = enum {
     ng,
     nh, // 20th
     ph,
-    qu, // q chỉ đi với + âm đệm u, `qu` là 1 âm độc lập
+    qu, // q chỉ đi với + âm đệm u, có quan điểm `qu` là 1 âm độc lập, quốc vs cuốc
     th,
     tr, // 24th
     // Transit states: gh, ngh trước các nguyên âm e, ê, i, iê (ia).
@@ -117,20 +117,20 @@ pub const AmGiua = enum {
     ez, // ê
     oz, // ô
     ow, // ơ
-    uw, // ư 11th
+    uw, // ư // 11th
 
     oa,
     oe,
     ooo,
-    uy, // boong 15th
+    uy, // boong // 15th
 
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
     oaw, // oă
-    uaz, // uâ (ngoe nguẩy <= ngoẩy)
-    uez, // uê <= ue (tuê =< tue, tuee, tuez) tuềnh toàng
+    uaz, // uâ (ngoe nguẩy)
+    uez, // uê <= ue (tuê <= tue, tuee, tuez) tuềnh toàng
     uoz, // uô
 
-    uow, //  uwow, ươ 21th
+    uow, //  uwow, ươ // 21th
     uyez, // uyez, uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
 
     // Transit states
@@ -557,6 +557,7 @@ pub const Syllable = struct {
             .ooo => "oo",
             .iez => "yez",
             .i => "y",
+            // Xem rút gọn âm cuối docs/syllable_n_token_ids.md
             .a => if (self.am_cuoi == .y or self.am_cuoi == .o) "aw" else "a",
             .oa => if (self.am_cuoi == .y) "oaw" else "oa",
             else => @tagName(self.am_giua),
@@ -589,7 +590,8 @@ pub const Syllable = struct {
         if (giua.len > 0) {
             if (n > 1 and buff[n - 2] == 'u') { // qu => q u
                 buff[n - 2] = 32;
-                buff[n - 1] = if (giua.len == 1 and giua[0] == 'a') 'o' else 'u';
+                buff[n - 1] = if (giua.len == 1 and
+                    (giua[0] == 'a' or giua[0] == 'e')) 'o' else 'u';
             }
             for (giua) |byte| {
                 buff[n] = byte;
