@@ -38,7 +38,7 @@ o/
 
 Tổng số slots `65_536 = 2^16`
 Số slots dùng `28_750 = 25*23*50`
-Số slots dư   `36_786` thoải mái chứa OOV (dùng BPE)
+Số slots dư   `36_786`
 
 ## REFs
 
@@ -88,7 +88,7 @@ Thêm 2 nguyên âm để, bớt được còn 9 âm cuối (âm cuối + tone <
 
 Tổng số slots `65_536 = 2^16`
 Số slots dùng `26_250 = 25*25*42`
-Số slots dư   `39_286` thoải mái chứa OOV (dùng BPE)
+Số slots dư   `39_286`
 
-=> Thêm được 2500 slots, không đáng kể!
+=> Thêm được 2500 slots!
 
