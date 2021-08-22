@@ -15,19 +15,17 @@ Dùng `u32` để định danh thì sẽ chứa được gần 4.3 tỉ đầu m
 
 ## Thành tựu chính
 
-* Tối ưu hoá việc nhận dạng ký tự đặc trưng tiếng Việt (kí tự có dấu + thanh): khi mã hoá bằng utf-8, dùng tới 2-3 bytes để lưu trữ rồi phải chuyển đổi thành `u21` mới trở thành dạng mã hoá cuối cùng của một ký tự utf-8. Tìm cách không phải chuyển đổi mà dùng trực tiếp giá trị của 1 hoặc 2 byte đầu tiên để tra xét nhanh. Trình bày lại một dạng ký tự tiếng Việt bằng `u10` đã tách thanh điệu, đánh dấu viết hoa vs viết thường để tối ưu việc phân tích âm vị (xem `src/telex_utils.zig`). Xử lý cả mã unicode tổ hợp lẫn cách viết telex ...
+* Dùng âm vị học để phân tích và định danh nhanh mọi âm tiết TV viết thường thành 16-bits mà không cần dùng dữ liệu đối chiếu (lookup-table, trie, ...) để chuyển từ dạng text thành định danh cũng như từ định danh 16-bits khôi phục lại dạng text của âm tiết. (xem `src/syllable_data_struct.zig`). 
 
-* Dùng âm vị học để phân tích và định danh nhanh mọi âm tiết TV viết thường thành 16-bits mà không cần dùng dữ liệu đối chiếu (lookup-table, trie, ...) để chuyển từ dạng text thành định danh cũng như từ định danh 16-bits khôi phục lại dạng text của âm tiết. (xem `src/syllable_data_struct.zig`)
-
-* Dùng 16-bits đủ để định danh nhanh âm tiết. Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi vào khoảng 12k. http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html chỉ ra rằng có khoảng 18k âm tiết như vậy, chứng tỏ có khoảng 6k (33%) âm tiết có thể đúng về mặt ghép âm nhưng không được hoặc rất ít khi được sử dụng. Với khoảng 18k âm tiết viết thường phải dùng 15-bits để định danh. Cách định danh nhanh dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư `36_786 slots` để làm việc khác như lưu từ điển TV và chứa OOV ... (Từ điển khoảng 34k => còn 2.8k cho OOV. Xem `docs/16-bits_syllable_encoding.md`).
+Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi vào khoảng 12k. http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html chỉ ra rằng có khoảng 18k âm tiết như vậy, chứng tỏ có khoảng 6k (33%) âm tiết có thể đúng về mặt ghép âm nhưng không được hoặc rất ít khi được sử dụng. Với khoảng 18k âm tiết viết thường phải dùng 15-bits để định danh. Cách định danh nhanh dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư `36_786 slots` để làm việc khác như lưu từ điển TV và chứa OOV ... (Từ điển khoảng 34k => còn 2.8k cho OOV. Xem `docs/16-bits_syllable_encoding.md`).
 
 * Thống kê và liệt kê token types theo freqs và length, phân chia thành token trong bảng chữ cái có dấu + thanh `alphamark`, token trong bảng chữ cái không dấu thanh `alpha0m0t`, token không thuộc bảng chữ cái `nonalpha`, nhờ đó phát hiện nhanh token bất thường, token lỗi ... (xem https://github.com/telexyz/results#readme)
 
 * Thử nghiệm với gần 1Gb text trộn từ Facebook comments, news titles, viet opensub, wikipedia, sách, truyện .. Trong vòng 45 giây phân tách được: 
 ```r
- 73% tokens âm tiết tiếng Việt  148_280_481 (của và có không là được cho các)
-  6% tokens thuộc bảng chữ cái   11_953_258 (đ đc NĐ ĐH TP USD inbox shop)
- 21% tokens ngoài bảng chữ cái   43_576_527 (. , - : ? ; '' "" 1 ! 2 / ... 2020 🤣 19000019)
+ 73% tokens âm tiết tiếng Việt  148_280_481 "của và có không là được cho các"
+  6% tokens thuộc bảng chữ cái   11_953_258 "đ đc NĐ ĐH TP USD inbox shop"
+ 21% tokens ngoài bảng chữ cái   43_576_527 ". , - : ? ; '' "" 1 ! 2 / ... 2020 🤣 19000019"
 - - - - - - - - - - - - - - - - - - - - - -
 100% tổng tokens                203_810_266
 ```
@@ -92,7 +90,9 @@ CHANGELOG
 
 *  08/08/2021: Nén input vào bộ tự điển `alphabet_types` và `nonalpha_types` vừa giữ được đầu vào nguyên bản của `token` vừa đếm `types`. Dùng `trans_offset + alphabet_bytes/nonalpha_bypes` để tính ra `trans_ptr`. `trans` viết tắt của `transit` (dịch chuyển) hoặc `transform` (biến đổi), hoặc `translate` (dịch (ngôn ngữ))
 
-* Sử dụng thuật toán heuristic dự đoán ký tự utf-8 nào thuộc bảng chữ cái tiếng Việt để segment văn bản thật nhanh thành `alphamark`, `alph0m0t`, `nonalpha`
+* Tối ưu hoá việc nhận dạng ký tự đặc trưng tiếng Việt (kí tự có dấu + thanh): khi mã hoá bằng utf-8, dùng tới 2-3 bytes để lưu trữ rồi phải chuyển đổi thành `u21` mới trở thành dạng mã hoá cuối cùng của một ký tự utf-8. Tìm cách không phải chuyển đổi mà dùng trực tiếp giá trị của 1 hoặc 2 byte đầu tiên để tra xét nhanh. Trình bày lại một dạng ký tự tiếng Việt bằng `u10` đã tách thanh điệu, đánh dấu viết hoa vs viết thường để tối ưu việc phân tích âm vị (xem `src/telex_utils.zig`). Xử lý cả mã unicode tổ hợp lẫn cách viết telex ...
+
+* Dự đoán ký tự utf-8 nào thuộc bảng chữ cái tiếng Việt để segment văn bản thật nhanh thành `alphamark`, `alph0m0t`, `nonalpha`
 
 * Parse `alphamark` và `alph0m0t` có độ dài <= 10 bytes để tìm ra các `syllables` tiếng Việt
 

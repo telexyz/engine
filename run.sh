@@ -7,19 +7,19 @@
 # ~/zig build -Drelease-safe=true && cp ./zig-out/bin/telexify ~/bin
 ~/zig build -Drelease-fast=true && cp ./zig-out/bin/telexify ~/bin
 
-# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts ngram
-# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare ngram
-# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense ngram
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
+# ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense
 
 ./zig-out/bin/telexify ../data/combined.txt ../data/combined.xyz dense
 # ./zig-out/bin/telexify ../data/news_titles.txt ../data/news_titles.xyz dense
-# ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense ngram
-# ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense ngram
-# ./zig-out/bin/telexify ../data/vi_wiki_all.txt ../data/vi_wiki_all.spare.xyz spare ngram
-# ./zig-out/bin/telexify ../data/opensub.vi ../data/opensub.xyz dense ngram
+# ./zig-out/bin/telexify ../data/fb_comments.txt ../data/fb_comments.dense.xyz dense
+# ./zig-out/bin/telexify ../data/vietai_sat.txt ../data/vietai_sat.dense.xyz dense
+# ./zig-out/bin/telexify ../data/vi_wiki_all.txt ../data/vi_wiki_all.spare.xyz spare
+# ./zig-out/bin/telexify ../data/opensub.vi ../data/opensub.xyz dense
 
 # - - - - - - - - - - - - - - 
 # Windows cross-platform build

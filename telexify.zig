@@ -1,11 +1,11 @@
 const std = @import("std");
 const print = std.debug.print;
 
-const Text = @import("./src/text_data_struct.zig").Text;
-const TextokOutput = @import("./src/textok_output_helpers.zig").TextokOutputHelpers;
-const Tokenizer = @import("./src/tokenizer.zig").Tokenizer;
-const text_utils = @import("./src/text_utils.zig");
-const NGram = @import("./src/n_gram.zig").NGram;
+const Text = @import("./libs/textoken/text_data_struct.zig").Text;
+const TextokenOutput = @import("./libs/textoken/output_helpers.zig");
+const Tokenizer = @import("./libs/textoken/tokenizer.zig").Tokenizer;
+const text_utils = @import("./libs/textoken/text_utils.zig");
+const NGram = @import("./libs/ngrams/n_gram.zig").NGram;
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
@@ -53,7 +53,7 @@ fn initConfigsFromArgs() void {
 }
 
 fn write_out_types() !void {
-    try TextokOutput.write_mktn_vs_0m0t_types_to_files(
+    try TextokenOutput.write_mktn_vs_0m0t_types_to_files(
         text.syllable_types,
         false, // don't skip syllable
         "data/01-syllmark_freqs.txt",
@@ -62,13 +62,13 @@ fn write_out_types() !void {
         "data/12-syll0m0t_types.txt",
     );
 
-    try TextokOutput.write_types_to_files(
+    try TextokenOutput.write_types_to_files(
         text.syllow00_types,
         "data/03-syllow00_freqs.txt",
         "data/13-syllow00_types.txt",
     );
 
-    try TextokOutput.write_mktn_vs_0m0t_types_to_files(
+    try TextokenOutput.write_mktn_vs_0m0t_types_to_files(
         text.alphabet_types,
         true, // skip syllable
         "data/04-alphmark_freqs.txt",
@@ -77,25 +77,25 @@ fn write_out_types() !void {
         "data/15-alph0m0t_types.txt",
     );
 
-    try TextokOutput.write_types_to_files(
+    try TextokenOutput.write_types_to_files(
         text.nonalpha_types,
         "data/06-nonalpha_freqs.txt",
         "data/16-nonalpha_types.txt",
     );
 
-    try TextokOutput.write_types_to_files(
+    try TextokenOutput.write_types_to_files(
         text.syllable_types,
         "data/07-syllable_freqs.txt",
         "data/17-syllable_types.txt",
     );
 
-    try TextokOutput.write_types_to_files(
+    try TextokenOutput.write_types_to_files(
         text.syllower_types,
         "data/08-syllower_freqs.txt",
         "data/18-syllower_types.txt",
     );
 
-    try TextokOutput.write_types_to_files(
+    try TextokenOutput.write_types_to_files(
         text.syllovan_types,
         "data/09-syllovan_freqs.txt",
         "data/19-syllovan_types.txt",
@@ -118,7 +118,7 @@ fn write_results(step2_time: i64) !void {
     _ = showMeTimeLap(step2_time, "Writing types to files done!");
 
     print("\nWriting tokenized results to {s} ...\n", .{output_filename});
-    try TextokOutput.write_transforms_to_file(
+    try TextokenOutput.write_transforms_to_file(
         &text,
         output_filename,
         "data/31-no_vietnamese.txt",

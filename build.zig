@@ -16,16 +16,9 @@ pub fn build(b: *std.build.Builder) void {
     exe.setBuildMode(mode);
     exe.install();
 
-    // exe.addSystemIncludeDir("/usr/local/include");
-    // exe.addSystemLibPath("/usr/local/lib");
-    // exe.linkSystemLibrary("libmarisa");
+    var all_tests = b.addTest("test.zig");
+    all_tests.setBuildMode(mode);
 
-    const run_cmd = exe.run();
-    run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
-
-    const run_step = b.step("run", "Run the app");
-    run_step.dependOn(&run_cmd.step);
+    const test_step = b.step("test", "Run all tests");
+    test_step.dependOn(&all_tests.step);
 }
