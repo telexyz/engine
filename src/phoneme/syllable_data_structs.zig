@@ -324,6 +324,9 @@ pub const Syllable = struct {
 
     // Chỉ cần 15-bits là đủ để định danh âm tiết viết thường
     // và còn dư 6516 slots để lưu OOV dùng BPE
+    // Nếu cần nhiều hơn thì chạy toàn bộ syllable_id từ 0 -> 26_249
+    // Rồi kiểm tra xem âm tiết này có thoả mãn luật kết hợp âm hay ko
+    // => 6094 invalid slots to use
     pub const UniqueId = u15;
     pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250 < 2^15 (32_768)
     pub const NONE_ID: UniqueId = 32_767; //- 26_251 = 6_516 slots cho OOV dùng BPE

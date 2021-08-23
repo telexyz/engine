@@ -314,6 +314,12 @@ pub fn parseTokenToGetSyllable(
     return syllable;
 }
 
+pub fn validateSyllable(syll: Syllable) bool {
+    return validateAmDau(printNothing, syll.am_dau, syll.am_giua) and
+        validateBanAmCuoiVan(printNothing, syll.am_dau, syll.am_giua, syll.am_cuoi) and
+        validateNguyenAm(printNothing, syll.am_dau, syll.am_giua, syll.am_cuoi);
+}
+
 fn validateAmDau(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua) bool {
     if (am_dau == .gi) {
         // TODO: Tìm thấy từ Gioóc (có thể là tên riêng) trong corpus
