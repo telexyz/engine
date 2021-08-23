@@ -27,13 +27,13 @@ Dưới góc nhìn quản trị dữ liệu còn rất nhiều việc thú vị 
 
 Nếu coi corpus là một file text lớn, mỗi câu được chứa trên một dòng, mỗi dòng khoảng 12.5 tokens, thì 10 triệu dòng chiếm khoảng 600MB. Mỗi file text lớn có file index (.idx) riêng đi kèm, tương tự như có file thông tin trích xuất như định danh / mã hoá (.cdx) riêng đi kèm.
 
-Dùng `u32` để định danh thì sẽ chứa được gần 4.3 tỉ đầu mục, tương đương với 1 file text copus 2.1Tb. Dư lớn vì dữ liệu https://pile.eleuther.ai, dữ liệu mở tiếng Anh lớn nhất để huấn luyện mô hình ngôn ngữ siêu khủng mới chỉ ở mức 0.8Tb (800GB).
+Dùng `u32` để định danh thì sẽ chứa được gần 4.3 tỉ đầu mục, tương đương với 1 file text copus 2.1Tb. Dữ liệu https://pile.eleuther.ai cho mô hình ngôn ngữ siêu khủng mới chỉ ở mức 0.8Tb (800GB).
 
 ## Thành tựu chính
 
-* Dùng âm vị học để phân tích và định danh nhanh mọi âm tiết TV viết thường thành 16-bits mà không cần dùng dữ liệu đối chiếu (lookup-table, trie, ...) để chuyển từ dạng text thành định danh cũng như từ định danh 16-bits khôi phục lại dạng text của âm tiết. (xem `src/syllable_data_struct.zig`). 
+* Dùng âm vị học để phân tích và định danh nhanh mọi âm tiết TV viết thường thành `15-bits` mà không cần dùng dữ liệu đối chiếu (lookup-table, trie, ...) để chuyển từ dạng text thành định danh cũng như từ định danh 16-bits khôi phục lại dạng text của âm tiết. (xem `src/syllable_data_struct.zig`). 
 
-Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi vào khoảng 12k. http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html chỉ ra rằng có khoảng 18k âm tiết như vậy, chứng tỏ có khoảng 6k (33%) âm tiết có thể đúng về mặt ghép âm nhưng không được hoặc rất ít khi được sử dụng. Với khoảng 18k âm tiết viết thường phải dùng 15-bits để định danh. Cách định danh nhanh dùng 16-bits nhưng chỉ dùng 28_750 slots, còn dư `39_286 slots` để làm việc khác như lưu từ điển TV và chứa OOV ... (Từ điển khoảng `33_668` => còn `5618` cho OOV. Xem `docs/syllable_n_token_ids.md`).
+Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi vào khoảng 12k. [HieuThi](http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html) chỉ ra TV có khoảng 18k âm tiết, chứng tỏ khoảng 6k (33%) âm tiết có thể đúng về mặt ghép âm nhưng không được hoặc rất ít khi được sử dụng. 18k âm tiết thì phải dùng `15-bits` để định danh, không thể ít hơn. Nếu dùng `16-bits` (vừa 2-bytes) để định danh tokens thì còn dư `39_286 slots` để lưu từ điển TV `33_668` và chứa OOV `5_618` (Xem `docs/syllable_n_token_ids.md`).
 
 * Thống kê và liệt kê token types theo freqs và length, phân chia thành token trong bảng chữ cái có dấu + thanh `alphamark`, token trong bảng chữ cái không dấu thanh `alpha0m0t`, token không thuộc bảng chữ cái `nonalpha`, nhờ đó phát hiện nhanh token bất thường, token lỗi ... (xem https://github.com/telexyz/results#readme)
 
