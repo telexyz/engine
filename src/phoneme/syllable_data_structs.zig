@@ -322,10 +322,10 @@ pub const Syllable = struct {
     can_be_vietnamese: bool,
     normalized: bool = false,
 
-    pub const UniqueId = u16;
-
-    pub const NONE_ID: UniqueId = 0xffff;
-    pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250
+    // Định danh âm tiết chỉ cần 15-bits ghi tròn thành 16
+    pub const UniqueId = u15;
+    pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250 < 2^15 (32_768)
+    pub const NONE_ID: UniqueId = 32_767; //- 26_251 = 6_516 slots cho OOV dùng BPE
 
     pub inline fn hasMark(self: Syllable) bool {
         return self.am_dau == .zd or self.am_giua.hasMark();
