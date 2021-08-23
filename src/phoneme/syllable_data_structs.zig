@@ -325,6 +325,7 @@ pub const Syllable = struct {
     pub const UniqueId = u16;
 
     pub const NONE_ID: UniqueId = 0xffff;
+    pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250
 
     pub inline fn hasMark(self: Syllable) bool {
         return self.am_dau == .zd or self.am_giua.hasMark();
@@ -408,14 +409,15 @@ pub const Syllable = struct {
             else => {},
         }
 
+        // am_dau 25, am_giua 25, am_cuoi+tone 42
         const id =
-            (@intCast(UniqueId, @enumToInt(self.am_dau)) << 11) | // u16 <= u5 + u11
-            (@intCast(UniqueId, @enumToInt(am_giua)) << 6); //        u5 + u6 => u11
+            (@intCast(UniqueId, @enumToInt(self.am_dau)) * 1050) + // 1050 = 42 * 25
+            (@intCast(UniqueId, @enumToInt(am_giua)) * 42); //
 
         const am_cuoi_id = @intCast(UniqueId, @enumToInt(am_cuoi));
         const tone = @intCast(UniqueId, @enumToInt(self.tone));
 
-        const act = if (am_cuoi_id < 6)
+        const act = if (am_cuoi_id < 6) // act: am_cuoi + tone
             am_cuoi_id * 6 + tone
         else // am_cuoi `c, ch, p, t` only 2 tone s, j allowed
             36 + (am_cuoi_id - 6) * 2 + (tone - 4);
@@ -424,15 +426,17 @@ pub const Syllable = struct {
     }
 
     pub fn newFromId(id: UniqueId) Syllable {
-        var x = id >> 6; // get rid first 6-bits of am_cuoi + tone
+        std.debug.assert(id < Syllable.MAXX_ID);
+        // am_dau 25, am_giua 25, am_cuoi+tone 42
+        var x = id / 42; // get rid of am_cuoi+tone
         var syllable = Syllable{
-            .am_dau = @intToEnum(AmDau, @truncate(u5, x >> 5)),
-            .am_giua = @intToEnum(AmGiua, @truncate(u5, x)),
+            .am_dau = @intToEnum(AmDau, @truncate(u5, x / 25)),
+            .am_giua = @intToEnum(AmGiua, @truncate(u5, @rem(x, 25))),
             .can_be_vietnamese = true,
             .am_cuoi = ._none,
             .tone = ._none,
         };
-        x = @truncate(u6, id); // am_cuoi + tone is last 6-bits value
+        x = @rem(id, 42); // am_cuoi+tone
         if (x < 36) {
             syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 6));
             syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 6)));
