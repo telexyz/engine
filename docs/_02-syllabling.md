@@ -10,11 +10,15 @@
 
 * Viết beam-search decoder cho kiến trúc nói trên
 
-* Dùng từ điển để so khớp khởi tạo flag_{1,2,3,4} (1-byte) (xem `.docs/dict_matching.md`) để tạo ứng cử viên cho các tác vụ nâng cao khác như indexing của full-text-search, tách từ / gán nhãn từ ... Để tối ưu hoá nên dừng lại mẫu so khớp 4-grams vì vừa 64-bits. Trường hợp cần khớp nhiều hơn thì chia ra làm đôi dùng cặp 4-grams và hashing về 64-bits.
-
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-* Từ `dict/vn25k.xyz.cdx` hoặc `dict/vn34k.xyz.cdx`
+* Từ `data/{21,..28}-n_grams.txt` tìm cách load và hashing về `u64` xem có bị va chạm không?
+
+* Từ `dict/25k.xyz.cdx` hoặc `dict/34k.xyz.cdx` chuyển thành 4-grams (chỉ giữ lại từ <= 4 âm tiết) và mapping vào TokenId u16 dựa trên alphabet hoặc tần suất sử dụng (match với thống kê n-grams). Khởi tạo từ điển là một mapping 2 chiều từ `u16 <=> u64`
+
+* Dùng từ điển `u16 <=> u64` để sinh ra n-best khả năng nhóm syll2word
+
+* Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
 
 [ >>> DONE <<< ]
 
