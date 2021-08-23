@@ -30,7 +30,7 @@ o/
 
 => Need 50 slots to store `am_cuoi + tone` combinations
 
-## Final results
+## Results
 
     // 25 đầu           5-bits
     // 23 giữa          5-bits
@@ -93,6 +93,8 @@ ch?
      a  ch =>  ah c
     oa  ch => oah c
 
+## Final results
+
 Thêm 2 nguyên âm để, bỏ được `ch, nh` bớt được còn 9 âm cuối (âm cuối+tone = 42 = 9*6-3*4)
 
     // 25 đầu           5-bits
@@ -102,6 +104,4 @@ Thêm 2 nguyên âm để, bỏ được `ch, nh` bớt được còn 9 âm cu�
 Tổng số slots `65_536 = 2^16`
 Số slots dùng `26_250 = 25*25*42`
 Số slots dư   `39_286`
-
-=> Thêm được 2500 slots!
 

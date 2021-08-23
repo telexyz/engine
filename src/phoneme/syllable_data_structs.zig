@@ -133,6 +133,9 @@ pub const AmGiua = enum {
     uow, //  uwow, ươ // 21th
     uyez, // uyez, uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
 
+    ah, // giúp rút gọn âm cuối
+    oah, // giúp rút gọn âm cuối // 24th
+
     // Transit states
     ua, // => uoz
     ia, // => iez
@@ -224,19 +227,19 @@ pub const AmCuoi = enum {
     i,
     u,
     m,
-    n, // 4
+    n,
     ng,
-    nh,
-    ch, // 7
-    c,
+    c, // 6
     p,
-    t, // 10
+    t, // 8
+    ch,
+    nh,
     y,
     o,
     pub fn len(self: AmCuoi) u8 {
         return switch (@enumToInt(self)) {
             0 => 0,
-            5...7 => 2,
+            5, 9, 10 => 2,
             else => 1,
         };
     }
@@ -364,22 +367,45 @@ pub const Syllable = struct {
         std.debug.assert(self.normalized);
         var am_giua = self.am_giua;
         var am_cuoi = self.am_cuoi;
-        //  a  y =>  aw i
-        //  az y =>  az i
-        // oa  y => oaw i
-        // uaz y => uaz i
-        if (am_cuoi == .y) {
-            am_cuoi = .i;
-            if (am_giua == .a) am_giua = .aw;
-            if (am_giua == .oa) am_giua = .oaw;
-        }
-        //  a o => aw u
-        //  e o =>  e u
-        // oa o => oa u
-        // oe o => oe u
-        if (am_cuoi == .o) {
-            am_cuoi = .u;
-            if (am_giua == .a) am_giua = .aw;
+
+        switch (am_cuoi) {
+            //  a  y =>  aw i
+            //  az y =>  az i
+            // oa  y => oaw i
+            // uaz y => uaz i
+            .y => {
+                am_cuoi = .i;
+                if (am_giua == .a) am_giua = .aw else if (am_giua == .oa) am_giua = .oaw;
+            },
+            //  a o => aw u
+            //  e o =>  e u
+            // oa o => oa u
+            // oe o => oe u
+            .o => {
+                am_cuoi = .u;
+                if (am_giua == .a) am_giua = .aw;
+            },
+            //  ez nh =>  ez ng
+            //  i  nh =>  i  ng
+            // uez nh => uez ng
+            // uy  nh => uy  ng
+            //  a  nh =>  ah ng
+            // oa  nh => oah ng
+            .nh => {
+                am_cuoi = .ng;
+                if (am_giua == .a) am_giua = .ah else if (am_giua == .oa) am_giua = .oah;
+            },
+            //  ez ch =>  ez c
+            //  i  ch =>  i  c
+            // uez ch => uez c
+            // uy  ch => uy  c
+            //  a  ch =>  ah c
+            // oa  ch => oah c
+            .ch => {
+                am_cuoi = .c;
+                if (am_giua == .a) am_giua = .ah else if (am_giua == .oa) am_giua = .oah;
+            },
+            else => {},
         }
 
         const id =
@@ -389,11 +415,11 @@ pub const Syllable = struct {
         const am_cuoi_id = @intCast(UniqueId, @enumToInt(am_cuoi));
         const tone = @intCast(UniqueId, @enumToInt(self.tone));
 
-        const act = if (am_cuoi_id < 7)
+        const act = if (am_cuoi_id < 6)
             am_cuoi_id * 6 + tone
         else // am_cuoi `c, ch, p, t` only 2 tone s, j allowed
-            42 + (am_cuoi_id - 7) * 2 + (tone - 4);
-
+            36 + (am_cuoi_id - 6) * 2 + (tone - 4);
+        //
         return id + act;
     }
 
@@ -407,12 +433,12 @@ pub const Syllable = struct {
             .tone = ._none,
         };
         x = @truncate(u6, id); // am_cuoi + tone is last 6-bits value
-        if (x < 42) {
+        if (x < 36) {
             syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 6));
             syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 6)));
         } else { // unpacking
-            x -= 42;
-            syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 2 + 7));
+            x -= 36;
+            syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 2 + 6));
             syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 2) + 4));
         }
 
@@ -424,13 +450,18 @@ pub const Syllable = struct {
             .aw => {
                 syllable.am_cuoi = .y;
                 syllable.am_giua = .a;
+                return syllable;
             },
             .oaw => {
                 syllable.am_cuoi = .y;
                 syllable.am_giua = .oa;
+                return syllable;
             },
-            .az, .uaz => syllable.am_cuoi = .y,
-            else => {},
+            .az, .uaz => {
+                syllable.am_cuoi = .y;
+                return syllable;
+            },
+            else => return syllable,
         };
         //  a o <= aw u
         //  e o <=  e u
@@ -440,11 +471,65 @@ pub const Syllable = struct {
             .aw => {
                 syllable.am_cuoi = .o;
                 syllable.am_giua = .a;
+                return syllable;
             },
-            .e, .oa, .oe => syllable.am_cuoi = .o,
-            else => {},
+            .e, .oa, .oe => {
+                syllable.am_cuoi = .o;
+                return syllable;
+            },
+            else => return syllable,
         };
-
+        //  ez nh <=  ez ng
+        //  i  nh <=  i  ng
+        // uez nh <= uez ng
+        // uy  nh <= uy  ng
+        //  a  nh <=  ah ng
+        // oa  nh <= oah ng
+        if (syllable.am_cuoi == .ng) switch (syllable.am_giua) {
+            .y => if (syllable.am_dau == .qu) {
+                syllable.am_cuoi = .nh;
+                return syllable;
+            },
+            .ez, .i, .uez, .uy => {
+                syllable.am_cuoi = .nh;
+                return syllable;
+            },
+            .ah => {
+                syllable.am_giua = .a;
+                syllable.am_cuoi = .nh;
+                return syllable;
+            },
+            .oah => {
+                syllable.am_giua = .oa;
+                syllable.am_cuoi = .nh;
+                return syllable;
+            },
+            else => return syllable,
+        };
+        //  ez ch <=  ez c
+        //  i  ch <=  i  c
+        // uez ch <= uez c
+        // uy  ch <= uy  c
+        //  a  ch <=  ah c
+        // oa  ch <= oah c
+        if (syllable.am_cuoi == .c) switch (syllable.am_giua) {
+            .ez, .i, .uez, .uy => {
+                syllable.am_cuoi = .ch;
+                return syllable;
+            },
+            .ah => {
+                syllable.am_giua = .a;
+                syllable.am_cuoi = .ch;
+                return syllable;
+            },
+            .oah => {
+                syllable.am_giua = .oa;
+                syllable.am_cuoi = .ch;
+                return syllable;
+            },
+            else => return syllable,
+        };
+        //
         return syllable;
     }
 
