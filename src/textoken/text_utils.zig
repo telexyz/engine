@@ -6,7 +6,7 @@ const telex_char_stream = @import("../phoneme/telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 const Text = @import("text_data_struct.zig").Text;
-const Base64Encoder = std.base64.standard.Encoder;
+const Base64Encoder = std.base64.standard_no_pad.Encoder; // standard vs standard_no_pad
 
 pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     var ptr = tk_info.trans_ptr(text);
