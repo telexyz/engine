@@ -366,6 +366,7 @@ pub const Syllable = struct {
 
     pub fn toId(self: *Syllable) UniqueId {
         std.debug.assert(self.normalized);
+
         var am_giua = self.am_giua;
         var am_cuoi = self.am_cuoi;
 
@@ -409,20 +410,25 @@ pub const Syllable = struct {
             else => {},
         }
 
-        // am_dau 25, am_giua 25, am_cuoi+tone 42
-        const id =
-            (@intCast(UniqueId, @enumToInt(self.am_dau)) * 1050) + // 1050 = 42 * 25
-            (@intCast(UniqueId, @enumToInt(am_giua)) * 42); //
-
+        // Calculate am_cuoi + tone id
         const am_cuoi_id = @intCast(UniqueId, @enumToInt(am_cuoi));
         const tone = @intCast(UniqueId, @enumToInt(self.tone));
-
-        const act = if (am_cuoi_id < 6) // act: am_cuoi + tone
+        // act: am_cuoi + tone
+        const act = if (am_cuoi_id < 6)
             am_cuoi_id * 6 + tone
         else // am_cuoi `c, ch, p, t` only 2 tone s, j allowed
             36 + (am_cuoi_id - 6) * 2 + (tone - 4);
-        //
-        return id + act;
+        // Validate act
+        std.debug.assert(act < 42);
+
+        const am_dau_id = @enumToInt(self.am_dau);
+        const am_giua_id = @enumToInt(am_giua);
+        // Validate am_dau and am_giua
+        std.debug.assert(@enumToInt(self.am_dau) < 25);
+        std.debug.assert(@enumToInt(am_giua) < 25);
+        // am_dau 25, am_giua 25, am_cuoi+tone 42
+        return (@intCast(UniqueId, am_dau_id) * 1050) + // 1050 = 42 * 25
+            (@intCast(UniqueId, am_giua_id) * 42) + act;
     }
 
     pub fn newFromId(id: UniqueId) Syllable {
