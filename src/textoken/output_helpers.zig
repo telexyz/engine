@@ -150,15 +150,20 @@ pub fn write_types_to_files(
     // Add items to tokens
     var i: usize = 0;
     var it = types.iterator();
+    var mono_len_count: usize = 0;
+    var count: u32 = undefined;
+
     while (it.next()) |kv| {
+        count = comptime switch (@TypeOf(types)) {
+            std.StringHashMap(Text.TypeInfo) => kv.value_ptr.count,
+            std.StringHashMap(u32) => kv.value_ptr.*,
+            else => unreachable,
+        };
         tokens[i] = .{
             .value = kv.key_ptr.*,
-            .count = comptime switch (@TypeOf(types)) {
-                std.StringHashMap(Text.TypeInfo) => kv.value_ptr.count,
-                std.StringHashMap(u32) => kv.value_ptr.*,
-                else => unreachable,
-            },
+            .count = count,
         };
+        if (kv.key_ptr.len == 1) mono_len_count += count;
         i += 1;
     }
     tokens = tokens_[0..i];
@@ -185,27 +190,10 @@ pub fn write_types_to_files(
         try types_writer.print("{s}{s}", .{ token.value, pad });
     }
 
+    std.debug.print("\n>>> {s} mono_len: {d} <<<\n", .{ freqs_filename, mono_len_count });
+
     try freqs_wrt.flush();
     try types_wrt.flush();
-}
-
-pub fn write_text_tokens_to_file(text: *Text, filename: []const u8, max: usize) !void {
-    var n = text.tokens_num;
-    if (max > 0 and n > max) n = max;
-
-    var file = try std.fs.cwd().createFile(filename, .{});
-    defer file.close();
-
-    var wrt = std.io.bufferedWriter(file.writer());
-    const writer = wrt.writer();
-
-    var i: usize = 0;
-    while (i < n) : (i += 1) {
-        const token_info = text.tokens_infos.get(i);
-        _ = try writer.write(token_info.trans_slice(text));
-        if (token_info.attrs.spaceAfter()) _ = try writer.write(" ");
-    }
-    try wrt.flush();
 }
 
 pub fn write_transforms_to_file(

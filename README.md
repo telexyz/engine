@@ -39,9 +39,10 @@ Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi 
 
 * Thử nghiệm với gần 1Gb text trộn từ Facebook comments, news titles, viet opensub, wikipedia, sách, truyện .. Trong vòng 45 giây phân tách được: 
 ```r
- 73% tokens âm tiết tiếng Việt  148_280_481 "của và có không là được cho các"
-  6% tokens thuộc bảng chữ cái   11_953_258 "đ đc NĐ ĐH TP USD inbox shop"
- 21% tokens ngoài bảng chữ cái   43_576_527 ". , - : ? ; '' "" 1 ! 2 / ... 2020 🤣 19000019"
+ 73% tokens âm tiết tiếng Việt  148_280_481  "của và có không là được cho các"
+  6% tokens thuộc bảng chữ cái   11_953_258  "đ đc NĐ ĐH TP USD inbox shop"
+ 21% tokens ngoài bảng chữ cái   43_576_527  ". , - : ? ; '' " 1 ! 2 / ... 2020 🤣 19000019"
+(18% ngoài bảng chữ cái 1 ký tự  37_108_988) ". , - : ? ; ' 1 2 /"
 - - - - - - - - - - - - - - - - - - - - - -
 100% tổng tokens                203_810_266
 ```
