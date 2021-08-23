@@ -630,9 +630,9 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
     };
 
     if (am_cuoi == .ng) switch (am_giua) {
-        .y, .i => {
+        .y, .i, .ez => {
             if (am_dau == .gi) return true; // skip giêng
-            print("!!! VIOLATE: 'i, y' không đi với `ng`\n", .{});
+            print("!!! VIOLATE: ' y, i, ê' không đi với `ng`\n", .{});
             return false;
         },
         else => return true,
@@ -647,9 +647,9 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
     };
 
     if (am_cuoi == .c) switch (am_giua) {
-        .i, .ez => {
+        .y, .i, .ez => {
             if (am_dau == .gi) return true; // skip giêc
-            print("!!! VIOLATE: 'i, ê' không đi với `c`\n", .{});
+            print("!!! VIOLATE: 'y, i, ê' không đi với `c`\n", .{});
             return false;
         },
         else => return true,
@@ -1051,7 +1051,7 @@ test "khả năng kết hợp âm cuối hiếm y, o, nh, ch" {
 
     try expect(canBeVietnameseStrict("áng"));
     try expect(!canBeVietnameseStrict("íng"));
-    try expect(canBeVietnameseStrict("ếng"));
+    try expect(!canBeVietnameseStrict("ếng"));
     try expect(canBeVietnameseStrict("oáng"));
     try expect(!canBeVietnameseStrict("uỵng"));
     try expect(!canBeVietnameseStrict("uệng"));
@@ -1234,7 +1234,7 @@ test "Support obvious rules nguyên âm đơn" {
     try expect(canBeVietnameseStrict("ệp"));
     try expect(canBeVietnameseStrict("ết"));
     //
-    try expect(canBeVietnameseStrict("êng"));
+    try expect(!canBeVietnameseStrict("êng"));
     try expect(canBeVietnameseStrict("ênh"));
     try expect(canBeVietnameseStrict("ếch"));
     try expect(!canBeVietnameseStrict("ệc"));

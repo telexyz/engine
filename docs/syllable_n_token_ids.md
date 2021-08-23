@@ -50,8 +50,8 @@ Số slots dư   `36_786`
 
 - - -
 
-                            HOÀNG OANH HOẰNG
-    ng,     ang  ăng        oang  oăng                iêng
+                      OANH HOÀNG HOẰNG
+    ng,     ang             oang  oăng                iêng
     nh, -?  anh  ênh  inh   oanh         uênh  uynh
 
     c,      ac              oác   oặc                 iêc
@@ -59,28 +59,41 @@ Số slots dư   `36_786`
 
 
 nh?
+     ez nh =>  ez ng
+     i  nh =>  i  ng
+    uez nh => uez ng
+    uy  nh => uy  ng
+
+     anh? !=> aw ng
+    oanh? !=> oă ng
+
+ch?
+     ez ch =>  ez c
+     i  ch =>  i  c
+    uez ch => uez c
+    uy  ch => uy  c
+
+     ach? !=> aw c
+    oách? !=> oắ c
+
+
+`nh? ch?` có thể giải quyết được bằng cách giới thiệu 2 nguyên hỗ trợ `ah, oah`
 
      ez nh =>  ez ng
      i  nh =>  i  ng
     uez nh => uez ng
     uy  nh => uy  ng
-     anh? !=> aw ng
-    oanh? !=> oă ng
+     a  nh =>  ah ng
+    oa  nh => oah ng
 
-ch?
+     ez ch =>  ez c
+     i  ch =>  i  c
+    uez ch => uez c
+    uy  ch => uy  c
+     a  ch =>  ah c
+    oa  ch => oah c
 
-    ez ch => ez c
-     ach? !=> aw c
-    oách? !=> oắ c
-
-`nh? ch?` có thể giải quyết được bằng cách giới thiệu 2 nguyên hỗ trợ `ah, oah`
-
-     anh =>  ah ng
-    oanh => oah ng
-     ach =>  ah c
-    oách => oah c
-
-Thêm 2 nguyên âm để, bớt được còn 9 âm cuối (âm cuối + tone <= `42 = 9*6 - 3*4`)
+Thêm 2 nguyên âm để, bỏ được `ch, nh` bớt được còn 9 âm cuối (âm cuối+tone = 42 = 9*6-3*4)
 
     // 25 đầu           5-bits
     // 25 giữa          5-bits
