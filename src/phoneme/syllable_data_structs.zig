@@ -322,7 +322,8 @@ pub const Syllable = struct {
     can_be_vietnamese: bool,
     normalized: bool = false,
 
-    // Định danh âm tiết chỉ cần 15-bits ghi tròn thành 16
+    // Chỉ cần 15-bits là đủ để định danh âm tiết viết thường
+    // và còn dư 6516 slots để lưu OOV dùng BPE
     pub const UniqueId = u15;
     pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250 < 2^15 (32_768)
     pub const NONE_ID: UniqueId = 32_767; //- 26_251 = 6_516 slots cho OOV dùng BPE
