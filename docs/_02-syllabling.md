@@ -1,6 +1,27 @@
 # Vietnamese Syllable-based NLP & IR Tasks
 /// Syllable(-ing): pronounce (a word or phrase) clearly, syllable by syllable.
 
+
+## TODOs
+
+* Huấn luyện mô hình ngôn ngữ lightweight RNN cho âm tiết tiếng Việt
+
+* Xây dựng kiến trúc lattice tích hợp được nhiều features & methods
+
+* Viết beam-search decoder cho kiến trúc nói trên
+
+* Dùng từ điển để so khớp khởi tạo flag_{1,2,3,4} (1-byte) (xem `.docs/dict_matching.md`) để tạo ứng cử viên cho các tác vụ nâng cao khác như indexing của full-text-search, tách từ / gán nhãn từ ... Để tối ưu hoá nên dừng lại mẫu so khớp 4-grams vì vừa 64-bits. Trường hợp cần khớp nhiều hơn thì chia ra làm đôi dùng cặp 4-grams và hashing về 64-bits.
+
+[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
+
+* Từ `dict/vn25k.xyz.cdx` hoặc `dict/vn34k.xyz.cdx`
+
+[ >>> DONE <<< ]
+
+
+* Tham khảo kiến trúc tích hợp Jumanpp
+
+
 Phần này tập trung khai thác tối đa âm tiết tiếng Việt, các từ không cấu thành bởi âm tiết tiếng dân tộc (dak lak), tiếng nước ngoài (ok), tiếng vay mượn (axít) tạm coi là OOV và sẽ được xử lý trong phần tiếp theo.
 
 
@@ -36,17 +57,8 @@ __Bước 7__: Từ một/nhiều giải pháp tốt nhất đó tự động s�
 
 __Bước 8__: Quay lại bước 1, dùng dữ liệu được chữa để nâng cao độ chính xác của mô hình và lặp lại như thế cho tới khi toàn bộ corpus được xử lý sạch đẹp.
 
-
-**TODOs**
-
-* Dùng từ điển để so khớp khởi tạo flag_{1,2,3,4,5,6,7,8} (1-byte) (xem `.docs/dict_matching.md`) để tạo ứng cử viên cho các tác vụ nâng cao khác như indexing của full-text-search, tách từ / gán nhãn từ ... Để tối ưu hoá nên dừng lại mẫu so khớp 4 ký tự vì 4-syllables vừa 64-bits. Trường hợp cần khớp nhiều hơn thì chia ra làm đôi, ví dụ để mark 8-flags ở trên thì dùng `hai 4-gram` như là prefix và suffix ... (Cần tìm hiểu kỹ hơn để không phức tạp hoá việc thực thi)
-
-* Tham khảo kiến trúc tích hợp Jumanpp
-* Xây dựng kiến trúc lattice tích hợp được nhiều features & methods
-* Viết beam-search decoder cho kiến trúc nói trên
-* Huấn luyện mô hình ngôn ngữ RNN cho âm tiết tiếng Việt
-
 - - -
+
 
 ### Module 0/ n-gram nâng cao
 

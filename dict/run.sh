@@ -1,14 +1,14 @@
 #!/bin/sh
 
-../zig-out/bin/telexify vn31k.txt vn25k.xyz dense
-ruby dict.rb vn25k.xyz && git diff vn25k.xyz
+../zig-out/bin/telexify tudien-ast.mod.txt 25k.xyz dense
+ruby dict.rb 25k.xyz && git diff 25k.xyz
 
-# ../zig-out/bin/telexify VnVocab.txt VnVocab.xyz dense
-# ruby vocab.rb VnVocab.xyz && git diff VnVocab.xyz
+../zig-out/bin/telexify VnVocab.txt 34k.xyz dense
+ruby vocab.rb 34k.xyz && git diff 34k.xyz
 
-# ../zig-out/bin/telexify wordlist.txt wordlist.xyz dense
-# ruby vocab.rb wordlist.xyz && git diff wordlist.xyz
+../zig-out/bin/telexify wordlist.txt 80k.xyz dense
+ruby vocab.rb 80k.xyz && git diff 80k.xyz
 
-# cat wordlist.txt wordlist-full.txt VnVocab.txt > vn_wordlist.txt
-# ../zig-out/bin/telexify vn_wordlist.txt vn_wordlist.xyz
-# ruby vocab.rb vn_wordlist.xyz
+# cat wordlist.txt wordlist-full.txt VnVocab.txt > combined.txt
+../zig-out/bin/telexify combined.txt 88k.xyz
+ruby vocab.rb 88k.xyz

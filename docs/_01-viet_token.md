@@ -6,8 +6,6 @@
 
 * Dùng `transit sang splitted_tokens_infos` có điểm dở là chỉ đi tiến, ko đi lùi được nên khi matching với 1 đoạn token và cần matching theo cả 2 chiều thì dùng `TokensChunk = [64]*TokenInfo` để có để di chuyển tiến và lùi.
 
-* Kiểm tra tính đúng đắn của syllable_id, đảm bảo càng nhiều chỗ trống càng tốt cho OOV
-
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
 ABNORMAL DETECT
@@ -19,6 +17,8 @@ ABNORMAL DETECT
 [ >>> DONE <<< ]
 
 ## CHANGELOG
+
+* Kiểm tra tính đúng đắn của syllable_id, đảm bảo càng nhiều chỗ trống càng tốt cho OOV
 
 * Thêm luật để lọc từ ko có nghĩa `chuẩm, quyểng, quyểm, quyếc ..`
 
