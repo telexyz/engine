@@ -10,7 +10,7 @@ words.each{ |w|
 
 	a = w.split(" ")
 	n = a.size
-	next if n > 9
+	next if n > 4
 	next if w.count("|") != n
 
 	selected << [n, a.join(" ").gsub("|","`")]
