@@ -243,7 +243,7 @@ pub fn write_transforms_to_file(
             if (text.line_vi_tokens_len == 0) {
                 _ = try nvi_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 //
-            } else if (text.line_bytes_len > text.line_vi_tokens_len * 2) {
+            } else if (text.line_bytes_len > 2 + text.line_vi_tokens_len * 2) {
                 _ = try low_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
             } else {
                 _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);

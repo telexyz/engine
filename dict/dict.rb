@@ -5,15 +5,13 @@ words = File.open(filename).read.split("\n").uniq
 
 selected = [] 
 words.each{ |w| 
-	w = w.strip.gsub(/\s+\d+/, "");
-	next if w =~ /[^\sa-z\|]/
-
-	a = w.split(" ")
+	a = w.sub(/\{.+\}/,"").split(" ")
 	n = a.size
+	next if n < 2
 	# next if n > 4
 	next if w.count("|") != n
 
-	selected << [n, a.join(" ").gsub("|","`")]
+	selected << [n, w.gsub("|","`")]
 }
 
 File.open(filename, "wt") { |f|

@@ -1,7 +1,10 @@
 #!/bin/sh
 
-../zig-out/bin/telexify VnVocab.txt VnVocab.xyz dense
-ruby vocab.rb VnVocab.xyz && git diff VnVocab.xyz
+../zig-out/bin/telexify vn31k.txt vn25k.xyz dense
+ruby dict.rb vn25k.xyz && git diff vn25k.xyz
+
+# ../zig-out/bin/telexify VnVocab.txt VnVocab.xyz dense
+# ruby vocab.rb VnVocab.xyz && git diff VnVocab.xyz
 
 # ../zig-out/bin/telexify wordlist.txt wordlist.xyz dense
 # ruby vocab.rb wordlist.xyz && git diff wordlist.xyz
