@@ -327,10 +327,10 @@ pub const Syllable = struct {
     // và còn dư 6516 slots để lưu OOV dùng BPE
     // Nếu cần nhiều hơn thì chạy toàn bộ syllable_id từ 0 -> 26_249
     // Rồi kiểm tra xem âm tiết này có thoả mãn luật kết hợp âm hay ko
-    // => 6094 invalid slots to use
+    // => 8370 invalid slots to use
     pub const UniqueId = u15;
     pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250 < 2^15 (32_768)
-    pub const NONE_ID: UniqueId = 32_767; //- 26_251 = 6_516 slots cho OOV dùng BPE
+    pub const NONE_ID: UniqueId = 32_767; //- 26_251 = 6_516 slots liền kề cho OOV dùng BPE
 
     pub inline fn hasMark(self: Syllable) bool {
         return self.am_dau == .zd or self.am_giua.hasMark();
