@@ -208,6 +208,72 @@ pub fn parseAmTietToGetSyllable(strict: bool, comptime print: print_op, str: []c
     return parseTokenToGetSyllable(strict, print, &char_stream, str);
 }
 
+pub fn parseXyzToGetSyllable(
+    str: []const u8,
+) Syllable {
+    var syllable = Syllable.new();
+    var char_stream = U2ACharStream.new();
+    var n = str.len - 1;
+
+    switch (str[n]) {
+        's', 'f', 'r', 'x', 'j' => {
+            char_stream.tone = str[n];
+            n -= 1;
+        },
+        else => {},
+    }
+
+    const mark = switch (str[n]) {
+        'z', 'w' => str[n],
+        else => 0,
+    };
+
+    // std.debug.print("\nxyz {s} => {s} => ", .{ str, str[0..n] }); //DEBUG
+    // Tìm nguyên âm chính
+    while (true) switch (str[n]) {
+        'a', 'e' => break, // là nguyên âm chính
+        'y', 'u', 'i', 'o' => {
+            if (n == 0) break; // ko còn ký tự nào ở trước nữa
+            switch (str[n - 1]) {
+                // `oo uo uy` thì đây là nguyên âm chính
+                'o', 'u' => {
+                    if (str[n] == 'o') break else n -= 1;
+                }, // oo ou
+                'y' => {
+                    if (str[n] == 'u') break else n -= 1;
+                }, // uy
+                'a', 'e', 'i' => { // lùi lại 1 ký tự sẽ là nguyên âm chính
+                    n -= 1;
+                    break;
+                },
+                else => break, // phụ âm
+            }
+        },
+        else => n -= 1,
+    };
+    n += 1;
+
+    // Khởi tạo buffer tới nguyên âm chính vừa tìm được
+    std.mem.copy(u8, char_stream.buffer[0..], str[0..n]);
+
+    // Thêm dấu
+    char_stream.len = n;
+    if (mark != 0) {
+        char_stream.buffer[char_stream.len] = mark;
+        char_stream.len += 1;
+    }
+
+    // Copy chỗ còn lại
+    while (str[n] != '|') : (n += 1) {
+        char_stream.buffer[char_stream.len] = str[n];
+        char_stream.len += 1;
+    }
+    // std.debug.print("{s}, {}\n", .{ char_stream.buffer[0..char_stream.len], char_stream.tone }); //DEBUG
+    char_stream.last_char = ' ';
+    pushCharsToSyllable(printNothing, &char_stream, &syllable);
+    return syllable;
+}
+
 pub fn parseTokenToGetSyllable(
     strict: bool,
     comptime print: print_op,
@@ -315,6 +381,9 @@ pub fn parseTokenToGetSyllable(
 }
 
 pub fn validateSyllable(syll: Syllable) bool {
+    if (syll.am_giua == .ah or syll.am_giua == .oah) {
+        if (syll.am_cuoi != .c and syll.am_cuoi != .ng) return false;
+    }
     return validateAmDau(printNothing, syll.am_dau, syll.am_giua) and
         validateBanAmCuoiVan(printNothing, syll.am_dau, syll.am_giua, syll.am_cuoi) and
         validateNguyenAm(printNothing, syll.am_dau, syll.am_giua, syll.am_cuoi);
@@ -487,6 +556,10 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
             print("!!! VIOLATE: 'oă' không đi với `nh, ch, o, u, i, y`\n", .{});
             return false;
         },
+        ._none => {
+            print("!!! VIOLATE: 'oă' sau phải có âm cuối`\n", .{});
+            return false;
+        },
         else => return true,
     };
 
@@ -501,6 +574,10 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
     if (am_giua == .uaz) switch (am_cuoi) {
         .nh, .ch, .o, .u, .i => {
             print("!!! VIOLATE: 'uâ' không đi với `nh, ch, o, u, i`\n", .{});
+            return false;
+        },
+        ._none => {
+            print("!!! VIOLATE: 'uâ' sau phải có âm cuối`\n", .{});
             return false;
         },
         else => return true,
@@ -527,12 +604,20 @@ fn validateNguyenAm(comptime print: print_op, am_dau: AmDau, am_giua: AmGiua, am
             print("!!! VIOLATE: 'ă' không đi với `nh, ch, u, o, i, y`\n", .{});
             return false;
         },
+        ._none => {
+            print("!!! VIOLATE: 'ă' sau có âm cuối. VD: tăm\n", .{});
+            return false;
+        },
         else => return true,
     };
 
     if (am_giua == .az) switch (am_cuoi) {
         .nh, .ch, .o, .i => {
             print("!!! VIOLATE: 'â' không đi với `nh, ch, o, i`\n", .{});
+            return false;
+        },
+        ._none => {
+            print("!!! VIOLATE: 'â' sau có âm cuối. VD: tâm\n", .{});
             return false;
         },
         else => return true,
