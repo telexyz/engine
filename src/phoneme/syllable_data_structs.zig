@@ -125,19 +125,20 @@ pub const AmGiua = enum {
     uy, // boong // 15th
 
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
-    oaw, // oă
-    uaz, // uâ (ngoe nguẩy)
+    oaw, // oă (loắt choắt)
+    uaz, // uâ (tuân <= tuan), ua mà có âm cuối chuyển thanh uaz
     uez, // uê <= ue (tuê <= tue, tuee, tuez) tuềnh toàng
-    uoz, // uô
-
-    uow, //  uwow, ươ // 21th
+    uoz, // uô // 20th
+    uow, //  uwow, ươ
     uyez, // uyez, uyê <= uye (nguyên <= nguyen, nguyeen, nguyezn)
-
+    // - - - - - - -
+    // Hỗ trợ
     ah, // giúp rút gọn âm cuối
     oah, // giúp rút gọn âm cuối // 24th
-
+    uo, // dùng để chứa cách viết ko dấu của uoz, uow // 25th
     // Transit states
     ua, // => uoz
+    // - - - - - - -
     ia, // => iez
     uaw, // ưa => ươ
     uya, // => uyez
@@ -276,11 +277,11 @@ test "Enum AmCuoi.len" {
 pub const Tone = enum(u3) {
     // 6 thanh
     _none,
+    s,
+    j,
     f,
     r,
     x,
-    s,
-    j,
     pub fn len(self: Tone) u8 {
         return if (self == ._none) 0 else 1;
     }
@@ -421,7 +422,7 @@ pub const Syllable = struct {
         const act = if (am_cuoi_id < 6)
             am_cuoi_id * 6 + tone
         else // am_cuoi `c, ch, p, t` only 2 tone s, j allowed
-            36 + (am_cuoi_id - 6) * 2 + (tone - 4);
+            36 + (am_cuoi_id - 6) * 2 + (tone - 1);
         // Validate act
         std.debug.assert(act < 42);
 
@@ -453,7 +454,7 @@ pub const Syllable = struct {
         } else { // unpacking
             x -= 36;
             syllable.am_cuoi = @intToEnum(AmCuoi, @truncate(u4, x / 2 + 6));
-            syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 2) + 4));
+            syllable.tone = @intToEnum(Tone, @truncate(u3, @rem(x, 2) + 1));
         }
 
         //  a  y <=  aw i
