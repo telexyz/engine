@@ -719,63 +719,6 @@ pub const Syllable = struct {
         return buff[0..n];
     }
 
-    pub fn printBuffTelex(self: *Syllable, buff: []u8) []const u8 {
-        const blank = "";
-        const giua = switch (self.am_giua) {
-            ._none => blank,
-            .uoz => if (self.am_cuoi == ._none) "ua" else "uoo",
-            .uow => if (self.am_cuoi == ._none) "uaw" else "uow",
-            .uaz => "uaa",
-            .uaw => "uwa",
-            .uez => "uee",
-            .az => "aa",
-            .ez => "ee",
-            .oz => "oo",
-            // .iez => if (self.am_dau == ._none or self.am_dau == .qu) "yee" else "iee",
-            // .uyez => "uyee",
-            .iez => blk: {
-                if (self.am_cuoi == ._none) break :blk "ia";
-                if (self.am_dau == ._none or self.am_dau == .qu) break :blk "yee";
-                break :blk "iee";
-            },
-            .uyez => if (self.am_cuoi == ._none) "uya" else "uyee",
-            else => @tagName(self.am_giua),
-        };
-        const dau = switch (self.am_dau) {
-            ._none => blank,
-            .zd => "dd",
-            .c => switch (giua[0]) {
-                'e', 'i', 'y' => "k",
-                else => "c",
-            },
-            .gi => if (giua[0] == 'i') "g" else "gi",
-            .g => switch (giua[0]) {
-                'e', 'i', 'y' => "gh",
-                else => "g",
-            },
-            .ng => switch (giua[0]) {
-                'e', 'i', 'y' => "ngh",
-                else => "ng",
-            },
-            else => @tagName(self.am_dau),
-        };
-        const cuoi = if (self.am_cuoi == ._none) blank else @tagName(self.am_cuoi);
-        const tone = if (self.tone == ._none) blank else @tagName(self.tone);
-
-        std.debug.assert(buff.len >= dau.len + giua.len + cuoi.len + tone.len);
-
-        var n: usize = 0;
-        const parts: [4][]const u8 = .{ dau, giua, cuoi, tone };
-
-        for (parts) |s| {
-            for (s) |b| {
-                buff[n] = b;
-                n += 1;
-            }
-        }
-        return buff[0..n];
-    }
-
     pub fn printBuffUtf8(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
         const dau = switch (self.am_dau) {
@@ -1031,18 +974,18 @@ test "Syllable's printBuff" {
     var buffer: [15]u8 = undefined;
     const buff = buffer[0..];
 
-    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "nguwas");
+    try std.testing.expectEqualStrings(syll.printBuff(buff, false), "ngua|ws");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngứa");
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng uaw s");
 
     syll.am_giua = .o;
-    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngos");
+    try std.testing.expectEqualStrings(syll.printBuff(buff, false), "ngo|s");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngó");
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng o s");
 
     syll.am_giua = .iez;
     syll.am_cuoi = .n;
-    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "nghieens");
+    try std.testing.expectEqualStrings(syll.printBuff(buff, false), "nghien|zs");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "nghiến");
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng yez n s");
 
@@ -1053,7 +996,7 @@ test "Syllable's printBuff" {
 
     syll.am_giua = .oz;
     syll.am_cuoi = .n;
-    try std.testing.expectEqualStrings(syll.printBuffTelex(buff), "ngoon");
+    try std.testing.expectEqualStrings(syll.printBuff(buff, false), "ngon|z");
     try std.testing.expectEqualStrings(syll.printBuffUtf8(buff), "ngôn");
     try std.testing.expectEqualStrings(syll.printBuffParts(buff), "_ng oz n");
 

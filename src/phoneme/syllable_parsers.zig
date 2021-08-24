@@ -1012,33 +1012,25 @@ test "canBeVietnamese() // No-tone and/or no-mark" {
     try expect(canBeVietnamese("ox") == true);
 }
 
-fn strToAmTiet(str: []const u8) []const u8 {
-    var buffer: [11]u8 = undefined;
-    const buff = buffer[0..];
-    var syll = parseAmTietToGetSyllable(false, printNothing, str);
-    return syll.printBuffTelex(buff);
+fn telexToTelex(str: []const u8, buff: []u8) []const u8 {
+    return parseAmTietToGetSyllable(false, printNothing, str).printBuff(buff, false);
 }
-
-fn utf8ToTelex(str: []const u8) []const u8 {
-    // return syllableToAmTiet(parseAmTietToGetSyllable(true, printNothing, str));
-    var buffer: [11]u8 = undefined;
-    const buff = buffer[0..];
-    return parseAmTietToGetSyllable(true, printNothing, str).printBuffTelex(buff);
+fn utf8ToTelex(str: []const u8, buff: []u8) []const u8 {
+    return parseAmTietToGetSyllable(true, printNothing, str).printBuff(buff, false);
 }
-
-fn utf8ToUtf8(str: []const u8) []const u8 {
-    // return syllableToAmTiet(parseAmTietToGetSyllable(true, printNothing, str));
-    var buffer: [11]u8 = undefined;
-    const buff = buffer[0..];
+fn utf8ToUtf8(str: []const u8, buff: []u8) []const u8 {
     return parseAmTietToGetSyllable(true, printNothing, str).printBuffUtf8(buff);
 }
 
 test "iee, yee (uyee), ooo, uee, uaz <= oaz" {
-    try std.testing.expectEqualStrings(utf8ToTelex("ịa"), "iaj");
-    try std.testing.expectEqualStrings(utf8ToTelex("tía"), "tias");
-    try std.testing.expectEqualStrings(utf8ToUtf8("mịa"), "mịa");
-    try std.testing.expectEqualStrings(utf8ToUtf8("yêu"), "yêu");
-    try std.testing.expectEqualStrings(utf8ToUtf8("thuở"), "thủa");
+    var buffer: [13]u8 = undefined;
+    const buff = buffer[0..];
+
+    try std.testing.expectEqualStrings(utf8ToTelex("ịa", buff), "ia|j");
+    try std.testing.expectEqualStrings(utf8ToTelex("tía", buff), "tia|s");
+    try std.testing.expectEqualStrings(utf8ToUtf8("mịa", buff), "mịa");
+    try std.testing.expectEqualStrings(utf8ToUtf8("yêu", buff), "yêu");
+    try std.testing.expectEqualStrings(utf8ToUtf8("thuở", buff), "thủa");
     // Note: Need to convert no-mark format back to marked version for
     // following vowels:
     // .iee <= .ie,
@@ -1047,24 +1039,22 @@ test "iee, yee (uyee), ooo, uee, uaz <= oaz" {
     // .uee <= .ue,
     // .uaz <= oaz
     // the user is aiming for 'ô' or 'oo' (both need to type double 'o')
-    try std.testing.expectEqualStrings(utf8ToTelex("tuơ"), "tua");
-    try std.testing.expectEqualStrings(utf8ToTelex("ngoẩy"), "nguaayr");
-    try std.testing.expectEqualStrings(utf8ToTelex("toong"), "tooong");
-    try std.testing.expectEqualStrings(utf8ToTelex("thoọng"), "thooongj");
-    try std.testing.expectEqualStrings(utf8ToTelex("đoong"), "ddooong");
+    try std.testing.expectEqualStrings(utf8ToTelex("tuơ", buff), "tua|");
+    try std.testing.expectEqualStrings(utf8ToTelex("ngoẩy", buff), "nguay|zr");
+    try std.testing.expectEqualStrings(utf8ToTelex("toong", buff), "toong|");
+    try std.testing.expectEqualStrings(utf8ToTelex("thoọng", buff), "thoong|j");
+    try std.testing.expectEqualStrings(utf8ToTelex("đoong", buff), "ddoong|");
 
-    try std.testing.expectEqualStrings(utf8ToTelex("voọc"), "vooocj");
-    try std.testing.expectEqualStrings(strToAmTiet("tieu"), "tieeu");
-    try std.testing.expectEqualStrings(strToAmTiet("yeu"), "yeeu");
-    try std.testing.expectEqualStrings(strToAmTiet("tuyenr"), "tuyeenr");
-    try std.testing.expectEqualStrings(strToAmTiet("tuej"), "tueej");
-}
+    try std.testing.expectEqualStrings(utf8ToTelex("voọc", buff), "vooc|j");
+    try std.testing.expectEqualStrings(telexToTelex("tieu", buff), "tieu|z");
+    try std.testing.expectEqualStrings(telexToTelex("yeu", buff), "yeu|z");
+    try std.testing.expectEqualStrings(telexToTelex("tuyenr", buff), "tuyen|zr");
+    try std.testing.expectEqualStrings(telexToTelex("tuej", buff), "tue|zj");
 
-test "..." {
-    try std.testing.expectEqualStrings(utf8ToTelex("BÔI"), "booi");
-    try std.testing.expectEqualStrings(utf8ToTelex("BIÊN"), "bieen");
-    try std.testing.expectEqualStrings(utf8ToTelex("CHUẨN"), "chuaanr");
-    // try std.testing.expectEqualStrings(utf8ToTelex(""), "");
+    // UPPERCASE
+    try std.testing.expectEqualStrings(utf8ToTelex("BÔI", buff), "boi|z");
+    try std.testing.expectEqualStrings(utf8ToTelex("BIÊN", buff), "bien|z");
+    try std.testing.expectEqualStrings(utf8ToTelex("CHUẨN", buff), "chuan|zr");
 }
 
 test "canBeVietnamese() // Auto-repair obvious cases" {
