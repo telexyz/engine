@@ -3,6 +3,11 @@ const Syllable = @import("./src/phoneme/syllable_data_structs.zig").Syllable;
 const parsers = @import("./src/phoneme/syllable_parsers.zig");
 
 pub fn main() !void {
+    countInvalidSyllableIds(false);
+    try countRarelyUsedSyllableIds(false);
+}
+
+fn countRarelyUsedSyllableIds(details: bool) !void {
     var input_file = try std.fs.cwd().openFile("data/08-syllower_freqs.txt", .{
         .read = true,
     });
@@ -41,31 +46,34 @@ pub fn main() !void {
                 // Chỉ print thanh 's'
                 var syll = Syllable.newFromId(i);
                 if (syll.tone == .s) {
-                    std.debug.print("{s} ", .{syll.printBuffUtf8(buffer[0..])});
+                    if (details)
+                        std.debug.print("{s} ", .{syll.printBuffUtf8(buffer[0..])});
                     x += 1;
-                    if (@rem(x, 20) == 0) std.debug.print("\n\n", .{});
+                    if (details)
+                        if (@rem(x, 20) == 0) std.debug.print("\n\n", .{});
                     // if (@rem(x, 400) == 0) std.debug.print("\n\n", .{});
                 }
                 n += 1;
             }
         }
     }
-    std.debug.print("\n\nTotal maybe invalid slots: {d}\n\n", .{n});
+    std.debug.print("\n\nTotal rarely used slots: {d}\n\n", .{n});
 }
 
-test "find-out more slots that not valid syllables" {
+fn countInvalidSyllableIds(details: bool) void {
+    // Find-out mallslots that not valid syllables
     var j: Syllable.UniqueId = 0;
     var i: Syllable.UniqueId = 0;
     var n: Syllable.UniqueId = 0;
 
-    std.debug.print("\n\nFinding invalid slots ...\n\n", .{});
-
     while (i < Syllable.MAXX_ID) : (i += 1) {
         if (!parsers.validateSyllable(Syllable.newFromId(i))) {
             n += 1;
-            std.debug.print("{d} ", .{i});
-            if (i != j + 1) { // not consecutive
-                std.debug.print("\n\n", .{});
+            if (details) {
+                std.debug.print("{d} ", .{i});
+                if (i != j + 1) { // not consecutive
+                    std.debug.print("\n\n", .{});
+                }
             }
             j = i;
         }
