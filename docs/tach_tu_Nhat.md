@@ -152,6 +152,8 @@ JUMAN, ChaSen, MeCab, KyTea
 
 NEWERs
 
+https://github.com/lindera-morphology/lindera
+
 https://github.com/ikawaha/kagome
 
 https://github.com/wanasit/kotori
