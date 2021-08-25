@@ -9,5 +9,5 @@ test "all" {
     _ = @import("./src/textoken/tokenizer.zig");
     _ = @import("./src/textoken/text_utils.zig");
 
-    _ = @import("./src/n_gram.zig");
+    _ = @import("./src/counting/n_gram.zig");
 }

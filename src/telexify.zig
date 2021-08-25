@@ -5,7 +5,7 @@ const Text = @import("./textoken/text_data_struct.zig").Text;
 const TextokenOutput = @import("./textoken/output_helpers.zig");
 const Tokenizer = @import("./textoken/tokenizer.zig").Tokenizer;
 const text_utils = @import("./textoken/text_utils.zig");
-const NGram = @import("./n_gram.zig").NGram;
+const NGram = @import("./counting/n_gram.zig").NGram;
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
