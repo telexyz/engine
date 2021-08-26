@@ -1,13 +1,15 @@
-// MIN_COUNT = 0
-//  119 KB Thu Aug 26 10:26:26 2021  21-uni_grams.txt
-//   39 MB Thu Aug 26 10:12:53 2021  22-bi_grams.txt
-//  371 MB Thu Aug 26 10:14:18 2021  23-tri_grams.txt
-// 1012 MB Thu Aug 26 10:22:34 2021  24-fourth_grams.txt
-//  1.5 GB Thu Aug 26 10:29:20 2021  25-fifth_grams.txt
-//  1.9 GB Thu Aug 26 10:21:17 2021  26-sixth_grams.txt
-//  2.0 GB Thu Aug 26 10:31:43 2021  27-seventh_grams.txt
-//  1.9 GB Thu Aug 26 10:27:24 2021  28-eighth_grams.txt
-//
+// - - - - - - - - - - - - - - - - - -
+// MIN_COUNT = 1
+// - - - - - - - - - - - - - - - - - -
+//  119 KB  21-uni_grams.txt
+//   39 MB  22-bi_grams.txt
+//  371 MB  23-tri_grams.txt
+// 1012 MB  24-fourth_grams.txt
+//  1.5 GB  25-fifth_grams.txt
+//  1.9 GB  26-sixth_grams.txt
+//  2.0 GB  27-seventh_grams.txt
+//  1.9 GB  28-eighth_grams.txt
+// - - - - - - - - - - - - - - - - - -
 // n    type     mem             count
 // - - - - - - - - - - - - - - - - - -
 // 1                            148.3m
@@ -21,7 +23,34 @@
 // - - - - - - - - - - - - - - - - - -
 //    241.0m n-grams
 
+// - - - - - - - - - - - - - - - - - -
+// MIN_COUNT = 2
+// - - - - - - - - - - - - - - - - - -
+// 119 KB  21-uni_grams.txt
+//  24 MB  22-bi_grams.txt
+// 139 MB  23-tri_grams.txt
+// 258 MB  24-fourth_grams.txt
+// 287 MB  25-fifth_grams.txt
+// 269 MB  26-sixth_grams.txt
+// 243 MB  27-seventh_grams.txt
+// 221 MB  28-eighth_grams.txt
+// - - - - - - - - - - - - - - - - - -
+// n    type     mem             count
+// - - - - - - - - - - - - - - - - - -
+// 1                            148.3m
+// 2 x  1.6m =   3.2 |          175.1m
+// 3 x  6.8m =  20.4 |          144.0m
+// 4 x  9.8m =  39.2 |          116.7m
+// 5 x  8.8m =  48.0 |           96.9m
+// 6 x  6.9m =  41.4 |           78.3m
+// 7 x  5.3m =  37.1 |           63.9m
+// 8 x  4.2m =  33.6 |           52.1m
+// - - - - - - - - - - - - - - - - - -
+//     43.4m n-grams (1.6+6.8+9.8+8.8+6.9+5.3+4.2)
+
+//- - - - - - - - - - - - - - - - - -
 // MIN_COUNT = 5
+//- - - - - - - - - - - - - - - - - -
 // n   type    mem              count
 //- - - - - - - - - - - - - - - - - -
 // 1                           148.3m
@@ -60,7 +89,7 @@ pub const NGram = struct {
 
     allocator: *std.mem.Allocator = undefined,
 
-    pub const MIN_COUNT = 0;
+    pub const MIN_COUNT = 2;
 
     pub fn init(self: *NGram, init_allocator: *std.mem.Allocator) void {
         self.allocator = init_allocator;
