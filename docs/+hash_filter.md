@@ -15,6 +15,10 @@ https://github.com/travisstaloch/simdjzon Zig port
 We have an in-depth paper focused on the UTF-8 validation:
 https://arxiv.org/pdf/2010.03090.pdf
 
+
+https://github.com/fastfloat/fast_float
+
+
 Filter
 
 https://elixirforum.com/t/efuse-filter-a-binary-fuse-filter-nif-theyre-faster-and-smaller-than-bloom-cuckoo-and-xor-filters/41540/1
