@@ -1,4 +1,28 @@
-//     type    mem              count
+// MIN_COUNT = 0
+//  119 KB Thu Aug 26 10:26:26 2021  21-uni_grams.txt
+//   39 MB Thu Aug 26 10:12:53 2021  22-bi_grams.txt
+//  371 MB Thu Aug 26 10:14:18 2021  23-tri_grams.txt
+// 1012 MB Thu Aug 26 10:22:34 2021  24-fourth_grams.txt
+//  1.5 GB Thu Aug 26 10:29:20 2021  25-fifth_grams.txt
+//  1.9 GB Thu Aug 26 10:21:17 2021  26-sixth_grams.txt
+//  2.0 GB Thu Aug 26 10:31:43 2021  27-seventh_grams.txt
+//  1.9 GB Thu Aug 26 10:27:24 2021  28-eighth_grams.txt
+//
+// n    type     mem             count
+// - - - - - - - - - - - - - - - - - -
+// 1                            148.3m
+// 2 x  2.7m =   5.4 |          175.1m
+// 3 x 18.2m =  54.6 |          144.0m
+// 4 x 38.7m = 154.8 |          116.7m
+// 5 x 49.0m = 245.0 |           96.9m
+// 6 x 49.4m = 296.4 |           78.3m
+// 7 x 44.6m = 312.2 |           63.9m
+// 8 x 38.3m = 306.4 |           52.1m
+// - - - - - - - - - - - - - - - - - -
+//    241.0m n-grams
+
+// MIN_COUNT = 5
+// n   type    mem              count
 //- - - - - - - - - - - - - - - - - -
 // 1                           148.3m
 // 5 x 2.0m = 10.0 |            96.9m
