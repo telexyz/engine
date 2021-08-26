@@ -36,7 +36,7 @@ pub const NGram = struct {
 
     allocator: *std.mem.Allocator = undefined,
 
-    pub const MIN_COUNT = 5;
+    pub const MIN_COUNT = 0;
 
     pub fn init(self: *NGram, init_allocator: *std.mem.Allocator) void {
         self.allocator = init_allocator;
