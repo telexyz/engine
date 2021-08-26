@@ -49,6 +49,10 @@ Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi 
 100% tổng tokens                203_810_266
 ```
 => TRUNG BÌNH MỘT GIÂY PHÂN TÁCH VÀ PHÂN LOẠI 5 TRIỆU TOKENS, ĐỊNH DANH 3.65 TRIỆU ÂM TIẾT TV
+Trên máy macbook 2015, 8Gb ram, 1.1Ghz Duo-core Intel M
+
+Đối chiếu https://github.com/phuonglh/vn.vitk
+The word segmentation tool of Vitk can tokenize a text of two million Vietnamese syllables in 20 seconds on a cluster of three computers (24 cores, 24 GB RAM), giving an accuracy of about 97%. https://github.com/phuonglh/jlp
 
 - - -
 
