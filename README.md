@@ -4,7 +4,7 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 * Tìm hiểu Zig HashMap, tìm cách hiệu quả nhất dùng `u64` để định danh mọi n-grams `[n]u16` với n = 1..8
 
-Xem `docs/_0{1,2}-xxxx.md`
+Xem `docs/.0{1,2}-xxxx.md`
 
 ## REWRITE
 
