@@ -1,6 +1,6 @@
 ## tudien-ast.txt
 
-31137 loại từ nước ngoài, từ 1 âm tiết còn 25302
+Tổng 31137 từ. Bỏ tiếng nước ngoài, từ 1 âm tiết còn 25302
 615 từ nước ngoài, 5220 từ một âm tiết
 
 ### Number of words: 31137 ###

@@ -327,10 +327,10 @@ pub const Syllable = struct {
     // và còn dư 6516 slots để lưu OOV dùng BPE
     // Nếu cần nhiều hơn thì chạy toàn bộ syllable_id từ 0 -> 26_249
     // Rồi kiểm tra xem âm tiết này có thoả mãn luật kết hợp âm hay ko
-    // => 8370 invalid slots to use
+    // => 8_370 invalid slots to use (17_880 valid syllable ids)
     pub const UniqueId = u15;
-    pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250 < 2^15 (32_768)
-    pub const NONE_ID: UniqueId = 32_767; //- 26_251 = 6_516 slots liền kề cho OOV dùng BPE
+    pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250 .. 32_767
+    pub const NONE_ID: UniqueId = 32_767; // => Còn 6_516 slots liền kề cho OOV dùng BPE
 
     pub inline fn hasMark(self: Syllable) bool {
         return self.am_dau == .zd or self.am_giua.hasMark();
@@ -359,8 +359,9 @@ pub const Syllable = struct {
             .gh => self.am_dau = .g, // gh => g
             else => {
                 if (self.am_dau == .g and self.am_giua == .i) self.am_dau = .gi;
-                // gì => gi+ì, gìm => gi+ìm
                 // phân biệt gì ghì, gìm ghìm
+                // gì => gi+ì (dì), gìm => gi+ìm (dìm), `gi` đọc là `d`
+                // ghìm, `gh` đọc là `g`
                 // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-gìm
                 // https://vtudien.com/viet-viet/dictionary/nghia-cua-tu-ghìm
             },
