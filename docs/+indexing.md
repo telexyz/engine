@@ -35,15 +35,39 @@ Một cách lỏng hơn nữa là sử dụng flags (xem `docs/.dict_matching.md
 Với mỗi syllable (token) sẽ có flags 4-bits để xem token đó thuộc về vị trí thứ mấy của từ giả sử từ dài nhất chỉ có 4 âm tiết.
 
 ví dụ:
-"màu xanh" => màu-1,0,0,0 xanh-0,1,0,0,0
+"màu xanh" => màu-1,0,0,0 xanh-0,1,0,0
 "cơ sở dữ liệu" => cơ-1,0,0,0 sở-0,1,0,0 dữ-1,0,1,0 liệu-0,1,0,1 vì "dữ liệu" là 1 từ riêng
 
-với text "xanh lá màu xanh" => màu-1,0,0,0 xanh-1,1,0,0 lá-0,1,0,0
-với input "xanh xanh" => xanh-1,1,0,0 thì sẽ khớp với text "xanh lá màu xanh" chưa thực sự ổn.
+với text "xanh lá, màu xanh" => màu-1,0,0,0 xanh-1,1,0,0 lá-0,1,0,0
+với input "xanh xanh" => xanh-1,1,0,0 thì sẽ khớp với text "xanh lá màu xanh" chưa ổn.
 
-Note: với từ dài hơn thì dùng nhiều flags hơn, 8-bits là đủ cho từ dài 8 âm tiết, cover hết các trường hợp.
+## PHƯƠNG ÁN 1
+
+Bổ xung thông tin về vị trí tương đối, giả sử ta dùng 2-bit để biểu diễn vị trí tương đối của tok trong tex. với tex "xanh lá, màu xanh" => xanh/0 lá/0 màu/1 xanh/1.
+
+Kết hợp với flags ta có: tex "xanh lá, màu xanh" 
+=> xanh-1,0,0,0/0 lá-0,1,0,0/0 màu-1,0,0,0/1 xanh-0,1,0,0/1
+
+Với input "xanh xanh" không tìm được xanh-1,1,*,*/x ở cùng vị trí x
+
+Với 8-bits ta sẽ lưu được 4-flags x 16 relative-positions.
+
+Giả sử mỗi syl được lặp lại với xác suất 1/8 thì 16 rel-pos lưu perfect cho 128 syls' tex.
+
+Như vậy dùng 1-byte là đủ để encode thông tin của flags và rel-pos chia đều 4/4.
+
+Có thể cân nhắc phân chia flags/rel-pos thành 3/5 cho OOV để tránh va chạm => Cần thử nghiệm.
+
+=> Inverted index sẽ có dạng:
+
+tok_id: 
+	doc_id1(u32) flags/rel-pos-1 flags/rel-pos-1 ... flags/rel-pos-k1
+	doc_id2(u32) flags/rel-pos-1 flags/rel-pos-1                  ... flags/rel-pos-k2
+	...
 
 - - -
+
+## PHƯƠNG ÁN 2
 
 Giả sử với mọi 4-syllable words trong từ điển ta liệt kê mọi bi-gram (2-syllables) và index hết các bi-grams đó thì sao?
 
@@ -51,4 +75,10 @@ Với ví dụ trên thì bi-gram "xanh-xanh" ko có mặt trong text "xanh lá 
 
 Chỉ giữ lại khoảng 32k bi-gram đại diện cho từ điển mà có tuần suất xuất hiện trong corpus là cao nhất để làm đại diện.
 
-Cũng có thể áp dụng BPE cho từ điển + tần suất xuất hiện để tìm ra tập 32k syllable-based sub-word n-grams tốt nhất để đại diện cho toàn bộ từ điển.
+Sau khi lọc bi-grams từ 34k và giữ lại 32k top, lọc uniq syllables được: 5427 uniq syllables.
+29_452_329 (5427^2) combinations =>
+3_681_542 bytes (3.6Mb) để làm bit_set
+
+https://randorithms.com/2019/09/12/MPH-functions.html
+
+A perfect hash function is one that maps N keys to the range [1,R] without having any collisions. A minimal perfect hash function has a range of [1,N]. We say that the hash is minimal because it outputs the minimum range possible. The hash is perfect because we do not have to resolve any collisions.
