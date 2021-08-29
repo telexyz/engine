@@ -11,16 +11,17 @@ const assert = std.debug.assert;
 
 pub fn HashCount(comptime K: type, capacity: usize) type {
     // assert(math.isPowerOfTwo(capacity));
-    // const shift = 32 - math.log2_int(u64, capacity);
+    // const shift = 30 - math.log2_int(u64, capacity);
     const overflow = capacity / 10 + math.log2_int(u64, capacity) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
         pub const Fingerprint = u24;
-        pub const empty_hash = math.maxInt(u32);
-        pub const Entry = struct {
-            hash: u32 = empty_hash,
-            fp: Fingerprint = undefined,
+        pub const HashType = u32;
+        pub const empty_hash = math.maxInt(HashType);
+        pub const Entry = packed struct {
+            hash: HashType = empty_hash,
+            fp: Fingerprint = 0,
             // key: K = undefined,
             count: u24 = 0,
         };
@@ -47,13 +48,15 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             return self.entries[0..size];
         }
 
-        inline fn _hash(key: K) u32 {
-            return std.hash.CityHash32.hash(mem.asBytes(&key));
+        inline fn _hash(key: K) HashType {
+            return @truncate(HashType, std.hash.CityHash32.hash(mem.asBytes(&key)));
         }
 
         inline fn _fingerprint(key: K) Fingerprint {
             const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            return (@intCast(u24, key.len) << 22) | @truncate(u22, hash);
+            var n: u8 = key.len;
+            if (n < 4) n = 0 else n -= 3;
+            return (@intCast(Fingerprint, n) << 22) | @truncate(u22, hash);
         }
 
         pub fn put(self: *Self, key: K) u24 {
