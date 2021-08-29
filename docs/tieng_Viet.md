@@ -1,3 +1,15 @@
+## http://www.hieuthi.com/blog/2017/03/21/all-vietnamese-syllables.html
+## http://www.hieuthi.com/blog/2017/04/03/vietnamese-syllables-usage.html
+
+Ý chính: có khoảng 18k âm tiết hợp lệ, 12k sử dụng.
+
+Thống kê tin tức báo chí: 50% câu chỉ chứa âm tiết TV hợp lệ. 30% chứa từ việt hoá (vay mượn), từ nước ngoài.
+
+Biểu đồ đường cong thấy:
+=> 8k âm tiết cover 95% sử dụng.
+=> 2k âm tiết cover 90% sử dụng.
+=> 1k âm tiết cover 80% sử dụng.
+
 ## ĐẠI CHIẾN D - GI BAO GIỜ MỚI KẾT THÚC?
 https://www.facebook.com/cachvietdung/posts/1560211234128917
 
@@ -34,12 +46,12 @@ Các trường hợp lưỡng khả khác, ta hoàn toàn có thể tạo ra m�
 * dóng (uốn nắn, chỉnh đốn) / (đơn vị từ) gióng mía
 * _ / (đơn vị từ) giòng sông ???
 
-https://www.facebook.com/yeutiengvietta
 
+## Bạn có biết? https://www.facebook.com/yeutiengvietta
 ![](files/tho_ngu_mien_nam.png)
 
 
-https://vi.wikipedia.org/wiki/Chữ_Quốc_ngữ
+## https://vi.wikipedia.org/wiki/Chữ_Quốc_ngữ
 
 Chữ Quốc ngữ là tên gọi cho bộ chữ Latinh phổ thông được dùng để viết tiếng Việt hiện nay[3]. Chữ Quốc ngữ được tạo ra bởi các tu sĩ Dòng Tên Bồ Đào Nha và Ý, bằng việc cải tiến bảng chữ cái Latinh và ghép âm dựa theo quy tắc chính tả của văn tự tiếng Bồ Đào Nha[1] và một chút tiếng Ý[4].
 
@@ -52,8 +64,6 @@ Chữ quốc ngữ có 11 chữ ghép biểu thị phụ âm gồm:
 
 Bảng chữ cái tiếng Việt trong Từ điển có ít chữ cái hơn bảng chữ cái tiếng Việt đương đại. Các ký hiệu ă, â, ê, ô, ơ, ư, được xem là chữ cái trong bảng chữ cái tiếng Việt đương đại, đều đã có trong Từ điển nhưng tác giả của Từ điển không xem chúng là chữ cái độc lập. Trong Từ điển, mọi ký hiệu được cấu thành từ một tự mẫu nguyên âm và một hoặc hai dấu phụ, thí dụ như à, ạ, ă, ằ, ặ, đều không được xem là một tự mẫu riêng biệt khác với tự mẫu nguyên âm xuất hiện trong ký hiệu đó,à, ạ, ă, ằ, ặ đều chỉ được xem là tự mẫu a mang dấu phụ chứ không được xem là những tự mẫu khác với tự mẫu a.
 
-
-- - -
 
 ## Âm vị tiếng Việt
 http://vietsciences.free.fr/vietnam/tiengviet/tiengvietchico36amvi.htm
