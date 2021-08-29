@@ -15,20 +15,24 @@
 // data/25-grams.txt UNIQ: 49034515, COUNT: 95912169 <<
 // data/26-grams.txt UNIQ: 49381938, COUNT: 78259054 <<
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// u64 fingerprint
+// u32 cityhash, u30 Fnv1a as fingerprint
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/22-grams.txt UNIQ: 2665233, COUNT: 175122466 <<
-// data/23-grams.txt UNIQ: 18224608, COUNT: 143989170 <<
-// data/25-grams.txt UNIQ: 49032659, COUNT: 95921019 <<
+// data/22-grams.txt UNIQ: 2666021, COUNT: 175111767 <<
+// data/23-grams.txt UNIQ: 18228071, COUNT: 143967962 <<
+// data/24-grams.txt UNIQ: 38701829, COUNT: 116689548 <<
+// data/25-grams.txt UNIQ: 49034515, COUNT: 95912169 <<
+// data/26-grams.txt UNIQ: 49381938, COUNT: 78259054 <<
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// u46 fingerprint
+// u32 cityhash, u30 Fnv1a as fingerprint
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/22-grams.txt UNIQ: 2665232, COUNT: 175122466 <<
-// data/23-grams.txt UNIQ: 18224606, COUNT: 143989170 <<
-// data/25-grams.txt UNIQ: 49032639, COUNT: 95921019 <<
+// data/22-grams.txt UNIQ: 2666021, COUNT: 175111767 <<
+// data/23-grams.txt UNIQ: 18228060, COUNT: 143967949 <<
+// data/24-grams.txt UNIQ: 38701809, COUNT: 116689537 <<
+// data/25-grams.txt UNIQ: 49034479, COUNT: 95912154 <<
+// data/26-grams.txt UNIQ: 49381888, COUNT: 78258897 <<
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // MIN_COUNT = 1
-// - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -
 //  119 KB  21-grams.txt
 //   39 MB  22-grams.txt
 //  371 MB  23-grams.txt
@@ -311,7 +315,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
 
     try wrt.flush();
 
-    std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<\n", .{ filename, grams.len, total });
+    std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<", .{ filename, grams.len, total });
 }
 
 test "ngram" {

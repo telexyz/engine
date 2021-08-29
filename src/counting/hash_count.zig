@@ -11,15 +11,16 @@ const assert = std.debug.assert;
 
 pub fn HashCount(comptime K: type, capacity: usize) type {
     // assert(math.isPowerOfTwo(capacity));
-    // const shift = 46 - math.log2_int(u64, capacity);
+    // const shift = 32 - math.log2_int(u64, capacity);
     const overflow = capacity / 10 + math.log2_int(u64, capacity) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
-        pub const Fingerprint = u46;
-        pub const empty_fp = math.maxInt(Fingerprint);
+        pub const Fingerprint = u22;
+        pub const empty_hash = math.maxInt(u32);
         pub const Entry = struct {
-            fp: Fingerprint = empty_fp,
+            hash: u32 = empty_hash,
+            fp: Fingerprint = undefined,
             key: K = undefined,
             count: u24 = 0,
         };
@@ -35,7 +36,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             self.len = 0;
 
             self.entries = try self.allocator.alloc(Entry, size);
-            mem.set(Entry, self.entries, .{ .fp = empty_fp });
+            mem.set(Entry, self.entries, .{ .hash = empty_hash });
         }
 
         pub fn deinit(self: *Self) void {
@@ -46,35 +47,38 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             return self.entries[0..size];
         }
 
+        inline fn _hash(key: K) u32 {
+            return std.hash.CityHash32.hash(mem.asBytes(&key));
+        }
+
         inline fn _fingerprint(key: K) Fingerprint {
-            // const h1: u32 = std.hash.CityHash32.hash(mem.asBytes(&key));
-            // const h2: u32 = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            // const h3: u64 = std.hash.Wyhash.hash(0, mem.asBytes(&key));
-            // return (@intCast(Fingerprint, h1) << 14) + @truncate(u14, h2);
-            return @truncate(Fingerprint, std.hash.Wyhash.hash(0, mem.asBytes(&key)));
+            const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
+            // const hash = std.hash.Wyhash.hash(0, mem.asBytes(&key));
+            return @truncate(Fingerprint, hash);
         }
 
         pub fn put(self: *Self, key: K) u24 {
             const fp = _fingerprint(key);
             var it: Self.Entry = .{
+                .hash = _hash(key),
                 .fp = fp,
                 .key = key,
                 .count = 1,
             };
-            assert(it.fp != Self.empty_fp);
+            assert(it.hash != Self.empty_hash);
 
-            var i = @rem(it.fp, capacity);
-            // var i = it.fp >> shift;
+            var i = @rem(it.hash, capacity);
+            // var i = it.hash >> shift;
             while (true) : (i += 1) {
                 const entry = self.entries[i];
-                if (entry.fp >= it.fp) {
+                if (entry.hash >= it.hash) {
                     // if (meta.eql(entry.key, key)) {
-                    if (entry.fp == fp) {
+                    if (entry.hash == it.hash and entry.fp == fp) {
                         self.entries[i].count += 1;
                         return entry.count + 1;
                     }
                     self.entries[i] = it;
-                    if (entry.fp == empty_fp) {
+                    if (entry.hash == empty_hash) {
                         self.len += 1;
                         return 1;
                     }
@@ -84,13 +88,14 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         }
 
         pub fn get(self: *Self, key: K) u24 {
+            const hash = _hash(key);
             const fp = _fingerprint(key);
 
-            var i = @rem(fp, capacity);
-            // var i = fp >> shift;
+            var i = @rem(hash, capacity);
+            // var i = hash >> shift;
             while (true) : (i += 1) {
                 const entry = self.entries[i];
-                if (entry.fp >= fp) {
+                if (entry.hash >= hash) {
                     // if (!meta.eql(entry.key, key)) {
                     if (entry.fp != fp) {
                         return 0;
@@ -128,13 +133,13 @@ test "HashCount: put, get" {
         }
         try testing.expectEqual(keys.len, counters.len);
 
-        var fp: HC.Fingerprint = 0;
+        var fp: u32 = 0;
         for (counters.slice()) |entry| {
             if (entry.count != 0) {
-                if (fp > entry.fp) {
+                if (fp > entry.hash) {
                     // return error.Unsorted;
                 }
-                fp = entry.fp;
+                fp = entry.hash;
             }
         }
         for (keys) |key|
