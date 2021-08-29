@@ -6,23 +6,21 @@ const math = std.math;
 const meta = std.meta;
 
 const Allocator = mem.Allocator;
-const Wyhash = std.hash.Wyhash;
+const CityHash32 = std.hash.CityHash32;
 
 const testing = std.testing;
 const assert = std.debug.assert;
 
 pub fn HashCount(comptime K: type, capacity: usize) type {
-    assert(math.isPowerOfTwo(capacity));
-
     const shift = 63 - math.log2_int(u64, capacity) + 1;
-    const overflow = capacity / 10 + (63 - @as(u64, shift) + 1) << 1;
+    const overflow = capacity / 10 + (64 - @as(u64, shift)) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
-        const empty_hash = math.maxInt(u64);
+        const empty_hash = math.maxInt(u32);
 
         pub const Entry = struct {
-            hash: u64 = empty_hash,
+            hash: u32 = empty_hash,
             key: K = undefined,
             count: u24 = 0,
         };
@@ -32,12 +30,10 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         allocator: *Allocator = undefined,
         entries: []Entry = undefined,
         len: usize = undefined,
-        shift: u6 = undefined,
 
         pub fn init(self: *Self, init_allocator: *Allocator) !void {
             self.allocator = init_allocator;
             self.len = 0;
-            self.shift = shift;
 
             self.entries = try self.allocator.alloc(Entry, size);
             mem.set(Entry, self.entries, .{ .hash = empty_hash });
@@ -53,11 +49,12 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
 
         pub fn put(self: *Self, key: K) u24 {
             var it: Self.Entry = .{
-                .hash = Wyhash.hash(0, std.mem.asBytes(&key)),
+                .hash = CityHash32.hash(std.mem.asBytes(&key)),
                 .key = key,
                 .count = 1,
             };
-            var i = it.hash >> self.shift;
+            // var i = it.hash >> self.shift;
+            var i = @rem(it.hash, capacity);
 
             assert(it.hash != Self.empty_hash);
 
@@ -79,9 +76,10 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         }
 
         pub fn get(self: *Self, key: K) u24 {
-            const hash = Wyhash.hash(0, std.mem.asBytes(&key));
+            const hash = CityHash32.hash(std.mem.asBytes(&key));
 
-            var i = hash >> self.shift;
+            // var i = hash >> self.shift;
+            var i = @rem(hash, capacity);
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= hash) {
@@ -109,7 +107,6 @@ test "HashCount: put, get" {
         defer testing.allocator.free(keys);
 
         for (keys) |*key| key.* = rng.random.int(usize);
-        try testing.expectEqual(@as(u6, 55), counters.shift);
 
         for (keys) |key| {
             try testing.expectEqual(@as(u24, 1), counters.put(key));
@@ -121,15 +118,16 @@ test "HashCount: put, get" {
         }
         try testing.expectEqual(keys.len, counters.len);
 
-        var it: usize = 0;
-        for (counters.slice()) |entry| {
-            if (entry.count != 0) {
-                if (it > entry.hash) {
-                    return error.Unsorted;
-                }
-                it = entry.hash;
-            }
-        }
+        // Only capacity is power of 2 then hash table is sorted
+        // var it: usize = 0;
+        // for (counters.slice()) |entry| {
+        //     if (entry.count != 0) {
+        //         if (it > entry.hash) {
+        //             return error.Unsorted;
+        //         }
+        //         it = entry.hash;
+        //     }
+        // }
         for (keys) |key| try testing.expectEqual(@as(u24, 2), counters.get(key));
     }
 }

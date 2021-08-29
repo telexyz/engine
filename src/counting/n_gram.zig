@@ -60,12 +60,19 @@ pub fn NGram(for_real: bool) type {
     _ = for_real;
 
     return struct {
-        c1_grams: HashCount([2]Gram, if (!for_real) 512 else 16_384) = undefined, //     2^14
-        c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined, //  2^22
-        c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined, // 2^25
-        c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined, // 2^26
-        c5_grams: HashCount([5]Gram, if (!for_real) 512 else 67_108_864) = undefined,
-        c6_grams: HashCount([6]Gram, if (!for_real) 512 else 67_108_864) = undefined,
+        c1_grams: HashCount([2]Gram, if (!for_real) 512 else 13_000) = undefined,
+        c2_grams: HashCount([2]Gram, if (!for_real) 512 else 3_000_000) = undefined,
+        c3_grams: HashCount([3]Gram, if (!for_real) 512 else 19_000_000) = undefined,
+        c4_grams: HashCount([4]Gram, if (!for_real) 512 else 40_000_000) = undefined,
+        c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
+        c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
+
+        // c1_grams: HashCount([2]Gram, if (!for_real) 512 else 16_384) = undefined,
+        // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
+        // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined,
+        // c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined,
+        // c5_grams: HashCount([5]Gram, if (!for_real) 512 else 67_108_864) = undefined,
+        // c6_grams: HashCount([6]Gram, if (!for_real) 512 else 67_108_864) = undefined,
 
         allocator: *std.mem.Allocator = undefined,
 
@@ -249,8 +256,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
 
-    var min_count: u8 = 2;
-    if (grams.len < 100_000) min_count = 1;
+    var min_count: u24 = 1;
 
     // Sort by count desc
     var items = grams.slice();
