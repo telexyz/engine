@@ -6,7 +6,6 @@ const math = std.math;
 const meta = std.meta;
 
 const Allocator = mem.Allocator;
-const CityHash32 = std.hash.CityHash32;
 const Wyhash = std.hash.Wyhash;
 
 const testing = std.testing;
@@ -19,13 +18,11 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
     const size: usize = capacity + overflow;
 
     return struct {
-        const empty_hash = math.maxInt(u32);
-
-        const Fingerprint = u40;
+        pub const Fingerprint = u32;
+        pub const empty_fp = math.maxInt(Fingerprint);
         pub const Entry = struct {
-            hash: u32 = empty_hash,
+            fp: Fingerprint = empty_fp,
             key: K = undefined,
-            fp: Fingerprint = undefined,
             count: u24 = 0,
         };
 
@@ -40,7 +37,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             self.len = 0;
 
             self.entries = try self.allocator.alloc(Entry, size);
-            mem.set(Entry, self.entries, .{ .hash = empty_hash });
+            mem.set(Entry, self.entries, .{ .fp = empty_fp });
         }
 
         pub fn deinit(self: *Self) void {
@@ -55,32 +52,27 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             return @truncate(Fingerprint, Wyhash.hash(0, mem.asBytes(&key)));
         }
 
-        inline fn _hash(key: K) u32 {
-            return CityHash32.hash(mem.asBytes(&key));
-        }
-
         pub fn put(self: *Self, key: K) u24 {
             const fp = _fingerprint(key);
             var it: Self.Entry = .{
-                .hash = _hash(key),
                 .fp = fp,
                 .key = key,
                 .count = 1,
             };
-            assert(it.hash != Self.empty_hash);
+            assert(it.fp != Self.empty_fp);
 
-            // var i = @rem(it.hash, capacity);
-            var i = it.hash >> shift;
+            // var i = @rem(it.fp, capacity);
+            var i = it.fp >> shift;
             while (true) : (i += 1) {
                 const entry = self.entries[i];
-                if (entry.hash >= it.hash) {
+                if (entry.fp >= it.fp) {
                     // if (meta.eql(entry.key, key)) {
                     if (entry.fp == fp) {
                         self.entries[i].count += 1;
                         return entry.count + 1;
                     }
                     self.entries[i] = it;
-                    if (entry.hash == empty_hash) {
+                    if (entry.fp == empty_fp) {
                         self.len += 1;
                         return 1;
                     }
@@ -91,13 +83,12 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
 
         pub fn get(self: *Self, key: K) u24 {
             const fp = _fingerprint(key);
-            const hash = _hash(key);
 
-            // var i = @rem(hash, capacity);
-            var i = hash >> shift;
+            // var i = @rem(fp, capacity);
+            var i = fp >> shift;
             while (true) : (i += 1) {
                 const entry = self.entries[i];
-                if (entry.hash >= hash) {
+                if (entry.fp >= fp) {
                     // if (!meta.eql(entry.key, key)) {
                     if (entry.fp != fp) {
                         return 0;
@@ -111,7 +102,8 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
 
 test "HashCount: put, get" {
     var seed: usize = 0;
-    var counters: HashCount(usize, 512) = undefined;
+    const HC = HashCount(usize, 512);
+    var counters: HC = undefined;
 
     while (seed < 128) : (seed += 1) {
         try counters.init(testing.allocator);
@@ -134,13 +126,13 @@ test "HashCount: put, get" {
         }
         try testing.expectEqual(keys.len, counters.len);
 
-        var it: usize = 0;
+        var fp: HC.Fingerprint = 0;
         for (counters.slice()) |entry| {
             if (entry.count != 0) {
-                if (it > entry.hash) {
+                if (fp > entry.fp) {
                     return error.Unsorted;
                 }
-                it = entry.hash;
+                fp = entry.fp;
             }
         }
         for (keys) |key|

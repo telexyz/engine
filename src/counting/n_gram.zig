@@ -6,7 +6,7 @@
 // data/25-grams.txt UNIQ: 49034514, COUNT: 95912168 <<
 // data/26-grams.txt UNIQ: 49381937, COUNT: 78259053 <<
 // - - - - - - - - - - - - - - - -
-// u40 fingerprint
+// u32 fingerprint
 // - - - - - - - - - - - - - - - -
 // data/21-grams.txt UNIQ: 11620, COUNT: 148275434 <<
 // data/22-grams.txt UNIQ: 2666021, COUNT: 175111767 <<
