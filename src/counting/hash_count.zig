@@ -7,20 +7,25 @@ const meta = std.meta;
 
 const Allocator = mem.Allocator;
 const CityHash32 = std.hash.CityHash32;
+const Wyhash = std.hash.Wyhash;
 
 const testing = std.testing;
 const assert = std.debug.assert;
 
 pub fn HashCount(comptime K: type, capacity: usize) type {
+    assert(math.isPowerOfTwo(capacity));
+    const shift = 32 - math.log2_int(u64, capacity);
     const overflow = capacity / 10 + math.log2_int(u64, capacity) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
         const empty_hash = math.maxInt(u32);
 
+        const Fingerprint = u40;
         pub const Entry = struct {
             hash: u32 = empty_hash,
             key: K = undefined,
+            fp: Fingerprint = undefined,
             count: u24 = 0,
         };
 
@@ -46,21 +51,31 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             return self.entries[0..size];
         }
 
+        inline fn _fingerprint(key: K) Fingerprint {
+            return @truncate(Fingerprint, Wyhash.hash(0, mem.asBytes(&key)));
+        }
+
+        inline fn _hash(key: K) u32 {
+            return CityHash32.hash(mem.asBytes(&key));
+        }
+
         pub fn put(self: *Self, key: K) u24 {
+            const fp = _fingerprint(key);
             var it: Self.Entry = .{
-                .hash = CityHash32.hash(std.mem.asBytes(&key)),
+                .hash = _hash(key),
+                .fp = fp,
                 .key = key,
                 .count = 1,
             };
-            // var i = it.hash >> self.shift;
-            var i = @rem(it.hash, capacity);
-
             assert(it.hash != Self.empty_hash);
 
+            // var i = @rem(it.hash, capacity);
+            var i = it.hash >> shift;
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= it.hash) {
-                    if (meta.eql(entry.key, key)) {
+                    // if (meta.eql(entry.key, key)) {
+                    if (entry.fp == fp) {
                         self.entries[i].count += 1;
                         return entry.count + 1;
                     }
@@ -75,14 +90,16 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         }
 
         pub fn get(self: *Self, key: K) u24 {
-            const hash = CityHash32.hash(std.mem.asBytes(&key));
+            const fp = _fingerprint(key);
+            const hash = _hash(key);
 
-            // var i = hash >> self.shift;
-            var i = @rem(hash, capacity);
+            // var i = @rem(hash, capacity);
+            var i = hash >> shift;
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= hash) {
-                    if (!meta.eql(entry.key, key)) {
+                    // if (!meta.eql(entry.key, key)) {
+                    if (entry.fp != fp) {
                         return 0;
                     }
                     return entry.count;
@@ -117,16 +134,15 @@ test "HashCount: put, get" {
         }
         try testing.expectEqual(keys.len, counters.len);
 
-        // Only capacity is power of 2 then hash table is sorted
-        // var it: usize = 0;
-        // for (counters.slice()) |entry| {
-        //     if (entry.count != 0) {
-        //         if (it > entry.hash) {
-        //             return error.Unsorted;
-        //         }
-        //         it = entry.hash;
-        //     }
-        // }
+        var it: usize = 0;
+        for (counters.slice()) |entry| {
+            if (entry.count != 0) {
+                if (it > entry.hash) {
+                    return error.Unsorted;
+                }
+                it = entry.hash;
+            }
+        }
         for (keys) |key|
             try testing.expectEqual(@as(u24, 1), counters.get(key));
     }

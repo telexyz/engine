@@ -1,10 +1,19 @@
+// - - - - - - - - - - - - - - - -
 // data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
 // data/22-grams.txt UNIQ: 2666021,  COUNT: 175111766 <<
 // data/23-grams.txt UNIQ: 18228070, COUNT: 143967960 <<
 // data/24-grams.txt UNIQ: 38701828, COUNT: 116689547 <<
 // data/25-grams.txt UNIQ: 49034514, COUNT: 95912168 <<
 // data/26-grams.txt UNIQ: 49381937, COUNT: 78259053 <<
-//
+// - - - - - - - - - - - - - - - -
+// u40 fingerprint
+// - - - - - - - - - - - - - - - -
+// data/21-grams.txt UNIQ: 11620, COUNT: 148275434 <<
+// data/22-grams.txt UNIQ: 2666021, COUNT: 175111767 <<
+// data/23-grams.txt UNIQ: 18228071, COUNT: 143967962 <<
+// data/24-grams.txt UNIQ: 38701829, COUNT: 116689548 <<
+// data/25-grams.txt UNIQ: 49034515, COUNT: 95912169 <<
+// data/26-grams.txt UNIQ: 49381938, COUNT: 78259054 <<
 // - - - - - - - - - - - - - - - -
 // MIN_COUNT = 1
 // - - - - - - - - - - - - - - - -
@@ -47,19 +56,19 @@ pub fn NGram(for_real: bool) type {
     _ = for_real;
 
     return struct {
-        c1_grams: HashCount([2]Gram, if (!for_real) 512 else 13_000) = undefined,
-        c2_grams: HashCount([2]Gram, if (!for_real) 512 else 3_000_000) = undefined,
-        c3_grams: HashCount([3]Gram, if (!for_real) 512 else 19_000_000) = undefined,
-        c4_grams: HashCount([4]Gram, if (!for_real) 512 else 40_000_000) = undefined,
-        c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
-        c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
+        // c1_grams: HashCount([2]Gram, if (!for_real) 512 else 13_000) = undefined,
+        // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 3_000_000) = undefined,
+        // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 19_000_000) = undefined,
+        // c4_grams: HashCount([4]Gram, if (!for_real) 512 else 40_000_000) = undefined,
+        // c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
+        // c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
 
-        // c1_grams: HashCount([2]Gram, if (!for_real) 512 else 16_384) = undefined,
-        // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
-        // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined,
-        // c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined,
-        // c5_grams: HashCount([5]Gram, if (!for_real) 512 else 67_108_864) = undefined,
-        // c6_grams: HashCount([6]Gram, if (!for_real) 512 else 67_108_864) = undefined,
+        c1_grams: HashCount([2]Gram, if (!for_real) 512 else 16_384) = undefined,
+        c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
+        c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined, //2^25
+        c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
+        c5_grams: HashCount([5]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
+        c6_grams: HashCount([6]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
 
         allocator: *std.mem.Allocator = undefined,
 
