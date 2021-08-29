@@ -216,7 +216,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print(PAD ++ "Parsing 4-gram {d}%\n", .{percents});
+                    std.debug.print("Parsing 4-gram {d}%\n", .{percents});
                     percents_threshold += ten_percents;
                 }
 
