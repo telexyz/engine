@@ -108,13 +108,13 @@ test "HashCount: put, get" {
 
         for (keys) |*key| key.* = rng.random.int(usize);
 
-        for (keys) |key| {
-            try testing.expectEqual(@as(u24, 1), counters.put(key));
+        for (keys) |key, i| {
+            if (@rem(i, 2) == 0)
+                try testing.expectEqual(@as(u24, 1), counters.put(key));
         }
-        try testing.expectEqual(keys.len, counters.len);
-
-        for (keys) |key| {
-            try testing.expectEqual(@as(u24, 2), counters.put(key));
+        for (keys) |key, i| {
+            if (@rem(i, 2) == 1)
+                try testing.expectEqual(@as(u24, 1), counters.put(key));
         }
         try testing.expectEqual(keys.len, counters.len);
 
@@ -128,6 +128,7 @@ test "HashCount: put, get" {
         //         it = entry.hash;
         //     }
         // }
-        for (keys) |key| try testing.expectEqual(@as(u24, 2), counters.get(key));
+        for (keys) |key|
+            try testing.expectEqual(@as(u24, 1), counters.get(key));
     }
 }
