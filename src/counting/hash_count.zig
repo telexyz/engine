@@ -109,7 +109,7 @@ pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: us
 
 test "HashCount: put, get" {
     var seed: usize = 0;
-    var counters: AutoHashCount(usize, 512) = .{};
+    var counters: AutoHashCount(usize, 512) = undefined;
 
     while (seed < 128) : (seed += 1) {
         try counters.init(testing.allocator);
