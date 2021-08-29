@@ -190,7 +190,7 @@ pub fn write_types_to_files(
         try types_writer.print("{s}{s}", .{ token.value, pad });
     }
 
-    std.debug.print("\n>>> {s} mono_len: {d} <<<\n", .{ freqs_filename, mono_len_count });
+    std.debug.print("\n>>> {s} types have only 1 char: {d} <<<\n", .{ freqs_filename, mono_len_count });
 
     try freqs_wrt.flush();
     try types_wrt.flush();

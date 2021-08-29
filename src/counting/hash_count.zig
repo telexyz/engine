@@ -11,7 +11,7 @@ const Wyhash = std.hash.Wyhash;
 const testing = std.testing;
 const assert = std.debug.assert;
 
-pub fn HashCount(comptime K: type, comptime capacity: usize) type {
+pub fn HashCount(comptime K: type, capacity: usize) type {
     assert(math.isPowerOfTwo(capacity));
 
     const shift = 63 - math.log2_int(u64, capacity) + 1;
@@ -109,21 +109,27 @@ test "HashCount: put, get" {
         defer testing.allocator.free(keys);
 
         for (keys) |*key| key.* = rng.random.int(usize);
-
         try testing.expectEqual(@as(u6, 55), counters.shift);
 
         for (keys) |key| {
             try testing.expectEqual(@as(u24, 1), counters.put(key));
         }
-
         try testing.expectEqual(keys.len, counters.len);
 
         for (keys) |key| {
             try testing.expectEqual(@as(u24, 2), counters.put(key));
         }
-
         try testing.expectEqual(keys.len, counters.len);
 
+        var it: usize = 0;
+        for (counters.slice()) |entry| {
+            if (entry.count != 0) {
+                if (it > entry.hash) {
+                    return error.Unsorted;
+                }
+                it = entry.hash;
+            }
+        }
         for (keys) |key| try testing.expectEqual(@as(u24, 2), counters.get(key));
     }
 }

@@ -5,7 +5,7 @@ const Text = @import("./textoken/text_data_struct.zig").Text;
 const TextokenOutput = @import("./textoken/output_helpers.zig");
 const Tokenizer = @import("./textoken/tokenizer.zig").Tokenizer;
 const text_utils = @import("./textoken/text_utils.zig");
-const NGram = @import("./counting/n_gram.zig").NGram;
+const NGram = @import("./counting/n_gram.zig").NGram(true);
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
@@ -144,7 +144,7 @@ pub fn main() anyerror!void {
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    const thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
     const then_parse_syllable = false;
     // const then_parse_syllable = true; // parse syllable on-the-fly
 
@@ -166,16 +166,14 @@ pub fn main() anyerror!void {
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
 
-        const thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite157Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt", "data/27-seventh_grams.txt" });
-
+        thread = try std.Thread.spawn(.{}, NGram.parseAndWrite15Gram, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt" });
+        try gram.parseAndWrite23Gram(text, "data/22-bi_grams.txt", "data/23-tri_grams.txt");
         try write_results(step2_time);
-        thread1.join();
+        thread.join();
 
-        const thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite236Gram, .{ &gram, text, "data/22-bi_grams.txt", "data/23-tri_grams.txt", "data/26-sixth_grams.txt" });
-        thread2.join();
-
-        const thread3 = try std.Thread.spawn(.{}, NGram.parseAndWrite48Gram, .{ &gram, text, "data/24-fourth_grams.txt", "data/28-eighth_grams.txt" });
-        thread3.join();
+        thread = try std.Thread.spawn(.{}, NGram.parseAndWrite04Gram, .{ &gram, text, "data/24-fourth_grams.txt" });
+        try gram.parseAndWrite06Gram(text, "data/26-sixth_grams.txt");
+        thread.join();
 
         _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
     }
