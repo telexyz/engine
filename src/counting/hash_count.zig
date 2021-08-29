@@ -3,17 +3,15 @@ const std = @import("std");
 
 const mem = std.mem;
 const math = std.math;
+const meta = std.meta;
+
 const Allocator = mem.Allocator;
 const Wyhash = std.hash.Wyhash;
 
 const testing = std.testing;
 const assert = std.debug.assert;
 
-pub fn AutoHashCount(comptime K: type, comptime capacity: usize) type {
-    return HashCount(K, std.hash_map.AutoContext(K), capacity);
-}
-
-pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: usize) type {
+pub fn HashCount(comptime K: type, comptime capacity: usize) type {
     assert(math.isPowerOfTwo(capacity));
 
     const shift = 63 - math.log2_int(u64, capacity) + 1;
@@ -35,15 +33,11 @@ pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: us
         entries: []Entry = undefined,
         len: usize = undefined,
         shift: u6 = undefined,
-        put_probe_count: usize = undefined,
-        get_probe_count: usize = undefined,
 
         pub fn init(self: *Self, init_allocator: *Allocator) !void {
             self.allocator = init_allocator;
             self.len = 0;
             self.shift = shift;
-            self.put_probe_count = 0;
-            self.get_probe_count = 0;
 
             self.entries = try self.allocator.alloc(Entry, size);
             mem.set(Entry, self.entries, .{ .hash = empty_hash });
@@ -53,16 +47,16 @@ pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: us
             self.allocator.free(self.entries);
         }
 
-        pub fn slice(self: *Self) []Self.Entry {
+        pub fn slice(self: Self) []Self.Entry {
             return self.entries[0..size];
         }
 
         pub fn put(self: *Self, key: K) u24 {
-            return self.putContext(key, undefined);
-        }
-
-        pub fn putContext(self: *Self, key: K, ctx: Context) u24 {
-            var it: Self.Entry = .{ .hash = ctx.hash(key), .key = key, .count = 1 };
+            var it: Self.Entry = .{
+                .hash = Wyhash.hash(0, std.mem.asBytes(&key)),
+                .key = key,
+                .count = 1,
+            };
             var i = it.hash >> self.shift;
 
             assert(it.hash != Self.empty_hash);
@@ -70,7 +64,7 @@ pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: us
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= it.hash) {
-                    if (ctx.eql(entry.key, key)) {
+                    if (meta.eql(entry.key, key)) {
                         self.entries[i].count += 1;
                         return entry.count + 1;
                     }
@@ -81,27 +75,21 @@ pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: us
                     }
                     it = entry;
                 }
-                self.put_probe_count += 1;
             }
         }
 
         pub fn get(self: *Self, key: K) u24 {
-            return self.getContext(key, undefined);
-        }
-
-        pub fn getContext(self: *Self, key: K, ctx: Context) u24 {
-            const hash = ctx.hash(key);
+            const hash = Wyhash.hash(0, std.mem.asBytes(&key));
 
             var i = hash >> self.shift;
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= hash) {
-                    if (!ctx.eql(entry.key, key)) {
+                    if (!meta.eql(entry.key, key)) {
                         return 0;
                     }
                     return entry.count;
                 }
-                self.get_probe_count += 1;
             }
         }
     };
@@ -109,7 +97,7 @@ pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: us
 
 test "HashCount: put, get" {
     var seed: usize = 0;
-    var counters: AutoHashCount(usize, 512) = undefined;
+    var counters: HashCount(usize, 512) = undefined;
 
     while (seed < 128) : (seed += 1) {
         try counters.init(testing.allocator);

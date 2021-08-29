@@ -1,4 +1,29 @@
 // - - - - - - - - - - - - - - - - - -
+// MIN_COUNT = 2
+// - - - - - - - - - - - - - - - - - -
+// 119 KB  21-uni_grams.txt
+//  24 MB  22-bi_grams.txt
+// 139 MB  23-tri_grams.txt
+// 258 MB  24-fourth_grams.txt
+// 287 MB  25-fifth_grams.txt
+// 269 MB  26-sixth_grams.txt
+// 243 MB  27-seventh_grams.txt
+// 221 MB  28-eighth_grams.txt
+// - - - - - - - - - - - - - - - - - -
+// n    type     mem             count
+// - - - - - - - - - - - - - - - - - -
+// 1                            148.3m
+// 2 x  1.6m =   3.2 |          175.1m
+// 3 x  6.8m =  20.4 |          144.0m
+// 4 x  9.8m =  39.2 |          116.7m
+// 5 x  8.8m =  48.0 |           96.9m
+// 6 x  6.9m =  41.4 |           78.3m
+// 7 x  5.3m =  37.1 |           63.9m
+// 8 x  4.2m =  33.6 |           52.1m
+// - - - - - - - - - - - - - - - - - -
+//     43.4m n-grams
+
+// - - - - - - - - - - - - - - - - - -
 // MIN_COUNT = 1
 // - - - - - - - - - - - - - - - - - -
 //  119 KB  21-uni_grams.txt
@@ -23,69 +48,23 @@
 // - - - - - - - - - - - - - - - - - -
 //    241.0m n-grams
 
-// - - - - - - - - - - - - - - - - - -
-// MIN_COUNT = 2
-// - - - - - - - - - - - - - - - - - -
-// 119 KB  21-uni_grams.txt
-//  24 MB  22-bi_grams.txt
-// 139 MB  23-tri_grams.txt
-// 258 MB  24-fourth_grams.txt
-// 287 MB  25-fifth_grams.txt
-// 269 MB  26-sixth_grams.txt
-// 243 MB  27-seventh_grams.txt
-// 221 MB  28-eighth_grams.txt
-// - - - - - - - - - - - - - - - - - -
-// n    type     mem             count
-// - - - - - - - - - - - - - - - - - -
-// 1                            148.3m
-// 2 x  1.6m =   3.2 |          175.1m
-// 3 x  6.8m =  20.4 |          144.0m
-// 4 x  9.8m =  39.2 |          116.7m
-// 5 x  8.8m =  48.0 |           96.9m
-// 6 x  6.9m =  41.4 |           78.3m
-// 7 x  5.3m =  37.1 |           63.9m
-// 8 x  4.2m =  33.6 |           52.1m
-// - - - - - - - - - - - - - - - - - -
-//     43.4m n-grams (1.6+6.8+9.8+8.8+6.9+5.3+4.2)
-
-//- - - - - - - - - - - - - - - - - -
-// MIN_COUNT = 5
-//- - - - - - - - - - - - - - - - - -
-// n   type    mem              count
-//- - - - - - - - - - - - - - - - - -
-// 1                           148.3m
-// 5 x 2.0m = 10.0 |            96.9m
-// 7 x 0.9m =  6.3 | 16.3       63.9m
-
-// 2 x 0.9m =  1.8 |           175.1m
-// 3 x 2.6m =  7.8 |           144.0m
-// 6 x 1.3m =  7.8 | 17.4       78.3m
-
-// 4 x 2.8m = 11.2 |           116.7m
-// 8 x 0.6m =  4.8 | 16         52.1m
-//- - - - - - - - - - - - - - - - - -
-//    11.1m n-grams
-//- - - - - - - - - - - - - - - - - -
-//    total = 49.7 (1.8 + 7.8 + 11.2 + 10.0 + 7.8 + 6.3 + 4.8)
-//      avg =  7.1
-//      % 4 = 12.4
-//      % 3 = 16.6
-
 const std = @import("std");
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
+const AutoHashCount = @import("./hash_count.zig").AutoHashCount;
+
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;
 
 pub const NGram = struct {
-    c1_grams: std.AutoHashMap([2]Gram, u32) = undefined,
-    c2_grams: std.AutoHashMap([2]Gram, u32) = undefined,
-    c3_grams: std.AutoHashMap([3]Gram, u32) = undefined,
-    c4_grams: std.AutoHashMap([4]Gram, u32) = undefined,
-    c5_grams: std.AutoHashMap([5]Gram, u32) = undefined,
-    c6_grams: std.AutoHashMap([6]Gram, u32) = undefined,
-    c7_grams: std.AutoHashMap([7]Gram, u32) = undefined,
-    c8_grams: std.AutoHashMap([8]Gram, u32) = undefined,
+    c1_grams: AutoHashCount([2]Gram, 16_384) = undefined, //     2^14
+    c2_grams: AutoHashCount([2]Gram, 4_194_304) = undefined, //  2^22
+    c3_grams: AutoHashCount([3]Gram, 33_554_432) = undefined, // 2^25
+    c4_grams: AutoHashCount([4]Gram, 67_108_864) = undefined, // 2^26
+    c5_grams: AutoHashCount([5]Gram, 67_108_864) = undefined,
+    c6_grams: AutoHashCount([6]Gram, 67_108_864) = undefined,
+    c7_grams: AutoHashCount([7]Gram, 67_108_864) = undefined,
+    c8_grams: AutoHashCount([8]Gram, 67_108_864) = undefined,
 
     allocator: *std.mem.Allocator = undefined,
 
@@ -93,25 +72,10 @@ pub const NGram = struct {
 
     pub fn init(self: *NGram, init_allocator: *std.mem.Allocator) void {
         self.allocator = init_allocator;
-        self.c1_grams = std.AutoHashMap([2]Gram, u32).init(self.allocator);
-        self.c2_grams = std.AutoHashMap([2]Gram, u32).init(self.allocator);
-        self.c3_grams = std.AutoHashMap([3]Gram, u32).init(self.allocator);
-        self.c4_grams = std.AutoHashMap([4]Gram, u32).init(self.allocator);
-        self.c5_grams = std.AutoHashMap([5]Gram, u32).init(self.allocator);
-        self.c6_grams = std.AutoHashMap([6]Gram, u32).init(self.allocator);
-        self.c7_grams = std.AutoHashMap([7]Gram, u32).init(self.allocator);
-        self.c8_grams = std.AutoHashMap([8]Gram, u32).init(self.allocator);
     }
 
     pub fn deinit(self: *NGram) void {
         _ = self;
-        // self.c2_grams.deinit();
-        // self.c3_grams.deinit();
-        // self.c4_grams.deinit();
-        // self.c5_grams.deinit();
-        // self.c6_grams.deinit();
-        // self.c7_grams.deinit();
-        // self.c8_grams.deinit();
     }
 
     const PAD = "                        ";
@@ -121,6 +85,10 @@ pub const NGram = struct {
         const ten_percents = text.tokens_num / 10;
         var percents_threshold = ten_percents;
         var percents: u8 = 0;
+
+        try self.c2_grams.init(self.allocator);
+        try self.c3_grams.init(self.allocator);
+        try self.c6_grams.init(self.allocator);
 
         var grams: [6]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
         var i: usize = 0;
@@ -141,24 +109,17 @@ pub const NGram = struct {
             grams[4] = grams[5];
             grams[5] = syllable_ids[i];
 
-            if (!(grams[4] == BLANK and grams[5] == BLANK)) {
-                const gop2 = try self.c2_grams.getOrPutValue(grams[4..6].*, 0);
-                gop2.value_ptr.* += 1;
-            }
+            if (!(grams[4] == BLANK and grams[5] == BLANK))
+                _ = self.c2_grams.put(grams[4..6].*);
 
             if (!(grams[4] == BLANK) and
                 !(grams[3] == BLANK and grams[5] == BLANK))
-            {
-                const gop3 = try self.c3_grams.getOrPutValue(grams[3..6].*, 0);
-                gop3.value_ptr.* += 1;
-            }
+                _ = self.c3_grams.put(grams[3..6].*);
 
             if (grams[1] == BLANK or grams[2] == BLANK) continue;
             if (grams[3] == BLANK or grams[4] == BLANK) continue;
             if (grams[0] == BLANK and grams[5] == BLANK) continue;
-
-            const gop6 = try self.c6_grams.getOrPutValue(grams, 0);
-            gop6.value_ptr.* += 1;
+            _ = self.c6_grams.put(grams);
         } // while
 
         try writeGramCounts(self.c2_grams, filename2, false);
@@ -176,6 +137,10 @@ pub const NGram = struct {
         const ten_percents = text.tokens_num / 10;
         var percents_threshold = ten_percents;
         var percents: u8 = 0;
+
+        try self.c1_grams.init(self.allocator);
+        try self.c5_grams.init(self.allocator);
+        try self.c7_grams.init(self.allocator);
 
         var grams: [7]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
         var i: usize = 0;
@@ -197,25 +162,17 @@ pub const NGram = struct {
             grams[5] = grams[6];
             grams[6] = syllable_ids[i];
 
-            if (grams[6] != BLANK) {
-                const gop1 = try self.c1_grams.getOrPutValue(.{ grams[6], BLANK }, 0);
-                gop1.value_ptr.* += 1;
-            }
+            if (grams[6] != BLANK)
+                _ = self.c1_grams.put(.{ grams[6], BLANK });
 
             if (!(grams[3] == BLANK or grams[4] == BLANK or grams[5] == BLANK) and
                 !(grams[2] == BLANK and grams[6] == BLANK))
-            {
-                const gop5 = try self.c5_grams.getOrPutValue(grams[2..7].*, 0);
-                gop5.value_ptr.* += 1;
-            }
+                _ = self.c5_grams.put(grams[2..7].*);
 
             if (!(grams[1] == BLANK or grams[2] == BLANK or grams[3] == BLANK) and
                 !(grams[4] == BLANK or grams[5] == BLANK) and
                 !(grams[0] == BLANK and grams[6] == BLANK))
-            {
-                const gop7 = try self.c7_grams.getOrPutValue(grams[0..7].*, 0);
-                gop7.value_ptr.* += 1;
-            }
+                _ = self.c7_grams.put(grams[0..7].*);
         }
 
         try writeGramCounts(self.c1_grams, filename1, true);
@@ -233,6 +190,9 @@ pub const NGram = struct {
         const ten_percents = text.tokens_num / 10;
         var percents_threshold = ten_percents;
         var percents: u8 = 0;
+
+        try self.c4_grams.init(self.allocator);
+        try self.c8_grams.init(self.allocator);
 
         var grams: [8]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
         var i: usize = 0;
@@ -257,17 +217,12 @@ pub const NGram = struct {
 
             if (!(grams[5] == BLANK or grams[6] == BLANK) and
                 !(grams[4] == BLANK and grams[7] == BLANK))
-            {
-                const gop4 = try self.c4_grams.getOrPutValue(grams[4..8].*, 0);
-                gop4.value_ptr.* += 1;
-            }
+                _ = self.c4_grams.put(grams[4..8].*);
 
             if (grams[1] == BLANK or grams[2] == BLANK or grams[3] == BLANK) continue;
             if (grams[4] == BLANK or grams[5] == BLANK or grams[6] == BLANK) continue;
             if (grams[0] == BLANK and grams[7] == BLANK) continue;
-
-            const gop8 = try self.c8_grams.getOrPutValue(grams[0..8].*, 0);
-            gop8.value_ptr.* += 1;
+            _ = self.c8_grams.put(grams[0..8].*);
         }
 
         try writeGramCounts(self.c4_grams, filename4, false);
@@ -278,57 +233,41 @@ pub const NGram = struct {
     }
 };
 
-fn order_by_count_desc(context: void, a: GramInfo, b: GramInfo) bool {
-    _ = context;
-    return a.count > b.count;
+fn orderFn(comptime T: type) type {
+    return struct {
+        pub fn order_by_count_desc(context: void, a: T, b: T) bool {
+            _ = context;
+            return a.count > b.count;
+        }
+    };
 }
-
-const GramInfo = struct {
-    grams: []const Gram,
-    count: u32,
-};
 
 pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !void {
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
 
     var min_count: u8 = NGram.MIN_COUNT;
-    if (grams.count() < 100_000) min_count = 1;
-
-    var grams_list = try std.ArrayList(GramInfo).initCapacity(
-        std.heap.page_allocator,
-        grams.count(),
-    );
-    defer grams_list.deinit();
-
-    // Add items
-    var it = grams.iterator();
-    var total: usize = 0;
-    var count: u32 = undefined;
-
-    while (it.next()) |kv| {
-        count = kv.value_ptr.*;
-        total += count;
-
-        if (count < min_count) continue;
-        try grams_list.append(.{
-            .grams = kv.key_ptr,
-            .count = count,
-        });
-    } // while
-
-    std.debug.print("\n>> {s} TOKENS COUNT {d} <<\n", .{ filename, total });
+    if (grams.len < 100_000) min_count = 1;
 
     // Sort by count desc
-    std.sort.sort(GramInfo, grams_list.items, {}, order_by_count_desc);
+    var items = grams.slice();
+    const Entry = @TypeOf(grams).Entry;
+    std.sort.sort(Entry, items, {}, orderFn(Entry).order_by_count_desc);
 
     var file = try std.fs.cwd().createFile(filename, .{});
     defer file.close();
     var wrt = std.io.bufferedWriter(file.writer());
     var writer = wrt.writer();
 
-    for (grams_list.items) |item| {
-        var id: Gram = item.grams[0];
+    var total: usize = 0;
+
+    for (items) |item| {
+        if (item.count == 0) break;
+
+        total += item.count;
+        if (item.count < min_count) continue;
+
+        var id: Gram = item.key[0];
         if (id == BLANK)
             try writer.print("{d} #", .{item.count})
         else
@@ -343,8 +282,8 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
         }
 
         var i: u8 = 1;
-        while (i < item.grams.len) : (i += 1) {
-            id = item.grams[i];
+        while (i < item.key.len) : (i += 1) {
+            id = item.key[i];
             if (id == BLANK)
                 _ = try writer.write(" #")
             else
@@ -355,6 +294,8 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
     }
 
     try wrt.flush();
+
+    std.debug.print("\n>> {s} TOKENS COUNT {d} <<\n", .{ filename, total });
 }
 
 test "ngram" {
