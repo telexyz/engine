@@ -12,8 +12,7 @@ const testing = std.testing;
 const assert = std.debug.assert;
 
 pub fn HashCount(comptime K: type, capacity: usize) type {
-    const shift = 63 - math.log2_int(u64, capacity) + 1;
-    const overflow = capacity / 10 + (64 - @as(u64, shift)) << 1;
+    const overflow = capacity / 10 + math.log2_int(u64, capacity) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
