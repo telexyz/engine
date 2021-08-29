@@ -1,14 +1,21 @@
+// data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
+// data/22-grams.txt UNIQ: 2666021,  COUNT: 175111766 <<
+// data/23-grams.txt UNIQ: 18228070, COUNT: 143967960 <<
+// data/24-grams.txt UNIQ: 38701828, COUNT: 116689547 <<
+// data/25-grams.txt UNIQ: 49034514, COUNT: 95912168 <<
+// data/26-grams.txt UNIQ: 49381937, COUNT: 78259053 <<
+//
 // - - - - - - - - - - - - - - - -
 // MIN_COUNT = 1
 // - - - - - - - - - - - - - - - -
-//  119 KB  21-uni_grams.txt
-//   39 MB  22-bi_grams.txt
-//  371 MB  23-tri_grams.txt
-// 1012 MB  24-fourth_grams.txt
-//  1.5 GB  25-fifth_grams.txt
-//  1.9 GB  26-sixth_grams.txt
-//  2.0 GB  27-seventh_grams.txt
-//  1.9 GB  28-eighth_grams.txt
+//  119 KB  21-grams.txt
+//   39 MB  22-grams.txt
+//  371 MB  23-grams.txt
+// 1012 MB  24-grams.txt
+//  1.5 GB  25-grams.txt
+//  1.9 GB  26-grams.txt
+//  2.0 GB  27-grams.txt
+//  1.9 GB  28-grams.txt
 // - - - - - - - - - - - - - - - -
 // n   type   bytes  mem     count
 // - - - - - - - - - - - - - - - -
@@ -16,7 +23,7 @@
 // 2   2.7m x 11 =  30mb    175.1m
 // 3  18.2m x 13 = 237mb    144.0m
 // 4  38.7m x 15 = 581mb    116.7m
-// 5  49.0m x 17 = 833mb     96.9m
+// 5  49.0m x 17 = 833mb     95.9m
 // 6  49.4m x 19 = 939mb     78.3m
 // - - - - - - - - - - - - - - - -
 //   158.0m 2..6-grams
@@ -27,6 +34,7 @@
 //   241.0m 2..8-grams
 // - - - - - - - - - - - - - - - -
 
+const MIN_COUNT: u24 = 10;
 const std = @import("std");
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
@@ -234,8 +242,7 @@ fn orderFn(comptime T: type) type {
 pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !void {
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
-
-    var min_count: u24 = 1;
+    var min_count: u24 = if (grams.len < 100_100) 1 else MIN_COUNT;
 
     // Sort by count desc
     var items = grams.slice();
@@ -283,7 +290,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
 
     try wrt.flush();
 
-    std.debug.print("\n>> {s} TOKENS COUNT {d} <<\n", .{ filename, total });
+    std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<\n", .{ filename, grams.len, total });
 }
 
 test "ngram" {
