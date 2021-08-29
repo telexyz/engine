@@ -1,5 +1,7 @@
 Hash
 
+https://medium.com/@udaysagar.2177/fastest-lru-cache-in-java-c22262de42ad
+
 https://martin.ankerl.com/2016/09/15/very-fast-hashmap-in-c-part-1
 
 
