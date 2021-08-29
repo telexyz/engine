@@ -2,9 +2,10 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 ## TODOs
 
-* Tìm hiểu Zig HashMap, tìm cách hiệu quả nhất dùng `u64` để định danh mọi n-grams `[n]u16` với n = 1..8
+* Tìm cách đếm, lưu n-gram (bao gồm từ điển) hiệu quả nhất `docs/n-gram_lookup_IFM_trie.md`
 
-Xem `docs/.0{1,2}-xxxx.md`
+* Others TODOs `docs/.0{1,2}-xxxx.md`
+
 
 ## REWRITE
 
@@ -20,6 +21,7 @@ Một module quan trọng trong việc trình bày lại token dưới dạng ve
 
 https://aegis4048.github.io/optimize_computational_efficiency_of_skip-gram_with_negative_sampling
 
+
 - - -
 
 [ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, LOẠI BỎ DỮ LIỆU TRÙNG LẶP, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
@@ -29,6 +31,7 @@ Dưới góc nhìn quản trị dữ liệu còn rất nhiều việc thú vị 
 Nếu coi corpus là một file text lớn, mỗi câu được chứa trên một dòng, mỗi dòng khoảng 12.5 tokens, thì 10 triệu dòng chiếm khoảng 600MB. Mỗi file text lớn có file index (.idx) riêng đi kèm, tương tự như có file thông tin trích xuất như định danh / mã hoá (.cdx) riêng đi kèm.
 
 Dùng `u32` để định danh thì sẽ chứa được gần 4.3 tỉ đầu mục, tương đương với 1 file text copus 2.1Tb. Dữ liệu https://pile.eleuther.ai cho mô hình ngôn ngữ siêu khủng mới chỉ ở mức 0.8Tb (800GB).
+
 
 ## Thành tựu chính
 
@@ -50,8 +53,13 @@ Số lượng âm tiết tiếng Việt viết thường lọc từ corpus rơi 
 => TRUNG BÌNH MỘT GIÂY PHÂN TÁCH VÀ PHÂN LOẠI 5 TRIỆU TOKENS, ĐỊNH DANH 3.65 TRIỆU ÂM TIẾT TV
 Trên máy macbook 2015, 8Gb ram, 1.1Ghz Duo-core Intel M
 
-Đối chiếu https://github.com/phuonglh/vn.vitk
-The word segmentation tool of Vitk can tokenize a text of two million Vietnamese syllables in 20 seconds on a cluster of three computers (24 cores, 24 GB RAM), giving an accuracy of about 97%. https://github.com/phuonglh/jlp
+_Đối chiếu_
+
+1/ https://github.com/phuonglh/vn.vitk | https://github.com/phuonglh/jlp can tokenize a text of two million Vietnamese syllables in 20 seconds on a cluster of three computers (24 cores, 24 GB RAM), giving an accuracy of about 97%
+
+2/ https://github.com/vncorenlp/VnCoreNLP
+![](docs/files/vn_word_segmenters_speed.png)
+
 
 - - -
 
