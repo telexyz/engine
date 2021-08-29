@@ -52,7 +52,7 @@
 //   241.0m 2..8-grams
 // - - - - - - - - - - - - - - - -
 
-const MIN_COUNT: u24 = 10;
+const MIN_COUNT: u24 = 1;
 const std = @import("std");
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
@@ -62,17 +62,15 @@ const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;
 
 pub fn NGram(for_real: bool) type {
-    _ = for_real;
-
     return struct {
-        c1_grams: HashCount([2]Gram, if (!for_real) 512 else 13_000) = undefined,
+        c1_grams: HashCount([1]Gram, if (!for_real) 512 else 13_000) = undefined,
         c2_grams: HashCount([2]Gram, if (!for_real) 512 else 3_000_000) = undefined,
         c3_grams: HashCount([3]Gram, if (!for_real) 512 else 19_000_000) = undefined,
         c4_grams: HashCount([4]Gram, if (!for_real) 512 else 40_000_000) = undefined,
         c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
         c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
 
-        // c1_grams: HashCount([2]Gram, if (!for_real) 512 else 16_384) = undefined,
+        // c1_grams: HashCount([1]Gram, if (!for_real) 512 else 16_384) = undefined,
         // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
         // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined, //2^25
         // c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
@@ -198,7 +196,7 @@ pub fn NGram(for_real: bool) type {
                 grams[4] = syllable_ids[i];
 
                 if (grams[4] != BLANK)
-                    _ = self.c1_grams.put(.{ grams[4], BLANK });
+                    _ = self.c1_grams.put(.{grams[4]});
 
                 if (!(grams[1] == BLANK or grams[2] == BLANK or grams[3] == BLANK) and
                     !(grams[0] == BLANK and grams[4] == BLANK))
@@ -257,15 +255,22 @@ fn orderFn(comptime T: type) type {
     };
 }
 
+const Base64Encoder = std.base64.standard_no_pad.Encoder; // standard vs standard_no_pad
 pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !void {
+    _ = uniGram;
+
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
+
+    var buffer2: [13]u8 = undefined;
+    const buff2 = buffer2[0..];
+
     var min_count: u24 = if (grams.len < 100_100) 1 else MIN_COUNT;
 
     // Sort by count desc
     var items = grams.slice();
-    const Entry = @TypeOf(grams).Entry;
-    std.sort.sort(Entry, items, {}, orderFn(Entry).order_by_count_desc);
+    // const Entry = @TypeOf(grams).Entry;
+    // std.sort.sort(Entry, items, {}, orderFn(Entry).order_by_count_desc);
 
     var file = try std.fs.cwd().createFile(filename, .{});
     defer file.close();
@@ -275,39 +280,40 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
     var total: usize = 0;
 
     for (items) |item| {
-        if (item.count == 0) break;
+        if (item.count == 0) continue;
 
         total += item.count;
         if (item.count < min_count) continue;
 
-        var id: Gram = item.key[0];
-        if (id == BLANK)
-            try writer.print("{d} #", .{item.count})
-        else
-            try writer.print("{d} {s}", .{
-                item.count,
-                Syllable.newFromId(id).printBuff(buff, false),
-            });
+        try writer.print("{d} {s} {s}\n", .{
+            item.count,
+            Base64Encoder.encode(buff, std.mem.asBytes(&item.hash)),
+            Base64Encoder.encode(buff2, std.mem.asBytes(&item.fp)),
+        });
 
-        if (uniGram) {
-            _ = try writer.write("\n");
-            continue;
-        }
-
-        var i: u8 = 1;
-        while (i < item.key.len) : (i += 1) {
-            id = item.key[i];
-            if (id == BLANK)
-                _ = try writer.write(" #")
-            else
-                try writer.print(" {s}", .{Syllable.newFromId(id).printBuff(buff, false)});
-        }
-
-        _ = try writer.write("\n");
+        // var id: Gram = item.key[0];
+        // if (id == BLANK)
+        //     try writer.print("{d} #", .{item.count})
+        // else
+        //     try writer.print("{d} {s}", .{
+        //         item.count,
+        //         Syllable.newFromId(id).printBuff(buff, false),
+        //     });
+        // if (uniGram) {
+        //     _ = try writer.write("\n");
+        //     continue;
+        // }
+        // var i: u8 = 1;
+        // while (i < item.key.len) : (i += 1) {
+        //     id = item.key[i];
+        //     if (id == BLANK)
+        //         _ = try writer.write(" #")
+        //     else
+        //         try writer.print(" {s}", .{Syllable.newFromId(id).printBuff(buff, false)});
+        // }
+        // _ = try writer.write("\n");
     }
-
     try wrt.flush();
-
     std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<", .{ filename, grams.len, total });
 }
 

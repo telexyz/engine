@@ -16,12 +16,12 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
     const size: usize = capacity + overflow;
 
     return struct {
-        pub const Fingerprint = u22;
+        pub const Fingerprint = u24;
         pub const empty_hash = math.maxInt(u32);
         pub const Entry = struct {
             hash: u32 = empty_hash,
             fp: Fingerprint = undefined,
-            key: K = undefined,
+            // key: K = undefined,
             count: u24 = 0,
         };
 
@@ -53,8 +53,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
 
         inline fn _fingerprint(key: K) Fingerprint {
             const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            // const hash = std.hash.Wyhash.hash(0, mem.asBytes(&key));
-            return @truncate(Fingerprint, hash);
+            return (@intCast(u24, key.len) << 22) | @truncate(u22, hash);
         }
 
         pub fn put(self: *Self, key: K) u24 {
@@ -62,7 +61,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             var it: Self.Entry = .{
                 .hash = _hash(key),
                 .fp = fp,
-                .key = key,
+                // .key = key,
                 .count = 1,
             };
             assert(it.hash != Self.empty_hash);
@@ -109,7 +108,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
 
 test "HashCount: put, get" {
     var seed: usize = 0;
-    const HC = HashCount(usize, 512);
+    const HC = HashCount([1]usize, 512);
     var counters: HC = undefined;
 
     while (seed < 128) : (seed += 1) {
@@ -125,11 +124,11 @@ test "HashCount: put, get" {
 
         for (keys) |key, i| {
             if (@rem(i, 2) == 0)
-                try testing.expectEqual(@as(u24, 1), counters.put(key));
+                try testing.expectEqual(@as(u24, 1), counters.put(.{key}));
         }
         for (keys) |key, i| {
             if (@rem(i, 2) == 1)
-                try testing.expectEqual(@as(u24, 1), counters.put(key));
+                try testing.expectEqual(@as(u24, 1), counters.put(.{key}));
         }
         try testing.expectEqual(keys.len, counters.len);
 
@@ -143,6 +142,6 @@ test "HashCount: put, get" {
             }
         }
         for (keys) |key|
-            try testing.expectEqual(@as(u24, 1), counters.get(key));
+            try testing.expectEqual(@as(u24, 1), counters.get(.{key}));
     }
 }
