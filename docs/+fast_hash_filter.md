@@ -21,6 +21,4 @@ https://github.com/fastfloat/fast_float
 
 Filter
 
-https://elixirforum.com/t/efuse-filter-a-binary-fuse-filter-nif-theyre-faster-and-smaller-than-bloom-cuckoo-and-xor-filters/41540/1
-
 https://github.com/FastFilter/xor_singleheader/blob/master/include/binaryfusefilter.h
