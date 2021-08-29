@@ -3,15 +3,17 @@ const std = @import("std");
 
 const mem = std.mem;
 const math = std.math;
-const testing = std.testing;
+const Allocator = mem.Allocator;
+const Wyhash = std.hash.Wyhash;
 
+const testing = std.testing;
 const assert = std.debug.assert;
 
-pub fn AutoStaticHashCount(comptime K: type, comptime capacity: usize) type {
-    return StaticHashCount(K, std.hash_map.AutoContext(K), capacity);
+pub fn AutoHashCount(comptime K: type, comptime capacity: usize) type {
+    return HashCount(K, std.hash_map.AutoContext(K), capacity);
 }
 
-pub fn StaticHashCount(comptime K: type, comptime Context: type, comptime capacity: usize) type {
+pub fn HashCount(comptime K: type, comptime Context: type, comptime capacity: usize) type {
     assert(math.isPowerOfTwo(capacity));
 
     const shift = 63 - math.log2_int(u64, capacity) + 1;
@@ -24,18 +26,32 @@ pub fn StaticHashCount(comptime K: type, comptime Context: type, comptime capaci
         pub const Entry = struct {
             hash: u64 = empty_hash,
             key: K = undefined,
-            count: u24 = undefined,
+            count: u24 = 0,
         };
 
         const Self = @This();
 
-        entries: [size]Entry = [_]Entry{.{}} ** size,
-        len: usize = 0,
-        shift: u6 = shift,
+        allocator: *Allocator = undefined,
+        entries: []Entry = undefined,
+        len: usize = undefined,
+        shift: u6 = undefined,
+        put_probe_count: usize = undefined,
+        get_probe_count: usize = undefined,
 
-        put_probe_count: usize = 0,
-        get_probe_count: usize = 0,
-        del_probe_count: usize = 0,
+        pub fn init(self: *Self, init_allocator: *Allocator) !void {
+            self.allocator = init_allocator;
+            self.len = 0;
+            self.shift = shift;
+            self.put_probe_count = 0;
+            self.get_probe_count = 0;
+
+            self.entries = try self.allocator.alloc(Entry, size);
+            mem.set(Entry, self.entries, .{ .hash = empty_hash });
+        }
+
+        pub fn deinit(self: *Self) void {
+            self.allocator.free(self.entries);
+        }
 
         pub fn slice(self: *Self) []Self.Entry {
             return self.entries[0..size];
@@ -49,7 +65,6 @@ pub fn StaticHashCount(comptime K: type, comptime Context: type, comptime capaci
             var it: Self.Entry = .{ .hash = ctx.hash(key), .key = key, .count = 1 };
             var i = it.hash >> self.shift;
 
-            // std.debug.print("\nhash: {}, i: {}\n", .{ it.hash, i });//DEBUG
             assert(it.hash != Self.empty_hash);
 
             while (true) : (i += 1) {
@@ -92,10 +107,14 @@ pub fn StaticHashCount(comptime K: type, comptime Context: type, comptime capaci
     };
 }
 
-test "StaticHashCount: put, get" {
+test "HashCount: put, get" {
     var seed: usize = 0;
+    var counters: AutoHashCount(usize, 512) = .{};
+
     while (seed < 128) : (seed += 1) {
-        var counters: AutoStaticHashCount(usize, 512) = .{};
+        try counters.init(testing.allocator);
+        defer counters.deinit();
+
         var rng = std.rand.DefaultPrng.init(seed);
 
         const keys = try testing.allocator.alloc(usize, 512);
