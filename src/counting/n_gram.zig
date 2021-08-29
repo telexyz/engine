@@ -8,28 +8,21 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // u32 cityhash, u32 wyhash as fingerprint
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/21-grams.txt UNIQ: 11620, COUNT: 148275434 <<
-// data/22-grams.txt UNIQ: 2666021, COUNT: 175111767 <<
+// data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
+// data/22-grams.txt UNIQ: 2666021,  COUNT: 175111767 <<
 // data/23-grams.txt UNIQ: 18228071, COUNT: 143967962 <<
 // data/24-grams.txt UNIQ: 38701829, COUNT: 116689548 <<
 // data/25-grams.txt UNIQ: 49034515, COUNT: 95912169 <<
 // data/26-grams.txt UNIQ: 49381938, COUNT: 78259054 <<
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// u32 cityhash, u30 Fnv1a as fingerprint
+// u32 cityhash, u22 Fnv1a as fingerprint
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/22-grams.txt UNIQ: 2666021, COUNT: 175111767 <<
+// data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
+// data/22-grams.txt UNIQ: 2666021,  COUNT: 175111767 <<
 // data/23-grams.txt UNIQ: 18228071, COUNT: 143967962 <<
 // data/24-grams.txt UNIQ: 38701829, COUNT: 116689548 <<
 // data/25-grams.txt UNIQ: 49034515, COUNT: 95912169 <<
 // data/26-grams.txt UNIQ: 49381938, COUNT: 78259054 <<
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// u32 cityhash, u30 Fnv1a as fingerprint
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/22-grams.txt UNIQ: 2666021, COUNT: 175111767 <<
-// data/23-grams.txt UNIQ: 18228060, COUNT: 143967949 <<
-// data/24-grams.txt UNIQ: 38701809, COUNT: 116689537 <<
-// data/25-grams.txt UNIQ: 49034479, COUNT: 95912154 <<
-// data/26-grams.txt UNIQ: 49381888, COUNT: 78258897 <<
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // MIN_COUNT = 1
 // - - - - - - - - - - -
