@@ -341,8 +341,8 @@ test "ngram" {
     text.tokens_num_finalized = true;
     text_utils.parseTokens(&text);
 
-    try gram.parseAndWrite15Gram(text, "data/temp1.txt", "data/temp5.txt");
-    try gram.parseAndWrite23Gram(text, "data/temp2.txt", "data/temp3.txt");
-    try gram.parseAndWrite04Gram(text, "data/temp4.txt");
-    try gram.parseAndWrite06Gram(text, "data/temp6.txt");
+    try gram.parseAndWrite15Gram(text, "data/temp1.cdx", "data/temp5.cdx");
+    try gram.parseAndWrite23Gram(text, "data/temp2.cdx", "data/temp3.cdx");
+    try gram.parseAndWrite04Gram(text, "data/temp4.cdx");
+    try gram.parseAndWrite06Gram(text, "data/temp6.cdx");
 }

@@ -166,14 +166,14 @@ pub fn main() anyerror!void {
         gram.init(std.heap.page_allocator);
         defer gram.deinit();
 
-        var thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite15Gram, .{ &gram, text, "data/21-grams.txt", "data/25-grams.txt" });
-        var thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite23Gram, .{ &gram, text, "data/22-grams.txt", "data/23-grams.txt" });
+        var thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite15Gram, .{ &gram, text, "data/21-grams.cdx", "data/25-grams.cdx" });
+        var thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite23Gram, .{ &gram, text, "data/22-grams.cdx", "data/23-grams.cdx" });
         // try write_results(step2_time);
         thread1.join();
         thread2.join();
 
-        thread = try std.Thread.spawn(.{}, NGram.parseAndWrite04Gram, .{ &gram, text, "data/24-grams.txt" });
-        try gram.parseAndWrite06Gram(text, "data/26-grams.txt");
+        thread = try std.Thread.spawn(.{}, NGram.parseAndWrite04Gram, .{ &gram, text, "data/24-grams.cdx" });
+        try gram.parseAndWrite06Gram(text, "data/26-grams.cdx");
         thread.join();
 
         _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
