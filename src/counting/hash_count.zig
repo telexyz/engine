@@ -14,12 +14,15 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
     return struct {
         pub const Fingerprint = u32;
         pub const HashType = u32;
-        pub const empty_hash = math.maxInt(HashType);
+        pub const maxx_hash = math.maxInt(HashType);
+
         pub const Entry = struct {
-            hash: HashType = empty_hash,
+            hash: HashType = maxx_hash,
             fp: Fingerprint = 0,
             count: u24 = 0,
         };
+        // fp chứa 29-bits từ 1 hàm hash u32 và 3-bits chứa độ dài n-gram từ 1-6
+        // vậy nên fp thật luôn > 0 vì độ dài n-gram luôn > 0
 
         const Self = @This();
 
@@ -32,7 +35,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             self.len = 0;
 
             self.entries = try self.allocator.alloc(Entry, size);
-            mem.set(Entry, self.entries, .{ .hash = empty_hash });
+            mem.set(Entry, self.entries, .{ .hash = maxx_hash, .count = 0 });
         }
 
         pub fn deinit(self: *Self) void {
@@ -44,7 +47,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         }
 
         inline fn _hash(key: K) HashType {
-            return @truncate(HashType, std.hash.CityHash32.hash(mem.asBytes(&key)));
+            return std.hash.CityHash32.hash(mem.asBytes(&key));
         }
 
         inline fn _fingerprint(key: K) Fingerprint {
@@ -53,6 +56,9 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         }
 
         pub fn put(self: *Self, key: K) u24 {
+            // Từ key ta dùng hash functions để khởi tạo giá trị hash và fingerprint
+            // Ta sử dụng hash + fingerprint để đại diện cho key
+            // Thực tế sử dụng cần mò độ lớn của fingerprint hợp lý để tránh va chạm
             const fp = _fingerprint(key);
             var it: Self.Entry = .{
                 .hash = _hash(key),
@@ -60,24 +66,43 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
                 .count = 1,
             };
 
+            // Sử dụng số dư của phép chia @rem để map hash value về vị trí index của nó
+            // thay vì dùng shift để khởi tạo không bị thừa capacity vì nếu dùng shift
+            // yêu cầu capacity phải là powerOfTwo tức là nếu chỉ chứa 10 phần tử phải khởi tạo
+            // capacity = 16 để đảm bảo nó là powerOfTwo.
+            // Đổi lại thì hash value không được lưu theo thứ tự tăng dần nữa.
             var i = @rem(it.hash, capacity);
             // var i = it.hash >> shift;
+
             while (true) : (i += 1) {
                 const entry = self.entries[i];
+
+                // Vì hash đã được khởi tạp sẵn ở maxx_hash value nên khi tìm được
+                // entry.hash > it.hash thì nhiều khả năng đây là slot trống
                 if (entry.hash >= it.hash) {
+                    // Thay vì so sánh key ta so sánh hash + fingerprint only
+                    // với giả thiết rằng hash + fingerprint là uniq với mỗi key
                     // if (meta.eql(entry.key, key)) {
                     if (entry.fp == fp and entry.hash == it.hash) {
+                        // Tìm được đúng ô chứa, tăng count lên 1 and return :)
                         self.entries[i].count += 1;
                         return entry.count + 1;
                     }
+                    // Không đúng ô chứa mà hash của ô lại lớn hơn thì ta ghi đề giá trị
+                    // của it vào đó
                     self.entries[i] = it;
+
+                    // Nếu ô đó là ô rỗng, count == 0 nghĩa là chưa lưu gì cả, thì
+                    // key đầu vào lần đầu xuất hiện, ta tăng len và return :D
                     if (entry.count == 0) {
                         self.len += 1;
                         return 1;
                     }
+                    // Tráo giá trị it và entries[i] đã được lưu vào entry trừ trước
+                    // để đảm bảo tính tăng dần của hash value
                     it = entry;
                 }
-            }
+            } // while
         }
 
         pub fn get(self: *Self, key: K) u24 {
@@ -86,11 +111,16 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
 
             var i = @rem(hash, capacity);
             // var i = hash >> shift;
+            // Để hàm get hoạt động đúng thì phải dùng capacity isPowerOfTwo để đảm bảo
+            // hash value luôn tăng. Ở đây chỉ dùng để đếm nên hàm get không dùng đến
+            // Như vậy có thể có 2 ô cùng ghi 1 giá trị của key
+            // Lúc load count ngược từ file cần phải kiểm tra!
+
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= hash) {
                     // if (!meta.eql(entry.key, key)) {
-                    if (entry.fp != fp) {
+                    if (entry.fp != fp or entry.hash != hash) {
                         return 0;
                     }
                     return entry.count;
