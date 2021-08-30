@@ -70,6 +70,7 @@ pub fn NGram(for_real: bool) type {
         c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
         c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
 
+        // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
         // c1_grams: HashCount([1]Gram, if (!for_real) 512 else 16_384) = undefined,
         // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
         // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined, //2^25
@@ -89,8 +90,7 @@ pub fn NGram(for_real: bool) type {
             _ = self;
         }
 
-        const PAD = "                        ";
-
+        const PAD = "\n                        ";
         pub fn countAndWrite23(self: *Self, text: Text, filename2: []const u8, filename3: []const u8) !void {
             // Record progress
             const ten_percents = text.tokens_num / 10;
@@ -108,7 +108,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print("Parsing 2,3-gram {d}%\n", .{percents});
+                    std.debug.print("\nParsing 2,3-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -147,7 +147,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print(PAD ++ "Parsing 6-gram {d}%\n", .{percents});
+                    std.debug.print(PAD ++ "Parsing 6-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -185,7 +185,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print(PAD ++ "Parsing 1,5-gram {d}%\n", .{percents});
+                    std.debug.print(PAD ++ "Parsing 1,5-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -226,7 +226,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print("Parsing 4-gram {d}%\n", .{percents});
+                    std.debug.print("\nParsing 4-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
