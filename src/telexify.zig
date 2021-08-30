@@ -164,6 +164,7 @@ pub fn countNGram(step2_time: i64) !void {
 
     // Chạy song song để tăng tốc
     const spawn = std.Thread.spawn;
+
     var thread = try spawn(.{}, NGram.countAndWrite23, .{ &gram, text, "data/22-grams.cdx", "data/23-grams.cdx" });
     try gram.countAndWrite15(text, "data/21-grams.cdx", "data/25-grams.cdx");
     // try write_results(step2_time);
@@ -173,6 +174,26 @@ pub fn countNGram(step2_time: i64) !void {
     thread = try spawn(.{}, NGram.countAndWrite04, .{ &gram, text, "data/24-grams.cdx" });
     try gram.countAndWrite06(text, "data/26-grams.cdx");
     thread.join();
+
+    _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
+}
+
+pub fn countNGram0(step2_time: i64) !void {
+    print("\nSTEP 3: Parse and write n-gram ...\n", .{});
+    var gram: NGram0 = .{};
+    gram.init(std.heap.page_allocator);
+    defer gram.deinit();
+
+    // Chạy hết trong 1 lượt
+    const thread1 = try std.Thread.spawn(.{}, NGram0.countAndWrite48, .{ &gram, text, "data/24-fourth_grams.txt", "data/28-eighth_grams.txt" });
+
+    const thread2 = try std.Thread.spawn(.{}, NGram0.countAndWrite157, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt", "data/27-seventh_grams.txt" });
+
+    // Đếm lâu nhất cho chạy ở process chính
+    try gram.countAndWrite236(text, "data/22-bi_grams.txt", "data/23-tri_grams.txt", "data/26-sixth_grams.txt");
+
+    thread1.join();
+    thread2.join();
 
     _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
 }
@@ -205,6 +226,8 @@ pub fn main() anyerror!void {
     } else {
         // Nếu không thì tuỳ có thể vừa viêt kết quả trong lúc count cho hiệu quả
         try countNGram(step2_time);
+        // Bản implement cũ để đối chiếu
+        // try countNGram0(step2_time);
     }
 
     // Hoàn tất chương trình, hiện tổng thời gian chạy

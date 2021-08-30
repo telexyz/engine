@@ -3,7 +3,7 @@ const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;
-pub const MIN_COUNT = 2;
+pub const MIN_COUNT = 10;
 
 pub const NGram = struct {
     c1_grams: std.AutoHashMap([2]Gram, u32) = undefined,
@@ -12,6 +12,8 @@ pub const NGram = struct {
     c4_grams: std.AutoHashMap([4]Gram, u32) = undefined,
     c5_grams: std.AutoHashMap([5]Gram, u32) = undefined,
     c6_grams: std.AutoHashMap([6]Gram, u32) = undefined,
+    c7_grams: std.AutoHashMap([7]Gram, u32) = undefined,
+    c8_grams: std.AutoHashMap([8]Gram, u32) = undefined,
 
     allocator: *std.mem.Allocator = undefined,
 
@@ -47,7 +49,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print(PAD ++ "Parsing 2,3,6-gram {d}%\n", .{percents});
+                std.debug.print(PAD ++ "Counting 2,3,6-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -102,7 +104,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print("Parsing 1,5,7-gram {d}%\n", .{percents});
+                std.debug.print("Counting 1,5,7-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -159,7 +161,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print(PAD ++ PAD ++ "Parsing 7,8-gram {d}%\n", .{percents});
+                std.debug.print(PAD ++ PAD ++ "Counting 4,8-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -209,7 +211,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
 
-    var min_count: u8 = NGram.MIN_COUNT;
+    var min_count: u8 = MIN_COUNT;
     if (grams.count() < 100_000) min_count = 1;
 
     var grams_list = try std.ArrayList(GramInfo).initCapacity(
@@ -228,13 +230,14 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
         total += count;
 
         if (count < min_count) continue;
+
         try grams_list.append(.{
             .grams = kv.key_ptr,
             .count = count,
         });
     } // while
 
-    std.debug.print("\n>> {s} TOKENS COUNT {d} <<\n", .{ filename, total });
+    std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<\n", .{ filename, grams.count(), total });
 
     // Sort by count desc
     std.sort.sort(GramInfo, grams_list.items, {}, order_by_count_desc);

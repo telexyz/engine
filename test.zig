@@ -10,5 +10,6 @@ test "all" {
     _ = @import("./src/textoken/text_utils.zig");
 
     _ = @import("./src/counting/n_gram.zig");
+    _ = @import("./src/counting/n_gram0.zig");
     _ = @import("./src/counting/hash_count.zig");
 }

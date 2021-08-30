@@ -1,3 +1,14 @@
+// ORIGINAL IMPL
+// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// data/21-uni_grams.txt UNIQ: 11620, COUNT: 148275434 <<
+// data/22-bi_grams.txt UNIQ: 2665233, COUNT: 175122466 <<
+// data/23-tri_grams.txt UNIQ: 18224608, COUNT: 143989170 <<
+// data/24-fourth_grams.txt UNIQ: 38698237, COUNT: 116712854 <<
+// data/25-fifth_grams.txt UNIQ: 49032659, COUNT: 95921019 <<
+// data/26-sixth_grams.txt UNIQ: 49381015, COUNT: 78262936 <<
+// (( STEP 3: Parse and write n-gram done! Duration 2.89 mins ))
+
+// NEW IMPL BASED ON ROBIN-HOOD OPEN ADDRESS
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
 // data/22-grams.txt UNIQ: 2666021,  COUNT: 175111766 <<
@@ -5,24 +16,19 @@
 // data/24-grams.txt UNIQ: 38701828, COUNT: 116689547 <<
 // data/25-grams.txt UNIQ: 49034514, COUNT: 95912168 <<
 // data/26-grams.txt UNIQ: 49381937, COUNT: 78259053 <<
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// u32 cityhash, u32 wyhash as fingerprint
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
-// data/22-grams.txt UNIQ: 2666021,  COUNT: 175111767 <<
-// data/23-grams.txt UNIQ: 18228071, COUNT: 143967962 <<
-// data/24-grams.txt UNIQ: 38701829, COUNT: 116689548 <<
-// data/25-grams.txt UNIQ: 49034515, COUNT: 95912169 <<
-// data/26-grams.txt UNIQ: 49381938, COUNT: 78259054 <<
+// (( STEP 3: Parse and write n-gram done! Duration 2.22 mins ))
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // u32 cityhash, u22 Fnv1a as fingerprint
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
-// data/22-grams.txt UNIQ: 2666021,  COUNT: 175111767 <<
-// data/23-grams.txt UNIQ: 18228071, COUNT: 143967962 <<
-// data/24-grams.txt UNIQ: 38701829, COUNT: 116689548 <<
-// data/25-grams.txt UNIQ: 49034515, COUNT: 95912169 <<
-// data/26-grams.txt UNIQ: 49381938, COUNT: 78259054 <<
+// data/21-grams.cdx UNIQ: 11620,    COUNT: 148275434 <<
+// data/22-grams.cdx UNIQ: 2666021,  COUNT: 175111767 <<
+// data/23-grams.cdx UNIQ: 18228071, COUNT: 143967962 <<
+// data/24-grams.cdx UNIQ: 38701829, COUNT: 116689548 <<
+// data/25-grams.cdx UNIQ: 49034515, COUNT: 95912169 <<
+// data/26-grams.cdx UNIQ: 49381938, COUNT: 78259054 <<
+// (( STEP 3: Parse and write n-gram done! Duration 1.88 mins ))
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // MIN_COUNT = 1
 // - - - - - - - - - - -
@@ -108,7 +114,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print("\nParsing 2,3-gram {d}%", .{percents});
+                    std.debug.print("\nCounting 2,3-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -147,7 +153,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print(PAD ++ "Parsing 6-gram {d}%", .{percents});
+                    std.debug.print(PAD ++ "Counting 6-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -185,7 +191,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print(PAD ++ "Parsing 1,5-gram {d}%", .{percents});
+                    std.debug.print(PAD ++ "Counting 1,5-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -226,7 +232,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print("\nParsing 4-gram {d}%", .{percents});
+                    std.debug.print("\nCounting 4-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 

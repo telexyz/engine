@@ -19,7 +19,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         pub const Fingerprint = u24;
         pub const HashType = u32;
         pub const empty_hash = math.maxInt(HashType);
-        pub const Entry = packed struct {
+        pub const Entry = struct {
             hash: HashType = empty_hash,
             fp: Fingerprint = 0,
             // key: K = undefined,
@@ -90,8 +90,8 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
         }
 
         pub fn get(self: *Self, key: K) u24 {
-            const hash = _hash(key);
             const fp = _fingerprint(key);
+            const hash = _hash(key);
 
             var i = @rem(hash, capacity);
             // var i = hash >> shift;
@@ -135,13 +135,13 @@ test "HashCount: put, get" {
         }
         try testing.expectEqual(keys.len, counters.len);
 
-        var fp: u32 = 0;
+        var hash: u32 = 0;
         for (counters.slice()) |entry| {
             if (entry.count != 0) {
-                if (fp > entry.hash) {
+                if (hash > entry.hash) {
                     // return error.Unsorted;
                 }
-                fp = entry.hash;
+                hash = entry.hash;
             }
         }
         for (keys) |key|
