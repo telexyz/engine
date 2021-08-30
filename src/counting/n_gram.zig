@@ -69,20 +69,20 @@ const BLANK: Gram = Syllable.NONE_ID;
 
 pub fn NGram(for_real: bool) type {
     return struct {
-        c1_grams: HashCount([1]Gram, if (!for_real) 512 else 13_000) = undefined,
-        c2_grams: HashCount([2]Gram, if (!for_real) 512 else 3_000_000) = undefined,
-        c3_grams: HashCount([3]Gram, if (!for_real) 512 else 19_000_000) = undefined,
-        c4_grams: HashCount([4]Gram, if (!for_real) 512 else 40_000_000) = undefined,
-        c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
-        c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
+        // c1_grams: HashCount([1]Gram, if (!for_real) 512 else 13_000) = undefined,
+        // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 3_000_000) = undefined,
+        // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 19_000_000) = undefined,
+        // c4_grams: HashCount([4]Gram, if (!for_real) 512 else 40_000_000) = undefined,
+        // c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
+        // c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
 
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
-        // c1_grams: HashCount([1]Gram, if (!for_real) 512 else 16_384) = undefined,
-        // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
-        // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined, //2^25
-        // c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
-        // c5_grams: HashCount([5]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
-        // c6_grams: HashCount([6]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
+        c1_grams: HashCount([1]Gram, if (!for_real) 512 else 16_384) = undefined,
+        c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
+        c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined, //2^25
+        c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
+        c5_grams: HashCount([5]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
+        c6_grams: HashCount([6]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
 
         allocator: *std.mem.Allocator = undefined,
 

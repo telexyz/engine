@@ -7,8 +7,9 @@ const meta = std.meta;
 
 const Allocator = mem.Allocator;
 
-pub fn HashCount(comptime K: type, capacity: usize) type {
-    const overflow = capacity / 10 + math.log2_int(u64, capacity) << 1;
+pub fn HashCount(comptime K: type, capacity: u32) type {
+    const shift = 31 - math.log2_int(u32, capacity) + 1;
+    const overflow = capacity / 10 + math.log2_int(u32, capacity) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
@@ -71,8 +72,8 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             // yêu cầu capacity phải là powerOfTwo tức là nếu chỉ chứa 10 phần tử phải khởi tạo
             // capacity = 16 để đảm bảo nó là powerOfTwo.
             // Đổi lại thì hash value không được lưu theo thứ tự tăng dần nữa.
-            var i = @rem(it.hash, capacity);
-            // var i = it.hash >> shift;
+            // var i = @rem(it.hash, capacity);
+            var i = it.hash >> shift;
 
             while (true) : (i += 1) {
                 const entry = self.entries[i];
@@ -109,8 +110,9 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             const fp = _fingerprint(key);
             const hash = _hash(key);
 
-            var i = @rem(hash, capacity);
-            // var i = hash >> shift;
+            // var i = @rem(hash, capacity);
+            var i = hash >> shift;
+
             // Để hàm get hoạt động đúng thì phải dùng capacity isPowerOfTwo để đảm bảo
             // hash value luôn tăng. Ở đây chỉ dùng để đếm nên hàm get không dùng đến
             // Như vậy có thể có 2 ô cùng ghi 1 giá trị của key
@@ -161,11 +163,12 @@ test "HashCount: put, get" {
         for (counters.slice()) |entry| {
             if (entry.count != 0) {
                 if (hash > entry.hash) {
-                    // return error.Unsorted;
+                    return error.Unsorted;
                 }
                 hash = entry.hash;
             }
         }
+
         for (keys) |key|
             try testing.expectEqual(@as(u24, 1), counters.get(.{key}));
     }
