@@ -155,7 +155,7 @@ fn tokenizeAndParse(step0_time: i64) !i64 {
 }
 
 pub fn countNGram(step2_time: i64) !void {
-    print("\nSTEP 3: Parse and write n-gram ...\n", .{});
+    print("\nSTEP 3: Count and write n-gram ...\n", .{});
 
     // Khởi tạo bộ đếm
     var gram: NGram = .{};
@@ -175,11 +175,11 @@ pub fn countNGram(step2_time: i64) !void {
     try gram.countAndWrite06(text, "data/26-grams.cdx");
     thread.join();
 
-    _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
+    _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");
 }
 
 pub fn countNGram0(step2_time: i64) !void {
-    print("\nSTEP 3: Parse and write n-gram ...\n", .{});
+    print("\nSTEP 3: Count and write n-gram ...\n", .{});
     var gram: NGram0 = .{};
     gram.init(std.heap.page_allocator);
     defer gram.deinit();
@@ -195,7 +195,7 @@ pub fn countNGram0(step2_time: i64) !void {
     thread1.join();
     thread2.join();
 
-    _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
+    _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");
 }
 
 pub fn main() anyerror!void {

@@ -6,7 +6,7 @@
 // data/24-fourth_grams.txt UNIQ: 38698237, COUNT: 116712854 <<
 // data/25-fifth_grams.txt UNIQ: 49032659, COUNT: 95921019 <<
 // data/26-sixth_grams.txt UNIQ: 49381015, COUNT: 78262936 <<
-// (( STEP 3: Parse and write n-gram done! Duration 2.89 mins ))
+// (( Count and write n-gram done! Duration 2.89 mins ))
 
 // NEW IMPL BASED ON ROBIN-HOOD OPEN ADDRESS
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -16,7 +16,7 @@
 // data/24-grams.txt UNIQ: 38701828, COUNT: 116689547 <<
 // data/25-grams.txt UNIQ: 49034514, COUNT: 95912168 <<
 // data/26-grams.txt UNIQ: 49381937, COUNT: 78259053 <<
-// (( STEP 3: Parse and write n-gram done! Duration 2.22 mins ))
+// (( Count and write n-gram done! Duration 2.22 mins ))
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // u32 cityhash, u22 Fnv1a as fingerprint
@@ -27,7 +27,7 @@
 // data/24-grams.cdx UNIQ: 38701829, COUNT: 116689548 <<
 // data/25-grams.cdx UNIQ: 49034515, COUNT: 95912169 <<
 // data/26-grams.cdx UNIQ: 49381938, COUNT: 78259054 <<
-// (( STEP 3: Parse and write n-gram done! Duration 1.88 mins ))
+// (( Count and write n-gram done! Duration 1.66 mins ))
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // MIN_COUNT = 1
