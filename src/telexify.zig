@@ -6,17 +6,17 @@ const TextokenOutput = @import("./textoken/output_helpers.zig");
 const Tokenizer = @import("./textoken/tokenizer.zig").Tokenizer;
 const text_utils = @import("./textoken/text_utils.zig");
 const NGram = @import("./counting/n_gram.zig").NGram(true);
+const NGram0 = @import("./counting/n_gram0.zig").NGram;
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
 var text: Text = undefined;
-var gram: NGram = .{};
 
 var input_filename: []const u8 = undefined;
 var output_filename: []const u8 = undefined;
 var keep_origin_amap: bool = true;
 var convert_mode: u8 = 1; // dense
-var parse_n_grams: bool = false;
+var count_n_grams: bool = false;
 
 fn initConfigsFromArgs() void {
     // Advance the iterator since we want to ignore the binary name.
@@ -49,7 +49,7 @@ fn initConfigsFromArgs() void {
     }
     // Optional, parse n-grams or not?
     temp = args.nextPosix();
-    parse_n_grams = (temp != null);
+    count_n_grams = (temp != null);
 }
 
 fn write_out_types() !void {
@@ -127,9 +127,60 @@ fn write_results(step2_time: i64) !void {
     _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 }
 
+fn tokenizeAndParse(step0_time: i64) !i64 {
+    // Thread riêng cho parser là tuỳ chọn,
+    // có thể comment out và bật lại parse syllable on-the-fly
+    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    const then_parse_syllable = false;
+
+    // Tuỳ chọn parse syllable on-the-fly
+    // const then_parse_syllable = true;
+
+    // Bắt đầu tknz trên text đã được load (thường là từ file)
+    try tknz.segment(&text, then_parse_syllable);
+    text.free_input_bytes();
+    std.debug.print("\n\n >> TOTAL NUMBER OF TOKENS {d} <<\n\n", .{text.tokens_num});
+
+    // Kết thúc tknz, hiện time tknz
+    _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
+
+    // Kết thúc parser thread là tuỳ chọn, comment out nếu bật parse syllable on-the-fly
+    thread.join(); // Wait for sylabeling thread end
+
+    // Kiểm tra xem đã parse hết token chưa
+    if (text.parsed_tokens_num != text.tokens_num) std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{}); // unreachable;
+
+    // Kết thúc và hiện time tknz + parse
+    return showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
+}
+
+pub fn countNGram(step2_time: i64) !void {
+    print("\nSTEP 3: Parse and write n-gram ...\n", .{});
+
+    // Khởi tạo bộ đếm
+    var gram: NGram = .{};
+    gram.init(std.heap.page_allocator);
+    defer gram.deinit();
+
+    // Chạy song song để tăng tốc
+    const spawn = std.Thread.spawn;
+    var thread = try spawn(.{}, NGram.countAndWrite23, .{ &gram, text, "data/22-grams.cdx", "data/23-grams.cdx" });
+    try gram.countAndWrite15(text, "data/21-grams.cdx", "data/25-grams.cdx");
+    // try write_results(step2_time);
+    thread.join();
+
+    // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
+    thread = try spawn(.{}, NGram.countAndWrite04, .{ &gram, text, "data/24-grams.cdx" });
+    try gram.countAndWrite06(text, "data/26-grams.cdx");
+    thread.join();
+
+    _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
+}
+
 pub fn main() anyerror!void {
     const start_time = std.time.milliTimestamp();
 
+    // Parse configs để get input_filename, convert_mode ...
     initConfigsFromArgs();
     print("\nStart tokenize {s} ...\n", .{input_filename});
 
@@ -140,43 +191,22 @@ pub fn main() anyerror!void {
         .convert_mode = convert_mode,
     };
 
+    // Load file text đầu vào
     try text.initFromFile(input_filename);
     defer text.deinit();
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
-    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
-    const then_parse_syllable = false;
-    // const then_parse_syllable = true; // parse syllable on-the-fly
+    // Bắt đầu tokenize và parse token để phát hiện âm tiết TV
+    var step2_time = try tokenizeAndParse(step0_time);
 
-    try tknz.segment(&text, then_parse_syllable);
-    text.free_input_bytes();
-
-    std.debug.print("\n\n >> TOTAL NUMBER OF TOKENS {d} <<\n\n", .{text.tokens_num});
-
-    _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
-    thread.join(); // Wait for sylabeling thread end
-    if (text.parsed_tokens_num != text.tokens_num) std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{}); // unreachable;
-
-    var step2_time = showMeTimeLap(step0_time, "STEP 1+2: Segment & parse tokens finish!");
-
-    if (!parse_n_grams) {
+    if (!count_n_grams) {
+        // Nếu không phải đếm n-gram thì viết kết quả tknz và parser ra luôn.
         try write_results(step2_time);
     } else {
-        print("\nSTEP 3: Parse and write n-gram ...\n", .{});
-        gram.init(std.heap.page_allocator);
-        defer gram.deinit();
-
-        var thread1 = try std.Thread.spawn(.{}, NGram.parseAndWrite15Gram, .{ &gram, text, "data/21-grams.cdx", "data/25-grams.cdx" });
-        var thread2 = try std.Thread.spawn(.{}, NGram.parseAndWrite23Gram, .{ &gram, text, "data/22-grams.cdx", "data/23-grams.cdx" });
-        // try write_results(step2_time);
-        thread1.join();
-        thread2.join();
-
-        thread = try std.Thread.spawn(.{}, NGram.parseAndWrite04Gram, .{ &gram, text, "data/24-grams.cdx" });
-        try gram.parseAndWrite06Gram(text, "data/26-grams.cdx");
-        thread.join();
-
-        _ = showMeTimeLap(step2_time, "STEP 3: Parse and write n-gram done!");
+        // Nếu không thì tuỳ có thể vừa viêt kết quả trong lúc count cho hiệu quả
+        try countNGram(step2_time);
     }
+
+    // Hoàn tất chương trình, hiện tổng thời gian chạy
     _ = showMeTimeLap(start_time, "FINISHED: Total");
 }
