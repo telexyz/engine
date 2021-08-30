@@ -57,6 +57,8 @@
 // - - - - - - - - - - - - - - - -
 //   241.0m 2..8-grams
 // - - - - - - - - - - - - - - - -
+// Sau khi dùng u64: hash + fingerprint thay vì giá trị thật n-gram
+// 241m grams cần khoảng 2.5Gb = 241m x (8+3 =) 11 bytes
 
 const MIN_COUNT: u24 = 1;
 const std = @import("std");
