@@ -6,23 +6,18 @@ const math = std.math;
 const meta = std.meta;
 
 const Allocator = mem.Allocator;
-const testing = std.testing;
-const assert = std.debug.assert;
 
 pub fn HashCount(comptime K: type, capacity: usize) type {
-    // assert(math.isPowerOfTwo(capacity));
-    // const shift = 30 - math.log2_int(u64, capacity);
     const overflow = capacity / 10 + math.log2_int(u64, capacity) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
-        pub const Fingerprint = u24;
+        pub const Fingerprint = u32;
         pub const HashType = u32;
         pub const empty_hash = math.maxInt(HashType);
         pub const Entry = struct {
             hash: HashType = empty_hash,
             fp: Fingerprint = 0,
-            // key: K = undefined,
             count: u24 = 0,
         };
 
@@ -54,9 +49,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
 
         inline fn _fingerprint(key: K) Fingerprint {
             const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            var n: u8 = key.len;
-            if (n < 4) n = 0 else n -= 3;
-            return (@intCast(Fingerprint, n) << 22) | @truncate(u22, hash);
+            return (@intCast(Fingerprint, key.len) << 29) | @truncate(u29, hash);
         }
 
         pub fn put(self: *Self, key: K) u24 {
@@ -64,10 +57,8 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
             var it: Self.Entry = .{
                 .hash = _hash(key),
                 .fp = fp,
-                // .key = key,
                 .count = 1,
             };
-            assert(it.hash != Self.empty_hash);
 
             var i = @rem(it.hash, capacity);
             // var i = it.hash >> shift;
@@ -75,12 +66,12 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
                 const entry = self.entries[i];
                 if (entry.hash >= it.hash) {
                     // if (meta.eql(entry.key, key)) {
-                    if (entry.hash == it.hash and entry.fp == fp) {
+                    if (entry.fp == fp and entry.hash == it.hash) {
                         self.entries[i].count += 1;
                         return entry.count + 1;
                     }
                     self.entries[i] = it;
-                    if (entry.hash == empty_hash) {
+                    if (entry.count == 0) {
                         self.len += 1;
                         return 1;
                     }
@@ -109,6 +100,7 @@ pub fn HashCount(comptime K: type, capacity: usize) type {
     };
 }
 
+const testing = std.testing;
 test "HashCount: put, get" {
     var seed: usize = 0;
     const HC = HashCount([1]usize, 512);
