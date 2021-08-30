@@ -91,7 +91,7 @@ pub fn NGram(for_real: bool) type {
 
         const PAD = "                        ";
 
-        pub fn parseAndWrite23Gram(self: *Self, text: Text, filename2: []const u8, filename3: []const u8) !void {
+        pub fn countAndWrite23(self: *Self, text: Text, filename2: []const u8, filename3: []const u8) !void {
             // Record progress
             const ten_percents = text.tokens_num / 10;
             var percents_threshold = ten_percents;
@@ -131,7 +131,7 @@ pub fn NGram(for_real: bool) type {
             self.c3_grams.deinit();
         }
 
-        pub fn parseAndWrite06Gram(self: *Self, text: Text, filename6: []const u8) !void {
+        pub fn countAndWrite06(self: *Self, text: Text, filename6: []const u8) !void {
             // Record progress
             const ten_percents = text.tokens_num / 10;
             var percents_threshold = ten_percents;
@@ -168,7 +168,7 @@ pub fn NGram(for_real: bool) type {
             self.c6_grams.deinit();
         }
 
-        pub fn parseAndWrite15Gram(self: *Self, text: Text, filename1: []const u8, filename5: []const u8) !void {
+        pub fn countAndWrite15(self: *Self, text: Text, filename1: []const u8, filename5: []const u8) !void {
             // Record progress
             const ten_percents = text.tokens_num / 10;
             var percents_threshold = ten_percents;
@@ -210,7 +210,7 @@ pub fn NGram(for_real: bool) type {
             self.c5_grams.deinit();
         }
 
-        pub fn parseAndWrite04Gram(self: *Self, text: Text, filename4: []const u8) !void {
+        pub fn countAndWrite04(self: *Self, text: Text, filename4: []const u8) !void {
             // Record progress
             const ten_percents = text.tokens_num / 10;
             var percents_threshold = ten_percents;
@@ -341,8 +341,8 @@ test "ngram" {
     text.tokens_num_finalized = true;
     text_utils.parseTokens(&text);
 
-    try gram.parseAndWrite15Gram(text, "data/temp1.cdx", "data/temp5.cdx");
-    try gram.parseAndWrite23Gram(text, "data/temp2.cdx", "data/temp3.cdx");
-    try gram.parseAndWrite04Gram(text, "data/temp4.cdx");
-    try gram.parseAndWrite06Gram(text, "data/temp6.cdx");
+    try gram.countAndWrite15(text, "data/temp1.cdx", "data/temp5.cdx");
+    try gram.countAndWrite23(text, "data/temp2.cdx", "data/temp3.cdx");
+    try gram.countAndWrite04(text, "data/temp4.cdx");
+    try gram.countAndWrite06(text, "data/temp6.cdx");
 }
