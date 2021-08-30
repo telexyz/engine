@@ -14,9 +14,9 @@ pub const BinaryFuse8 = BinaryFuse(u8);
 /// Binary fuse filters, a revision of fuse filters made by Thomas Mueller Graf &
 /// Daniel Lemire https://github.com/FastFilter/xor_singleheader/issues/21
 ///
-/// Note: We assume that you have a large set of 64-bit integers and you want a data structure to
-/// do membership tests using no more than ~8 or ~16 bits per key. If your initial set is made of
-/// strings or other types, you first need to hash them to a 64-bit integer.
+/// Note: We assume that you have a large set of 64-bit integers and you want a data structure
+/// to do membership tests using no more than ~8 or ~16 bits per key. If your initial set is
+/// made of strings or other types, you first need to hash them to a 64-bit integer.
 pub fn BinaryFuse(comptime T: type) type {
     return struct {
         allocator: *Allocator,
