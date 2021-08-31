@@ -8,9 +8,10 @@ Dùng `u64`: `hash + fingerprint` thay vì giá trị thật của n-gram, và t
 Kết hợp thêm fast-filter để tiền xử lý nữa sẽ giúp tăng tốc ??%
 !!! => Cần làm thử nghiệm để tính độ hiệu quả !!!
 
+
 ## Thử vài hàm hash khác nhau để tạo fingerprint tốt hơn
 
-https://pvk.ca/Blog/2020/08/24/umash-fast-enough-almost-universal-fingerprinting
+https://github.com/backtrace-labs/umash/blob/master/umash.pdf
 
 
 ## hash slots and key value
