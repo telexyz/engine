@@ -16,7 +16,7 @@ pub fn build(b: *std.build.Builder) void {
     exe.setBuildMode(mode);
     exe.install();
 
-    var all_tests = b.addTest("test.zig");
+    var all_tests = b.addTest("src/test.zig");
     all_tests.setBuildMode(mode);
 
     const test_step = b.step("test", "Run all tests");
