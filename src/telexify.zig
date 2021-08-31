@@ -162,17 +162,18 @@ pub fn countNGram(step2_time: i64) !void {
     gram.init(std.heap.page_allocator);
     defer gram.deinit();
 
-    // Chạy song song để tăng tốc
-    const spawn = std.Thread.spawn;
+    try gram.loadSyllableIdsFromText(text);
+    text.deinit();
 
-    var thread = try spawn(.{}, NGram.countAndWrite23, .{ &gram, text, "data/22-grams.cdx", "data/23-grams.cdx" });
-    try gram.countAndWrite15(text, "data/21-grams.cdx", "data/25-grams.cdx");
+    // Chạy song song để tăng tốc
+    var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams.cdx", "data/23-grams.cdx" });
+    try gram.countAndWrite15("data/21-grams.cdx", "data/25-grams.cdx");
     // try write_results(step2_time);
     thread.join();
 
     // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
-    thread = try spawn(.{}, NGram.countAndWrite04, .{ &gram, text, "data/24-grams.cdx" });
-    try gram.countAndWrite06(text, "data/26-grams.cdx");
+    thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams.cdx" });
+    try gram.countAndWrite06("data/26-grams.cdx");
     thread.join();
 
     _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");

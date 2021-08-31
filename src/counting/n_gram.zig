@@ -83,6 +83,8 @@ pub fn NGram(for_real: bool) type {
         c5_grams: HashCount([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
         c6_grams: HashCount([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
 
+        syllable_ids: std.ArrayList(Syllable.UniqueId) = undefined,
+
         allocator: *std.mem.Allocator = undefined,
 
         const Self = @This();
@@ -91,14 +93,33 @@ pub fn NGram(for_real: bool) type {
             self.allocator = init_allocator;
         }
 
+        pub fn loadSyllableIdsFromText(self: *Self, text: Text) !void {
+            const syll_ids = text.tokens_infos.items(.syllable_id);
+            self.syllable_ids = try std.ArrayList(Syllable.UniqueId).initCapacity(
+                self.allocator,
+                syll_ids.len * 3 / 2,
+            );
+
+            var prev_syll_id: Syllable.UniqueId = BLANK;
+            try self.syllable_ids.append(BLANK);
+
+            for (syll_ids) |syll_id| {
+                if (syll_id == BLANK and prev_syll_id == BLANK) continue;
+                try self.syllable_ids.append(syll_id);
+                prev_syll_id = syll_id;
+            }
+
+            try self.syllable_ids.append(BLANK);
+        }
+
         pub fn deinit(self: *Self) void {
-            _ = self;
+            self.syllable_ids.deinit();
         }
 
         const PAD = "\n                        ";
-        pub fn countAndWrite23(self: *Self, text: Text, filename2: []const u8, filename3: []const u8) !void {
-            // Record progress
-            const ten_percents = text.tokens_num / 10;
+        pub fn countAndWrite23(self: *Self, filename2: []const u8, filename3: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
             var percents: u8 = 0;
 
@@ -107,9 +128,8 @@ pub fn NGram(for_real: bool) type {
 
             var grams: [3]Gram = .{ BLANK, BLANK, BLANK };
             var i: usize = 0;
-            const syllable_ids = text.tokens_infos.items(.syllable_id);
 
-            while (i < text.tokens_num) : (i += 1) {
+            while (i < syllable_ids.len) : (i += 1) {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
@@ -136,9 +156,9 @@ pub fn NGram(for_real: bool) type {
             self.c3_grams.deinit();
         }
 
-        pub fn countAndWrite06(self: *Self, text: Text, filename6: []const u8) !void {
-            // Record progress
-            const ten_percents = text.tokens_num / 10;
+        pub fn countAndWrite06(self: *Self, filename6: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
             var percents: u8 = 0;
 
@@ -146,9 +166,8 @@ pub fn NGram(for_real: bool) type {
 
             var grams: [6]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
             var i: usize = 0;
-            const syllable_ids = text.tokens_infos.items(.syllable_id);
 
-            while (i < text.tokens_num) : (i += 1) {
+            while (i < syllable_ids.len) : (i += 1) {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
@@ -173,9 +192,9 @@ pub fn NGram(for_real: bool) type {
             self.c6_grams.deinit();
         }
 
-        pub fn countAndWrite15(self: *Self, text: Text, filename1: []const u8, filename5: []const u8) !void {
-            // Record progress
-            const ten_percents = text.tokens_num / 10;
+        pub fn countAndWrite15(self: *Self, filename1: []const u8, filename5: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
             var percents: u8 = 0;
 
@@ -184,9 +203,8 @@ pub fn NGram(for_real: bool) type {
 
             var grams: [5]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK };
             var i: usize = 0;
-            const syllable_ids = text.tokens_infos.items(.syllable_id);
 
-            while (i < text.tokens_num) : (i += 1) {
+            while (i < syllable_ids.len) : (i += 1) {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
@@ -215,9 +233,9 @@ pub fn NGram(for_real: bool) type {
             self.c5_grams.deinit();
         }
 
-        pub fn countAndWrite04(self: *Self, text: Text, filename4: []const u8) !void {
-            // Record progress
-            const ten_percents = text.tokens_num / 10;
+        pub fn countAndWrite04(self: *Self, filename4: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
             var percents: u8 = 0;
 
@@ -225,9 +243,8 @@ pub fn NGram(for_real: bool) type {
 
             var grams: [4]Gram = .{ BLANK, BLANK, BLANK, BLANK };
             var i: usize = 0;
-            const syllable_ids = text.tokens_infos.items(.syllable_id);
 
-            while (i < text.tokens_num) : (i += 1) {
+            while (i < syllable_ids.len) : (i += 1) {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
@@ -331,9 +348,10 @@ test "ngram" {
 
     text.tokens_num_finalized = true;
     text_utils.parseTokens(&text);
+    try gram.loadSyllableIdsFromText(text);
 
-    try gram.countAndWrite15(text, "data/temp1.cdx", "data/temp5.cdx");
-    try gram.countAndWrite23(text, "data/temp2.cdx", "data/temp3.cdx");
-    try gram.countAndWrite04(text, "data/temp4.cdx");
-    try gram.countAndWrite06(text, "data/temp6.cdx");
+    try gram.countAndWrite15("data/temp1.cdx", "data/temp5.cdx");
+    try gram.countAndWrite23("data/temp2.cdx", "data/temp3.cdx");
+    try gram.countAndWrite04("data/temp4.cdx");
+    try gram.countAndWrite06("data/temp6.cdx");
 }

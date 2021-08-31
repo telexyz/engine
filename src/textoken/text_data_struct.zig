@@ -247,7 +247,7 @@ pub const Text = struct {
         self.tokens_infos = std.MultiArrayList(TokenInfo){};
 
         try self.tokens_infos.ensureTotalCapacity(
-            self.init_allocator,
+            self.allocator,
             self.estimated_tokens_num,
         );
 
@@ -289,7 +289,6 @@ pub const Text = struct {
 
     pub fn deinit(self: *Text) void {
         self.free_input_bytes();
-        self.tokens_infos.deinit(self.init_allocator);
         // Since we use ArenaAllocator, simply deinit arena itself to
         // free all allocated memories
         self.arena.deinit();
