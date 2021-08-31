@@ -3,16 +3,7 @@
 Tập trung dùng hash-table vì đây là CTDL tối ưu cho mem và lookup speed. (xem thêm phần phân tích về IMF trie ở dưới).
 
 Dùng `u64`: `hash + fingerprint` thay vì giá trị thật của n-gram, và thêm `u24` để count. Để chứa 158m 1..6-grams với capacity isPowerOfTwo `2^27 ~= 134m` thì sẽ cần khoảng 1.3Gb để chứa.
-=> Cần tỉa bớt 24m grams có count == 1. 
-
-_tỉa bớt 10m từ 6-grams, 10m từ 5-grams, 4m từ 4-gram_: Còn:
-```
-2   2.7m
-3  18.2m
-4  35.0m
-5  39.0m
-6  39.0m
-```
+=> Cần tỉa bớt 24m grams có count == 1
 
 Kết hợp thêm fast-filter để tiền xử lý nữa sẽ giúp tăng tốc ??%
 !!! => Cần làm thử nghiệm để tính độ hiệu quả !!!
@@ -93,6 +84,8 @@ Tạo 3 loại nodes:
 https://programming.guide/robin-hood-hashing.html
 
 https://martin.ankerl.com/2016/09/21/very-fast-hashmap-in-c-part-2
+
+https://pvk.ca/Blog/2019/09/29/a-couple-of-probabilistic-worst-case-bounds-for-robin-hood-linear-probing
 
 https://en.wikipedia.org/wiki/Binary_search_algorithm#Hashing
 

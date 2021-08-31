@@ -18,7 +18,6 @@
 // data/26-grams.txt UNIQ: 49381937, COUNT: 78259053 <<
 // (( Count and write n-gram done! Duration 2.22 mins ))
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // u32 cityhash, u22 Fnv1a as fingerprint
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // data/21-grams.cdx UNIQ: 11620,    COUNT: 148275434 <<
@@ -27,15 +26,17 @@
 // data/24-grams.cdx UNIQ: 38701829, COUNT: 116689548 <<
 // data/25-grams.cdx UNIQ: 49034515, COUNT: 95912169 <<
 // data/26-grams.cdx UNIQ: 49381938, COUNT: 78259054 <<
-// (( Count and write n-gram done! Duration 1.40 mins ))
-// Total: 158_023_994
+// (( Count and write n-gram done! Duration 1.36 mins ))
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Total: 158_023_994 1..6-grams
 // 2^27 = 134_217_728, => 4-grams: 35m, 5: 39m, 6: 39m
 // perf tốt hơn nếu max load ~80%
-// tức là 110_000_000 => Cần xoá thêm 14m nữa
+// tức là khoảng 111_000_000 => Cần xoá thêm 23m nữa
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const MAX_4_GRAMs: u32 = 33_000_000;
-const MAX_5_GRAMs: u32 = 33_000_000;
-const MAX_6_GRAMs: u32 = 33_000_000;
+const LIMIT_4_GRAM: u32 = 30_000_000;
+const LIMIT_5_GRAM: u32 = 30_000_000;
+const LIMIT_6_GRAM: u32 = 30_000_000;
 
 // - - - - - - - - - - -
 //  119 KB  21-grams.txt
@@ -280,9 +281,9 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, n: u8) !void {
     var check_limit = (n >= 4);
     var limit: usize = switch (n) {
         else => 0,
-        4 => MAX_4_GRAMs,
-        5 => MAX_5_GRAMs,
-        6 => MAX_6_GRAMs,
+        4 => LIMIT_4_GRAM,
+        5 => LIMIT_5_GRAM,
+        6 => LIMIT_6_GRAM,
     };
     if (limit < grams.len) {
         limit = grams.len - limit;
