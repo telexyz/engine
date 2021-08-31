@@ -58,8 +58,8 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
 
         pub fn put(self: *Self, key: K) u24 {
             // Từ key ta dùng hash functions để khởi tạo giá trị hash và fingerprint
-            // Ta sử dụng hash + fingerprint để đại diện cho key
-            // Thực tế sử dụng cần mò độ lớn của fingerprint hợp lý để tránh va chạm
+            // Sử dụng hash + fingerprint để đại diện cho key
+            // => cần mò độ lớn của fingerprint hợp lý để tránh va chạm
             const fp = _fingerprint(key);
             var it: Self.Entry = .{
                 .hash = _hash(key),
@@ -110,22 +110,15 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
             const fp = _fingerprint(key);
             const hash = _hash(key);
 
-            // var i = @rem(hash, capacity);
             var i = hash >> shift;
 
             // Để hàm get hoạt động đúng thì phải dùng capacity isPowerOfTwo để đảm bảo
-            // hash value luôn tăng. Ở đây chỉ dùng để đếm nên hàm get không dùng đến
-            // Như vậy có thể có 2 ô cùng ghi 1 giá trị của key
-            // Lúc load count ngược từ file cần phải kiểm tra!
-
+            // hash value luôn tăng.
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= hash) {
-                    // if (!meta.eql(entry.key, key)) {
-                    if (entry.fp != fp or entry.hash != hash) {
-                        return 0;
-                    }
-                    return entry.count;
+                    if (entry.fp == fp and entry.hash == hash) return entry.count;
+                    return 0;
                 }
             }
         }

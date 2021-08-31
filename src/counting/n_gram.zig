@@ -50,15 +50,13 @@
 // 5  49.0m x 17 = 833mb     95.9m
 // 6  49.4m x 19 = 939mb     78.3m
 // - - - - - - - - - - - - - - - -
-//   158.0m 2..6-grams
+//   158.0m 2..6-grams (~1.3Gb)
 // - - - - - - - - - - - - - - - -
 // 7  44.6m x 21 = 937mb     63.9m
 // 8  38.3m x 23 = 881mb     52.1m
 // - - - - - - - - - - - - - - - -
-//   241.0m 2..8-grams
+//   241.0m 2..8-grams (~2.6Gb)
 // - - - - - - - - - - - - - - - -
-// Sau khi dùng u64: hash + fingerprint thay vì giá trị thật n-gram
-// 241m grams cần khoảng 2.5Gb = 241m x (8+3 =) 11 bytes
 
 const MIN_COUNT: u24 = 1;
 const std = @import("std");
@@ -71,20 +69,13 @@ const BLANK: Gram = Syllable.NONE_ID;
 
 pub fn NGram(for_real: bool) type {
     return struct {
-        // c1_grams: HashCount([1]Gram, if (!for_real) 512 else 13_000) = undefined,
-        // c2_grams: HashCount([2]Gram, if (!for_real) 512 else 3_000_000) = undefined,
-        // c3_grams: HashCount([3]Gram, if (!for_real) 512 else 19_000_000) = undefined,
-        // c4_grams: HashCount([4]Gram, if (!for_real) 512 else 40_000_000) = undefined,
-        // c5_grams: HashCount([5]Gram, if (!for_real) 512 else 50_000_000) = undefined,
-        // c6_grams: HashCount([6]Gram, if (!for_real) 512 else 50_000_000) = undefined,
-
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
-        c1_grams: HashCount([1]Gram, if (!for_real) 512 else 16_384) = undefined,
-        c2_grams: HashCount([2]Gram, if (!for_real) 512 else 4_194_304) = undefined,
-        c3_grams: HashCount([3]Gram, if (!for_real) 512 else 33_554_432) = undefined, //2^25
-        c4_grams: HashCount([4]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
-        c5_grams: HashCount([5]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
-        c6_grams: HashCount([6]Gram, if (!for_real) 512 else 67_108_864) = undefined, //2^26
+        c1_grams: HashCount([1]Gram, if (!for_real) 64 else 16_384) = undefined,
+        c2_grams: HashCount([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        c3_grams: HashCount([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
+        c4_grams: HashCount([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c5_grams: HashCount([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c6_grams: HashCount([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
 
         allocator: *std.mem.Allocator = undefined,
 
@@ -277,8 +268,6 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
 
     // Sort by count desc
     var items = grams.slice();
-    // const Entry = @TypeOf(grams).Entry;
-    // std.sort.sort(Entry, items, {}, orderFn(Entry).order_by_count_desc);
 
     var file = try std.fs.cwd().createFile(filename, .{});
     defer file.close();
@@ -298,28 +287,6 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
             Base64Encoder.encode(buff, std.mem.asBytes(&item.hash)),
             Base64Encoder.encode(buff2, std.mem.asBytes(&item.fp)),
         });
-
-        // var id: Gram = item.key[0];
-        // if (id == BLANK)
-        //     try writer.print("{d} #", .{item.count})
-        // else
-        //     try writer.print("{d} {s}", .{
-        //         item.count,
-        //         Syllable.newFromId(id).printBuff(buff, false),
-        //     });
-        // if (uniGram) {
-        //     _ = try writer.write("\n");
-        //     continue;
-        // }
-        // var i: u8 = 1;
-        // while (i < item.key.len) : (i += 1) {
-        //     id = item.key[i];
-        //     if (id == BLANK)
-        //         _ = try writer.write(" #")
-        //     else
-        //         try writer.print(" {s}", .{Syllable.newFromId(id).printBuff(buff, false)});
-        // }
-        // _ = try writer.write("\n");
     }
     try wrt.flush();
     std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<", .{ filename, grams.len, total });

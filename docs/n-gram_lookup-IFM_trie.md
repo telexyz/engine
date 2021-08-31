@@ -2,25 +2,25 @@
 
 Tập trung dùng hash-table vì đây là CTDL tối ưu cho mem và lookup speed. (xem thêm phần phân tích về IMF trie ở dưới).
 
-Dùng `u64`: `hash + fingerprint` thay vì giá trị thật của n-gram, và thêm `u24` để count. Để chứa 241m n-grams với capacity isPowerOfTwo `2^28 ~= 268m` thì sẽ cần khoảng 2.8Gb để chứa.
+Dùng `u64`: `hash + fingerprint` thay vì giá trị thật của n-gram, và thêm `u24` để count. Để chứa 158m 1..6-grams với capacity isPowerOfTwo `2^27 ~= 134m` thì sẽ cần khoảng 1.3Gb để chứa.
+=> Cần tỉa bớt 24m grams có count == 1. 
+
+_tỉa bớt 10m từ 6-grams, 10m từ 5-grams, 4m từ 4-gram_: Còn:
+```
+2   2.7m
+3  18.2m
+4  34.7m
+5  39.0m
+6  39.4m
+```
 
 Kết hợp thêm fast-filter để tiền xử lý nữa sẽ giúp tăng tốc ??%
 !!! => Cần làm thử nghiệm để tính độ hiệu quả !!!
 
-## Khả năng va chạm
-https://stackoverflow.com/questions/62664761/probability-of-hash-collision
+## Thử vài hàm hash khác nhau để tạo fingerprint tốt hơn
 
-Với k uniq items đầu vào, bảng băm output ra n-bits, p là xác suất va chạm: 
+https://pvk.ca/Blog/2020/08/24/umash-fast-enough-almost-universal-fingerprinting
 
-k ≈ 2^{(n+1)/2} √p
-
-Giả sử cần chứa 30m n-grams `k=30*10^6`, bảng băm đầu ra 64-bits `n=64` 
-=> 30m = 2^32.5 x √p => √p = 0.0049390838 => p = 0.00002439454
-Khả năng va chạm khi chứa 30m ids trong băm 64-bits là 25/m hay 1/40k.
-
-Giả sử cần chứa 12m n-grams `k=12*10^6`, bảng băm đầu ra 64-bits `n=64` 
-=> 12m = 2^32.5 x √p => √p = 0.00197563352 => p = 0.00000390312
-Khả năng va chạm khi chứa 30m ids trong băm 64-bits là 4/m hay 1/250k.
 
 ## hash slots and key value
 
