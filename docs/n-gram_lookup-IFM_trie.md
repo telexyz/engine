@@ -1,3 +1,12 @@
+# Kết luận
+
+Tập trung dùng hash-table vì đây là CTDL tối ưu cho mem và lookup speed. (xem thêm phần phân tích về IMF trie ở dưới).
+
+Dùng `u64`: `hash + fingerprint` thay vì giá trị thật của n-gram, và thêm `u24` để count. Để chứa 241m n-grams với capacity isPowerOfTwo `2^28 ~= 268m` thì sẽ cần khoảng 2.8Gb để chứa.
+
+Kết hợp thêm fast-filter để tiền xử lý nữa sẽ giúp tăng tốc ??%
+!!! => Cần làm thử nghiệm để tính độ hiệu quả !!!
+
 ## Khả năng va chạm
 https://stackoverflow.com/questions/62664761/probability-of-hash-collision
 
@@ -32,7 +41,11 @@ Bảng băm vô cùng quyền lực, bảng băm mạnh nhất hiện nay là ro
 
 Mọi bảng băm đều hoạt động dựa trên giả thiết hàm băm mang tính ngẫu nhiên cao và càng gần với ngẫu nhiên thật sự càng tốt. Vì thế nên hàm băng cũng được dùng để sinh ra số ngẫu nhiên.
 
-!!! Với từ tiếng dân tộc, từ vay mượn / tiếng nước ngoài, từ lạ (teen code) không thể phân tích ngữ âm để quy về âm tiết tiếng Việt thì việc dùng bảng băm là băt buộc !!!
+!!! Với từ tiếng dân tộc, từ vay mượn / tiếng nước ngoài, từ lạ (teen code) không thể phân tích ngữ âm để quy về âm tiết tiếng Việt thì việc dùng bảng băm là bắt buộc !!!
+
+Trie có điểm yếu là khi n-gram càng dài thì việc tra cứu càng lâu, với 4-gram, mỗi gram dài 3 nodes thì làm đi hết 12 nodes mới tìm đến node chứa count của gram đó (độ sâu của cây là 12). Các node phân bố ngẫu nhiêu không tuyến tính nên cache miss và ram seek là chuyện bình thường.
+
+Như vậy (gần như chắc chắn) Trie sẽ tốn mem và lookup lâu hơn hash-table. Mỗi lần chuyển node là 1 làm ram seek, với độ sâu trung bình 12 giả sử tổng số node = 6 x |n-grams|, mỗi node phải chứa trung bình 3 con trỏ (3 x u64) như vậy tổng mem sẽ vượt khỏi ram.
 
 - - -
 
@@ -77,17 +90,12 @@ Tạo 3 loại nodes:
 
 ## Tham khảo
 
-https://programming.guide/hash-tables.html
-
-
 https://programming.guide/robin-hood-hashing.html
-
 
 https://martin.ankerl.com/2016/09/21/very-fast-hashmap-in-c-part-2
 
-
 https://en.wikipedia.org/wiki/Binary_search_algorithm#Hashing
-For implementing associative arrays, hash tables, a data structure that maps keys to records using a hash function, are generally faster than binary search on a sorted array of records.[32] Most hash table implementations require only amortized constant time on average.[f][34] However, hashing is not useful for approximate matches, such as computing the next-smallest, next-largest, and nearest key, as the only information given on a failed search is that the target is not present in any record.[35] Binary search is ideal for such matches, performing them in logarithmic time. Binary search also supports approximate matches. Some operations, like finding the smallest and largest element, can be done efficiently on sorted arrays but not on hash tables.[22]
 
-Tìm hiểu robin hood hash tables
-https://github.com/lithdew/rheia/blob/master/hash_map.zig
+For implementing associative arrays, hash tables, a data structure that maps keys to records using a hash function, are generally faster than binary search on a sorted array of records. Most hash table implementations require only amortized constant time on average.
+
+However, hashing is not useful for approximate matches, such as computing the next-smallest, next-largest, and nearest key, as the only information given on a failed search is that the target is not present in any record.
