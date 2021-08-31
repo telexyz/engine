@@ -9,9 +9,9 @@ _tỉa bớt 10m từ 6-grams, 10m từ 5-grams, 4m từ 4-gram_: Còn:
 ```
 2   2.7m
 3  18.2m
-4  34.7m
+4  35.0m
 5  39.0m
-6  39.4m
+6  39.0m
 ```
 
 Kết hợp thêm fast-filter để tiền xử lý nữa sẽ giúp tăng tốc ??%

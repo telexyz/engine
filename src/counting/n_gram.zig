@@ -11,7 +11,7 @@
 // NEW IMPL BASED ON ROBIN-HOOD OPEN ADDRESS
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
-// data/22-grams.txt UNIQ: 2666021,  COUNT: 175111766 <<
+// data/22-grams.txt UNIQ: 2666021 , COUNT: 175111766 <<
 // data/23-grams.txt UNIQ: 18228070, COUNT: 143967960 <<
 // data/24-grams.txt UNIQ: 38701828, COUNT: 116689547 <<
 // data/25-grams.txt UNIQ: 49034514, COUNT: 95912168 <<
@@ -27,10 +27,14 @@
 // data/24-grams.cdx UNIQ: 38701829, COUNT: 116689548 <<
 // data/25-grams.cdx UNIQ: 49034515, COUNT: 95912169 <<
 // data/26-grams.cdx UNIQ: 49381938, COUNT: 78259054 <<
-// (( Count and write n-gram done! Duration 1.66 mins ))
-
+// (( Count and write n-gram done! Duration 1.56 mins ))
+// Total: 158_023_994
+// 2^27 = 134_217_728
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// MIN_COUNT = 1
+const MAX_4_GRAMs: u32 = 35_000_000;
+const MAX_5_GRAMs: u32 = 39_000_000;
+const MAX_6_GRAMs: u32 = 39_000_000;
+
 // - - - - - - - - - - -
 //  119 KB  21-grams.txt
 //   39 MB  22-grams.txt
@@ -58,7 +62,6 @@
 //   241.0m 2..8-grams (~2.6Gb)
 // - - - - - - - - - - - - - - - -
 
-const MIN_COUNT: u24 = 1;
 const std = @import("std");
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
@@ -123,10 +126,10 @@ pub fn NGram(for_real: bool) type {
                     _ = self.c3_grams.put(grams);
             } // while
 
-            try writeGramCounts(self.c2_grams, filename2, false);
+            try writeGramCounts(self.c2_grams, filename2, 2);
             self.c2_grams.deinit();
 
-            try writeGramCounts(self.c3_grams, filename3, false);
+            try writeGramCounts(self.c3_grams, filename3, 3);
             self.c3_grams.deinit();
         }
 
@@ -163,7 +166,7 @@ pub fn NGram(for_real: bool) type {
                 _ = self.c6_grams.put(grams);
             } // while
 
-            try writeGramCounts(self.c6_grams, filename6, false);
+            try writeGramCounts(self.c6_grams, filename6, 6);
             self.c6_grams.deinit();
         }
 
@@ -202,10 +205,10 @@ pub fn NGram(for_real: bool) type {
                     _ = self.c5_grams.put(grams);
             }
 
-            try writeGramCounts(self.c1_grams, filename1, true);
+            try writeGramCounts(self.c1_grams, filename1, 1);
             self.c1_grams.deinit();
 
-            try writeGramCounts(self.c5_grams, filename5, false);
+            try writeGramCounts(self.c5_grams, filename5, 5);
             self.c5_grams.deinit();
         }
 
@@ -239,7 +242,7 @@ pub fn NGram(for_real: bool) type {
                     _ = self.c4_grams.put(grams);
             }
 
-            try writeGramCounts(self.c4_grams, filename4, false);
+            try writeGramCounts(self.c4_grams, filename4, 4);
             self.c4_grams.deinit();
         }
     };
@@ -255,16 +258,12 @@ fn orderFn(comptime T: type) type {
 }
 
 const Base64Encoder = std.base64.standard_no_pad.Encoder; // standard vs standard_no_pad
-pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !void {
-    _ = uniGram;
-
+pub fn writeGramCounts(grams: anytype, filename: []const u8, n: u8) !void {
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
 
     var buffer2: [13]u8 = undefined;
     const buff2 = buffer2[0..];
-
-    var min_count: u24 = if (grams.len < 100_100) 1 else MIN_COUNT;
 
     // Sort by count desc
     var items = grams.slice();
@@ -276,18 +275,32 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
 
     var total: usize = 0;
 
-    for (items) |item| {
-        if (item.count == 0) continue;
+    var check_limit = (n >= 4);
+    var limit: usize = switch (n) {
+        else => 0,
+        4 => MAX_4_GRAMs,
+        5 => MAX_5_GRAMs,
+        6 => MAX_6_GRAMs,
+    };
+    if (limit < grams.len) {
+        limit = grams.len - limit;
+    } else check_limit = false;
 
-        total += item.count;
-        if (item.count < min_count) continue;
+    for (items) |item|
+        if (item.count >= 1) {
+            total += item.count;
+            if (check_limit and item.count == 1 and limit > 0) {
+                limit -= 1;
+                continue;
+            }
 
-        try writer.print("{d} {s} {s}\n", .{
-            item.count,
-            Base64Encoder.encode(buff, std.mem.asBytes(&item.hash)),
-            Base64Encoder.encode(buff2, std.mem.asBytes(&item.fp)),
-        });
-    }
+            try writer.print("{d} {s} {s}\n", .{
+                item.count,
+                Base64Encoder.encode(buff, std.mem.asBytes(&item.hash)),
+                Base64Encoder.encode(buff2, std.mem.asBytes(&item.fp)),
+            });
+        };
+
     try wrt.flush();
     std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<", .{ filename, grams.len, total });
 }
