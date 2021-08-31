@@ -1,6 +1,8 @@
 Video giới thiệu dễ hiểu
 https://www.youtube.com/watch?v=_PG-jJKB_do
 
+https://www.youtube.com/watch?v=T6CxT4AESCQ
+
 # Entropy nghĩa là gì?
 https://forum.machinelearningcoban.com/t/hieu-ve-entropy/4443
 
