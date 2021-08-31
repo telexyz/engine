@@ -27,13 +27,15 @@
 // data/24-grams.cdx UNIQ: 38701829, COUNT: 116689548 <<
 // data/25-grams.cdx UNIQ: 49034515, COUNT: 95912169 <<
 // data/26-grams.cdx UNIQ: 49381938, COUNT: 78259054 <<
-// (( Count and write n-gram done! Duration 1.56 mins ))
+// (( Count and write n-gram done! Duration 1.40 mins ))
 // Total: 158_023_994
-// 2^27 = 134_217_728
+// 2^27 = 134_217_728, => 4-grams: 35m, 5: 39m, 6: 39m
+// perf tốt hơn nếu max load ~80%
+// tức là 110_000_000 => Cần xoá thêm 14m nữa
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const MAX_4_GRAMs: u32 = 35_000_000;
-const MAX_5_GRAMs: u32 = 39_000_000;
-const MAX_6_GRAMs: u32 = 39_000_000;
+const MAX_4_GRAMs: u32 = 33_000_000;
+const MAX_5_GRAMs: u32 = 33_000_000;
+const MAX_6_GRAMs: u32 = 33_000_000;
 
 // - - - - - - - - - - -
 //  119 KB  21-grams.txt
