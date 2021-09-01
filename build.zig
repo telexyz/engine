@@ -16,7 +16,17 @@ pub fn build(b: *std.build.Builder) void {
     exe.setBuildMode(mode);
     exe.install();
 
-    var all_tests = b.addTest("src/test.zig");
+    // Build count_n_gram
+    const count = b.addExecutable("count", "src/count_n_gram.zig");
+    count.setTarget(target);
+    count.setBuildMode(mode);
+    count.install();
+
+    const count_step = b.step("count", "Build count n-grams");
+    count_step.dependOn(&count.step);
+
+    // Test all
+    const all_tests = b.addTest("src/test.zig");
     all_tests.setBuildMode(mode);
 
     const test_step = b.step("test", "Run all tests");

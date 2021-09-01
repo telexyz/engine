@@ -6,7 +6,7 @@ const telex_char_stream = @import("../phoneme/telex_char_stream.zig");
 const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 
 const Text = @import("text_data_struct.zig").Text;
-const Base64Encoder = std.base64.standard_no_pad.Encoder; // standard vs standard_no_pad
+const Base64Encoder = std.base64.standard_no_pad.Encoder;
 
 pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     var ptr = tk_info.trans_ptr(text);
@@ -59,12 +59,17 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     text.code_bytes_len += 1;
     if (tk_info.isSyllable()) {
         // Write syllable id
-        const buff = text.code_bytes[text.code_bytes_len .. text.code_bytes_len + 4];
-        const id = [2]u8{
-            @intCast(u8, tk_info.syllable_id >> 8),
-            @truncate(u8, tk_info.syllable_id),
-        };
-        text.code_bytes_len += Base64Encoder.encode(buff, id[0..2]).len;
+        var idx = @truncate(u6, tk_info.syllable_id);
+
+        text.code_bytes[text.code_bytes_len + 2] = std.base64.standard_alphabet_chars[idx];
+
+        idx = @truncate(u6, tk_info.syllable_id >> 6);
+        text.code_bytes[text.code_bytes_len + 1] = std.base64.standard_alphabet_chars[idx];
+
+        idx = @truncate(u6, tk_info.syllable_id >> 12);
+        text.code_bytes[text.code_bytes_len] = std.base64.standard_alphabet_chars[idx];
+
+        text.code_bytes_len += 3;
     }
 
     // LINE_BYTES

@@ -66,12 +66,15 @@ const LIMIT_6_GRAM: u32 = 30_000_000;
 // - - - - - - - - - - - - - - - -
 
 const std = @import("std");
+const Base64Encoder = std.base64.standard_no_pad.Encoder;
+
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
 const HashCount = @import("./hash_count.zig").HashCount;
 
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;
+const SyllableIdArray = std.ArrayList(Syllable.UniqueId);
 
 pub fn NGram(for_real: bool) type {
     return struct {
@@ -83,7 +86,7 @@ pub fn NGram(for_real: bool) type {
         c5_grams: HashCount([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
         c6_grams: HashCount([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
 
-        syllable_ids: std.ArrayList(Syllable.UniqueId) = undefined,
+        syllable_ids: SyllableIdArray = undefined,
 
         allocator: *std.mem.Allocator = undefined,
 
@@ -95,7 +98,7 @@ pub fn NGram(for_real: bool) type {
 
         pub fn loadSyllableIdsFromText(self: *Self, text: Text) !void {
             const syll_ids = text.tokens_infos.items(.syllable_id);
-            self.syllable_ids = try std.ArrayList(Syllable.UniqueId).initCapacity(
+            self.syllable_ids = try SyllableIdArray.initCapacity(
                 self.allocator,
                 syll_ids.len * 3 / 2,
             );
@@ -107,6 +110,72 @@ pub fn NGram(for_real: bool) type {
                 if (syll_id == BLANK and prev_syll_id == BLANK) continue;
                 try self.syllable_ids.append(syll_id);
                 prev_syll_id = syll_id;
+            }
+
+            try self.syllable_ids.append(BLANK);
+        }
+
+        pub fn loadSyllableIdsCdxFile(self: *Self, filename: []const u8) !void {
+            var file = try std.fs.cwd().openFile(filename, .{ .read = true });
+            defer file.close();
+
+            const input_bytes = try file.reader().readAllAlloc(
+                self.allocator,
+                1024 * 1024 * 1024,
+            ); // max 1Gb
+            defer self.allocator.free(input_bytes);
+
+            const n = input_bytes.len;
+            self.syllable_ids = try SyllableIdArray.initCapacity(self.allocator, n / 6);
+
+            // Decode base64
+            var char_to_index = [_]Syllable.UniqueId{0xff} ** 256;
+            for (std.base64.standard_alphabet_chars) |c, i|
+                char_to_index[c] = @intCast(Syllable.UniqueId, i);
+
+            // Init syllable_ids from bytes
+            var in_blank_zone = true;
+            try self.syllable_ids.append(BLANK);
+
+            var syll_id: Syllable.UniqueId = undefined;
+            var i: usize = 0;
+            var idx: Syllable.UniqueId = undefined;
+
+            // var buffer: [13]u8 = undefined;
+            // const buff = buffer[0..];
+            while (i < n) : (i += 1) {
+                // if (i > 100) break; //DEBUG
+                if (input_bytes[i] > 32) {
+                    // std.debug.print("\n{d}/{d}: {s} |", .{ i, n, input_bytes[i .. i + 3] }); //DEBUG
+
+                    idx = char_to_index[input_bytes[i]];
+                    // std.debug.print(" {s}:{} ", .{ input_bytes[i .. i + 1], idx });
+                    if (idx > 63) unreachable;
+                    syll_id = idx << 12;
+
+                    i += 1;
+                    idx = char_to_index[input_bytes[i]];
+                    // std.debug.print(" {s}:{} ", .{ input_bytes[i .. i + 1], idx });
+                    if (idx > 63) unreachable;
+                    syll_id |= idx << 6;
+
+                    i += 1;
+                    idx = char_to_index[input_bytes[i]];
+                    // std.debug.print(" {s}:{} ", .{ input_bytes[i .. i + 1], idx });
+                    if (idx > 63) unreachable;
+                    syll_id |= idx;
+
+                    try self.syllable_ids.append(syll_id);
+                    in_blank_zone = false;
+
+                    // std.debug.print("=> {s}", .{Syllable.newFromId(syll_id).printBuffUtf8(buff)}); //DEBUG
+                    //
+                } else if (input_bytes[i] < 0x1a and !in_blank_zone) {
+                    //
+                    // std.debug.print("\n", .{}); //DEBUG
+                    try self.syllable_ids.append(BLANK);
+                    in_blank_zone = true;
+                }
             }
 
             try self.syllable_ids.append(BLANK);
@@ -277,7 +346,6 @@ fn orderFn(comptime T: type) type {
     };
 }
 
-const Base64Encoder = std.base64.standard_no_pad.Encoder; // standard vs standard_no_pad
 pub fn writeGramCounts(grams: anytype, filename: []const u8, n: u8) !void {
     var buffer: [13]u8 = undefined;
     const buff = buffer[0..];
