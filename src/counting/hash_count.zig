@@ -1,19 +1,21 @@
 // Modified from https://raw.githubusercontent.com/lithdew/rheia/master/hash_map.zig
 const std = @import("std");
 
-const mem = std.mem;
 const math = std.math;
-const meta = std.meta;
-
+const mem = std.mem;
 const Allocator = mem.Allocator;
 
-pub fn HashCount(comptime K: type, capacity: u32) type {
+pub fn HashCount(comptime K: type, comptime capacity: u32) type {
+    std.debug.assert(math.isPowerOfTwo(capacity));
+
     const shift = 31 - math.log2_int(u32, capacity) + 1;
     const overflow = capacity / 10 + math.log2_int(u32, capacity) << 1;
     const size: usize = capacity + overflow;
 
     return struct {
         pub const Fingerprint = u32;
+        pub const fingerprint_header = @intCast(Fingerprint, @typeInfo(K).Array.len) << 29;
+
         pub const HashType = u32;
         pub const maxx_hash = math.maxInt(HashType);
 
@@ -22,8 +24,7 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
             fp: Fingerprint = 0,
             count: u24 = 0,
         };
-        // fp chứa 29-bits từ 1 hàm hash u32 và 3-bits chứa độ dài n-gram từ 1-8
-        // vậy nên fp thật luôn > 0 vì độ dài n-gram luôn > 0
+        // fp chứa 29-bits từ 1 hàm hash và 3-bits chứa độ dài n-gram từ 1-8
 
         const Self = @This();
 
@@ -53,7 +54,7 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
 
         inline fn _fingerprint(key: K) Fingerprint {
             const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            return (@intCast(Fingerprint, key.len) << 29) | @truncate(u29, hash);
+            return fingerprint_header | @truncate(u29, hash);
         }
 
         pub fn put(self: *Self, key: K) u24 {
@@ -123,6 +124,41 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
 }
 
 const testing = std.testing;
+test "HashCount: fingerprint_header" {
+    try testing.expectEqual(
+        0b00100000_00000000_00000000_00000000,
+        HashCount([1]usize, 8).fingerprint_header,
+    );
+    try testing.expectEqual(
+        0b01000000_00000000_00000000_00000000,
+        HashCount([2]usize, 8).fingerprint_header,
+    );
+    try testing.expectEqual(
+        0b01100000_00000000_00000000_00000000,
+        HashCount([3]usize, 8).fingerprint_header,
+    );
+    try testing.expectEqual(
+        0b10000000_00000000_00000000_00000000,
+        HashCount([4]usize, 8).fingerprint_header,
+    );
+    try testing.expectEqual(
+        0b10100000_00000000_00000000_00000000,
+        HashCount([5]usize, 8).fingerprint_header,
+    );
+    try testing.expectEqual(
+        0b11000000_00000000_00000000_00000000,
+        HashCount([6]usize, 8).fingerprint_header,
+    );
+    try testing.expectEqual(
+        0b11100000_00000000_00000000_00000000,
+        HashCount([7]usize, 8).fingerprint_header,
+    );
+    try testing.expectEqual(
+        0b00000000_00000000_00000000_00000000,
+        HashCount([8]usize, 8).fingerprint_header,
+    );
+}
+
 test "HashCount: put, get" {
     var seed: usize = 0;
     const HC = HashCount([1]usize, 512);
@@ -138,7 +174,8 @@ test "HashCount: put, get" {
 
         for (keys) |*key| {
             key.* = rng.random.int(usize);
-            try testing.expectEqual(@as(u24, 1), counters.put(.{key}));
+            const count = counters.put(.{key.*});
+            try testing.expectEqual(@as(u24, 1), count);
         }
         try testing.expectEqual(keys.len, counters.len);
 
