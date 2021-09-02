@@ -5,8 +5,6 @@ const Text = @import("./textoken/text_data_struct.zig").Text;
 const TextokenOutput = @import("./textoken/output_helpers.zig");
 const Tokenizer = @import("./textoken/tokenizer.zig").Tokenizer;
 const text_utils = @import("./textoken/text_utils.zig");
-const NGram = @import("./counting/n_gram.zig").NGram(true);
-const NGram0 = @import("./counting/n_gram0.zig").NGram;
 
 // Init a Tokenizer and a Text
 var tknz: Tokenizer = undefined;
@@ -179,26 +177,6 @@ pub fn countNGram(step2_time: i64) !void {
     _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");
 }
 
-pub fn countNGram0(step2_time: i64) !void {
-    print("\nSTEP 3: Count and write n-gram ...\n", .{});
-    var gram: NGram0 = .{};
-    gram.init(std.heap.page_allocator);
-    defer gram.deinit();
-
-    // Chạy hết trong 1 lượt
-    const thread1 = try std.Thread.spawn(.{}, NGram0.countAndWrite48, .{ &gram, text, "data/24-fourth_grams.txt", "data/28-eighth_grams.txt" });
-
-    const thread2 = try std.Thread.spawn(.{}, NGram0.countAndWrite157, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt", "data/27-seventh_grams.txt" });
-
-    // Đếm lâu nhất cho chạy ở process chính
-    try gram.countAndWrite236(text, "data/22-bi_grams.txt", "data/23-tri_grams.txt", "data/26-sixth_grams.txt");
-
-    thread1.join();
-    thread2.join();
-
-    _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");
-}
-
 pub fn main() anyerror!void {
     const start_time = std.time.milliTimestamp();
 
@@ -222,13 +200,11 @@ pub fn main() anyerror!void {
     var step2_time = try tokenizeAndParse(step0_time);
 
     if (!count_n_grams) {
-        // Nếu không phải đếm n-gram thì viết kết quả tknz và parser ra luôn.
+        // Nếu không phải đếm n-gram thì viết kết quả tknz và parser ra luôn
         try write_results(step2_time);
     } else {
-        // Nếu không thì tuỳ có thể vừa viêt kết quả trong lúc count cho hiệu quả
+        // Nếu đếm n-gram thì có thể tiện viết kết quả trong lúc count
         try countNGram(step2_time);
-        // Bản implement cũ để đối chiếu
-        // try countNGram0(step2_time);
     }
 
     // Hoàn tất chương trình, hiện tổng thời gian chạy
