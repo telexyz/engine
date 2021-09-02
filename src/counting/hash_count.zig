@@ -22,7 +22,7 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
             fp: Fingerprint = 0,
             count: u24 = 0,
         };
-        // fp chứa 29-bits từ 1 hàm hash u32 và 3-bits chứa độ dài n-gram từ 1-6
+        // fp chứa 29-bits từ 1 hàm hash u32 và 3-bits chứa độ dài n-gram từ 1-8
         // vậy nên fp thật luôn > 0 vì độ dài n-gram luôn > 0
 
         const Self = @This();
@@ -67,28 +67,26 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
                 .count = 1,
             };
 
-            // Sử dụng số dư của phép chia @rem để map hash value về vị trí index của nó
-            // thay vì dùng shift để khởi tạo không bị thừa capacity vì nếu dùng shift
-            // yêu cầu capacity phải là powerOfTwo tức là nếu chỉ chứa 10 phần tử phải khởi tạo
-            // capacity = 16 để đảm bảo nó là powerOfTwo.
-            // Đổi lại thì hash value không được lưu theo thứ tự tăng dần nữa.
-            // var i = @rem(it.hash, capacity);
+            // Sử dụng capacity isPowerOfTwo và dùng hàm shift để băm hash vào index.
+            // Nhờ dùng right-shift nên giữ được bit cao của hash value trong index
+            // Vậy nên đảm bảo tính tăng dần của hash value (clever trick 1)
             var i = it.hash >> shift;
 
             while (true) : (i += 1) {
                 const entry = self.entries[i];
 
-                // Vì hash đã được khởi tạp sẵn ở maxx_hash value nên khi tìm được
-                // entry.hash > it.hash thì nhiều khả năng đây là slot trống
+                // Vì hash đã được khởi tạp sẵn ở maxx_hash value nên đảm bảo slot trống
+                // có hash value >= giá trị hash đang xem xét (clever trick 2)
                 if (entry.hash >= it.hash) {
-                    // Thay vì so sánh key ta so sánh hash + fingerprint only
-                    // với giả thiết rằng hash + fingerprint là uniq với mỗi key
-                    // if (meta.eql(entry.key, key)) {
+
+                    // Giả thiết rằng hash + fingerprint là uniq với mỗi key
+                    // Nên thay vì if (meta.eql(entry.key, key)) ta dùng
                     if (entry.fp == fp and entry.hash == it.hash) {
                         // Tìm được đúng ô chứa, tăng count lên 1 and return :)
                         self.entries[i].count += 1;
                         return entry.count + 1;
                     }
+
                     // Không đúng ô chứa mà hash của ô lại lớn hơn thì ta ghi đề giá trị
                     // của it vào đó
                     self.entries[i] = it;
@@ -99,6 +97,7 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
                         self.len += 1;
                         return 1;
                     }
+
                     // Tráo giá trị it và entries[i] đã được lưu vào entry trừ trước
                     // để đảm bảo tính tăng dần của hash value
                     it = entry;
@@ -111,9 +110,7 @@ pub fn HashCount(comptime K: type, capacity: u32) type {
             const hash = _hash(key);
 
             var i = hash >> shift;
-
-            // Để hàm get hoạt động đúng thì phải dùng capacity isPowerOfTwo để đảm bảo
-            // hash value luôn tăng.
+            // Vì hash value luôn tăng nên khi entry.hash > hash nghĩa là hash chưa dc đếm
             while (true) : (i += 1) {
                 const entry = self.entries[i];
                 if (entry.hash >= hash) {
@@ -135,34 +132,23 @@ test "HashCount: put, get" {
         try counters.init(testing.allocator);
         defer counters.deinit();
 
-        var rng = std.rand.DefaultPrng.init(seed);
-
         const keys = try testing.allocator.alloc(usize, 512);
         defer testing.allocator.free(keys);
+        var rng = std.rand.DefaultPrng.init(seed);
 
-        for (keys) |*key| key.* = rng.random.int(usize);
-
-        for (keys) |key, i| {
-            if (@rem(i, 2) == 0)
-                try testing.expectEqual(@as(u24, 1), counters.put(.{key}));
-        }
-        for (keys) |key, i| {
-            if (@rem(i, 2) == 1)
-                try testing.expectEqual(@as(u24, 1), counters.put(.{key}));
+        for (keys) |*key| {
+            key.* = rng.random.int(usize);
+            try testing.expectEqual(@as(u24, 1), counters.put(.{key}));
         }
         try testing.expectEqual(keys.len, counters.len);
 
-        var hash: u32 = 0;
-        for (counters.slice()) |entry| {
+        var hash: HC.HashType = 0;
+        for (counters.slice()) |entry|
             if (entry.count != 0) {
-                if (hash > entry.hash) {
-                    return error.Unsorted;
-                }
+                if (hash > entry.hash) return error.Unsorted;
                 hash = entry.hash;
-            }
-        }
+            };
 
-        for (keys) |key|
-            try testing.expectEqual(@as(u24, 1), counters.get(.{key}));
+        for (keys) |key| try testing.expectEqual(@as(u24, 1), counters.get(.{key}));
     }
 }
