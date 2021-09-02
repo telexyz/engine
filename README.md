@@ -2,9 +2,45 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 ## TODOs
 
+* Huấn luyện mô hình ngôn ngữ lightweight RNN cho âm tiết tiếng Việt
+
+* Xây dựng kiến trúc lattice tích hợp được nhiều features & methods
+
+* Viết beam-search decoder cho kiến trúc nói trên
+
+### Module 1/ `syllables2words`: gộp âm tiết thành từ
+
+* Step 1: Dùng từ điển liệt kê mọi khả năng tách từ, 
+          scoring dựa trên syllable n-grams, giữ lại 5-best
+
+* Step 2: Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
+
+* Step 3: Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
+
+[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
+
+* Từ`dict/34k.xyz.cdx` chuyển thành 4-grams (từ <= 4 âm tiết) và định danh bằng phần còn lại của `u16` (sau khi đã trừ đi syllable ids và OOV BPE). 
+
+* Khởi tạo từ điển giống như hash_count của n-gram nhưng có thể đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có thể chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứ `u16 word id`
+
+### Module 0/ n-gram nâng cao
+
+* Làm mượt n-gram `data/2{n}-grams.cdx`
+
+* Cho 1 câu bất kì, tính xác xuất dựa trên n-gram count
+
+
+[ >>> DONE <<< ]
+
+### Module 1/ `syllables2words`: gộp âm tiết thành từ
+
+### Module 0/ n-gram nâng cao
+
+* Từ `data/{21,..28}-n_grams.txt` tìm cách load và hashing về `u64` xem có bị va chạm không?
+
 * Tìm cách đếm, lưu n-gram (bao gồm từ điển) hiệu quả nhất `docs/n-gram_lookup_IFM_trie.md`
 
-* Others TODOs `docs/.0{1,2}-xxxx.md`
+* Tham khảo kiến trúc tích hợp Jumanpp
 
 
 ## REWRITE
