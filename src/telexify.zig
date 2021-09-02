@@ -155,6 +155,7 @@ fn tokenizeAndParse(step0_time: i64) !i64 {
 pub fn countNGram(step2_time: i64) !void {
     print("\nSTEP 3: Count and write n-gram ...\n", .{});
 
+    const NGram = @import("./counting/n_gram.zig").NGram(true);
     // Khởi tạo bộ đếm
     var gram: NGram = .{};
     gram.init(std.heap.page_allocator);
