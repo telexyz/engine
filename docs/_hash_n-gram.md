@@ -1,3 +1,26 @@
+Rất nhiều thông tin về n-gram LM
+http://demo.clab.cs.cmu.edu/11711fa18 | http://www.cs.cmu.edu/~tbergkir/11711fa17
+
+- - -
+
+A Hierarchical Bayesian Language Model based on Pitman-Yor Processes
+https://www.gatsby.ucl.ac.uk/~ywteh/research/compling/acl2006.pdf
+
+
+Smoothed Bloom filter language models: Tera-Scale LMs on the Cheap
+https://aclanthology.org/D07-1049.pdf
+
+
+Randomized Language Models via Perfect Hash Functions
+https://aclanthology.org/P08-1058.pdf
+
+
+Faster and Smaller N-Gram Language Models
+http://nlp.cs.berkeley.edu/pubs/Pauls-Klein_2011_LM_paper.pdf
+
+
+- - -
+
 https://www.edwardraff.com/publications/hash-grams-faster.pdf
 
 The results are presented in Table 1, where we see that the exact n-gram and hash-gram models have indistinguishable accuracy on both of the test sets. All scores are close, and fluctuated between slightly better and worse on individual numbers. The slight changes in results are not unexpected due to the hash collisions, but is clearly of equivalent predictive quality to the exact n-gram model.
