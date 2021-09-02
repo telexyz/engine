@@ -329,8 +329,8 @@ pub const Syllable = struct {
     // Rồi kiểm tra xem âm tiết này có thoả mãn luật kết hợp âm hay ko
     // => 8_370 invalid slots to use (17_880 valid syllable ids)
     pub const UniqueId = u15;
-    pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_250 .. 32_767
-    pub const NONE_ID: UniqueId = 32_767; // => Còn 6_516 slots liền kề cho OOV dùng BPE
+    pub const MAXX_ID: UniqueId = 25 * 25 * 42; // 26_251..32_766 => dư 6_515 slots liền kề
+    pub const NONE_ID: UniqueId = std.math.maxInt(UniqueId);
 
     pub inline fn hasMark(self: Syllable) bool {
         return self.am_dau == .zd or self.am_giua.hasMark();
