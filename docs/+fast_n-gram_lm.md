@@ -17,18 +17,49 @@ http://demo.clab.cs.cmu.edu/11711fa18
 https://openresearchsoftware.metajnl.com/articles/10.5334/jors.105
 
 https://proycon.github.io/colibri-core
+https://proycon.github.io/colibri-core/doc
 
-* Compressed binary representation -- Each word type is assigned a numeric class, which is encoded in a compact binary format in which HIGHLY FREQUENT CLASSES TAKE LESS SPACE than less frequent classes. Colibri core always uses this representation rather than a full string representation, both on disk and in memory.
+* n-gram – n consecutive words
 
-* Informed iterative counting -- Counting is performed more intelligently by iteratively processing the corpus in several passes and quickly DISCARDING PATTERNS THAT WON'T REACH THE DESIRED OCCURRENCE THRESHOLD.
+* skipgram – An abstract pattern of predetermined length with one or multiple gaps (of specific size).
+
+* flexgram – An abstract pattern without predetermined length, with one or more gaps.
+
+- -
+
+`colibri-ngrams` - Extracts n-grams of a particular size from the corpus text, in the order they occur, i.e. by moving a sliding window over the text.
+
+`colibri-freqlist` - Extracts all n-grams from one or more corpus text files and
+outputs a frequency list. Also allows for the extraction of skipgrams. By default all n-grams are extracted, but an occurrence threshold can be set with the -t flag.
+
+`colibri-ngramstats` - Prints a summary report on the ngrams in one or
+more corpus text files. To get the full details on interpreting the output report, read the section Statistical Reports and Histograms.
+
+`colibri-histogram` - Prints a histogram of ngram/skipgram occurrence count
+
+`colibri-queryngrams` - Interactive tool allowing you to query ngrams from standard input, various statistics and relations can be output.
+
+`colibri-reverseindex` - Computes and prints a reverse index for the specified corpus text file. For each token position in the corpus, it will output what patterns are found there (i.e start at that very same position)
+
+`colibri-loglikelihood` - Computes the log-likelihood between patterns in two or more corpus text files, which allows users to determine what words or patterns are significantly more frequent in one corpus than the other.
+
+`colibri-coverage` - Computes overlap between a training corpus and a test corpus, produces coverage metrics.
+
+`colibri-findpatterns` - Finds patterns (including skipgrams and flexgrams) in corpus data. You specify the patterns in a text file (one per line).
+
+- -
+
+* _Compressed binary representation_ -- Each word type is assigned a numeric class, which is encoded in a compact binary format in which HIGHLY FREQUENT CLASSES TAKE LESS SPACE than less frequent classes. Colibri core always uses this representation rather than a full string representation, both on disk and in memory.
+
+* _Informed iterative counting_ -- Counting is performed more intelligently by iteratively processing the corpus in several passes and quickly DISCARDING PATTERNS THAT WON'T REACH THE DESIRED OCCURRENCE THRESHOLD.
 
 Skipgram and flexgram extraction are computationally more demanding but have been implemented with similar optimisations. Skipgrams are computed by abstracting over n-grams, and flexgrams in turn are computed either by abstracting over skipgrams, or directly from n-grams on the basis of co-occurrence information (mutual pointwise information).
 
 A pattern model is simply a collection of extracted patterns (any of the three categories) and their counts from a specific corpus. Pattern models come in two varieties:
 
-* Unindexed Pattern Model -- The simplest form, which simply stores the patterns and their count.
+* _Unindexed Pattern Model_ -- The simplest form, which simply stores the patterns and their count.
 
-* Indexed Pattern Model -- The more informed form, which retains all indices to the original corpus, at the cost of more memory/diskspace.
+* _Indexed Pattern Model_ -- The more informed form, which retains all indices to the original corpus, at the cost of more memory/diskspace.
 The Indexed Pattern Model is much more powerful, and allows more statistics and relations to be inferred.
 
 The generation of pattern models is optionally parametrised by a minimum occurrence threshold, a maximum pattern length, and a lower-boundary on the different types that may instantiate a skipgram (i.e. possible fillings of the gaps).

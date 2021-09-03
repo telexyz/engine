@@ -17,7 +17,7 @@ pub fn build(b: *std.build.Builder) void {
     exe.install();
 
     // Build count_n_gram
-    const count = b.addExecutable("count", "src/count_n_gram.zig");
+    const count = b.addExecutable("telecount", "src/count_n_gram.zig");
     count.setTarget(target);
     count.setBuildMode(mode);
     count.install();
