@@ -4,6 +4,8 @@ Smoothing, Interpolation
 Goodman, Kneser-Ney, Stupid-backoff
 Bloom filter, Hash, Cache
 
+!!! LƯU Ý KHI DỮ LIỆU ĐẦU VÀO LỚN SẼ LÀM MỜ DẦN SỰ KHÁC BIỆT CỦA CÁC KỸ THUẬT !!!
+
 - - -
 
 Rất nhiều thông tin về n-gram LM
