@@ -1,5 +1,6 @@
 # KEYWORDS
 
+N-Gram, SkipGram, LexGram, UniGram ...
 Unique Count
 Smoothing, Interpolation
 Goodman, Kneser-Ney, Stupid-backoff
@@ -9,12 +10,30 @@ Bloom filter, Hash, Cache
 
 - - -
 
-## Rất nhiều thông tin về n-gram LM `docs/+language_models` downloadd từ
+## Rất nhiều thông tin về n-gram LM `docs/+language_models` download từ
 http://demo.clab.cs.cmu.edu/11711fa18
 
+### Efficient n-gram, Skipgram and Flexgram Modelling with Colibri Core
+https://openresearchsoftware.metajnl.com/articles/10.5334/jors.105
 
-### https://medium.com/mti-technology/n-gram-language-models-b125b9b62e58
+https://proycon.github.io/colibri-core
 
+* Compressed binary representation -- Each word type is assigned a numeric class, which is encoded in a compact binary format in which HIGHLY FREQUENT CLASSES TAKE LESS SPACE than less frequent classes. Colibri core always uses this representation rather than a full string representation, both on disk and in memory.
+
+* Informed iterative counting -- Counting is performed more intelligently by iteratively processing the corpus in several passes and quickly DISCARDING PATTERNS THAT WON'T REACH THE DESIRED OCCURRENCE THRESHOLD.
+
+Skipgram and flexgram extraction are computationally more demanding but have been implemented with similar optimisations. Skipgrams are computed by abstracting over n-grams, and flexgrams in turn are computed either by abstracting over skipgrams, or directly from n-grams on the basis of co-occurrence information (mutual pointwise information).
+
+A pattern model is simply a collection of extracted patterns (any of the three categories) and their counts from a specific corpus. Pattern models come in two varieties:
+
+* Unindexed Pattern Model -- The simplest form, which simply stores the patterns and their count.
+
+* Indexed Pattern Model -- The more informed form, which retains all indices to the original corpus, at the cost of more memory/diskspace.
+The Indexed Pattern Model is much more powerful, and allows more statistics and relations to be inferred.
+
+The generation of pattern models is optionally parametrised by a minimum occurrence threshold, a maximum pattern length, and a lower-boundary on the different types that may instantiate a skipgram (i.e. possible fillings of the gaps).
+
+![](files/colibri-core.png)
 
 - - -
 
@@ -78,3 +97,5 @@ https://ciir-publications.cs.umass.edu/getpdf.php?id=939
 
 
 n-gram http://web.stanford.edu/~jurafsky/slp3
+
+https://medium.com/mti-technology/n-gram-language-models-b125b9b62e58
