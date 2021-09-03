@@ -8,8 +8,8 @@ Bloom filter, Hash, Cache
 
 - - -
 
-Rất nhiều thông tin về n-gram LM
-http://demo.clab.cs.cmu.edu/11711fa18 | http://www.cs.cmu.edu/~tbergkir/11711fa17
+## Rất nhiều thông tin về n-gram LM `docs/+language_models` downloadd từ
+http://demo.clab.cs.cmu.edu/11711fa18
 
 - - -
 
@@ -40,11 +40,9 @@ Probing > Trie > Chop > RandLM Stupid for both speed and memory.
 
 ## Faster and Smaller N-Gram Language Models
 http://nlp.cs.berkeley.edu/pubs/Pauls-Klein_2011_LM_paper.pdf
+Slower and larger than KenLM https://github.com/adampauls/berkeleylm
 
-Berkeley Java; slower and larger than KenLM
-https://github.com/adampauls/berkeleylm
-
-N -gram language models are a major resource bottleneck in machine translation. We present several language model impl that are both highly compact and fast to query. Our fastest impl is as fast as the widely used SRILM while requiring only 25% of the storage. 
+N-gram language models are a major resource bottleneck in machine translation. We present several language model impl that are both highly compact and fast to query. Our fastest impl is as fast as the widely used SRILM while requiring only 25% of the storage. 
 
 Our most compact representation can store all 4 billion n-grams and associated counts for the Google n-gram corpus in 23 bits per n-gram, the most compact lossless representation to date, and even more compact than recent lossy compression techniques. We also discuss techniques for improving query speed during decoding, including a simple but novel LANGUAGE MODEL CACHING technique that improves the query speed of our language models (and SRILM) by up to 300%.
 
@@ -72,10 +70,6 @@ https://www.csee.umbc.edu/courses/graduate/676/recursivehashingp291-cohen
 
 ## Efficient Indexing of Repeated n-Grams
 https://ciir-publications.cs.umass.edu/getpdf.php?id=939
-
-
-## Enhancing N-Gram-Hirschberg Algorithm by Using Hash Function
-https://booksc.org/book/32036707/87c78d
 
 
 n-gram http://web.stanford.edu/~jurafsky/slp3
