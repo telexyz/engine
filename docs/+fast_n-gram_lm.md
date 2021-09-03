@@ -1,6 +1,8 @@
 # KEYWORDS
 
-Goodman Smoothing, Kneser-Ney Interpolation
+Smoothing, Interpolation
+Goodman, Kneser-Ney, Stupid-backoff
+Bloom filter, Hash, Cache
 
 - - -
 
@@ -8,6 +10,22 @@ Rất nhiều thông tin về n-gram LM
 http://demo.clab.cs.cmu.edu/11711fa18 | http://www.cs.cmu.edu/~tbergkir/11711fa17
 
 - - -
+
+## Smoothed Bloom filter language models: Tera-Scale LMs on the Cheap
+https://aclanthology.org/D07-1049.pdf
+
+We assign a small cache to the BF-LM models (between 1 and 2MBs depending on the order of the model) to store recently retrieved statistics and derived probabilities. Translation takes between **2 to 5 times longer** using the BF-LMs as compared to the corresponding SRILM models.
+
+## Randomized Language Models via Perfect Hash Functions
+https://aclanthology.org/P08-1058.pdf
+
+Our randomized LM is based on the Bloomier filter (Chazelle et al., 2004). We assume the n-grams and their associated parameter values have been precomputed and stored on disk. We then encode the model in an array such that each n-gram’s value can be retrieved. Storage for this array is the model’s only significant space requirement once constructed.
+
+The model uses randomization to map n-grams to fingerprints and to generate a perfect hash function that associates n-grams with their values. The model can erroneously return a value for an n-gram that was never actually stored, but will always return the correct value for an n-gram that is in the model.
+
+The proposed randomized LM can encode parameters estimated using any smoothing scheme (e.g. Kneser-Ney, Katz etc.). Here we choose to work with stupid backoff smoothing (Brants et al., 2007) since this is significantly more efficient to train and deploy in a distributed framework than a context-dependent smoothing scheme such as Kneser-Ney. Previous work (Brants et al., 2007) has shown it to be appropriate to large-scale language modeling.
+
+![](files/bloomier_n-gram_false_pos.png)
 
 ## KenLM: Faster and Smaller Language Model Queries
 https://kheafield.com/papers/avenue/kenlm.pdf
@@ -36,15 +54,6 @@ https://www.stats.ox.ac.uk/~teh/research/compling/hpylm.pdf
 https://www.gatsby.ucl.ac.uk/~ywteh/research/compling/acl2006.pdf
 
 Interpolated Kneser-Ney is one of the best smoothing methods for n-gram language models. Previous explanations for its superiority have been based on intuitive and empirical justifications of specific properties of the method. We propose a novel interpretation of interpolated Kneser-Ney as approximate inference in a hierarchical Bayesian model consisting of Pitman-Yor processes. As opposed to past explanations, our interpretation can recover exactly the formulation of interpolated Kneser-Ney, and performs better than interpolated Kneser-Ney when a better inference procedure is used.
-`P(word1, word2, ..., wordt) = sum(P(wordi | word1, ..., wordi−1))`
-`P(wordi | word1, ..., wordi−1) = P(wordi | wordi−N+1, ..., wordi−1)`
-
-## Smoothed Bloom filter language models: Tera-Scale LMs on the Cheap
-https://aclanthology.org/D07-1049.pdf
-
-## Randomized Language Models via Perfect Hash Functions
-https://aclanthology.org/P08-1058.pdf
-
 
 - - -
 
