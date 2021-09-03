@@ -1,5 +1,6 @@
 # KEYWORDS
 
+Unique Count
 Smoothing, Interpolation
 Goodman, Kneser-Ney, Stupid-backoff
 Bloom filter, Hash, Cache
@@ -10,6 +11,10 @@ Bloom filter, Hash, Cache
 
 ## Rất nhiều thông tin về n-gram LM `docs/+language_models` downloadd từ
 http://demo.clab.cs.cmu.edu/11711fa18
+
+
+### https://medium.com/mti-technology/n-gram-language-models-b125b9b62e58
+
 
 - - -
 
