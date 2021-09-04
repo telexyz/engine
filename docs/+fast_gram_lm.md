@@ -1,10 +1,12 @@
 # KEYWORDS
 
-N-Gram, SkipGram, LexGram, UniGram ...
-Unique Count
-Smoothing, Interpolation
-Goodman, Kneser-Ney, Stupid-backoff
-Bloom filter, Hash, Cache
+`N-Gram, SkipGram, LexGram, UniGram ... Unique Count ??`
+
+`Smoothing, Backoff, Interpolation`
+
+`Goodman, Kneser-Ney, Stupid-backoff`
+
+`Bloom Filter, Hash, Cache`
 
 !!! LƯU Ý KHI DỮ LIỆU ĐẦU VÀO LỚN SẼ LÀM MỜ DẦN SỰ KHÁC BIỆT CỦA CÁC KỸ THUẬT !!!
 
@@ -12,6 +14,23 @@ Bloom filter, Hash, Cache
 
 ## Rất nhiều thông tin về n-gram LM `docs/+language_models` download từ
 http://demo.clab.cs.cmu.edu/11711fa18
+http://demo.clab.cs.cmu.edu/11711fa20/slides/11711-05-language-modeling.pdf
+
+* `Smoothing`: to deal with 0 prob.
+  Add-one or Laplace smoothing: 
+
+* `Backoff`: Use trigram counts if you have good evidence; 
+  otherwise, bigram; otherwise, unigram.
+
+* `Interpolation`: Always mix unigram, bigram, trigram statistics.
+
+!!! SOTA: Extended interpolated Kneser-Ney smoothing !!!
+
+![](files/perplexity.png)
+
+n-gram http://web.stanford.edu/~jurafsky/slp3
+
+- - -
 
 ### Efficient n-gram, Skipgram and Flexgram Modelling with Colibri Core
 https://openresearchsoftware.metajnl.com/articles/10.5334/jors.105
@@ -129,8 +148,3 @@ https://www.csee.umbc.edu/courses/graduate/676/recursivehashingp291-cohen
 
 ## Efficient Indexing of Repeated n-Grams
 https://ciir-publications.cs.umass.edu/getpdf.php?id=939
-
-
-n-gram http://web.stanford.edu/~jurafsky/slp3
-
-https://medium.com/mti-technology/n-gram-language-models-b125b9b62e58
