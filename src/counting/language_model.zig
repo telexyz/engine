@@ -2,10 +2,11 @@
 // * V = data/21-grams.cdx
 // * Laplace or add-one smoothing
 // * `Quantization`: store probabilities in 8..16-bits rather than 32 bit float.
-// * `BinaryFuseFilter`: 32-bits per key n-gram count lookup
+// * `BinaryFuseFilter`: 16-bits per key n-gram pre-filter
 // * Testing: Stupid backoff vs modified Kneser-Ney
 
-// try binaryFuseTest(u32, 1_000_000, 4_522_040); => bits per entry 36.2
-// 48-bits (32+16) storage => 54.3 bits per entry (48 x 36.2 / 32)
-// 68% storage compare to hash_count (80-bits per entry)
-// => ~900 MB of RAM (68% x 1.3Gb)
+// try binaryFuseTest(u16, 111_000_000, 249_823_288); => bits per entry 18
+// => ~240MB
+
+// HashProb 2^27 items, each 64-bit KeyRepresent + 16-bit float => 10-bytes
+// => ~1.3Gb (134_217_728 x 10 / (1024 x 1024))

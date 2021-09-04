@@ -83,23 +83,23 @@ pub fn BinaryFuse(comptime T: type) type {
         ///
         /// The caller is responsible for ensuring that there are no duplicated keys.
         ///
-        /// The inner loop will run up to max_iterations times (default 100) and will never fail,
-        /// except if there are duplicated keys.
+        /// The inner loop will run up to max_iterations times (default 100)
+        /// and will never fail, except if there are duplicated keys.
         ///
-        /// The provided allocator will be used for creating temporary buffers that do not outlive the
-        /// function call.
+        /// The provided allocator will be used for creating temporary buffers that
+        /// do not outlive the function call.
         pub fn populate(self: *Self, allocator: *Allocator, keys: []u64) Error!void {
             const iter = try util.sliceIterator(u64).init(allocator, keys);
             defer iter.deinit();
             return self.populateIter(allocator, iter);
         }
 
-        /// Identical to populate, except it takes an iterator of keys so you need not store them
-        /// in-memory.
+        /// Identical to populate, except it takes an iterator of keys so you need not 
+        /// store them in-memory.
         ///
-        /// `keys.next()` must return `?u64`, the next key or none if the end of the list has been
-        /// reached. The iterator must reset after hitting the end of the list, such that the `next()`
-        /// call leads to the first element again.
+        /// `keys.next()` must return `?u64`, the next key or none if the end of the list
+        /// has been reached. The iterator must reset after hitting the end of the list, 
+        /// such that the `next()` call leads to the first element again.
         ///
         /// `keys.len()` must return the `usize` length.
         pub fn populateIter(self: *Self, allocator: *Allocator, keys: anytype) Error!void {
@@ -149,8 +149,7 @@ pub fn BinaryFuse(comptime T: type) type {
 
                 var i: u32 = 0;
                 while (i < block) : (i += 1) {
-                    // important : i * size would overflow as a 32-bit number in some
-                    // cases.
+                    // important : i * size would overflow as a 32-bit number in some cases.
                     start_pos[i] = @truncate(u32, (@intCast(u64, i) * size) >> block_bits);
                 }
 
@@ -425,6 +424,7 @@ test "binaryFuse8_5m" {
 
 test "binaryFuse16" {
     try binaryFuseTest(u16, 1_000_000, 2_261_048);
+    // try binaryFuseTest(u16, 111_000_000, 249_823_288);
 }
 
 test "binaryFuse24" {
