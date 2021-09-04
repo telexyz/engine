@@ -50,20 +50,17 @@ Kết hợp với flags ta có: tex "xanh lá, màu xanh"
 
 Với input "xanh xanh" không tìm được xanh-1,1,*,*/x ở cùng vị trí x
 
-Với 8-bits ta sẽ lưu được 4-flags x 16 relative-positions.
+Giả sử mỗi syl được lặp lại với xác suất 1/12 thì 16 doc-rel-pos flags lưu OK cho 192 syls' tex (đoạn văn 10 dòng, mỗi dòng khoảng 20 âm tiết).
 
-Giả sử mỗi syl được lặp lại với xác suất 1/8 thì 16 rel-pos lưu perfect cho 128 syls' tex.
-
-Như vậy dùng 1-byte là đủ để encode thông tin của flags và rel-pos chia đều 4/4.
-
-Có thể cân nhắc phân chia flags/rel-pos thành 3/5 cho OOV để tránh va chạm => Cần thử nghiệm.
+**EDGE CASE**: lát cắt nằm ở giữa từ thì xử lý thế nào ???
+  => !! LÀM TRÒN VỊ TRÍ CẮT CHO TỚI HẾT SYLLABLE CHUNK !!!
 
 => Inverted index sẽ có dạng:
 
 tok_id: 
-	doc_id1(u32) flags/rel-pos-1 flags/rel-pos-1 ... flags/rel-pos-k1
-	doc_id2(u32) flags/rel-pos-1 flags/rel-pos-1                  ... flags/rel-pos-k2
-	...
+  doc_id1(`u32`):doc-rel-pos-flags(`u16`) [word-pos-flags-0(`u4`)...word-pos-flags-k1(`u4`)]
+  doc_id2(`u32`):doc-rel-pos-flags(`u16`) [word-pos-flags-0(`u4`)...word-pos-flags-k2(`u4`)]
+  ...
 
 - - -
 
