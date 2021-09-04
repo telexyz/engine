@@ -32,16 +32,16 @@ pub fn BinaryFuse(comptime T: type) type {
 
         const Self = @This();
 
-        /// initializes a binary fuse filter with enough capacity for a set containing up to `size`
-        /// elements.
+        /// initializes a binary fuse filter with enough capacity for a set containing
+        /// up to `size` elements.
         ///
         /// `deinit()` must be called by the caller to free the memory.
         pub fn init(allocator: *Allocator, size: usize) !*Self {
             const arity: u32 = 3;
+            const max_seg_len: u32 = std.math.maxInt(u18); // = 2^16 x 4
             var segment_length = calculateSegmentLength(arity, size);
-            if (segment_length > 262144) {
-                segment_length = 262144;
-            }
+            if (segment_length > max_seg_len) segment_length = max_seg_len;
+
             const segment_length_mask = segment_length - 1;
             const size_factor: f64 = if (size == 0) 4 else calculateSizeFactor(arity, size);
             const capacity = if (size <= 1) 0 else @floatToInt(u32, math.round(@intToFloat(f64, size) * size_factor));
@@ -305,8 +305,8 @@ const Hashes = struct {
 };
 
 inline fn calculateSegmentLength(arity: u32, size: usize) u32 {
-    // These parameters are very sensitive. Replacing `floor` by `round` can substantially affect
-    // the construction time.
+    // These parameters are very sensitive. Replacing `floor` by `round` can
+    // substantially affect the construction time.
     if (arity == 3) {
         const shift_count = @truncate(u32, relaxedFloatToInt(usize, math.floor(math.log(f64, math.e, @intToFloat(f64, size)) / math.log(f64, math.e, 3.33) + 2.25)));
         return if (shift_count >= 31) 0 else @as(u32, 1) << @truncate(u5, shift_count);
@@ -349,9 +349,7 @@ fn binaryFuseTest(T: anytype, size: usize, size_in_bytes: usize) !void {
 
     var keys = try allocator.alloc(u64, size);
     defer allocator.free(keys);
-    for (keys) |_, i| {
-        keys[i] = i;
-    }
+    for (keys) |*key, i| key.* = i;
 
     try filter.populate(allocator, keys[0..]);
 
@@ -386,8 +384,11 @@ fn binaryFuseTest(T: anytype, size: usize, size_in_bytes: usize) !void {
         }
     }
 
-    std.debug.print("fpp {d:3.10} (estimated) \n", .{@intToFloat(f64, random_matches) * 1.0 / trials});
-    std.debug.print("bits per entry {d:3.1}\n", .{@intToFloat(f64, filter.sizeInBytes()) * 8.0 / @intToFloat(f64, size)});
+    const fpp = @intToFloat(f64, random_matches) * 1.0 / trials;
+    std.debug.print("fpp {d:3.10} (estimated) \n", .{fpp});
+
+    const bpe = @intToFloat(f64, filter.sizeInBytes()) * 8.0 / @intToFloat(f64, size);
+    std.debug.print("bits per entry {d:3.1}\n", .{bpe});
 }
 
 test "binaryFuse8_small_input_edge_cases" {
@@ -411,21 +412,21 @@ test "binaryFuse8_10" {
 }
 
 test "binaryFuse8" {
-    try binaryFuseTest(u8, 1_000_000, 1130552);
+    try binaryFuseTest(u8, 1_000_000, 1_130_552);
 }
 
 test "binaryFuse8_2m" {
-    try binaryFuseTest(u8, 2_000_000, 2261048);
+    try binaryFuseTest(u8, 2_000_000, 2_261_048);
 }
 
 test "binaryFuse8_5m" {
-    try binaryFuseTest(u8, 5_000_000, 5636152);
+    try binaryFuseTest(u8, 5_000_000, 5_636_152);
 }
 
 test "binaryFuse16" {
-    try binaryFuseTest(u16, 1_000_000, 2261048);
+    try binaryFuseTest(u16, 1_000_000, 2_261_048);
 }
 
 test "binaryFuse32" {
-    try binaryFuseTest(u32, 1_000_000, 4522040);
+    try binaryFuseTest(u32, 1_000_000, 4_522_040);
 }
