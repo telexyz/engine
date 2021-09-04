@@ -427,6 +427,10 @@ test "binaryFuse16" {
     try binaryFuseTest(u16, 1_000_000, 2_261_048);
 }
 
+test "binaryFuse24" {
+    try binaryFuseTest(u24, 1_000_000, 4_522_040);
+}
+
 test "binaryFuse32" {
     try binaryFuseTest(u32, 1_000_000, 4_522_040);
 }

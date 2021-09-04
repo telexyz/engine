@@ -6,4 +6,5 @@
 // * Testing: Stupid backoff vs modified Kneser-Ney
 
 // 32-bits per lookup table entry
-// try binaryFuseTest(u32, 1_000_000, 4522040);
+// try binaryFuseTest(u32, 1_000_000, 4_522_040); => bits per entry 36.2
+// capacity = size x size_factor (1.075..2)
