@@ -20,12 +20,12 @@
 
 // u32 cityhash, u22 Fnv1a as fingerprint
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/21-grams.cdx UNIQ: 11620,    COUNT: 148275434 <<
-// data/22-grams.cdx UNIQ: 2666021,  COUNT: 175111767 <<
-// data/23-grams.cdx UNIQ: 18228071, COUNT: 143967962 <<
-// data/24-grams.cdx UNIQ: 38701829, COUNT: 116689548 <<
-// data/25-grams.cdx UNIQ: 49034515, COUNT: 95912169 <<
-// data/26-grams.cdx UNIQ: 49381938, COUNT: 78259054 <<
+// data/21-grams.bin UNIQ: 11620,    COUNT: 148275434 <<
+// data/22-grams.bin UNIQ: 2666021,  COUNT: 175111767 <<
+// data/23-grams.bin UNIQ: 18228071, COUNT: 143967962 <<
+// data/24-grams.bin UNIQ: 38701829, COUNT: 116689548 <<
+// data/25-grams.bin UNIQ: 49034515, COUNT: 95912169 <<
+// data/26-grams.bin UNIQ: 49381938, COUNT: 78259054 <<
 // (( Count and write n-gram done! Duration 1.36 mins ))
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -347,21 +347,19 @@ fn orderFn(comptime T: type) type {
 }
 
 pub fn writeGramCounts(grams: anytype, filename: []const u8, n: u8) !void {
-    var buffer: [13]u8 = undefined;
-    const buff = buffer[0..];
-
-    var buffer2: [13]u8 = undefined;
-    const buff2 = buffer2[0..];
-
-    // Sort by count desc
     var items = grams.slice();
 
     var file = try std.fs.cwd().createFile(filename, .{});
     defer file.close();
+
     var wrt = std.io.bufferedWriter(file.writer());
     var writer = wrt.writer();
 
+    // var buffer: [13]u8 = undefined;
+    // const buff = buffer[0..];
+
     var total: usize = 0;
+    var maxx: u24 = 1;
 
     var check_limit = (n >= 4);
     var limit: usize = switch (n) {
@@ -382,15 +380,18 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, n: u8) !void {
                 continue;
             }
 
-            try writer.print("{d} {s} {s}\n", .{
-                item.count,
-                Base64Encoder.encode(buff, std.mem.asBytes(&item.hash)),
-                Base64Encoder.encode(buff2, std.mem.asBytes(&item.fp)),
-            });
+            if (item.count > maxx) maxx = item.count;
+
+            _ = try writer.write(std.mem.asBytes(&item.count));
+            _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+            // try writer.print("{d} {s}\n", .{
+            //     item.count,
+            //     Base64Encoder.encode(buff, std.mem.asBytes(&item.keyRepresent())),
+            // });
         };
 
     try wrt.flush();
-    std.debug.print("\n{s} UNIQ: {d}, COUNT: {d} <<", .{ filename, grams.len, total });
+    std.debug.print("\n{s} UNIQ: {d}, COUNT: {d}, MAXX: {d} <<", .{ filename, grams.len, total, maxx });
 }
 
 test "ngram" {
@@ -418,8 +419,8 @@ test "ngram" {
     text_utils.parseTokens(&text);
     try gram.loadSyllableIdsFromText(text);
 
-    try gram.countAndWrite15("data/temp1.cdx", "data/temp5.cdx");
-    try gram.countAndWrite23("data/temp2.cdx", "data/temp3.cdx");
-    try gram.countAndWrite04("data/temp4.cdx");
-    try gram.countAndWrite06("data/temp6.cdx");
+    try gram.countAndWrite15("data/temp1.bin", "data/temp5.bin");
+    try gram.countAndWrite23("data/temp2.bin", "data/temp3.bin");
+    try gram.countAndWrite04("data/temp4.bin");
+    try gram.countAndWrite06("data/temp6.bin");
 }

@@ -23,6 +23,9 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
             hash: HashType = maxx_hash,
             fp: Fingerprint = 0,
             count: u24 = 0,
+            pub fn keyRepresent(self: Entry) u64 {
+                return (@intCast(u64, self.hash) << 32) | self.fp;
+            }
         };
         // fp chứa 29-bits từ 1 hàm hash và 3-bits chứa độ dài n-gram từ 1-8
 
