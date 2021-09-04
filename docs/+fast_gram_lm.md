@@ -15,15 +15,19 @@ http://demo.clab.cs.cmu.edu/11711fa18
 
 ### Efficient n-gram, Skipgram and Flexgram Modelling with Colibri Core
 https://openresearchsoftware.metajnl.com/articles/10.5334/jors.105
-
-https://proycon.github.io/colibri-core
 https://proycon.github.io/colibri-core/doc
 
-* n-gram – n consecutive words
+* `n-gram` – n consecutive words
 
-* skipgram – An abstract pattern of predetermined length with one or multiple gaps (of specific size).
+* `skipgram` – An abstract pattern of predetermined length with one or multiple gaps (of specific size).
 
-* flexgram – An abstract pattern without predetermined length, with one or more gaps.
+A fixed-length sequence of p word tokens and q token placeholders/wildcards with total length n (n = p + q), the placeholders constitute gaps or skips and a `skipgram` can contain multiple of these. In turn, a gap can span one or more tokens. For example: “to _ or _ _ be”
+
+* `flexgram` – An abstract pattern without predetermined length, with one or more gaps.
+
+Some may use the term `skipgram` to include what we call `flexgram`, or use another term such as `elastigram` to refer to flexgrams.
+
+Skipgrams are used in the field to obtain a higher level of generalisation than can be offered by n-grams. They can, for instance, be found as features in classification tasks [1], or AS A MEANS IN LANGUAGE MODELLING TO DECREASE PERPLEXITY [3,10].
 
 - -
 
