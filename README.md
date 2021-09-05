@@ -19,22 +19,23 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-* Từ`dict/34k.xyz.cdx` chuyển thành 4-grams (từ <= 4 âm tiết) và định danh bằng phần còn lại của `u16` (sau khi đã trừ đi syllable ids và OOV BPE). 
-
-* Khởi tạo từ điển giống như hash_count của n-gram nhưng đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có lẽ chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứa `u16` word id.
+* Từ `dict/34k.xyz` và hàm `parseXyzToGetSyllable()` chuyển thành 4-grams (từ <= 4 âm tiết) và định danh bằng phần còn lại của `u16` (sau khi đã trừ đi syllable ids và OOV BPE).  Khởi tạo từ điển giống như hash_count của n-gram nhưng đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có lẽ chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứa `u16` word id.
 
 ### Module 0/ n-gram nâng cao
 
-* Làm mượt n-gram `data/2{n}-grams.cdx`
+* Cho 1 phrase (nhiều syllables), tính xác xuất dựa trên n-gram count
 
-* Cho 1 câu bất kì, tính xác xuất dựa trên n-gram count
-
+* Làm mượt n-gram `data/2{n}-grams` bằng absoluted discount và stupid backoff
 
 [ >>> DONE <<< ]
 
 ### Module 1/ `syllables2words`: gộp âm tiết thành từ
 
 ### Module 0/ n-gram nâng cao
+
+* Tìm một cách đơn giản để làm mượt n-grams (xem `docs/n-gram_smoothing.md`)
+
+* Tìm cách tối ưu nhất, ít bộ nhớ nhất để load n-gram (xem `counting/language_model.zig`)
 
 * Từ `data/{21,..28}-n_grams.txt` tìm cách load và hashing về `u64` xem có bị va chạm không?
 
