@@ -334,14 +334,21 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
     var f1 = try std.fs.cwd().createFile(filename ++ ".one", .{});
     defer f1.close();
 
+    var f2 = try std.fs.cwd().createFile(filename ++ ".two", .{});
+    defer f2.close();
+
     var wrt = std.io.bufferedWriter(file.writer());
     var writer = wrt.writer();
 
     var f1_wrt = std.io.bufferedWriter(f1.writer());
     var f1_writer = f1_wrt.writer();
 
+    var f2_wrt = std.io.bufferedWriter(f2.writer());
+    var f2_writer = f2_wrt.writer();
+
     var total: usize = 0;
     var t1: usize = 0;
+    var t2: usize = 0;
     var max: u24 = 1;
     var count: u24 = undefined;
 
@@ -352,6 +359,10 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
             1 => {
                 t1 += 1;
                 _ = try f1_writer.write(std.mem.asBytes(&item.keyRepresent()));
+            },
+            2 => {
+                t2 += 1;
+                _ = try f2_writer.write(std.mem.asBytes(&item.keyRepresent()));
             },
             else => {
                 total += count;
@@ -364,9 +375,10 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
 
     try wrt.flush();
     try f1_wrt.flush();
+    try f2_wrt.flush();
 
     total += t1; // finalize total
-    std.debug.print("\n{s} UNIQ: {}, T1: {}, DIFF: {}, TOTAL: {}, MAX: {} <<", .{ filename, grams.len, t1, grams.len - t1, total, max });
+    std.debug.print("\n{s} UNIQ: {}, U1: {}, U2: {}, U3+: {}, TOTAL: {}, MAX: {} <<", .{ filename, grams.len, t1, t2, grams.len - t1 - t2, total, max });
 }
 
 test "ngram" {
