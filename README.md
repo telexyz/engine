@@ -2,20 +2,19 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 ## TODOs
 
-* Huấn luyện mô hình ngôn ngữ lightweight RNN cho âm tiết tiếng Việt
-
-* Xây dựng kiến trúc lattice tích hợp được nhiều features & methods
-
-* Viết beam-search decoder cho kiến trúc nói trên
-
 ### Module 1/ `syllables2words`: gộp âm tiết thành từ
 
-* Step 1: Dùng từ điển liệt kê mọi khả năng tách từ, 
-          scoring dựa trên syllable n-grams, giữ lại 5-best
+1.1/ Naive Impl
 
-* Step 2: Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
+* Dùng từ điển liệt kê mọi khả năng tách từ
 
-* Step 3: Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
+* Viết beam-search decoder để chọn +10 khả năng tách từ mà ít âm tiết `mồ côi` nhất
+
+* Scoring dựa trên syllable n-grams, giữ lại 5-best
+
+1.2/ Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
+
+1.3/ Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
