@@ -40,33 +40,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Một cách làm khác là tách riêng count = 1 rồi dùng
 // Binary fuse filter để lọc để khỏi lưu count :D
-
-// - - - - - - - - - - -
-//  119 KB  21-grams.txt
-//   39 MB  22-grams.txt
-//  371 MB  23-grams.txt
-// 1012 MB  24-grams.txt
-//  1.5 GB  25-grams.txt
-//  1.9 GB  26-grams.txt
-//  2.0 GB  27-grams.txt
-//  1.9 GB  28-grams.txt
-// - - - - - - - - - - - - - - - -
-// n   type   bytes  mem     count
-// - - - - - - - - - - - - - - - -
-// 1                        148.3m
-// 2   2.7m x 11 =  30mb    175.1m
-// 3  18.2m x 13 = 237mb    144.0m
-// 4  38.7m x 15 = 581mb    116.7m
-// 5  49.0m x 17 = 833mb     95.9m
-// 6  49.4m x 19 = 939mb     78.3m
-// - - - - - - - - - - - - - - - -
-//   158.0m 2..6-grams (~1.3Gb)
-// - - - - - - - - - - - - - - - -
-// 7  44.6m x 21 = 937mb     63.9m
-// 8  38.3m x 23 = 881mb     52.1m
-// - - - - - - - - - - - - - - - -
-//   241.0m 2..8-grams (~2.6Gb)
-// - - - - - - - - - - - - - - - -
+// Xem count_n_gram.zig
 
 const std = @import("std");
 const Base64Encoder = std.base64.standard_no_pad.Encoder;
@@ -363,7 +337,7 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
     var writer = wrt.writer();
 
     var f1_wrt = std.io.bufferedWriter(f1.writer());
-    var f1_writer = wrt.writer();
+    var f1_writer = f1_wrt.writer();
 
     var total: usize = 0;
     var t1: usize = 0;
@@ -391,7 +365,7 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
     try f1_wrt.flush();
 
     total += t1; // finalize total
-    std.debug.print("\n{s} UNIQ: {}, TOTAL: {}, T1: {}, MAX: {} <<", .{ filename, grams.len, total, t1, max });
+    std.debug.print("\n{s} UNIQ: {}, T1: {}, DIFF: {}, TOTAL: {}, MAX: {} <<", .{ filename, grams.len, t1, grams.len - t1, total, max });
 }
 
 test "ngram" {

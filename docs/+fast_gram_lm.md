@@ -37,9 +37,17 @@ n-gram http://web.stanford.edu/~jurafsky/slp3
   (Maybe keep a couple extra values of d for counts 1 and 2.)
 
 
+### Tìm 1 cách smoothing lợi dụng được sự xuất hiện nhiều của count == 1
+
+`Stupid Backoff`, `Absolute discounting`, `Modified Absolute discounting` (MAD)
+
+...
+
+
 ### Linear interpolation
 
 ...
+
 
 ### Stupid backoff vs modified Kneser-Ney
 
