@@ -21,7 +21,7 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 * Từ`dict/34k.xyz.cdx` chuyển thành 4-grams (từ <= 4 âm tiết) và định danh bằng phần còn lại của `u16` (sau khi đã trừ đi syllable ids và OOV BPE). 
 
-* Khởi tạo từ điển giống như hash_count của n-gram nhưng có thể đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có thể chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứ `u16 word id`
+* Khởi tạo từ điển giống như hash_count của n-gram nhưng đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có lẽ chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứa `u16` word id.
 
 ### Module 0/ n-gram nâng cao
 
