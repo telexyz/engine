@@ -21,3 +21,15 @@ To see this, we can use a clever idea from Church and Gale (1991). Consider an n
 They computed a bigram grammar from 22 million words of AP newswire and then checked the counts of each of these bigrams in another 22 million words. On average, a bigram that occurred 4 times in the first 22 million words occurred 3.23 times in the next 22 million words. Fig. 3.8 from Church and Gale (1991) shows these counts for bigrams with c from 0 to 9.
 
 Notice in Fig. 3.8 that except for the held-out counts for 0 and 1, all the other bigram counts in the held-out set could be estimated pretty well by just subtracting 0.75 from the count in the training set! Absolute discounting formalizes this intu- ition by subtracting a fixed (absolute) discount d from each count. The intuition is that since we have good estimates already for the very high counts, a small discount d won’t affect them much.
+
+![](files/absolute_discount.png)
+Note: P(W) cuối công thức là P(Wi); Với c=0 => 0 + interplated prob
+d1  = 0.5
+d2+ = 0.75
+
+# https://people.eecs.berkeley.edu/~klein/cs294-5/chen_goodman.pdf
+
+
+
+# Towards Competitive N-gram Smoothing
+http://proceedings.mlr.press/v108/falahatgar20a/falahatgar20a.pdf
