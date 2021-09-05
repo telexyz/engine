@@ -39,14 +39,14 @@ pub fn main() anyerror!void {
     std.debug.print("\nSTEP 3: Count and write n-gram ...\n", .{});
 
     // Chạy song song để tăng tốc
-    var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams.cdx", "data/23-grams.cdx" });
-    try gram.countAndWrite15("data/21-grams.cdx", "data/25-grams.cdx");
+    var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
+    try gram.countAndWrite15("data/21-grams", "data/25-grams");
     // try write_results(step2_time);
     thread.join();
 
     // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
-    thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams.cdx" });
-    try gram.countAndWrite06("data/26-grams.cdx");
+    thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
+    try gram.countAndWrite06("data/26-grams");
     thread.join();
 
     _ = showMeTimeLap(step0_time, "STEP 3: Count and write n-gram done!");

@@ -2,6 +2,8 @@
 
 `N-Gram, SkipGram, LexGram, UniGram ... Unique Count ??`
 
+`Add-one, Absolute Discount`
+
 `Pruning, Smoothing, Backoff, Interpolation`
 
 `Goodman, Kneser-Ney, Stupid-backoff`
@@ -29,15 +31,29 @@ n-gram http://web.stanford.edu/~jurafsky/slp3
   otherwise, bigram; otherwise, unigram.
 
 * `Interpolation`: Always mix unigram, bigram, trigram statistics.
+  !!! SOTA: Extended interpolated Kneser-Ney smoothing !!!
 
-!!! SOTA: Extended interpolated Kneser-Ney smoothing !!!
+* `Absolute discounting`: just subtract a fixed discount d from each count
+  (Maybe keep a couple extra values of d for counts 1 and 2.)
+
 
 ### Linear interpolation
 
 ...
 
 ### Stupid backoff vs modified Kneser-Ney
+
+#### Scalable Modified Kneser-Ney Language Model Estimation
 https://aclanthology.org/P13-2121.pdf
+
+Brants et al. (2007) contributed Stupid Backoff, a simpler form of smoothing calculated at runtime from counts. With Stupid Backoff, they scaled to 1.8 trillion tokens. We agree that Stupid Backoff is cheaper to estimate, but contend that this work makes Kneser-Ney smoothing cheap enough.
+
+Another advantage of Stupid Backoff has been that it stores one value, a count, per n-gram in- stead of probability and backoff. In previous work (Heafield et al., 2012), we showed how to collapse probability and backoff into a single value without changing sentence-level probabilities. However, local scores do change and, like Stupid Backoff, are no longer probabilities.
+
+#### MSRLM: a scalable language modeling toolkit
+https://www.microsoft.com/en-us/research/wp-content/uploads/2007/11/tr-2007-144.pdf
+
+Smoothing: We provide two smoothing methods: modified absolute discounting (MAD), and Kneser-Ney (KN). KN typically gives superior results, but MAD normally converges to the same performance on large amounts of data. MAD is more scalable.
 
 ...
 
@@ -97,8 +113,6 @@ A pattern model is simply a collection of extracted patterns (any of the three c
 The Indexed Pattern Model is much more powerful, and allows more statistics and relations to be inferred.
 
 The generation of pattern models is optionally parametrised by a minimum occurrence threshold, a maximum pattern length, and a lower-boundary on the different types that may instantiate a skipgram (i.e. possible fillings of the gaps).
-
-![](files/colibri-core.png)
 
 - - -
 

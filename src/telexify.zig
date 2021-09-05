@@ -165,14 +165,14 @@ pub fn countNGram(step2_time: i64) !void {
     text.deinit();
 
     // Chạy song song để tăng tốc
-    var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams.bin", "data/23-grams.bin" });
-    try gram.countAndWrite15("data/21-grams.bin", "data/25-grams.bin");
+    var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
+    try gram.countAndWrite15("data/21-grams", "data/25-grams");
     // try write_results(step2_time);
     thread.join();
 
     // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
-    thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams.bin" });
-    try gram.countAndWrite06("data/26-grams.bin");
+    thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
+    try gram.countAndWrite06("data/26-grams");
     thread.join();
 
     _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");

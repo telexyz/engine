@@ -33,10 +33,13 @@
 // 2^27 = 134_217_728, => 4-grams: 35m, 5: 39m, 6: 39m
 // perf tốt hơn nếu max load ~80%
 // tức là khoảng 111_000_000 => Cần xoá thêm 23m nữa
+// => LIMIT 4,5,6-gram to:
+// const LIMIT_4_GRAM: u32 = 30_000_000;
+// const LIMIT_5_GRAM: u32 = 30_000_000;
+// const LIMIT_6_GRAM: u32 = 30_000_000;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const LIMIT_4_GRAM: u32 = 30_000_000;
-const LIMIT_5_GRAM: u32 = 30_000_000;
-const LIMIT_6_GRAM: u32 = 30_000_000;
+// Một cách làm khác là tách riêng count = 1 rồi dùng
+// Binary fuse filter để lọc để khỏi lưu count :D
 
 // - - - - - - - - - - -
 //  119 KB  21-grams.txt
@@ -186,7 +189,7 @@ pub fn NGram(for_real: bool) type {
         }
 
         const PAD = "\n                        ";
-        pub fn countAndWrite23(self: *Self, filename2: []const u8, filename3: []const u8) !void {
+        pub fn countAndWrite23(self: *Self, comptime filename2: []const u8, comptime filename3: []const u8) !void {
             const syllable_ids = self.syllable_ids.items;
             const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
@@ -225,7 +228,7 @@ pub fn NGram(for_real: bool) type {
             self.c3_grams.deinit();
         }
 
-        pub fn countAndWrite06(self: *Self, filename6: []const u8) !void {
+        pub fn countAndWrite06(self: *Self, comptime filename6: []const u8) !void {
             const syllable_ids = self.syllable_ids.items;
             const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
@@ -261,7 +264,7 @@ pub fn NGram(for_real: bool) type {
             self.c6_grams.deinit();
         }
 
-        pub fn countAndWrite15(self: *Self, filename1: []const u8, filename5: []const u8) !void {
+        pub fn countAndWrite15(self: *Self, comptime filename1: []const u8, comptime filename5: []const u8) !void {
             const syllable_ids = self.syllable_ids.items;
             const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
@@ -302,7 +305,7 @@ pub fn NGram(for_real: bool) type {
             self.c5_grams.deinit();
         }
 
-        pub fn countAndWrite04(self: *Self, filename4: []const u8) !void {
+        pub fn countAndWrite04(self: *Self, comptime filename4: []const u8) !void {
             const syllable_ids = self.syllable_ids.items;
             const ten_percents = syllable_ids.len / 10;
             var percents_threshold = ten_percents;
@@ -346,52 +349,49 @@ fn orderFn(comptime T: type) type {
     };
 }
 
-pub fn writeGramCounts(grams: anytype, filename: []const u8, n: u8) !void {
+pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
+    _ = n;
     var items = grams.slice();
 
-    var file = try std.fs.cwd().createFile(filename, .{});
+    var file = try std.fs.cwd().createFile(filename ++ ".bin", .{});
     defer file.close();
+
+    var f1 = try std.fs.cwd().createFile(filename ++ ".one", .{});
+    defer f1.close();
 
     var wrt = std.io.bufferedWriter(file.writer());
     var writer = wrt.writer();
 
-    // var buffer: [13]u8 = undefined;
-    // const buff = buffer[0..];
+    var f1_wrt = std.io.bufferedWriter(f1.writer());
+    var f1_writer = wrt.writer();
 
     var total: usize = 0;
-    var maxx: u24 = 1;
+    var t1: usize = 0;
+    var max: u24 = 1;
+    var count: u24 = undefined;
 
-    var check_limit = (n >= 4);
-    var limit: usize = switch (n) {
-        else => 0,
-        4 => LIMIT_4_GRAM,
-        5 => LIMIT_5_GRAM,
-        6 => LIMIT_6_GRAM,
-    };
-    if (limit < grams.len) {
-        limit = grams.len - limit;
-    } else check_limit = false;
-
-    for (items) |item|
-        if (item.count >= 1) {
-            total += item.count;
-            if (check_limit and item.count == 1 and limit > 0) {
-                limit -= 1;
-                continue;
-            }
-
-            if (item.count > maxx) maxx = item.count;
-
-            _ = try writer.write(std.mem.asBytes(&item.count));
-            _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
-            // try writer.print("{d} {s}\n", .{
-            //     item.count,
-            //     Base64Encoder.encode(buff, std.mem.asBytes(&item.keyRepresent())),
-            // });
-        };
+    for (items) |item| {
+        count = item.count;
+        switch (count) {
+            0 => {}, // do nothing
+            1 => {
+                t1 += 1;
+                _ = try f1_writer.write(std.mem.asBytes(&item.keyRepresent()));
+            },
+            else => {
+                total += count;
+                if (count > max) max = count;
+                _ = try writer.write(std.mem.asBytes(&count));
+                _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+            },
+        }
+    }
 
     try wrt.flush();
-    std.debug.print("\n{s} UNIQ: {d}, COUNT: {d}, MAXX: {d} <<", .{ filename, grams.len, total, maxx });
+    try f1_wrt.flush();
+
+    total += t1; // finalize total
+    std.debug.print("\n{s} UNIQ: {}, TOTAL: {}, T1: {}, MAX: {} <<", .{ filename, grams.len, total, t1, max });
 }
 
 test "ngram" {
@@ -419,8 +419,8 @@ test "ngram" {
     text_utils.parseTokens(&text);
     try gram.loadSyllableIdsFromText(text);
 
-    try gram.countAndWrite15("data/temp1.bin", "data/temp5.bin");
-    try gram.countAndWrite23("data/temp2.bin", "data/temp3.bin");
-    try gram.countAndWrite04("data/temp4.bin");
-    try gram.countAndWrite06("data/temp6.bin");
+    try gram.countAndWrite15("data/temp.n1", "data/temp.n5");
+    try gram.countAndWrite23("data/temp.n2", "data/temp.n3");
+    try gram.countAndWrite04("data/temp.n4");
+    try gram.countAndWrite06("data/temp.n6");
 }
