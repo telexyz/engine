@@ -325,7 +325,6 @@ fn orderFn(comptime T: type) type {
 }
 
 pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
-    _ = n;
     var items = grams.slice();
 
     var file = try std.fs.cwd().createFile(filename ++ ".bin", .{});
@@ -334,7 +333,7 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
     var f1 = try std.fs.cwd().createFile(filename ++ ".one", .{});
     defer f1.close();
 
-    var f2 = try std.fs.cwd().createFile(filename ++ ".two", .{});
+    var f2 = try std.fs.cwd().createFile(filename ++ ".234", .{});
     defer f2.close();
 
     var wrt = std.io.bufferedWriter(file.writer());
@@ -378,7 +377,7 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
     try f2_wrt.flush();
 
     total += t1; // finalize total
-    std.debug.print("\n{s} UNIQ: {}, U1: {}, U2: {}, U3+: {}, TOTAL: {}, MAX: {} <<", .{ filename, grams.len, t1, t2, grams.len - t1 - t2, total, max });
+    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, grams.len - t1 - t2, total, max });
 }
 
 test "ngram" {
