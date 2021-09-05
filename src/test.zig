@@ -13,6 +13,7 @@ test "textoken" {
 }
 
 test "counting" {
-    _ = @import("./counting/n_gram.zig");
-    _ = @import("./counting/hash_count.zig");
+    // _ = @import("./counting/n_gram.zig");
+    _ = @import("./counting/hash_count_123.zig");
+    _ = @import("./counting/hash_count_456.zig");
 }

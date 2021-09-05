@@ -130,18 +130,9 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
 
 const testing = std.testing;
 test "HashCount: fingerprint_header" {
-    // try testing.expectEqual(
-    //     0b01000000_00000000_00000000,
-    //     HashCount([1]usize, 8).fingerprint_header,
-    // );
-    // try testing.expectEqual(
-    //     0b10000000_00000000_00000000,
-    //     HashCount([2]usize, 8).fingerprint_header,
-    // );
-    // try testing.expectEqual(
-    //     0b11000000_00000000_00000000,
-    //     HashCount([3]usize, 8).fingerprint_header,
-    // );
+    try testing.expectEqual(0b01000000_00000000, HashCount([1]usize, 8).fingerprint_header);
+    try testing.expectEqual(0b10000000_00000000, HashCount([2]usize, 8).fingerprint_header);
+    try testing.expectEqual(0b11000000_00000000, HashCount([3]usize, 8).fingerprint_header);
 }
 
 test "HashCount: put, get" {
