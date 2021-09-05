@@ -333,7 +333,7 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
     var f1 = try std.fs.cwd().createFile(filename ++ ".one", .{});
     defer f1.close();
 
-    var f2 = try std.fs.cwd().createFile(filename ++ ".234", .{});
+    var f2 = try std.fs.cwd().createFile(filename ++ ".two", .{});
     defer f2.close();
 
     var wrt = std.io.bufferedWriter(file.writer());
