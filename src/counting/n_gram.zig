@@ -358,10 +358,18 @@ pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !vo
             1 => {
                 t1 += 1;
                 _ = try f1_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                if (n == 1) {
+                    _ = try writer.write(std.mem.asBytes(&count));
+                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                }
             },
             2 => {
                 t2 += 1;
                 _ = try f2_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                if (n == 1) {
+                    _ = try writer.write(std.mem.asBytes(&count));
+                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                }
             },
             else => {
                 total += count;

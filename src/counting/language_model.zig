@@ -1,12 +1,12 @@
-// 1..6-grams language model from `data/2{x}-grams.cdx`
-// * V = data/21-grams.cdx
-// * Laplace or add-one smoothing
-// * `Quantization`: store probabilities in 8..16-bits rather than 32 bit float.
-// * `BinaryFuseFilter`: 16-bits per key n-gram pre-filter
-// * Testing: Stupid backoff vs modified Kneser-Ney
+// For 1..6-grams language model from `data/2{x}-grams.{bin|one|two}`
+// * Let V = data/21-grams.bin
+// * Try Add-one smoothing vs Modified Absoluted Discount (MAD)
+// * Try Stupid backoff vs MAD
+//   (Kneser-Ney is the best but require more computation and the bigger the corpus
+// 	  the nearer they are all converged)
 
-// try binaryFuseTest(u16, 111_000_000, 249_823_288); => bits per entry 18
-// => ~240MB
+// * 268 MB `BinaryFuseFilter`: 16-bits per key grams with count = 1
+// *  30 MB `BinaryFuseFilter`: 16-bits per key grams with count = 2
 
-// HashProb 2^27 items, each 64-bit KeyRepresent + 16-bit float => 10-bytes
-// => ~1.3Gb (134_217_728 x 10 / (1024 x 1024))
+// * 131 MB `HashCount234`: 7-bytes key represent + 2-byte count for 4,5,6-grams
+// *  72 MB `HashCount234`: 6-bytes key represent + 3-byte count for 1,2,3-grams
