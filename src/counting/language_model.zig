@@ -1,9 +1,10 @@
 // For 1..6-grams language model from `data/2{x}-grams.{bin|one|two}`
+//
 // * Let V = data/21-grams.bin
-// * Try Add-one smoothing vs Modified Absoluted Discount (MAD)
-// * Try Stupid backoff vs MAD
-//   (Kneser-Ney is the best but require more computation and the bigger the corpus
-// 	  the nearer they are all converged)
+//
+// * Absoluted Discount Smoothing + Stupid Backoff for the sake of Simplicity
+//   See `docs/n-gram_smoothing.md` (Kneser-Ney is the best but require more
+//   computation and the bigger the corpus is the nearer they are converged)
 
 // * 268 MB `BinaryFuseFilter`: 16-bits per key grams with count = 1
 // *  30 MB `BinaryFuseFilter`: 16-bits per key grams with count = 2

@@ -27,9 +27,9 @@ Note: P(W) cuối công thức là P(Wi); Với c=0 => 0 + interplated prob
 d1  = 0.5
 d2+ = 0.75
 
-# https://people.eecs.berkeley.edu/~klein/cs294-5/chen_goodman.pdf
 
-
+# https://www.marekrei.com/pub/Machine_Learning_for_Language_Modelling_-_lecture2.pdf
+![](files/stupid_backoff.png)
 
 # Towards Competitive N-gram Smoothing
 http://proceedings.mlr.press/v108/falahatgar20a/falahatgar20a.pdf
