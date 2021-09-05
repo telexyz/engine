@@ -13,21 +13,23 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
     const size: usize = capacity + overflow;
 
     return struct {
-        pub const Fingerprint = u32;
-        pub const fingerprint_header = @intCast(Fingerprint, @typeInfo(K).Array.len) << 29;
+        pub const Fingerprint = u24;
+        pub const fingerprint_header = @intCast(Fingerprint, @rem(@typeInfo(K).Array.len, 4)) + 1 << 22;
 
         pub const HashType = u32;
         pub const maxx_hash = math.maxInt(HashType);
 
+        pub const CountType = u16;
+
         pub const Entry = struct {
             hash: HashType = maxx_hash,
             fp: Fingerprint = 0,
-            count: u24 = 0,
-            pub fn keyRepresent(self: Entry) u64 {
-                return (@intCast(u64, self.hash) << 32) | self.fp;
+            count: CountType = 0,
+            pub fn keyRepresent(self: Entry) u56 {
+                return (@intCast(u56, self.hash) << 32) | self.fp;
             }
         };
-        // fp chứa 29-bits từ 1 hàm hash và 3-bits chứa độ dài n-gram từ 1-8
+        // fp chứa 22-bits từ 1 hàm hash và 2-bits chứa độ dài n-gram từ 4,5,6
 
         const Self = @This();
 
@@ -57,10 +59,10 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
 
         inline fn _fingerprint(key: K) Fingerprint {
             const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            return fingerprint_header | @truncate(u29, hash);
+            return fingerprint_header | @truncate(u22, hash);
         }
 
-        pub fn put(self: *Self, key: K) u24 {
+        pub fn put(self: *Self, key: K) CountType {
             // Từ key ta dùng hash functions để khởi tạo giá trị hash và fingerprint
             // Sử dụng hash + fingerprint để đại diện cho key
             // => cần mò độ lớn của fingerprint hợp lý để tránh va chạm
@@ -109,7 +111,7 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
             } // while
         }
 
-        pub fn get(self: *Self, key: K) u24 {
+        pub fn get(self: *Self, key: K) CountType {
             const fp = _fingerprint(key);
             const hash = _hash(key);
 
@@ -129,36 +131,16 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
 const testing = std.testing;
 test "HashCount: fingerprint_header" {
     try testing.expectEqual(
-        0b00100000_00000000_00000000_00000000,
-        HashCount([1]usize, 8).fingerprint_header,
-    );
-    try testing.expectEqual(
-        0b01000000_00000000_00000000_00000000,
-        HashCount([2]usize, 8).fingerprint_header,
-    );
-    try testing.expectEqual(
-        0b01100000_00000000_00000000_00000000,
-        HashCount([3]usize, 8).fingerprint_header,
-    );
-    try testing.expectEqual(
-        0b10000000_00000000_00000000_00000000,
+        0b01000000_00000000_00000000,
         HashCount([4]usize, 8).fingerprint_header,
     );
     try testing.expectEqual(
-        0b10100000_00000000_00000000_00000000,
+        0b10000000_00000000_00000000,
         HashCount([5]usize, 8).fingerprint_header,
     );
     try testing.expectEqual(
-        0b11000000_00000000_00000000_00000000,
+        0b11000000_00000000_00000000,
         HashCount([6]usize, 8).fingerprint_header,
-    );
-    try testing.expectEqual(
-        0b11100000_00000000_00000000_00000000,
-        HashCount([7]usize, 8).fingerprint_header,
-    );
-    try testing.expectEqual(
-        0b00000000_00000000_00000000_00000000,
-        HashCount([8]usize, 8).fingerprint_header,
     );
 }
 
@@ -177,8 +159,7 @@ test "HashCount: put, get" {
 
         for (keys) |*key| {
             key.* = rng.random.int(usize);
-            const count = counters.put(.{key.*});
-            try testing.expectEqual(@as(u24, 1), count);
+            try testing.expectEqual(@as(HC.CountType, 1), counters.put(.{key.*}));
         }
         try testing.expectEqual(keys.len, counters.len);
 
@@ -189,6 +170,6 @@ test "HashCount: put, get" {
                 hash = entry.hash;
             };
 
-        for (keys) |key| try testing.expectEqual(@as(u24, 1), counters.get(.{key}));
+        for (keys) |key| try testing.expectEqual(@as(HC.CountType, 1), counters.get(.{key}));
     }
 }

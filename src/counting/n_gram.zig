@@ -47,7 +47,8 @@ const Base64Encoder = std.base64.standard_no_pad.Encoder;
 
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
-const HashCount = @import("./hash_count.zig").HashCount;
+const HashCount123 = @import("./hash_count_123.zig").HashCount;
+const HashCount456 = @import("./hash_count_456.zig").HashCount;
 
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;
@@ -56,12 +57,12 @@ const SyllableIdArray = std.ArrayList(Syllable.UniqueId);
 pub fn NGram(for_real: bool) type {
     return struct {
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
-        c1_grams: HashCount([1]Gram, if (!for_real) 64 else 16_384) = undefined,
-        c2_grams: HashCount([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
-        c3_grams: HashCount([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
-        c4_grams: HashCount([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        c5_grams: HashCount([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        c6_grams: HashCount([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
+        c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
+        c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
 
         syllable_ids: SyllableIdArray = undefined,
 
