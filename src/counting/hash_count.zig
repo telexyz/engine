@@ -6,11 +6,11 @@ const mem = std.mem;
 const Allocator = mem.Allocator;
 
 pub fn HashCount123(comptime K: type, comptime capacity: u32) type {
-    return HashCount(K, capacity, u32, u16, u24);
+    return HashCount(K, capacity, u32, u16, u24); // 9-bytes (4 + 2 + 3)
 }
 
 pub fn HashCount456(comptime K: type, comptime capacity: u32) type {
-    return HashCount(K, capacity, u32, u24, u16);
+    return HashCount(K, capacity, u32, u24, u16); // 9-bytes (4 + 3 + 2)
 }
 
 // args: key type, capacity, hash type, fingerprint type, count type
@@ -37,6 +37,7 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
     const key_lfp = if (key_len < 4) key_len else @rem(key_len, 4) + 1;
 
     return struct {
+        pub const bytes = (fp_bits + @typeInfo(H).Int.bits + @typeInfo(C).Int.bits) / 8;
         pub const HashType = H;
         pub const CountType = C;
         pub const fp_head = @intCast(F, key_lfp) << (fp_bits - 2);
@@ -157,9 +158,10 @@ test "HashCount123: fp_head" {
 }
 
 test "HashCount123: put, get" {
-    var seed: usize = 0;
     const HC = HashCount123([1]usize, 512);
+    try testing.expectEqual(9, HC.bytes);
     var counters: HC = undefined;
+    var seed: usize = 0;
 
     while (seed < 128) : (seed += 1) {
         try counters.init(testing.allocator);
@@ -193,9 +195,10 @@ test "HashCount456: fingerprint_header" {
 }
 
 test "HashCount456: put, get" {
-    var seed: usize = 0;
     const HC = HashCount456([1]usize, 512);
+    try testing.expectEqual(9, HC.bytes);
     var counters: HC = undefined;
+    var seed: usize = 0;
 
     while (seed < 128) : (seed += 1) {
         try counters.init(testing.allocator);
