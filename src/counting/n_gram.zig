@@ -47,8 +47,9 @@ const Base64Encoder = std.base64.standard_no_pad.Encoder;
 
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
-const HashCount123 = @import("./hash_count_123.zig").HashCount;
-const HashCount456 = @import("./hash_count_456.zig").HashCount;
+const hash_count = @import("./hash_count.zig");
+const HashCount123 = hash_count.HashCount123;
+const HashCount456 = hash_count.HashCount456;
 
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;

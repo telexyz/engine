@@ -5,30 +5,51 @@ const math = std.math;
 const mem = std.mem;
 const Allocator = mem.Allocator;
 
-pub fn HashCount(comptime K: type, comptime capacity: u32) type {
+pub fn HashCount123(comptime K: type, comptime capacity: u32) type {
+    return HashCount(K, capacity, u32, u16, u24);
+}
+
+pub fn HashCount456(comptime K: type, comptime capacity: u32) type {
+    return HashCount(K, capacity, u32, u24, u16);
+}
+
+// args: key type, capacity, hash type, fingerprint type, count type
+fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptime F: type, comptime C: type) type {
     std.debug.assert(math.isPowerOfTwo(capacity));
     const shift = 31 - math.log2_int(u32, capacity) + 1;
     const overflow = capacity / 10 + math.log2_int(u32, capacity) << 1;
     const size: usize = capacity + overflow;
 
+    const maxx_hash = math.maxInt(H);
+    const fp_bits = @typeInfo(F).Int.bits;
+
+    const R = @Type(std.builtin.TypeInfo{ .Int = .{
+        .signedness = .unsigned,
+        .bits = fp_bits + @typeInfo(H).Int.bits,
+    } });
+
+    const T = @Type(std.builtin.TypeInfo{ .Int = .{
+        .signedness = .unsigned,
+        .bits = fp_bits - 2,
+    } });
+
+    const key_len = @typeInfo(K).Array.len;
+    const key_lfp = if (key_len < 4) key_len else @rem(key_len, 4) + 1;
+
     return struct {
-        pub const Fingerprint = u16;
-        pub const fingerprint_header = @intCast(Fingerprint, @typeInfo(K).Array.len) << 14;
-
-        pub const HashType = u32;
-        pub const maxx_hash = math.maxInt(HashType);
-
-        pub const CountType = u24;
+        pub const HashType = H;
+        pub const CountType = C;
+        pub const fp_head = @intCast(F, key_lfp) << (fp_bits - 2);
 
         pub const Entry = struct {
-            hash: HashType = maxx_hash,
-            fp: Fingerprint = 0,
-            count: CountType = 0,
-            pub fn keyRepresent(self: Entry) u48 {
-                return (@intCast(u48, self.hash) << 24) | self.fp;
+            hash: H = maxx_hash,
+            fp: F = 0,
+            count: C = 0,
+            pub fn keyRepresent(self: Entry) R {
+                return (@intCast(R, self.hash) << fp_bits) | self.fp;
             }
         };
-        // fp chứa 22-bits từ 1 hàm hash và 2-bits chứa độ dài n-gram từ 1-3
+        // 2-bits đầu của fp độ dài n-gram được tính sẵn ở fp_head
 
         const Self = @This();
 
@@ -52,17 +73,17 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
             return self.entries[0..size];
         }
 
-        inline fn _hash(key: K) HashType {
-            return std.hash.CityHash32.hash(mem.asBytes(&key));
+        inline fn _hash(key: K) H {
+            const hash = std.hash.CityHash32.hash(mem.asBytes(&key));
+            return @truncate(H, hash);
         }
 
-        inline fn _fingerprint(key: K) Fingerprint {
+        inline fn _fingerprint(key: K) F {
             const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            return fingerprint_header | @truncate(u14, hash);
-            // return @truncate(Fingerprint, hash);
+            return fp_head | @truncate(T, hash);
         }
 
-        pub fn put(self: *Self, key: K) CountType {
+        pub fn put(self: *Self, key: K) C {
             // Từ key ta dùng hash functions để khởi tạo giá trị hash và fingerprint
             // Sử dụng hash + fingerprint để đại diện cho key
             // => cần mò độ lớn của fingerprint hợp lý để tránh va chạm
@@ -111,7 +132,7 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
             } // while
         }
 
-        pub fn get(self: *Self, key: K) CountType {
+        pub fn get(self: *Self, key: K) C {
             const fp = _fingerprint(key);
             const hash = _hash(key);
 
@@ -129,15 +150,51 @@ pub fn HashCount(comptime K: type, comptime capacity: u32) type {
 }
 
 const testing = std.testing;
-test "HashCount: fingerprint_header" {
-    try testing.expectEqual(0b01000000_00000000, HashCount([1]usize, 8).fingerprint_header);
-    try testing.expectEqual(0b10000000_00000000, HashCount([2]usize, 8).fingerprint_header);
-    try testing.expectEqual(0b11000000_00000000, HashCount([3]usize, 8).fingerprint_header);
+test "HashCount123: fp_head" {
+    try testing.expectEqual(0b01000000_00000000, HashCount123([1]usize, 8).fp_head);
+    try testing.expectEqual(0b10000000_00000000, HashCount123([2]usize, 8).fp_head);
+    try testing.expectEqual(0b11000000_00000000, HashCount123([3]usize, 8).fp_head);
 }
 
-test "HashCount: put, get" {
+test "HashCount123: put, get" {
     var seed: usize = 0;
-    const HC = HashCount([1]usize, 512);
+    const HC = HashCount123([1]usize, 512);
+    var counters: HC = undefined;
+
+    while (seed < 128) : (seed += 1) {
+        try counters.init(testing.allocator);
+        defer counters.deinit();
+
+        const keys = try testing.allocator.alloc(usize, 512);
+        defer testing.allocator.free(keys);
+        var rng = std.rand.DefaultPrng.init(seed);
+
+        for (keys) |*key| {
+            key.* = rng.random.int(usize);
+            try testing.expectEqual(@as(HC.CountType, 1), counters.put(.{key.*}));
+        }
+        try testing.expectEqual(keys.len, counters.len);
+
+        var hash: HC.HashType = 0;
+        for (counters.slice()) |entry|
+            if (entry.count != 0) {
+                if (hash > entry.hash) return error.Unsorted;
+                hash = entry.hash;
+            };
+
+        for (keys) |key| try testing.expectEqual(@as(HC.CountType, 1), counters.get(.{key}));
+    }
+}
+
+test "HashCount456: fingerprint_header" {
+    try testing.expectEqual(0b01000000_00000000_00000000, HashCount456([4]usize, 8).fp_head);
+    try testing.expectEqual(0b10000000_00000000_00000000, HashCount456([5]usize, 8).fp_head);
+    try testing.expectEqual(0b11000000_00000000_00000000, HashCount456([6]usize, 8).fp_head);
+}
+
+test "HashCount456: put, get" {
+    var seed: usize = 0;
+    const HC = HashCount456([1]usize, 512);
     var counters: HC = undefined;
 
     while (seed < 128) : (seed += 1) {
