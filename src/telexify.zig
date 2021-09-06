@@ -128,11 +128,11 @@ fn write_results(step2_time: i64) !void {
 fn tokenizeAndParse(step0_time: i64) !i64 {
     // Thread riêng cho parser là tuỳ chọn,
     // có thể comment out và bật lại parse syllable on-the-fly
-    var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
-    const then_parse_syllable = false;
+    // var thread = try std.Thread.spawn(.{}, text_utils.parseTokens, .{&text});
+    // const then_parse_syllable = false;
 
     // Tuỳ chọn parse syllable on-the-fly
-    // const then_parse_syllable = true;
+    const then_parse_syllable = true;
 
     // Bắt đầu tknz trên text đã được load (thường là từ file)
     try tknz.segment(&text, then_parse_syllable);
@@ -143,7 +143,7 @@ fn tokenizeAndParse(step0_time: i64) !i64 {
     _ = showMeTimeLap(step0_time, "STEP 1: Token segmenting finish!");
 
     // Kết thúc parser thread là tuỳ chọn, comment out nếu bật parse syllable on-the-fly
-    thread.join(); // Wait for sylabeling thread end
+    // thread.join(); // Wait for sylabeling thread end
 
     // Kiểm tra xem đã parse hết token chưa
     if (text.parsed_tokens_num != text.tokens_num) std.debug.print("!!! PARSER NOT REACH THE LAST TOKEN !!!", .{}); // unreachable;
@@ -165,15 +165,16 @@ pub fn countNGram(step2_time: i64) !void {
     text.deinit();
 
     // Chạy song song để tăng tốc
-    var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
+    // var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
+    try gram.countAndWrite23("data/22-grams", "data/23-grams");
     try gram.countAndWrite15("data/21-grams", "data/25-grams");
-    // try write_results(step2_time);
-    thread.join();
+    // thread.join();
 
     // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
-    thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
+    // thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
+    try gram.countAndWrite04("data/24-grams");
     try gram.countAndWrite06("data/26-grams");
-    thread.join();
+    // thread.join();
 
     _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");
 }
