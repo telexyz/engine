@@ -118,40 +118,24 @@ pub fn NGram(for_real: bool) type {
 
             var syll_id: Syllable.UniqueId = undefined;
             var i: usize = 0;
-            var idx: Syllable.UniqueId = undefined;
 
-            // var buffer: [13]u8 = undefined;
-            // const buff = buffer[0..];
             while (i < n) : (i += 1) {
-                // if (i > 100) break; //DEBUG
-                if (input_bytes[i] > 32) {
-                    // std.debug.print("\n{d}/{d}: {s} |", .{ i, n, input_bytes[i .. i + 3] }); //DEBUG
+                var char = input_bytes[i];
+                if (char >= 24) {
+                    char = input_bytes[i + 1];
+                    syll_id = char_to_index[char] << 12;
 
-                    idx = char_to_index[input_bytes[i]];
-                    // std.debug.print(" {s}:{} ", .{ input_bytes[i .. i + 1], idx });
-                    if (idx > 63) unreachable;
-                    syll_id = idx << 12;
+                    char = input_bytes[i + 2];
+                    syll_id |= char_to_index[char] << 6;
 
-                    i += 1;
-                    idx = char_to_index[input_bytes[i]];
-                    // std.debug.print(" {s}:{} ", .{ input_bytes[i .. i + 1], idx });
-                    if (idx > 63) unreachable;
-                    syll_id |= idx << 6;
-
-                    i += 1;
-                    idx = char_to_index[input_bytes[i]];
-                    // std.debug.print(" {s}:{} ", .{ input_bytes[i .. i + 1], idx });
-                    if (idx > 63) unreachable;
-                    syll_id |= idx;
+                    i += 3;
+                    char = input_bytes[i];
+                    syll_id |= char_to_index[char];
 
                     try self.syllable_ids.append(syll_id);
                     in_blank_zone = false;
-
-                    // std.debug.print("=> {s}", .{Syllable.newFromId(syll_id).printBuffUtf8(buff)}); //DEBUG
                     //
-                } else if (input_bytes[i] < 0x1a and !in_blank_zone) {
-                    //
-                    // std.debug.print("\n", .{}); //DEBUG
+                } else if (!in_blank_zone) {
                     try self.syllable_ids.append(BLANK);
                     in_blank_zone = true;
                 }
@@ -219,7 +203,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print(PAD ++ "Counting 6-gram {d}%", .{percents});
+                    // std.debug.print(PAD ++ "Counting 6-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -256,7 +240,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print(PAD ++ "Counting 1,5-gram {d}%", .{percents});
+                    // std.debug.print(PAD ++ "Counting 1,5-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
@@ -296,7 +280,7 @@ pub fn NGram(for_real: bool) type {
                 // Show progress
                 if (i >= percents_threshold) {
                     percents += 10;
-                    std.debug.print("\nCounting 4-gram {d}%", .{percents});
+                    // std.debug.print("\nCounting 4-gram {d}%", .{percents});
                     percents_threshold += ten_percents;
                 }
 
