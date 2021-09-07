@@ -6,12 +6,14 @@
 //   See `docs/n-gram_smoothing.md` (Kneser-Ney is the best but require more
 //   computation and the bigger the corpus is the nearer they are converged)
 
-// Total Mem 501 MB
+// Total Mem 531 MB
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // * 268 MB `BinaryFuseFilter`: 16-bits per key grams with count = 1
-// *  30 MB `BinaryFuseFilter`: 16-bits per key grams with count = 2
+// *  60 MB `BinaryFuseFilter`: 32-bits per key grams with count = 2
 // * 131 MB `HashCount234`: 7-bytes key represent + 2-byte count for 4,5,6-grams
 // *  72 MB `HashCount234`: 6-bytes key represent + 3-byte count for 1,2,3-grams
+// Note: thời gian khởi tạo BinaryFuseFilter lâu, có thể khởi tạo trước rồi load
+//       16-bit BFF có tỉ lệ va chạm 1/2^16 (~0.0015%) và speed x2 bloom filter
 
 // `../data/_train.txt` 655 MB
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -21,7 +23,7 @@
 // 4-gram U: 29393263, U1: 22318488, U2: 3223949, U3+: 3850826, T: 74559148, M: 39369
 // 5-gram U: 36248011, U1: 30184149, U2: 3156594, U3+: 2907268, T: 60262735, M: 33411
 // 6-gram U: 35963796, U1: 31398771, U2: 2591882, U3+: 1973143, T: 49137138, M: 26376
-
+// -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 // `../data/_train.txt.cdx` 428 MB
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 1-gram U: 11119, U1: 1290, U2: 682, U3+: 9147, T: 102925305, M: 1150231
