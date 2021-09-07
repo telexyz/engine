@@ -241,11 +241,17 @@ pub fn write_transforms_to_file(
             text.code_bytes[text.code_bytes_len] = '\n';
 
             if (text.line_vi_tokens_len == 0) {
+                // Không có tiếng Việt
                 _ = try nvi_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 //
             } else if (text.line_bytes_len > 2 + text.line_vi_tokens_len * 2) {
+                // Tiếng Việt chiếm thiểu số
                 _ = try low_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+                // write to cdx so there is no-diff in n-gram count
+                _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+                _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
             } else {
+                // Tiếng Việt chiếm đa số
                 _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
             }
