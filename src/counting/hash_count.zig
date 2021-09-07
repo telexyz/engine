@@ -5,6 +5,8 @@ const math = std.math;
 const mem = std.mem;
 const Allocator = mem.Allocator;
 
+const fvn1a32 = @import("../hashing/fvn1a32.zig");
+
 pub fn HashCount123(comptime K: type, comptime capacity: u32) type {
     return HashCount(K, capacity, u32, u16, u24); // 9-bytes (4 + 2 + 3)
 }
@@ -28,10 +30,10 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
         .bits = fp_bits + @typeInfo(H).Int.bits,
     } });
 
-    const T = @Type(std.builtin.TypeInfo{ .Int = .{
-        .signedness = .unsigned,
-        .bits = fp_bits - 2,
-    } });
+    // const T = @Type(std.builtin.TypeInfo{ .Int = .{
+    //     .signedness = .unsigned,
+    //     .bits = fp_bits - 2,
+    // } });
 
     const key_len = @typeInfo(K).Array.len;
     const key_lfp = if (key_len < 4) key_len else @rem(key_len, 4) + 1;
@@ -80,8 +82,8 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
         }
 
         inline fn _fingerprint(key: K) F {
-            const hash = std.hash.Fnv1a_32.hash(mem.asBytes(&key));
-            return fp_head | @truncate(T, hash);
+            var hash = fvn1a32.hash(fvn1a32.init_offset, u16, &key, key_len);
+            return @truncate(F, hash);
         }
 
         pub fn put(self: *Self, key: K) C {
@@ -158,34 +160,9 @@ test "HashCount123: fp_head" {
 }
 
 test "HashCount123: put, get" {
-    const HC = HashCount123([1]usize, 512);
+    const HC = HashCount123([2]u16, 512);
     try testing.expectEqual(9, HC.bytes);
-    var counters: HC = undefined;
-    var seed: usize = 0;
-
-    while (seed < 128) : (seed += 1) {
-        try counters.init(testing.allocator);
-        defer counters.deinit();
-
-        const keys = try testing.allocator.alloc(usize, 512);
-        defer testing.allocator.free(keys);
-        var rng = std.rand.DefaultPrng.init(seed);
-
-        for (keys) |*key| {
-            key.* = rng.random.int(usize);
-            try testing.expectEqual(@as(HC.CountType, 1), counters.put(.{key.*}));
-        }
-        try testing.expectEqual(keys.len, counters.len);
-
-        var hash: HC.HashType = 0;
-        for (counters.slice()) |entry|
-            if (entry.count != 0) {
-                if (hash > entry.hash) return error.Unsorted;
-                hash = entry.hash;
-            };
-
-        for (keys) |key| try testing.expectEqual(@as(HC.CountType, 1), counters.get(.{key}));
-    }
+    try testHC(HC);
 }
 
 test "HashCount456: fingerprint_header" {
@@ -195,8 +172,12 @@ test "HashCount456: fingerprint_header" {
 }
 
 test "HashCount456: put, get" {
-    const HC = HashCount456([1]usize, 512);
+    const HC = HashCount456([2]u16, 512);
     try testing.expectEqual(9, HC.bytes);
+    try testHC(HC);
+}
+
+fn testHC(comptime HC: type) !void {
     var counters: HC = undefined;
     var seed: usize = 0;
 
@@ -208,9 +189,12 @@ test "HashCount456: put, get" {
         defer testing.allocator.free(keys);
         var rng = std.rand.DefaultPrng.init(seed);
 
-        for (keys) |*key| {
+        for (keys) |*key, i| {
             key.* = rng.random.int(usize);
-            try testing.expectEqual(@as(HC.CountType, 1), counters.put(.{key.*}));
+            try testing.expectEqual(@as(HC.CountType, 1), counters.put(.{
+                @truncate(u16, i),
+                @truncate(u16, key.*),
+            }));
         }
         try testing.expectEqual(keys.len, counters.len);
 
@@ -221,6 +205,9 @@ test "HashCount456: put, get" {
                 hash = entry.hash;
             };
 
-        for (keys) |key| try testing.expectEqual(@as(HC.CountType, 1), counters.get(.{key}));
+        for (keys) |key, i| try testing.expectEqual(@as(HC.CountType, 1), counters.get(.{
+            @truncate(u16, i),
+            @truncate(u16, key),
+        }));
     }
 }

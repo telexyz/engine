@@ -1,46 +1,11 @@
-// ORIGINAL IMPL
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/21-uni_grams.txt UNIQ: 11620, COUNT: 148275434 <<
-// data/22-bi_grams.txt UNIQ: 2665233, COUNT: 175122466 <<
-// data/23-tri_grams.txt UNIQ: 18224608, COUNT: 143989170 <<
-// data/24-fourth_grams.txt UNIQ: 38698237, COUNT: 116712854 <<
-// data/25-fifth_grams.txt UNIQ: 49032659, COUNT: 95921019 <<
-// data/26-sixth_grams.txt UNIQ: 49381015, COUNT: 78262936 <<
-// (( Count and write n-gram done! Duration 2.89 mins ))
-
-// NEW IMPL BASED ON ROBIN-HOOD OPEN ADDRESS
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/21-grams.txt UNIQ: 11620,    COUNT: 148275434 <<
-// data/22-grams.txt UNIQ: 2666021 , COUNT: 175111766 <<
-// data/23-grams.txt UNIQ: 18228070, COUNT: 143967960 <<
-// data/24-grams.txt UNIQ: 38701828, COUNT: 116689547 <<
-// data/25-grams.txt UNIQ: 49034514, COUNT: 95912168 <<
-// data/26-grams.txt UNIQ: 49381937, COUNT: 78259053 <<
-// (( Count and write n-gram done! Duration 2.22 mins ))
-
-// u32 cityhash, u22 Fnv1a as fingerprint
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// data/21-grams.bin UNIQ: 11620,    COUNT: 148275434 <<
-// data/22-grams.bin UNIQ: 2666021,  COUNT: 175111767 <<
-// data/23-grams.bin UNIQ: 18228071, COUNT: 143967962 <<
-// data/24-grams.bin UNIQ: 38701829, COUNT: 116689548 <<
-// data/25-grams.bin UNIQ: 49034515, COUNT: 95912169 <<
-// data/26-grams.bin UNIQ: 49381938, COUNT: 78259054 <<
-// (( Count and write n-gram done! Duration 1.36 mins ))
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Total: 158_023_994 1..6-grams
-// 2^27 = 134_217_728, => 4-grams: 35m, 5: 39m, 6: 39m
-// perf tốt hơn nếu max load ~80%
-// tức là khoảng 111_000_000 => Cần xoá thêm 23m nữa
-// => LIMIT 4,5,6-gram to:
-// const LIMIT_4_GRAM: u32 = 30_000_000;
-// const LIMIT_5_GRAM: u32 = 30_000_000;
-// const LIMIT_6_GRAM: u32 = 30_000_000;
-// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Một cách làm khác là tách riêng count = 1 rồi dùng
-// Binary fuse filter để lọc để khỏi lưu count :D
-// Xem count_n_gram.zig
+// u32 cityhash, customized Fnv1a as fingerprint
+// 2-gram U: 2666022, U1: 1075256, U2: 369392, U3+: 1221374, T: 174372974, M: 414990
+// 3-gram U: 18228074, U1: 11405980, U2: 2479025, U3+: 4343069, T: 139009921, M: 141624
+// 1-gram U: 11620, U1: 1283, U2: 710, U3+: 9627, T: 148274014, M: 1656827
+// 5-gram U: 49034524, U1: 40203323, U2: 4543598, U3+: 4287603, T: 86824981, M: 48105
+// 4-gram U: 38701839, U1: 28874573, U2: 4412961, U3+: 5414305, T: 107863636, M: 56755
+// 6-gram U: 49381946, U1: 42503176, U2: 3863873, U3+: 3014897, T: 70531315, M: 37901
+// (( STEP 3: Count and write n-gram done! Duration 1.71 mins ))
 
 const std = @import("std");
 const Base64Encoder = std.base64.standard_no_pad.Encoder;
