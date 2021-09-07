@@ -6,6 +6,7 @@ const mem = std.mem;
 const Allocator = mem.Allocator;
 
 const fvn1a32 = @import("../hashing/fvn1a32.zig");
+const cityhash32 = @import("../hashing/cityhash32.zig");
 
 pub fn HashCount123(comptime K: type, comptime capacity: u32) type {
     return HashCount(K, capacity, u32, u16, u24); // 9-bytes (4 + 2 + 3)
@@ -35,7 +36,7 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
     //     .bits = fp_bits - 2,
     // } });
 
-    const key_len = @typeInfo(K).Array.len;
+    const key_len: u32 = @typeInfo(K).Array.len;
     const key_lfp = if (key_len < 4) key_len else @rem(key_len, 4) + 1;
 
     return struct {
@@ -77,12 +78,13 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
         }
 
         inline fn _hash(key: K) H {
-            const hash = std.hash.CityHash32.hash(mem.asBytes(&key));
+            // const hash = std.hash.CityHash32.hash(mem.asBytes(&key));
+            const hash = cityhash32.hash(mem.asBytes(&key), 2 * key_len);
             return @truncate(H, hash);
         }
 
         inline fn _fingerprint(key: K) F {
-            var hash = fvn1a32.hash(fvn1a32.init_offset, u16, &key, key_len);
+            const hash = fvn1a32.hash(fvn1a32.init_offset, u16, &key, key_len);
             return @truncate(F, hash);
         }
 

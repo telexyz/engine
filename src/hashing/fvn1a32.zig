@@ -1,10 +1,10 @@
 pub const init_offset: u32 = 0x811c9dc5;
 const prime: u32 = 0x01000193;
 
-pub fn hash(offset: u32, comptime T: type, input: []const T, comptime n: u8) u32 {
+pub fn hash(offset: u32, comptime T: type, input: []const T, comptime len: u32) u32 {
     var value = offset;
-    comptime var i: u8 = 0;
-    inline while (i < n) : (i += 1) {
+    comptime var i: u32 = 0;
+    inline while (i < len) : (i += 1) {
         value ^= input[i];
         value *%= prime;
     }
