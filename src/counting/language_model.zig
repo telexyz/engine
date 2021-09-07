@@ -10,8 +10,8 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // * 268 MB `BinaryFuseFilter`: 16-bits per key grams with count = 1
 // *  60 MB `BinaryFuseFilter`: 32-bits per key grams with count = 2
-// * 131 MB `HashCount234`: 7-bytes key represent + 2-byte count for 4,5,6-grams
-// *  72 MB `HashCount234`: 6-bytes key represent + 3-byte count for 1,2,3-grams
+// * 131 MB `HashCount456`: 7-bytes key represent + 2-byte count for 4,5,6-grams
+// *  72 MB `HashCount123`: 6-bytes key represent + 3-byte count for 1,2,3-grams
 // Note: thời gian khởi tạo BinaryFuseFilter lâu, có thể khởi tạo trước rồi load
 //       16-bit BFF có tỉ lệ va chạm 1/2^16 (~0.0015%) và speed x2 bloom filter
 
