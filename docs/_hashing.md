@@ -41,4 +41,5 @@ This bit-mixing function is “obviously” faster. It has half the number of mu
 
 ## xxHash
 http://cyan4973.github.io/xxHash
+https://github.com/The-King-of-Toasters/zig-xxhash
 

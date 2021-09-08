@@ -7,6 +7,7 @@ const Allocator = mem.Allocator;
 
 const fvn1a32 = @import("../hashing/fvn1a32.zig");
 const cityhash32 = @import("../hashing/cityhash32.zig");
+const XXHash32 = @import("../hashing/xxhash.zig").XXHash32;
 
 pub fn HashCount123(comptime K: type, comptime capacity: u32) type {
     return HashCount(K, capacity, u32, u16, u24); // 9-bytes (4 + 2 + 3)
@@ -78,7 +79,7 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
         }
 
         inline fn _hash(key: K) H {
-            // const hash = std.hash.CityHash32.hash(mem.asBytes(&key));
+            // const hash = XXHash32.hash(0, mem.asBytes(&key));
             const hash = cityhash32.hash(mem.asBytes(&key), 2 * key_len);
             return @truncate(H, hash);
         }
