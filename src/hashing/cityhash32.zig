@@ -47,7 +47,7 @@ pub fn hash(str: []const u8, comptime len: u32) u32 {
             c ^= b;
         }
         return fmix(mur(b, mur(len, c)));
-    } else {
+    } else { // 5 to 12 (bytes)
         const d: u32 = len *% 5;
         var a: u32 = len;
         var b: u32 = d;
