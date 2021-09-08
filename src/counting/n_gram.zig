@@ -8,6 +8,7 @@
 // (( STEP 3: Count and write n-gram done! Duration 1.71 mins ))
 
 const std = @import("std");
+const mem = std.mem;
 
 const Text = @import("../textoken/text_data_struct.zig").Text;
 const Syllable = @import("../phoneme/syllable_data_structs.zig").Syllable;
@@ -18,6 +19,7 @@ const HashCount456 = hash_count.HashCount456;
 const Gram = Syllable.UniqueId;
 const BLANK: Gram = Syllable.NONE_ID;
 const SyllableIdArray = std.ArrayList(Syllable.UniqueId);
+const fvn1a32 = @import("../hashing/fvn1a32.zig");
 
 pub fn NGram(for_real: bool) type {
     return struct {
@@ -162,38 +164,49 @@ pub fn NGram(for_real: bool) type {
                 grams[4] = grams[5];
                 grams[5] = syll_ids[i];
 
-                _ = self.c1_grams.put(grams[0..1].*);
+                var fp = fvn1a32.hash_u16(fvn1a32.init_offset, grams[0]);
+                _ = self.c1_grams.put_with_fp(.{grams[0]}, @truncate(u16, fp));
 
                 if (grams[0] == BLANK) {
                     if (grams[1] == BLANK) continue;
-                    _ = self.c2_grams.put(grams[0..2].*);
+                    fp = fvn1a32.hash_u16(fp, grams[1]);
+                    _ = self.c2_grams.put_with_fp(grams[0..2].*, @truncate(u16, fp));
 
                     if (grams[2] == BLANK) continue;
-                    _ = self.c3_grams.put(grams[0..3].*);
+                    fp = fvn1a32.hash_u16(fp, grams[2]);
+                    _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
                     if (grams[3] == BLANK) continue;
-                    _ = self.c4_grams.put(grams[0..4].*);
+                    fp = fvn1a32.hash_u16(fp, grams[3]);
+                    _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
                     if (grams[4] == BLANK) continue;
-                    _ = self.c5_grams.put(grams[0..5].*);
+                    fp = fvn1a32.hash_u16(fp, grams[4]);
+                    _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
 
                     if (grams[5] == BLANK) continue;
-                    _ = self.c6_grams.put(grams);
+                    fp = fvn1a32.hash_u16(fp, grams[5]);
+                    _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
                     //
                 } else {
-                    _ = self.c2_grams.put(grams[0..2].*);
+                    fp = fvn1a32.hash_u16(fp, grams[1]);
+                    _ = self.c2_grams.put_with_fp(grams[0..2].*, @truncate(u16, fp));
 
                     if (grams[1] == BLANK) continue;
-                    _ = self.c3_grams.put(grams[0..3].*);
+                    fp = fvn1a32.hash_u16(fp, grams[2]);
+                    _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
                     if (grams[2] == BLANK) continue;
-                    _ = self.c4_grams.put(grams[0..4].*);
+                    fp = fvn1a32.hash_u16(fp, grams[3]);
+                    _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
                     if (grams[3] == BLANK) continue;
-                    _ = self.c5_grams.put(grams[0..5].*);
+                    fp = fvn1a32.hash_u16(fp, grams[4]);
+                    _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
 
                     if (grams[4] == BLANK) continue;
-                    _ = self.c6_grams.put(grams);
+                    fp = fvn1a32.hash_u16(fp, grams[5]);
+                    _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
                 }
             } // while
 

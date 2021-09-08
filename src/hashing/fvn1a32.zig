@@ -5,9 +5,16 @@ pub fn hash(offset: u32, comptime T: type, input: []const T, comptime len: u32) 
     var value = offset;
     comptime var i: u32 = 0;
     inline while (i < len) : (i += 1) {
-        value ^= input[i];
-        value *%= prime;
+        value ^= input[i]; // Bitwise XOR. 0b0110 ^ 0b1010 == 0b1100
+        value *%= prime; // Wrapping Multiplication. @as(u8, 200) *% 2 == 144
     }
+    return value;
+}
+
+pub inline fn hash_u16(offset: u32, input: u16) u32 {
+    var value = offset;
+    value ^= input; // Bitwise XOR. 0b0110 ^ 0b1010 == 0b1100
+    value *%= prime; // Wrapping Multiplication. @as(u8, 200) *% 2 == 144
     return value;
 }
 

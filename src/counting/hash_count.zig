@@ -88,11 +88,14 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
             return @truncate(F, hash);
         }
 
-        pub fn put(self: *Self, key: K) C {
+        pub inline fn put(self: *Self, key: K) C {
+            return self.put_with_fp(key, _fingerprint(key));
+        }
+
+        pub fn put_with_fp(self: *Self, key: K, fp: F) C {
             // Từ key ta dùng hash functions để khởi tạo giá trị hash và fingerprint
             // Sử dụng hash + fingerprint để đại diện cho key
             // => cần mò độ lớn của fingerprint hợp lý để tránh va chạm
-            const fp = _fingerprint(key);
             var it: Self.Entry = .{
                 .hash = _hash(key),
                 .fp = fp,
