@@ -1,9 +1,9 @@
 // u32 cityhash, customized Fnv1a as fingerprint
+// 1-gram U: 11620, U1: 1283, U2: 710, U3+: 9627, T: 148274014, M: 1656827
 // 2-gram U: 2666022, U1: 1075256, U2: 369392, U3+: 1221374, T: 174372974, M: 414990
 // 3-gram U: 18228074, U1: 11405980, U2: 2479025, U3+: 4343069, T: 139009921, M: 141624
-// 1-gram U: 11620, U1: 1283, U2: 710, U3+: 9627, T: 148274014, M: 1656827
-// 5-gram U: 49034524, U1: 40203323, U2: 4543598, U3+: 4287603, T: 86824981, M: 48105
 // 4-gram U: 38701839, U1: 28874573, U2: 4412961, U3+: 5414305, T: 107863636, M: 56755
+// 5-gram U: 49034524, U1: 40203323, U2: 4543598, U3+: 4287603, T: 86824981, M: 48105
 // 6-gram U: 49381946, U1: 42503176, U2: 3863873, U3+: 3014897, T: 70531315, M: 37901
 // (( STEP 3: Count and write n-gram done! Duration 1.71 mins ))
 
@@ -122,11 +122,6 @@ pub fn NGram(for_real: bool) type {
             comptime filename6: []const u8,
         ) !void {
             //
-            const n = self.syllable_ids.items.len;
-            const _percents: u8 = 5;
-            const _percents_delta = (n * _percents / 100);
-            var percents_threshold = _percents_delta;
-            var percents: u8 = 0;
 
             try self.syllable_ids.append(BLANK);
             try self.syllable_ids.append(BLANK);
@@ -134,6 +129,12 @@ pub fn NGram(for_real: bool) type {
             try self.syllable_ids.append(BLANK);
             try self.syllable_ids.append(BLANK);
             try self.syllable_ids.append(BLANK);
+
+            const n = self.syllable_ids.items.len;
+            const _percents: u8 = 5;
+            const _percents_delta = (n * _percents / 100);
+            var percents_threshold = _percents_delta;
+            var percents: u8 = 0;
 
             try self.c1_grams.init(self.allocator);
             try self.c2_grams.init(self.allocator);
@@ -142,9 +143,10 @@ pub fn NGram(for_real: bool) type {
             try self.c5_grams.init(self.allocator);
             try self.c6_grams.init(self.allocator);
 
-            var grams: [6]Gram = undefined;
-            var syll_ids = self.syllable_ids.items;
-            var i: usize = 0;
+            var i: usize = 6;
+            const syll_ids = self.syllable_ids.items;
+            var grams: [6]Gram = .{ syll_ids[0], syll_ids[1], syll_ids[2], syll_ids[3], syll_ids[4], syll_ids[5] };
+
             while (i < n) : (i += 1) {
                 // Show progress
                 if (i > percents_threshold) {
@@ -153,34 +155,31 @@ pub fn NGram(for_real: bool) type {
                     std.debug.print("Counting 1..6-grams {d}%\n", .{percents});
                 }
 
-                grams[0] = syll_ids[i];
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = grams[4];
+                grams[4] = grams[5];
+                grams[5] = syll_ids[i];
+
                 _ = self.c1_grams.put(grams[0..1].*);
 
-                grams[1] = syll_ids[i + 1];
                 if (grams[0] == BLANK and grams[1] == BLANK) continue;
                 _ = self.c2_grams.put(grams[0..2].*);
 
                 if (grams[1] == BLANK) continue;
-                //
-                grams[2] = syll_ids[i + 2];
                 if (grams[0] == BLANK and grams[2] == BLANK) continue;
                 _ = self.c3_grams.put(grams[0..3].*);
 
                 if (grams[2] == BLANK) continue;
-                //
-                grams[3] = syll_ids[i + 3];
                 if (grams[0] == BLANK and grams[3] == BLANK) continue;
                 _ = self.c4_grams.put(grams[0..4].*);
 
                 if (grams[3] == BLANK) continue;
-                //
-                grams[4] = syll_ids[i + 4];
                 if (grams[0] == BLANK and grams[4] == BLANK) continue;
                 _ = self.c5_grams.put(grams[0..5].*);
 
                 if (grams[4] == BLANK) continue;
-                //
-                grams[5] = syll_ids[i + 5];
                 if (grams[0] == BLANK and grams[5] == BLANK) continue;
                 _ = self.c6_grams.put(grams);
             } // while
@@ -203,10 +202,169 @@ pub fn NGram(for_real: bool) type {
             try writeGramCounts(self.c6_grams, filename6, 6);
             self.c6_grams.deinit();
         }
+
+        const PAD = "\n                        ";
+        pub fn countAndWrite23(self: *Self, comptime filename2: []const u8, comptime filename3: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
+            var percents: u8 = 0;
+
+            try self.c2_grams.init(self.allocator);
+            try self.c3_grams.init(self.allocator);
+
+            var grams: [3]Gram = .{ BLANK, BLANK, BLANK };
+            var i: usize = 0;
+
+            while (i < syllable_ids.len) : (i += 1) {
+                // Show progress
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    std.debug.print("\nCounting 2,3-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
+                }
+
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = syllable_ids[i];
+
+                if (!(grams[1] == BLANK and grams[2] == BLANK))
+                    _ = self.c2_grams.put(grams[1..3].*);
+
+                if (!(grams[1] == BLANK) and
+                    !(grams[0] == BLANK and grams[2] == BLANK))
+                    _ = self.c3_grams.put(grams);
+            } // while
+
+            try writeGramCounts(self.c2_grams, filename2, 2);
+            self.c2_grams.deinit();
+
+            try writeGramCounts(self.c3_grams, filename3, 3);
+            self.c3_grams.deinit();
+        }
+
+        pub fn countAndWrite06(self: *Self, comptime filename6: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
+            var percents: u8 = 0;
+
+            try self.c6_grams.init(self.allocator);
+
+            var grams: [6]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
+            var i: usize = 0;
+
+            while (i < syllable_ids.len) : (i += 1) {
+                // Show progress
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    // std.debug.print(PAD ++ "Counting 6-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
+                }
+
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = grams[4];
+                grams[4] = grams[5];
+                grams[5] = syllable_ids[i];
+
+                if (grams[1] == BLANK or grams[2] == BLANK) continue;
+                if (grams[3] == BLANK or grams[4] == BLANK) continue;
+                if (grams[0] == BLANK and grams[5] == BLANK) continue;
+                _ = self.c6_grams.put(grams);
+            } // while
+
+            try writeGramCounts(self.c6_grams, filename6, 6);
+            self.c6_grams.deinit();
+        }
+
+        pub fn countAndWrite15(self: *Self, comptime filename1: []const u8, comptime filename5: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
+            var percents: u8 = 0;
+
+            try self.c1_grams.init(self.allocator);
+            try self.c5_grams.init(self.allocator);
+
+            var grams: [5]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK };
+            var i: usize = 0;
+
+            while (i < syllable_ids.len) : (i += 1) {
+                // Show progress
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    // std.debug.print(PAD ++ "Counting 1,5-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
+                }
+
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = grams[4];
+                grams[4] = syllable_ids[i];
+
+                if (grams[4] != BLANK)
+                    _ = self.c1_grams.put(.{grams[4]});
+
+                if (!(grams[1] == BLANK or grams[2] == BLANK or grams[3] == BLANK) and
+                    !(grams[0] == BLANK and grams[4] == BLANK))
+                    _ = self.c5_grams.put(grams);
+            }
+
+            try writeGramCounts(self.c1_grams, filename1, 1);
+            self.c1_grams.deinit();
+
+            try writeGramCounts(self.c5_grams, filename5, 5);
+            self.c5_grams.deinit();
+        }
+
+        pub fn countAndWrite04(self: *Self, comptime filename4: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
+            var percents: u8 = 0;
+
+            try self.c4_grams.init(self.allocator);
+
+            var grams: [4]Gram = .{ BLANK, BLANK, BLANK, BLANK };
+            var i: usize = 0;
+
+            while (i < syllable_ids.len) : (i += 1) {
+                // Show progress
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    // std.debug.print("\nCounting 4-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
+                }
+
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = syllable_ids[i];
+
+                if (!(grams[1] == BLANK or grams[2] == BLANK) and
+                    !(grams[0] == BLANK and grams[3] == BLANK))
+                    _ = self.c4_grams.put(grams);
+            }
+
+            try writeGramCounts(self.c4_grams, filename4, 4);
+            self.c4_grams.deinit();
+        }
     };
 }
 
-pub fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
+fn orderFn(comptime T: type) type {
+    return struct {
+        pub fn order_by_count_desc(context: void, a: T, b: T) bool {
+            _ = context;
+            return a.count > b.count;
+        }
+    };
+}
+
+fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     var items = grams.slice();
 
     var file = try std.fs.cwd().createFile(filename ++ ".bin", .{});

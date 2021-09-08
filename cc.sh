@@ -1,2 +1,2 @@
 #!/bin/sh
-scc --exclude-dir src/lib -M \.txt --no-cocomo
+scc --exclude-dir src/lib --exclude-dir .save -M \.txt --no-cocomo
