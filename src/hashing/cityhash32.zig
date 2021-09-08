@@ -17,7 +17,7 @@ fn rotr32(x: u32, comptime r: u32) u32 {
     return (x >> r) | (x << (32 - r));
 }
 
-// Magic numbers for 32-bit hashing.  Copied from Murmur3.
+// Magic numbers for 32-bit hashing. Copied from Murmur3.
 const c1: u32 = 0xcc9e2d51;
 const c2: u32 = 0x1b873593;
 

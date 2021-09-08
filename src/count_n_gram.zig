@@ -73,19 +73,14 @@ pub fn main() anyerror!void {
     const step0_time = showMeTimeLap(start_time, "Init Done!");
 
     std.debug.print("\nSTEP 3: Count and write n-gram ...\n", .{});
-
-    // Chạy song song để tăng tốc
-    // var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
-    try gram.countAndWrite23("data/22-grams", "data/23-grams");
-    try gram.countAndWrite15("data/21-grams", "data/25-grams");
-    // thread.join();
-
-    // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
-    // thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
-    try gram.countAndWrite04("data/24-grams");
-    try gram.countAndWrite06("data/26-grams");
-    // thread.join();
-
+    try gram.countAndWrite(
+        "data/21-grams",
+        "data/22-grams",
+        "data/23-grams",
+        "data/24-grams",
+        "data/25-grams",
+        "data/26-grams",
+    );
     _ = showMeTimeLap(step0_time, "STEP 3: Count and write n-gram done!");
 
     // Hoàn tất chương trình, hiện tổng thời gian chạy

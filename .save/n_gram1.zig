@@ -112,96 +112,163 @@ pub fn NGram(for_real: bool) type {
             self.syllable_ids.deinit();
         }
 
-        pub fn countAndWrite(
-            self: *Self,
-            comptime filename1: []const u8,
-            comptime filename2: []const u8,
-            comptime filename3: []const u8,
-            comptime filename4: []const u8,
-            comptime filename5: []const u8,
-            comptime filename6: []const u8,
-        ) !void {
-            //
-            const n = self.syllable_ids.items.len;
-            const _percents: u8 = 5;
-            const _percents_delta = (n * _percents / 100);
-            var percents_threshold = _percents_delta;
+        const PAD = "\n                        ";
+        pub fn countAndWrite23(self: *Self, comptime filename2: []const u8, comptime filename3: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
             var percents: u8 = 0;
 
-            try self.syllable_ids.append(BLANK);
-            try self.syllable_ids.append(BLANK);
-            try self.syllable_ids.append(BLANK);
-            try self.syllable_ids.append(BLANK);
-            try self.syllable_ids.append(BLANK);
-            try self.syllable_ids.append(BLANK);
-
-            try self.c1_grams.init(self.allocator);
             try self.c2_grams.init(self.allocator);
             try self.c3_grams.init(self.allocator);
-            try self.c4_grams.init(self.allocator);
-            try self.c5_grams.init(self.allocator);
-            try self.c6_grams.init(self.allocator);
 
-            var grams: [6]Gram = undefined;
-            var syll_ids = self.syllable_ids.items;
+            var grams: [3]Gram = .{ BLANK, BLANK, BLANK };
             var i: usize = 0;
-            while (i < n) : (i += 1) {
+
+            while (i < syllable_ids.len) : (i += 1) {
                 // Show progress
-                if (i > percents_threshold) {
-                    percents += _percents;
-                    percents_threshold += _percents_delta;
-                    std.debug.print("Counting 1..6-grams {d}%\n", .{percents});
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    std.debug.print("\nCounting 2,3-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
                 }
 
-                grams[0] = syll_ids[i];
-                _ = self.c1_grams.put(grams[0..1].*);
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = syllable_ids[i];
 
-                grams[1] = syll_ids[i + 1];
-                if (grams[0] == BLANK and grams[1] == BLANK) continue;
-                _ = self.c2_grams.put(grams[0..2].*);
+                if (!(grams[1] == BLANK and grams[2] == BLANK))
+                    _ = self.c2_grams.put(grams[1..3].*);
 
-                if (grams[1] == BLANK) continue;
-                //
-                grams[2] = syll_ids[i + 2];
-                if (grams[0] == BLANK and grams[2] == BLANK) continue;
-                _ = self.c3_grams.put(grams[0..3].*);
-
-                if (grams[2] == BLANK) continue;
-                //
-                grams[3] = syll_ids[i + 3];
-                if (grams[0] == BLANK and grams[3] == BLANK) continue;
-                _ = self.c4_grams.put(grams[0..4].*);
-
-                if (grams[3] == BLANK) continue;
-                //
-                grams[4] = syll_ids[i + 4];
-                if (grams[0] == BLANK and grams[4] == BLANK) continue;
-                _ = self.c5_grams.put(grams[0..5].*);
-
-                if (grams[4] == BLANK) continue;
-                //
-                grams[5] = syll_ids[i + 5];
-                if (grams[0] == BLANK and grams[5] == BLANK) continue;
-                _ = self.c6_grams.put(grams);
+                if (!(grams[1] == BLANK) and
+                    !(grams[0] == BLANK and grams[2] == BLANK))
+                    _ = self.c3_grams.put(grams);
             } // while
-
-            try writeGramCounts(self.c1_grams, filename1, 1);
-            self.c1_grams.deinit();
 
             try writeGramCounts(self.c2_grams, filename2, 2);
             self.c2_grams.deinit();
 
             try writeGramCounts(self.c3_grams, filename3, 3);
             self.c3_grams.deinit();
+        }
 
-            try writeGramCounts(self.c4_grams, filename4, 4);
-            self.c4_grams.deinit();
+        pub fn countAndWrite06(self: *Self, comptime filename6: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
+            var percents: u8 = 0;
 
-            try writeGramCounts(self.c5_grams, filename5, 5);
-            self.c5_grams.deinit();
+            try self.c6_grams.init(self.allocator);
+
+            var grams: [6]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK, BLANK };
+            var i: usize = 0;
+
+            while (i < syllable_ids.len) : (i += 1) {
+                // Show progress
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    // std.debug.print(PAD ++ "Counting 6-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
+                }
+
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = grams[4];
+                grams[4] = grams[5];
+                grams[5] = syllable_ids[i];
+
+                if (grams[1] == BLANK or grams[2] == BLANK) continue;
+                if (grams[3] == BLANK or grams[4] == BLANK) continue;
+                if (grams[0] == BLANK and grams[5] == BLANK) continue;
+                _ = self.c6_grams.put(grams);
+            } // while
 
             try writeGramCounts(self.c6_grams, filename6, 6);
             self.c6_grams.deinit();
+        }
+
+        pub fn countAndWrite15(self: *Self, comptime filename1: []const u8, comptime filename5: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
+            var percents: u8 = 0;
+
+            try self.c1_grams.init(self.allocator);
+            try self.c5_grams.init(self.allocator);
+
+            var grams: [5]Gram = .{ BLANK, BLANK, BLANK, BLANK, BLANK };
+            var i: usize = 0;
+
+            while (i < syllable_ids.len) : (i += 1) {
+                // Show progress
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    // std.debug.print(PAD ++ "Counting 1,5-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
+                }
+
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = grams[4];
+                grams[4] = syllable_ids[i];
+
+                if (grams[4] != BLANK)
+                    _ = self.c1_grams.put(.{grams[4]});
+
+                if (!(grams[1] == BLANK or grams[2] == BLANK or grams[3] == BLANK) and
+                    !(grams[0] == BLANK and grams[4] == BLANK))
+                    _ = self.c5_grams.put(grams);
+            }
+
+            try writeGramCounts(self.c1_grams, filename1, 1);
+            self.c1_grams.deinit();
+
+            try writeGramCounts(self.c5_grams, filename5, 5);
+            self.c5_grams.deinit();
+        }
+
+        pub fn countAndWrite04(self: *Self, comptime filename4: []const u8) !void {
+            const syllable_ids = self.syllable_ids.items;
+            const ten_percents = syllable_ids.len / 10;
+            var percents_threshold = ten_percents;
+            var percents: u8 = 0;
+
+            try self.c4_grams.init(self.allocator);
+
+            var grams: [4]Gram = .{ BLANK, BLANK, BLANK, BLANK };
+            var i: usize = 0;
+
+            while (i < syllable_ids.len) : (i += 1) {
+                // Show progress
+                if (i >= percents_threshold) {
+                    percents += 10;
+                    // std.debug.print("\nCounting 4-gram {d}%", .{percents});
+                    percents_threshold += ten_percents;
+                }
+
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = syllable_ids[i];
+
+                if (!(grams[1] == BLANK or grams[2] == BLANK) and
+                    !(grams[0] == BLANK and grams[3] == BLANK))
+                    _ = self.c4_grams.put(grams);
+            }
+
+            try writeGramCounts(self.c4_grams, filename4, 4);
+            self.c4_grams.deinit();
+        }
+    };
+}
+
+fn orderFn(comptime T: type) type {
+    return struct {
+        pub fn order_by_count_desc(context: void, a: T, b: T) bool {
+            _ = context;
+            return a.count > b.count;
         }
     };
 }
@@ -295,12 +362,20 @@ test "ngram" {
     text_utils.parseTokens(&text);
     try gram.loadSyllableIdsFromText(text);
 
-    try gram.countAndWrite(
-        "data/temp.n1",
-        "data/temp.n2",
-        "data/temp.n3",
-        "data/temp.n4",
-        "data/temp.n5",
-        "data/temp.n6",
-    );
+    try gram.countAndWrite15("data/temp.n1", "data/temp.n5");
+    try gram.countAndWrite23("data/temp.n2", "data/temp.n3");
+    try gram.countAndWrite04("data/temp.n4");
+    try gram.countAndWrite06("data/temp.n6");
+
+    // // Chạy song song để tăng tốc
+    // // var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
+    // try gram.countAndWrite23("data/22-grams", "data/23-grams");
+    // try gram.countAndWrite15("data/21-grams", "data/25-grams");
+    // // thread.join();
+
+    // // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
+    // // thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
+    // try gram.countAndWrite04("data/24-grams");
+    // try gram.countAndWrite06("data/26-grams");
+    // // thread.join();
 }
