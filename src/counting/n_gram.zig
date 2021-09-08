@@ -164,24 +164,37 @@ pub fn NGram(for_real: bool) type {
 
                 _ = self.c1_grams.put(grams[0..1].*);
 
-                if (grams[0] == BLANK and grams[1] == BLANK) continue;
-                _ = self.c2_grams.put(grams[0..2].*);
+                if (grams[0] == BLANK) {
+                    if (grams[1] == BLANK) continue;
+                    _ = self.c2_grams.put(grams[0..2].*);
 
-                if (grams[1] == BLANK) continue;
-                if (grams[0] == BLANK and grams[2] == BLANK) continue;
-                _ = self.c3_grams.put(grams[0..3].*);
+                    if (grams[2] == BLANK) continue;
+                    _ = self.c3_grams.put(grams[0..3].*);
 
-                if (grams[2] == BLANK) continue;
-                if (grams[0] == BLANK and grams[3] == BLANK) continue;
-                _ = self.c4_grams.put(grams[0..4].*);
+                    if (grams[3] == BLANK) continue;
+                    _ = self.c4_grams.put(grams[0..4].*);
 
-                if (grams[3] == BLANK) continue;
-                if (grams[0] == BLANK and grams[4] == BLANK) continue;
-                _ = self.c5_grams.put(grams[0..5].*);
+                    if (grams[4] == BLANK) continue;
+                    _ = self.c5_grams.put(grams[0..5].*);
 
-                if (grams[4] == BLANK) continue;
-                if (grams[0] == BLANK and grams[5] == BLANK) continue;
-                _ = self.c6_grams.put(grams);
+                    if (grams[5] == BLANK) continue;
+                    _ = self.c6_grams.put(grams);
+                    //
+                } else {
+                    _ = self.c2_grams.put(grams[0..2].*);
+
+                    if (grams[1] == BLANK) continue;
+                    _ = self.c3_grams.put(grams[0..3].*);
+
+                    if (grams[2] == BLANK) continue;
+                    _ = self.c4_grams.put(grams[0..4].*);
+
+                    if (grams[3] == BLANK) continue;
+                    _ = self.c5_grams.put(grams[0..5].*);
+
+                    if (grams[4] == BLANK) continue;
+                    _ = self.c6_grams.put(grams);
+                }
             } // while
 
             try writeGramCounts(self.c1_grams, filename1, 1);
