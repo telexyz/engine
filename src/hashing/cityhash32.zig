@@ -13,7 +13,7 @@ fn fmix(h: u32) u32 {
 }
 
 // Rotate right helper
-fn rotr32(x: u32, comptime r: u32) u32 {
+inline fn rotr32(x: u32, comptime r: u32) u32 {
     return (x >> r) | (x << (32 - r));
 }
 
@@ -33,38 +33,30 @@ fn mur(a: u32, h: u32) u32 {
     return h1 *% 5 +% 0xe6546b64;
 }
 
-fn hash32Len0To4(str: []const u8, comptime len: u32) u32 {
-    var b: u32 = 0;
-    var c: u32 = 9;
-    comptime var i: u32 = 0;
-    inline while (i < len) : (i += 1) {
-        b = b *% c1 +% @bitCast(u32, @intCast(i32, @bitCast(i8, str[i])));
-        c ^= b;
-    }
-    return fmix(mur(b, mur(len, c)));
-}
-
 inline fn fetch32(ptr: [*]const u8, offset: usize) u32 {
     return std.mem.readIntLittle(u32, @ptrCast([*]const u8, &ptr[offset])[0..4]);
 }
 
-fn hash32Len5To12(str: []const u8, comptime len: u32) u32 {
-    const d: u32 = len *% 5;
-    var a: u32 = len;
-    var b: u32 = d;
-    var c: u32 = 9;
-
-    a +%= fetch32(str.ptr, 0);
-    b +%= fetch32(str.ptr, len - 4);
-    c +%= fetch32(str.ptr, (len >> 1) & 4);
-
-    return fmix(mur(c, mur(b, mur(a, d))));
-}
-
-pub inline fn hash(str: []const u8, comptime len: u32) u32 {
+pub fn hash(str: []const u8, comptime len: u32) u32 {
     if (len < 5) {
-        return hash32Len0To4(str, len);
+        var b: u32 = 0;
+        var c: u32 = 9;
+        comptime var i: u32 = 0;
+        inline while (i < len) : (i += 1) {
+            b = b *% c1 +% @bitCast(u32, @intCast(i32, @bitCast(i8, str[i])));
+            c ^= b;
+        }
+        return fmix(mur(b, mur(len, c)));
     } else {
-        return hash32Len5To12(str, len);
+        const d: u32 = len *% 5;
+        var a: u32 = len;
+        var b: u32 = d;
+        var c: u32 = 9;
+
+        a +%= fetch32(str.ptr, 0);
+        b +%= fetch32(str.ptr, len - 4);
+        c +%= fetch32(str.ptr, (len >> 1) & 4);
+
+        return fmix(mur(c, mur(b, mur(a, d))));
     }
 }

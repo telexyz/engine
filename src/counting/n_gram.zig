@@ -145,9 +145,9 @@ pub fn NGram(for_real: bool) type {
             try self.c5_grams.init(self.allocator);
             try self.c6_grams.init(self.allocator);
 
-            var i: usize = 6;
+            var i: usize = 5;
             const syll_ids = self.syllable_ids.items;
-            var grams: [6]Gram = .{ syll_ids[0], syll_ids[1], syll_ids[2], syll_ids[3], syll_ids[4], syll_ids[5] };
+            var grams: [6]Gram = .{ 0, syll_ids[0], syll_ids[1], syll_ids[2], syll_ids[3], syll_ids[4] };
 
             while (i < n) : (i += 1) {
                 // Show progress

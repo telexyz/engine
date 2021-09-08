@@ -5,3 +5,8 @@ UMASH computes a 64-bit hash for short cached inputs of up to 64 bytes in 9-22 n
 
 The latency on short cached inputs (9-22 ns for 64 bits, 9-26 ns for 128) is somewhat worse than the state of the art for non-cryptographic hashes— wyhash achieves 8-15 ns and xxh3 8-12 ns—but still in the same ballpark. It also compares well with latency-optimised hash functions like `FNV-1a (5-86 ns)` and MurmurHash64A (7-23 ns).
 
+https://lemire.me/blog/2018/08/15/fast-strongly-universal-64-bit-hashing-everywhere
+
+This bit-mixing function is “obviously” faster. It has half the number of multiplications, and none of the additions. However, in my tests, the difference is less than you might expect (only about 50%). Moreover if you do need two 32-bit hash values, the 64-bit mixing function loses much of its edge and is only about 25% faster.
+
+https://github.com/lemire/Code-used-on-Daniel-Lemire-s-blog/blob/master/2018/08/15/src/main/java/me/lemire/microbenchmarks/algorithms/HashFast.java
