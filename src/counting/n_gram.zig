@@ -7,6 +7,15 @@
 // 6-gram U: 49381946, U1: 42503176, U2: 3863873, U3+: 3014897, T: 70531315, M: 37901
 // (( STEP 3: Count and write n-gram done! Duration 1.99 mins ))
 
+// 3k cached syllable_ids
+// 1-gram U: 11621, U1: 1283, U2: 710, U3+: 9628, T: 158346364, M: 10070331
+// 2-gram U: 2666022, U1: 1075223, U2: 369415, U3+: 1221384, T: 174375463, M: 414993
+// 3-gram U: 18228074, U1: 11405718, U2: 2479219, U3+: 4343137, T: 139011403, M: 141624
+// 4-gram U: 38701839, U1: 28874097, U2: 4413369, U3+: 5414373, T: 107864216, M: 56755
+// 5-gram U: 49034524, U1: 40202859, U2: 4544019, U3+: 4287646, T: 86825205, M: 48105
+// 6-gram U: 49381946, U1: 42502782, U2: 3864247, U3+: 3014917, T: 70531401, M: 37901
+// (( STEP 3: Count and write n-gram done! Duration 1.67 mins ))
+
 const std = @import("std");
 const mem = std.mem;
 
@@ -149,11 +158,11 @@ pub fn NGram(for_real: bool) type {
             const syll_ids = self.syllable_ids.items;
             var grams: [6]Gram = .{ 0, syll_ids[0], syll_ids[1], syll_ids[2], syll_ids[3], syll_ids[4] };
 
-            var tmp: [300]Gram = undefined;
+            var tmp: [3000]Gram = undefined;
             const buf = tmp[0..];
 
-            while (i < n) : (i += 300) {
-                var max = i + 300;
+            while (i < n) : (i += 3000) {
+                var max = i + 3000;
                 if (max > n) max = n;
                 std.mem.copy(Gram, buf, syll_ids[i..max]);
 
