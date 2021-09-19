@@ -158,11 +158,11 @@ pub fn NGram(for_real: bool) type {
             const syll_ids = self.syllable_ids.items;
             var grams: [6]Gram = .{ 0, syll_ids[0], syll_ids[1], syll_ids[2], syll_ids[3], syll_ids[4] };
 
-            var tmp: [3000]Gram = undefined;
+            var tmp: [2048]Gram = undefined;
             const buf = tmp[0..];
 
-            while (i < n) : (i += 3000) {
-                var max = i + 3000;
+            while (i < n) : (i += 2048) {
+                var max = i + 2048;
                 if (max > n) max = n;
                 std.mem.copy(Gram, buf, syll_ids[i..max]);
 
