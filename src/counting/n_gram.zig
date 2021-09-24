@@ -54,7 +54,7 @@ pub fn NGram(for_real: bool) type {
             const syll_ids = text.tokens_infos.items(.syllable_id);
             self.syllable_ids = try SyllableIdArray.initCapacity(
                 self.allocator,
-                syll_ids.len * 3 / 2,
+                syll_ids.len * 2 / 3,
             );
 
             var prev_syll_id: Syllable.UniqueId = BLANK;
@@ -139,7 +139,6 @@ pub fn NGram(for_real: bool) type {
             try self.syllable_ids.append(BLANK);
             try self.syllable_ids.append(BLANK);
             try self.syllable_ids.append(BLANK);
-            try self.syllable_ids.append(BLANK);
 
             const n = self.syllable_ids.items.len;
             const _percents: u8 = 5;
@@ -158,75 +157,66 @@ pub fn NGram(for_real: bool) type {
             const syll_ids = self.syllable_ids.items;
             var grams: [6]Gram = .{ 0, syll_ids[0], syll_ids[1], syll_ids[2], syll_ids[3], syll_ids[4] };
 
-            var tmp: [2048]Gram = undefined;
-            const buf = tmp[0..];
-
-            while (i < n) : (i += 2048) {
-                var max = i + 2048;
-                if (max > n) max = n;
-                std.mem.copy(Gram, buf, syll_ids[i..max]);
-
+            while (i < n) : (i += 1) {
                 // Show progress
-                if (max > percents_threshold) {
+                if (i > percents_threshold) {
                     percents += _percents;
                     percents_threshold += _percents_delta;
                     std.debug.print("Counting 1..6-grams {d}%\n", .{percents});
                 }
 
-                for (buf) |syll_id| {
-                    grams[0] = grams[1];
-                    grams[1] = grams[2];
-                    grams[2] = grams[3];
-                    grams[3] = grams[4];
-                    grams[4] = grams[5];
-                    grams[5] = syll_id;
+                grams[0] = grams[1];
+                grams[1] = grams[2];
+                grams[2] = grams[3];
+                grams[3] = grams[4];
+                grams[4] = grams[5];
+                grams[5] = syll_ids[i];
 
-                    var fp = fvn1a32.hash_u16(fvn1a32.init_offset, grams[0]);
-                    _ = self.c1_grams.put_with_fp(.{grams[0]}, @truncate(u16, fp));
+                var fp = fvn1a32.hash_u16(fvn1a32.init_offset, grams[0]);
+                _ = self.c1_grams.put_with_fp(.{grams[0]}, @truncate(u16, fp));
 
-                    if (grams[0] == BLANK) {
-                        if (grams[1] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[1]);
-                        _ = self.c2_grams.put_with_fp(grams[0..2].*, @truncate(u16, fp));
+                if (grams[0] == BLANK) {
+                    if (grams[1] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[1]);
+                    _ = self.c2_grams.put_with_fp(grams[0..2].*, @truncate(u16, fp));
 
-                        if (grams[2] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[2]);
-                        _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
+                    if (grams[2] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[2]);
+                    _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
-                        if (grams[3] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[3]);
-                        _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
+                    if (grams[3] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[3]);
+                    _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
-                        if (grams[4] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[4]);
-                        _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
+                    if (grams[4] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[4]);
+                    _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
 
-                        if (grams[5] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[5]);
-                        _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
-                        //
-                    } else { // grams[0] != BLANK
-                        //
-                        fp = fvn1a32.hash_u16(fp, grams[1]);
-                        _ = self.c2_grams.put_with_fp(grams[0..2].*, @truncate(u16, fp));
+                    if (grams[5] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[5]);
+                    _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
+                    //
+                } else { // grams[0] != BLANK
+                    //
+                    fp = fvn1a32.hash_u16(fp, grams[1]);
+                    _ = self.c2_grams.put_with_fp(grams[0..2].*, @truncate(u16, fp));
 
-                        if (grams[1] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[2]);
-                        _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
+                    if (grams[1] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[2]);
+                    _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
-                        if (grams[2] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[3]);
-                        _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
+                    if (grams[2] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[3]);
+                    _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
-                        if (grams[3] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[4]);
-                        _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
+                    if (grams[3] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[4]);
+                    _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
 
-                        if (grams[4] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[5]);
-                        _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
-                    }
-                } // for syll_id
+                    if (grams[4] == BLANK) continue;
+                    fp = fvn1a32.hash_u16(fp, grams[5]);
+                    _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
+                }
             } // while
 
             try writeGramCounts(self.c1_grams, filename1, 1);
@@ -469,7 +459,7 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     try f1_wrt.flush();
     try f2_wrt.flush();
 
-    total += t1; // finalize total
+    total += t1 + 2 * t2; // finalize total
     std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, grams.len - t1 - t2, total, max });
 }
 
