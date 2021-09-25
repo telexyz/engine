@@ -1,20 +1,20 @@
 // u32 cityhash, customized Fnv1a as fingerprint
-// 1-gram U: 11620, U1: 1283, U2: 710, U3+: 9627, T: 148274014, M: 1656827
-// 2-gram U: 2666022, U1: 1075256, U2: 369392, U3+: 1221374, T: 174372974, M: 414990
-// 3-gram U: 18228074, U1: 11405980, U2: 2479025, U3+: 4343069, T: 139009921, M: 141624
-// 4-gram U: 38701839, U1: 28874573, U2: 4412961, U3+: 5414305, T: 107863636, M: 56755
-// 5-gram U: 49034524, U1: 40203323, U2: 4543598, U3+: 4287603, T: 86824981, M: 48105
-// 6-gram U: 49381946, U1: 42503176, U2: 3863873, U3+: 3014897, T: 70531315, M: 37901
+// 1-gram U: 11620, U1: 1283, U2: 710, U3+: 9627, M: 1656827
+// 2-gram U: 2666022, U1: 1075256, U2: 369392, U3+: 1221374, M: 414990
+// 3-gram U: 18228074, U1: 11405980, U2: 2479025, U3+: 4343069, M: 141624
+// 4-gram U: 38701839, U1: 28874573, U2: 4412961, U3+: 5414305, M: 56755
+// 5-gram U: 49034524, U1: 40203323, U2: 4543598, U3+: 4287603, M: 48105
+// 6-gram U: 49381946, U1: 42503176, U2: 3863873, U3+: 3014897, M: 37901
 // (( STEP 3: Count and write n-gram done! Duration 1.99 mins ))
 
-// 3k cached syllable_ids
-// 1-gram U: 11621, U1: 1283, U2: 710, U3+: 9628, T: 158346364, M: 10070331
-// 2-gram U: 2666022, U1: 1075223, U2: 369415, U3+: 1221384, T: 174375463, M: 414993
-// 3-gram U: 18228074, U1: 11405718, U2: 2479219, U3+: 4343137, T: 139011403, M: 141624
-// 4-gram U: 38701839, U1: 28874097, U2: 4413369, U3+: 5414373, T: 107864216, M: 56755
-// 5-gram U: 49034524, U1: 40202859, U2: 4544019, U3+: 4287646, T: 86825205, M: 48105
-// 6-gram U: 49381946, U1: 42502782, U2: 3864247, U3+: 3014917, T: 70531401, M: 37901
-// (( STEP 3: Count and write n-gram done! Duration 1.67 mins ))
+// 2048 cached syllable_ids
+// 1-gram U: 11621, U1: 1283, U2: 710, U3+: 9628, M: 10069810
+// 2-gram U: 2666022, U1: 1075256, U2: 369392, U3+: 1221374, M: 414990
+// 3-gram U: 18228074, U1: 11405980, U2: 2479025, U3+: 4343069, M: 141624
+// 4-gram U: 38701839, U1: 28874573, U2: 4412961, U3+: 5414305, M: 56755
+// 5-gram U: 49034524, U1: 40203323, U2: 4543598, U3+: 4287603, M: 48105
+// 6-gram U: 49381946, U1: 42503176, U2: 3863873, U3+: 3014897, M: 37901
+// (( STEP 3: Count and write n-gram done! Duration 1.81 mins ))
 
 const std = @import("std");
 const mem = std.mem;
@@ -50,7 +50,7 @@ pub fn NGram(for_real: bool) type {
             self.allocator = init_allocator;
         }
 
-        pub fn loadSyllableIdsFromText(self: *Self, text: Text) !void {
+        pub fn loadSyllableIdsFromtext: Text) !void {
             const syll_ids = text.tokens_infos.items(.syllable_id);
             self.syllable_ids = try SyllableIdArray.initCapacity(
                 self.allocator,
@@ -470,7 +470,7 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     try f2_wrt.flush();
 
     total += t1 + 2 * t2; // finalize total
-    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, grams.len - t1 - t2, total, max });
+    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3+: {}, max });
 }
 
 test "ngram" {
@@ -491,7 +491,7 @@ test "ngram" {
         .fenced_by_spaces = .both,
     };
     while (it.next()) |tkn| {
-        try text.recordToken(tkn, attrs, false);
+        try text.recordfalse);
     }
 
     text.tokens_num_finalized = true;
