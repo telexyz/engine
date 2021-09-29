@@ -50,7 +50,7 @@ pub fn NGram(for_real: bool) type {
             self.allocator = init_allocator;
         }
 
-        pub fn loadSyllableIdsFromtext: Text) !void {
+        pub fn loadSyllableIdsFromText(self: *Self, text: Text) !void {
             const syll_ids = text.tokens_infos.items(.syllable_id);
             self.syllable_ids = try SyllableIdArray.initCapacity(
                 self.allocator,
@@ -470,7 +470,7 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     try f2_wrt.flush();
 
     total += t1 + 2 * t2; // finalize total
-    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3+: {}, max });
+    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, grams.len - t1 - t2, total, max });
 }
 
 test "ngram" {
@@ -491,7 +491,7 @@ test "ngram" {
         .fenced_by_spaces = .both,
     };
     while (it.next()) |tkn| {
-        try text.recordfalse);
+        try text.recordToken(tkn, attrs, false);
     }
 
     text.tokens_num_finalized = true;
