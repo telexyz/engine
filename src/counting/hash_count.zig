@@ -194,9 +194,10 @@ fn testHC(comptime HC: type) !void {
         const keys = try testing.allocator.alloc(usize, 512);
         defer testing.allocator.free(keys);
         var rng = std.rand.DefaultPrng.init(seed);
+        const random = rng.random();
 
         for (keys) |*key, i| {
-            key.* = rng.random.int(usize);
+            key.* = random.int(usize);
             try testing.expectEqual(@as(HC.CountType, 1), counters.put(.{
                 @truncate(u16, i),
                 @truncate(u16, key.*),
