@@ -19,12 +19,11 @@ pub const Text = struct {
     prev_token_is_vi: bool = undefined,
 
     // Must be init when text is created
-    init_allocator: *std.mem.Allocator,
+    init_allocator: std.mem.Allocator,
+    allocator_initialized: bool = false,
 
     // Create arena's ArenaAllocator from init_allocator
     arena: std.heap.ArenaAllocator = undefined,
-    allocator: *std.mem.Allocator = undefined,
-    allocator_initialized: bool = false,
 
     // Done with boring allocators, now we describe the Text struct
     // First of all text is an input byte stream
@@ -225,10 +224,10 @@ pub const Text = struct {
     }
 
     fn initAllocatorIfNeeded(self: *Text) void {
-        if (self.allocator_initialized) return;
-        self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
-        self.allocator = &self.arena.allocator;
-        self.allocator_initialized = true;
+        if (!self.allocator_initialized) {
+            self.arena = std.heap.ArenaAllocator.init(self.init_allocator);
+            self.allocator_initialized = true;
+        }
     }
 
     pub fn initFromInputBytes(self: *Text, input_bytes: []const u8) !void {
@@ -246,28 +245,28 @@ pub const Text = struct {
         );
 
         // Init types
-        self.alphabet_types = std.StringHashMap(TypeInfo).init(self.allocator);
-        self.nonalpha_types = std.StringHashMap(u32).init(self.allocator);
-        self.syllable_types = std.StringHashMap(TypeInfo).init(self.allocator);
+        self.alphabet_types = std.StringHashMap(TypeInfo).init(self.init_allocator);
+        self.nonalpha_types = std.StringHashMap(u32).init(self.init_allocator);
+        self.syllable_types = std.StringHashMap(TypeInfo).init(self.init_allocator);
 
-        self.syllower_types = std.StringHashMap(u32).init(self.allocator);
-        self.syllow00_types = std.StringHashMap(u32).init(self.allocator);
-        self.syllovan_types = std.StringHashMap(u32).init(self.allocator);
+        self.syllower_types = std.StringHashMap(u32).init(self.init_allocator);
+        self.syllow00_types = std.StringHashMap(u32).init(self.init_allocator);
+        self.syllovan_types = std.StringHashMap(u32).init(self.init_allocator);
 
         // Init bytes
-        self.alphabet_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
+        self.alphabet_bytes = try self.init_allocator.alloc(u8, 16 * ONE_MB);
         self.alphabet_bytes_len = 0;
 
-        self.nonalpha_bytes = try self.allocator.alloc(u8, 16 * ONE_MB);
+        self.nonalpha_bytes = try self.init_allocator.alloc(u8, 16 * ONE_MB);
         self.nonalpha_bytes_len = 0;
 
-        self.syllable_bytes = try self.allocator.alloc(u8, ONE_MB);
+        self.syllable_bytes = try self.init_allocator.alloc(u8, ONE_MB);
         self.syllable_bytes_len = 0;
 
-        self.line_bytes = try self.allocator.alloc(u8, ONE_MB / 2);
+        self.line_bytes = try self.init_allocator.alloc(u8, ONE_MB / 2);
         self.line_bytes_len = 0;
 
-        self.code_bytes = try self.allocator.alloc(u8, ONE_MB / 2);
+        self.code_bytes = try self.init_allocator.alloc(u8, ONE_MB / 2);
         self.code_bytes_len = 0;
 
         // Start empty token list and empty transfomed bytes

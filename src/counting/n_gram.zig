@@ -42,11 +42,11 @@ pub fn NGram(for_real: bool) type {
 
         syllable_ids: SyllableIdArray = undefined,
 
-        allocator: *std.mem.Allocator = undefined,
+        allocator: std.mem.Allocator = undefined,
 
         const Self = @This();
 
-        pub fn init(self: *Self, init_allocator: *std.mem.Allocator) void {
+        pub fn init(self: *Self, init_allocator: std.mem.Allocator) void {
             self.allocator = init_allocator;
         }
 

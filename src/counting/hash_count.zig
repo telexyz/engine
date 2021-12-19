@@ -58,11 +58,11 @@ fn HashCount(comptime K: type, comptime capacity: u32, comptime H: type, comptim
 
         const Self = @This();
 
-        allocator: *Allocator = undefined,
+        allocator: Allocator = undefined,
         entries: []Entry = undefined,
         len: usize = undefined,
 
-        pub fn init(self: *Self, init_allocator: *Allocator) !void {
+        pub fn init(self: *Self, init_allocator: Allocator) !void {
             self.allocator = init_allocator;
             self.len = 0;
 
