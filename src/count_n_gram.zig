@@ -45,7 +45,7 @@ fn initConfigsFromArgs() void {
     _ = args.nextPosix();
     // Get input filename from args
     input_filename = args.nextPosix() orelse {
-        std.debug.warn("expected input_filename as first argument\n", .{});
+        std.debug.print("expected input_filename as first argument\n", .{});
         std.os.exit(1);
     };
 }

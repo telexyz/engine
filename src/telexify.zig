@@ -1,5 +1,4 @@
 const std = @import("std");
-const print = std.debug.print;
 
 const Text = @import("./textoken/text_data_struct.zig").Text;
 const TextokenOutput = @import("./textoken/output_helpers.zig");
@@ -22,12 +21,12 @@ fn initConfigsFromArgs() void {
     _ = args.nextPosix();
     // Get input filename from args
     input_filename = args.nextPosix() orelse {
-        std.debug.warn("expected input_filename as first argument\n", .{});
+        std.debug.print("expected input_filename as first argument\n", .{});
         std.os.exit(1);
     };
     // Get output filename from args
     output_filename = args.nextPosix() orelse {
-        std.debug.warn("expected output_filename as second argument\n", .{});
+        std.debug.print("expected output_filename as second argument\n", .{});
         std.os.exit(1);
     };
     // Optional, get max_lines from args
@@ -41,7 +40,7 @@ fn initConfigsFromArgs() void {
             else => 0,
         };
         if (convert_mode == 0) {
-            std.debug.warn("expected convert_mode is dense|spare|parts\n", .{});
+            std.debug.print("expected convert_mode is dense|spare|parts\n", .{});
             std.os.exit(1);
         }
     }
@@ -104,18 +103,18 @@ fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {
     const now = std.time.milliTimestamp();
     const duration = now - start_time;
     const mins = @intToFloat(f32, duration) / 60000;
-    print("\n(( " ++ fmt_str ++ " Duration {d:.2} mins ))\n\n", .{mins});
+    std.debug.print("\n(( " ++ fmt_str ++ " Duration {d:.2} mins ))\n\n", .{mins});
     return now;
 }
 
 fn write_results(step2_time: i64) !void {
     // In the mean time writing parsed results out, and free amap mem asap
-    print("\nWriting types to files ...\n", .{});
+    std.debug.print("\nWriting types to files ...\n", .{});
     try text.processAlphabetTypes();
     try write_out_types();
     _ = showMeTimeLap(step2_time, "Writing types to files done!");
 
-    print("\nWriting tokenized results to {s} ...\n", .{output_filename});
+    std.debug.print("\nWriting tokenized results to {s} ...\n", .{output_filename});
     try TextokenOutput.write_transforms_to_file(
         &text,
         output_filename,
@@ -153,7 +152,7 @@ fn tokenizeAndParse(step0_time: i64) !i64 {
 }
 
 pub fn countNGram(step2_time: i64) !void {
-    print("\nSTEP 3: Count and write n-gram ...\n", .{});
+    std.debug.print("\nSTEP 3: Count and write n-gram ...\n", .{});
 
     const NGram = @import("./counting/n_gram.zig").NGram(true);
     // Khởi tạo bộ đếm
@@ -184,7 +183,7 @@ pub fn main() anyerror!void {
 
     // Parse configs để get input_filename, convert_mode ...
     initConfigsFromArgs();
-    print("\nStart tokenize {s} ...\n", .{input_filename});
+    std.debug.print("\nStart tokenize {s} ...\n", .{input_filename});
 
     tknz = .{ .max_lines = 0 };
     text = .{
