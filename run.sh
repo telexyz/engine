@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm data/0?-*.txt data/1?-*.txt data/3?-*.txt
+rm data/??-*
 # rm -rf ***/zig-cache ***/zig-out
 
 # zig build -Drelease-fast=true # && cp ./zig-out/bin/telexify ~/bin
@@ -15,4 +15,4 @@ zig build
 # zig run src/count_n_gram.zig -O ReleaseFast -- ../data/combined.xyz.cdx
 
 ./zig-out/bin/telexify ../phaps/data/all.txt data/phaps.utf8 utf8
-zig run src/count_n_gram.zig -O ReleaseFast -- data/phaps.utf8.cdx
+# zig run src/count_n_gram.zig -O ReleaseFast -- data/phaps.utf8.cdx
