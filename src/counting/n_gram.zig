@@ -32,13 +32,24 @@ const fvn1a32 = @import("../hashing/fvn1a32.zig");
 
 pub fn NGram(for_real: bool) type {
     return struct {
+
+        // Configs for ../data/combined.txt 944 MB
+        // c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
+        // c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        // c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
+        // c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        // c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        // c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
+
+        // Configs for ../phaps/data/all.txt 8.6 MB
         c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
-        c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
-        c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
-        c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 2_097_152) = undefined,
+        c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 8_388_608) = undefined,
+        c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 8_388_608) = undefined,
+        // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
 
         syllable_ids: SyllableIdArray = undefined,
 
