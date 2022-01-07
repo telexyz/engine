@@ -93,11 +93,11 @@ fn write_out_types() !void {
         "data/18-syllower_types.txt",
     );
 
-    try TextokenOutput.write_types_to_files(
-        text.syllovan_types,
-        "data/09-syllovan_freqs.txt",
-        "data/19-syllovan_types.txt",
-    );
+    // try TextokenOutput.write_types_to_files(
+    //     text.syllovan_types,
+    //     "data/09-syllovan_freqs.txt",
+    //     "data/19-syllovan_types.txt",
+    // );
 }
 
 fn showMeTimeLap(start_time: i64, comptime fmt_str: []const u8) i64 {

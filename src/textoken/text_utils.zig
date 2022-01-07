@@ -133,6 +133,8 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
 
     if (text.convert_mode == 4) {
         // utf-8, lowercase
+        const buff = syllable.printBuffUtf8(offset_ptr[0..16]);
+        offset_ptr += buff.len;
     } else if (text.convert_mode == 3) {
         // parts
         if (char_stream.first_char_is_upper) {

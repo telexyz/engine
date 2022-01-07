@@ -457,13 +457,13 @@ pub const Text = struct {
         gop3.value_ptr.* += type_info.count;
 
         // Remove phụ âm đầu
-        while (true) switch (syllable[i]) {
-            'a', 'e', 'y', 'u', 'i', 'o' => break,
-            else => i += 1,
-        };
+        // while (true) switch (syllable[i]) {
+        //     'a', 'e', 'y', 'u', 'i', 'o' => break,
+        //     else => i += 1,
+        // };
         // Count syllovan (only vần)
-        const gop4 = try self.syllovan_types.getOrPutValue(syllable[i..n], 0);
-        gop4.value_ptr.* += type_info.count;
+        // const gop4 = try self.syllovan_types.getOrPutValue(syllable[i..n], 0);
+        // gop4.value_ptr.* += type_info.count;
     }
 };
 
