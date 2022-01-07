@@ -131,8 +131,10 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
     const first_byte_ptr = text.syllable_bytes.ptr + text.syllable_bytes_len;
     var offset_ptr = first_byte_ptr + 1;
 
-    if (text.convert_mode == 3) {
-        //
+    if (text.convert_mode == 4) {
+        // utf-8, lowercase
+    } else if (text.convert_mode == 3) {
+        // parts
         if (char_stream.first_char_is_upper) {
             offset_ptr.* = '^';
             offset_ptr += 1;

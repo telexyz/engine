@@ -37,10 +37,11 @@ fn initConfigsFromArgs() void {
             'd' => 1,
             's' => 2,
             'p' => 3,
+            'u' => 4,
             else => 0,
         };
         if (convert_mode == 0) {
-            std.debug.print("expected convert_mode is dense|spare|parts\n", .{});
+            std.debug.print("expected convert_mode is dense|spare|parts|utf-8\n", .{});
             std.os.exit(1);
         }
     }
