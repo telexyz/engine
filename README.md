@@ -2,6 +2,11 @@ Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-cen
 
 ## TODOs
 
+### Topic modeling
+https://phamdinhkhanh.github.io/2019/09/08/LDATopicModel.html
+
+Phục vụ việc nhóm các đoạn Pháp vào cùng một chủ đề.
+
 ### Module 1/ `syllables2words`: gộp âm tiết thành từ
 
 1.1/ Naive Impl
