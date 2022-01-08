@@ -48,11 +48,6 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
         return false;
     }
 
-    // const is_true_joiners = switch (ptr[1]) {
-    //     '_', '-' => tk_info.attrs.fenced_by_spaces == .none and len == 1,
-    //     else => false,
-    // };
-
     // CODE_BYTES
     // Write token attrs as an invisible-char at first
     text.code_bytes[text.code_bytes_len] = tk_info.attrs.toByte();
@@ -71,6 +66,11 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
 
         text.code_bytes_len += 3;
     }
+
+    // const is_true_joiners = switch (ptr[1]) {
+    //     '_', '-' => tk_info.attrs.fenced_by_spaces == .none and len == 1,
+    //     else => false,
+    // };
 
     // LINE_BYTES
     // Write token to line_bytes

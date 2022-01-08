@@ -12,7 +12,7 @@
 # zig run src/count_n_gram.zig -O ReleaseFast -- ../data/combined.xyz.cdx
 
 
-rm data/??-*
+# rm data/??-*
 zig build
-./zig-out/bin/telexify ../phaps/data/all.txt data/phaps.utf8 utf8
-# zig run src/count_n_gram.zig -- data/phaps.utf8.cdx
+# ./zig-out/bin/telexify ../phaps/data/all.txt data/phaps.utf8 utf8
+zig run src/count_n_gram.zig -- data/phaps.utf8.cdx
