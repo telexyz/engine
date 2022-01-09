@@ -1,5 +1,9 @@
 Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-centric-ai
 
+Làm tốt dần / mịn dần từng bước một, có sự tham gia của con người ...
+
+Lặp đi lặp lại theo hình xoán ốc đi lên
+
 ## TODOs
 
 ### Topic modeling
