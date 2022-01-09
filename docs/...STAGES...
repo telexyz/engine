@@ -1,0 +1,7 @@
+Các giai đoạn chiến lược để hoàn thiện engine
+
+stage-1: Tokenizer cho TV đã gần xong (còn OOV)
+
+stage-2: Syllabling là các chơi chữ, có nghĩa là tổng hợp các âm tiết thành từ
+stage-2 đã lên được một KIẾN TRÚC NỀN TẢNG sử dụng chung cho nhiều modules (và cả modules mở rộng để sử dụng các modules thuộc kiến trúc nền tảng.)
+
