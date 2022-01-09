@@ -1,3 +1,0 @@
-https://machinelearningcoban.com/tabml_book/ch_embedding/word2vec.html
-
-https://aegis4048.github.io/optimize_computational_efficiency_of_skip-gram_with_negative_sampling
