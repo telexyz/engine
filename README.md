@@ -1,8 +1,21 @@
-Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-centric-ai
+# YOU SHOULD REWRITE
 
-Làm tốt dần / mịn dần từng bước một, có sự tham gia của con người ...
+_Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig_
 
-Lặp đi lặp lại theo hình xoán ốc đi lên
+* _BPE sub-word_ https://github.com/telexyz/tools/tree/master/vocab/fastBPE/fastBPE
+
+BPE quan trọng trong việc chia nhỏ OOV và ánh xạ OOV về một tập tokens có số lượng định trước, nhờ đó kiểm soát tốt số lượng từ vựng, hợp với việc huấn luyện mô hình có tài nguyên hạn chế.
+
+* _Word2Vec_ https://github.com/zhezhaoa/ngram2vec/blob/master/word2vec/word2vec.c
+
+Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train NN/LM, re-raking, re-scoring ...
+
+https://aegis4048.github.io/optimize_computational_efficiency_of_skip-gram_with_negative_sampling
+
+
+# STAGE-01 (90% done, xem `docs/.01-viet_token.md`)
+
+# STAGE-02 (triển khai `docs/.02-syllabling.md`)
 
 ## TODOs
 
@@ -46,23 +59,9 @@ Lặp đi lặp lại theo hình xoán ốc đi lên
 
 * Tham khảo kiến trúc tích hợp Jumanpp
 
-
-## REWRITE
-
-_Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig_
-
-* _BPE sub-word_ https://github.com/telexyz/tools/tree/master/vocab/fastBPE/fastBPE
-
-BPE quan trọng trong việc chia nhỏ OOV và ánh xạ OOV về một tập tokens có số lượng định trước, nhờ đó kiểm soát tốt số lượng từ vựng, hợp với việc huấn luyện mô hình có tài nguyên hạn chế.
-
-* _Word2Vec_ https://github.com/zhezhaoa/ngram2vec/blob/master/word2vec/word2vec.c
-
-Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train NN/LM, re-raking, re-scoring ...
-
-https://aegis4048.github.io/optimize_computational_efficiency_of_skip-gram_with_negative_sampling
-
-
 - - -
+
+# STAGE-01: Báo cáo thành tích
 
 [ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, LOẠI BỎ DỮ LIỆU TRÙNG LẶP, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
 
@@ -98,7 +97,7 @@ _Đối chiếu_
 1/ https://github.com/phuonglh/vn.vitk | https://github.com/phuonglh/jlp can tokenize a text of two million Vietnamese syllables in 20 seconds on a cluster of three computers (24 cores, 24 GB RAM), giving an accuracy of about 97%
 
 2/ https://github.com/vncorenlp/VnCoreNLP
-![](docs/files/vn_word_segmenters_speed.png)
+![](docs/files/vn_word_segmenters_speed.png)[width:600]
 
 
 - - -
