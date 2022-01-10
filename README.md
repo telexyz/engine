@@ -6,16 +6,6 @@ Lặp đi lặp lại theo hình xoán ốc đi lên
 
 ## TODOs
 
-### Topic modeling
-
-Phục vụ việc nhóm các đoạn Pháp vào cùng một chủ đề.
-https://phamdinhkhanh.github.io/2019/09/08/LDATopicModel.html
-
-* Lên đề bài thật cụ thể, sử dụng phân đoạn các học trò đã làm
-
-* Thuê Khanh làm
-
-
 ### Module 1/ `syllables2words`: gộp âm tiết thành từ
 
 1.1/ Naive Impl
