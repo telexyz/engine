@@ -891,8 +891,7 @@ fn canBeVietnamese(am_tiet: []const u8) bool {
 
 fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
     // if (true)
-    if (false)
-        std.debug.print(fmt_str, args);
+    if (false) std.debug.print(fmt_str, args);
 }
 
 pub export fn testPerformance(n: usize) void {

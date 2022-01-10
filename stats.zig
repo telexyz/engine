@@ -7,13 +7,16 @@ pub fn main() !void {
     try countRarelyUsedSyllableIds(false);
 }
 
-fn countRarelyUsedSyllableIds(details: bool) !void {
-    var input_file = try std.fs.cwd().openFile("data/08-syllower_freqs.txt", .{
-        .read = true,
-    });
-    defer input_file.close();
+fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
+    if (false) std.debug.print(fmt_str, args);
+}
 
-    var input_bytes = try input_file.reader().readAllAlloc(
+fn countRarelyUsedSyllableIds(details: bool) !void {
+    // var file = try std.fs.cwd().openFile("data/08-syllower_freqs.txt", .{ .read = true });
+    var file = try std.fs.cwd().openFile("data/07-syllable_freqs.txt", .{ .read = true });
+    defer file.close();
+
+    var input_bytes = try file.reader().readAllAlloc(
         std.heap.page_allocator,
         1024 * 1024,
     );
@@ -29,7 +32,10 @@ fn countRarelyUsedSyllableIds(details: bool) !void {
         while (str[i] != ' ') : (i += 1) {}
         const count = try std.fmt.parseInt(u32, str[0..i], 10);
         const token = str[i + 1 ..];
-        var syllable = parsers.parseXyzToGetSyllable(token);
+
+        // var syllable = parsers.parseXyzToGetSyllable(token);
+        var syllable = parsers.parseAmTietToGetSyllable(true, printNothing, token);
+
         syllable.normalize();
         // std.debug.print("{s} {s} {}\n", .{ token, syllable.printBuffUtf8(buffer[0..]), syllable }); //DEBUG
         try syllable_ids_counts.put(syllable.toId(), count);
