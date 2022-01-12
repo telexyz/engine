@@ -469,7 +469,8 @@ pub const Text = struct {
 
 test "Text" {
     var text = Text{
-        .init_allocator = std.testing.allocator,
+        // .init_allocator = std.testing.allocator,
+        .init_allocator = std.heap.page_allocator,
     };
 
     try text.initFromInputBytes("Cả nhà đơi , thử nghiệm nhé , cả nhà ! TAQs");

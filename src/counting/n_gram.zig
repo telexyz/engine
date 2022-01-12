@@ -487,11 +487,13 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
 test "ngram" {
     const text_utils = @import("../textoken/text_utils.zig");
     var gram: NGram(false) = .{};
-    gram.init(std.testing.allocator);
+    // gram.init(std.testing.allocator);
+    gram.init(std.heap.page_allocator);
     defer gram.deinit();
 
     var text = Text{
-        .init_allocator = std.testing.allocator,
+        // .init_allocator = std.testing.allocator,
+        .init_allocator = std.heap.page_allocator,
     };
     try text.initFromInputBytes("Cả nhà nhà nhà nhà nhà nhà nhà nhà nhà đơi thử nghiệm nhé , cả nhà ! TAQs cả nhà");
     defer text.deinit();

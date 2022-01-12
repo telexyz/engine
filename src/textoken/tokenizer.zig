@@ -314,7 +314,8 @@ test "Tokenizer" {
         \\https://vnexpress.net/cdc-tinh-dong-thap-dong-cua-4299620.html
         \\
     ;
-    var text: Text = .{ .init_allocator = std.testing.allocator };
+    // var text: Text = .{ .init_allocator = std.testing.allocator };
+    var text: Text = .{ .init_allocator = std.heap.page_allocator };
     try text.initFromInputBytes(input_bytes);
     defer text.deinit();
 

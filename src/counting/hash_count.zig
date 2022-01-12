@@ -188,11 +188,12 @@ fn testHC(comptime HC: type) !void {
     var seed: usize = 0;
 
     while (seed < 128) : (seed += 1) {
-        try counters.init(testing.allocator);
+        const my_allocator = std.heap.page_allocator;
+        try counters.init(my_allocator);
         defer counters.deinit();
 
-        const keys = try testing.allocator.alloc(usize, 512);
-        defer testing.allocator.free(keys);
+        const keys = try my_allocator.alloc(usize, 512);
+        defer my_allocator.free(keys);
         var rng = std.rand.DefaultPrng.init(seed);
         const random = rng.random();
 
