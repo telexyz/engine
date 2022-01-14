@@ -7,13 +7,13 @@ Làm tốt dần / mịn dần từng bước một, có sự tham gia của con
 Lặp đi lặp lại theo hình xoán ốc đi lên
 
 
-## stage-1: Tokenizer cho TV đã gần xong (còn OOV)
+## stage-01: Tokenizer cho TV đã gần xong (còn OOV)
 
-## stage-2: Syllabling là các chơi chữ, có nghĩa là tổng hợp các âm tiết thành từ
-stage-2 đã lên được một KIẾN TRÚC NỀN TẢNG sử dụng chung cho nhiều modules (và cả modules mở rộng để sử dụng các modules thuộc kiến trúc nền tảng.)
+## stage-02: Syllabling là cách nói chơi chữ, có nghĩa là tổng hợp các âm tiết thành từ.
 
+stage-02 đã lên được một KIẾN TRÚC NỀN TẢNG sử dụng chung cho nhiều modules.
 
-__Note__: Có 2 cách xây dựng LM: n-gram là đơn giản nhất, phức tạp với độ chính xác cao là DL cần phần cứng và mềm chuyên dụng. Chốt sử dụng n-gram trước để impl và triển khai đơn giản, hiệu quả vừa đủ dùng.
+__Note__: Có 2 cách xây dựng LM: n-gram là đơn giản nhất, phức tạp với độ chính xác cao là DL cần phần cứng và mềm chuyên dụng. Chốt sử dụng n-gram trước để impl và triển khai đơn giản + đủ dùng. NNLM có thể khám phá sau từ thấp tới cao như RNN < LSTM < Transformer ... (VD: Jumanpp sử dụng RNN để reranking cho kết quả khá tốt)
 
 - - -
 
