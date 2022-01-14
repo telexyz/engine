@@ -1,7 +1,7 @@
 # Tách từ tiếng Nhật dựa trên từ điển và lưới tìm kiếm
 https://towardsdatascience.com/how-japanese-tokenizers-work-87ab6b256984
 
-Hầu hết bộ tách từ tiếng Nhật dựa trên tìm kiếm lưới (sử dụng thuật toán Viterbi để tìm ra lựa chọn tốt nhất từ mạng lưới ứng cử viên lựa chọn từ từ điển). Trong số đó, nổi tiếng nhất là MeCab. Hầu hết mọi bộ tách từ mã mở tiếng Nhật thường là đóng gói lại MeCab hoặc viết lại thuật toán tìm kiếm lưới:
+Hầu hết bộ tách từ tiếng Nhật dựa trên lưới tìm kiếm (dùng Viterbi để tìm ra lựa chọn tốt nhất), nổi tiếng nhất là MeCab. Hầu hết mọi bộ tách từ mã mở tiếng Nhật thường là đóng gói lại MeCab hoặc viết lại thuật toán tìm kiếm lưới:
 
 * Kotori in Kotlin
 * Sudachi and Kuromoji in Java
@@ -90,42 +90,20 @@ Năm 2015, mô hình ngôn ngữ dựa trên mạng neuron hồi quy (RNNLM) đ�
 
 Năm 2018, Jumanpp được viết lại tăng 250x tốc độ và độ chính xác cũng được cải thiện. Jumanpp sử dụng thiết kế phân tích hình thái học dựa trên từ điển. Trong quá trình phân tích các ứng cử viên sẽ được lựa chọn từ từ điển và bộ xử lý từ lạ (unknown word handler). 
 
-Viết lại Jumanpp là để tăng tốc độ nhưng đồng thời cũng cần đủ mềm dẻo và mạnh mẽ. So với MeCab (2004) trình bày không gian tìm dưới dạng bảng (ma trận 2 chiều; có tính toán trước và sử dụng partial lexicalization bi-gram?), sau khi truy cập bảng sẽ cộng thêm unigram score kết hợp (tổng cộng 2 thao tác: truy cập bảng và cộng unigram score). Jumanpp đánh giá 60 đặc trưng cho mỗi đỉnh của lưới (không gian tìm kiếm) trong giải thuật tìm kiếm chùm (beam search) và chỉ chậm hơn MeCab 5 lần. Chúng tôi cho rằng việc thực hiện số lượng tính toán lớn sao cho hiệu quả là quan trọng để phát triển các công cụ xử lý ngôn ngữ tự nhiên.
+Viết lại Jumanpp là để tăng tốc độ nhưng đồng thời cũng cần đủ mềm dẻo và mạnh mẽ. So với MeCab (2004) trình bày không gian tìm dưới dạng bảng (ma trận 2 chiều; có tính toán trước và sử dụng partial lexicalization bi-gram?), sau khi truy cập bảng sẽ cộng thêm unigram score kết hợp (tổng cộng 2 thao tác: truy cập bảng và cộng unigram score). Jumanpp đánh giá 60 đặc trưng cho mỗi đỉnh của lưới tìm kiếm của giải thuật tìm kiếm chùm (beam search) và chỉ chậm hơn MeCab 5 lần. Chúng tôi cho rằng việc thực hiện số lượng tính toán lớn sao cho hiệu quả là quan trọng để phát triển các công cụ xử lý ngôn ngữ tự nhiên.
 
 ## 2/ Tổng quan về phân tích hình thái học
 
-Tiếng Nhật không dùng dấu cách (space), vậy nên cần phải tách văn bản (gộp ký tự) thành các tokens. Có 2 hướng tiếp cận cơ bản là supervised và un-supervised. Supervised dùng dữ liệu được gán nhãn bởi con người. Un-supervised sử dụng thuật toán để quyết định, thường dựa trên một độ dựa trên lý thuyết thông tin. Ở đây ta tập trung vào supervised.
+Tiếng Nhật không dùng dấu cách (space), vậy nên cần phải tách văn bản (gộp ký tự) thành các từ. Có 2 hướng tiếp cận cơ bản là supervised và un-supervised. Supervised dùng dữ liệu được gán nhãn bởi con người. Un-supervised sử dụng thuật toán để quyết định, thường dựa trên lý thuyết thông tin. Ở đây ta tập trung vào supervised.
 
 
 ### 2.1/ Hình vị và phân tích hình thái học
 
 Nhìn chung, hình vị và phân tích hình thái học tiếng Nhật có sự khác biệt với tiếng Âu - Mỹ, định nghĩa thế nào là từ cũng lỏng lẻo hơn (word is ill-defined). Từ giờ trở đi hình vị và từ được dùng thay thế lẫn nhau như là một đơn vị của quá trình phân tách.
 
-Tiếng Nhật có nhiều tiêu chuẩn hình thái học khác nhau như IPADic, Jumandic, UnniDic. Hầu hết bộ phân tích tiếng Nhật đều dùng từ điển phân tách định nghĩa cách tách từ của từng corpus một. Mục tiêu của từ điển phân tách là làm sao cho một câu chỉ có một cách phân tách duy nhất dựa vào từ điển phân tách. Bộ từ điển như thế cần được cùng duy trì với một corpus được gán nhãn. Tiếng Trung không dùng từ điển phân tách. Từ điển được tạo nên bằng cách tập hợp tất cả các từ độc nhất có trong corpus. Tuy thế, hầu hết bộ phân tách để sử dụng nhiều trích chọn đặc trưng và các tài nguyên bổ xung được huấn luyện từ trước như n-gram ký tự, word embeddings, và làm tăng kích thước của mô hình.
+Tiếng Nhật có nhiều tiêu chuẩn hình thái học khác nhau như IPADic, Jumandic, UnniDic. Hầu hết mọi bộ phân tích tiếng Nhật đều dùng từ điển phân tách để định nghĩa cách tách từ của từng corpus một. Mục tiêu của từ điển phân tách là làm sao cho _MỘT CÂU CHỈ CÓ MỘT CÁCH PHÂN TÁCH DUY NHẤT_. Bộ từ điển như thế cần được cùng duy trì với một corpus được gán nhãn. Tiếng Trung không dùng từ điển phân tách. Từ điển được tạo nên bằng cách tập hợp tất cả các từ độc nhất có trong corpus. Tuy thế, hầu hết bộ phân tách để sử dụng nhiều trích chọn đặc trưng và các tài nguyên bổ xung được huấn luyện từ trước như n-gram ký tự, word embeddings, và làm tăng kích thước của mô hình.
 
-Có hai hướng đi chính trong phân tách supervised là: pointwise và search-based. Pointwise ra quyết định cho điểm giao của mỗi cặp ký tự dựa vào các thông tin chung quanh giao điểm đó (do tiếng Nhật không dùng dấu cách còn với tiếng Việt là điểm giao của mỗi cặp âm tiết); việc ra quyết định là độc lập ở mỗi điểm. Search-based tìm kiếm một giải pháp tối ưu (tối đa hoá một hàm mục tiêu / hàm tính điểm)
-
-...
-
-#### 3.3.3/	Sắp đặt và lưu trữ theo byte (byte-level storage & alignment)
-
-Jumanpp LEB128 (`std/lib128.zig`) lưu số nguyên (con trỏ và độ dài) của bộ từ điển đã được tối ưu hoá (từ xuất hiện nhiều để lên đầu vì xác xuất truy cập lớn hơn). Số nguyên nhỏ hơn 127 được lưu trữ trong 1 byte ...
-
-Cách lưu này giúp giảm dung lượng lưu trữ và tăng tốc độ phân tích, ...
-
-...
-
-#### 3.4.2 Hashing
-
-Thuật toán hash thông thường đầu vào là string `[]u8`, với Jumanpp đầu vào là `u64` đầu ra là `u64`. Hashing đa giá trị bằng cách áp dụng hash theo chuỗi:
-`hash(seed,a,b,c..) = jpphash(jpphash(jpphash(jpphash(seed,a),b,c,...)`
-
-Note: `u64` chứa được 18.446 tỉ tỉ số nguyên rất lớn để định danh và chứa được nhiều thứ, nếu có hàm băm (hash) tốt thì sẽ mapping được dữ liệu ở chiều cao hơn vào `u64`.
-
-Sử dụng hàm hash dựa trên thuật toán PCG để sinh ra số ngẫu nhiên. Tổng lượng tính toán bao gồm 2 phép XOR, 1 phép nhân và 1 phép right shift. Right shift và XOR thứ 2 để tăng độ ngẫu nhiên của những bits thấp nhất. 
-
-Zig's Fast non-cryptographic 64bit hash function.
-See https://github.com/wangyi-fudan/wyhash
+Có hai hướng đi chính trong phân tách supervised là: _POINTWISE VÀ SEARCH-BASED_. Pointwise ra quyết định cho điểm giao của mỗi cặp ký tự dựa vào các thông tin chung quanh giao điểm đó (do tiếng Nhật không dùng dấu cách còn với tiếng Việt là điểm giao của mỗi cặp âm tiết); việc ra quyết định là độc lập ở mỗi điểm. Search-based tìm kiếm một giải pháp tối ưu (tối đa hoá một hàm mục tiêu / hàm tính điểm)
 
 ...
 
@@ -133,12 +111,17 @@ See https://github.com/wangyi-fudan/wyhash
 
 Mặc dù đạt độ chính xác hơn 99% ở mức độ từ trong một lĩnh vực cụ thể như tin tức, độ chính xác giảm xuống đáng kể khi đơn vị so sanh là cả câu. Với KU corpus là 93% (127 lỗi / 1,783 câu), với KUDLC là 88% (265/2,195). Với dữ liệu như bình luận của người dùng trên mạng xã hội thì độ chính xác còn giảm đi nhiều nữa (more noise, diff domain).
 
-Tolmachev et al. (2019) huấn luyện bộ phân tích hình thái học bằng mạng neuron dựa trên bộ corpus đã được phân tích hình thái học bằng các công cụ truyền thống. Cách tiếp cận này đạt kết quả bằng và đôi lúc hơn bộ phân phân tích truyền thống dùng để khởi tạo dữ liệu. Hơn nữa dung lượng của mô hình nhỏ hơn rất nhiều và trong nhiều trường hợp cho kết quả dễ hiểu hơn.
-
-Điểm yếu của cách tiếp cận này là khi bổ xung từ mới phải phân tích lại corpus và huấn luyện lại mô hình từ đầu.
+Tolmachev et al. (2019) huấn luyện bộ phân tích hình thái học bằng mạng neuron pointwise dựa trên bộ corpus đã được phân tích hình thái học bằng các công cụ truyền thống. Cách tiếp cận này đạt kết quả bằng và đôi lúc hơn bộ phân phân tích truyền thống dùng để khởi tạo dữ liệu. Hơn nữa dung lượng của mô hình nhỏ hơn rất nhiều và trong nhiều trường hợp cho kết quả dễ hiểu hơn. Điểm yếu của cách tiếp cận này là khi bổ xung từ mới phải phân tích lại corpus và huấn luyện lại mô hình từ đầu.
 
 Xem thêm [Rút gọn kích thước mô hình bộ tách từ tiếng Nhật với mạng neuron và máy học bán giám sát](https://aclanthology.org/N19-1281.pdf)
 
+## Jumanpp Internals
+
+1/ Linear score computation (kết hợp 60 features)
+2/ beam search (n-best)
+3/ RNN model (re-ranking n-best) (optional)
+
+1/ phức tạp bao gồm: cấu trúc từ điển, feature computation hashing, prefectching, struct-of-arrays layout for lattice.
 
 ## Kết luận
 
@@ -157,15 +140,6 @@ https://github.com/lindera-morphology/lindera
 https://github.com/ikawaha/kagome
 
 https://github.com/wanasit/kotori
-
-https://github.com/WorksApplications/Sudachi | https://aclanthology.org/L18-1355.pdf
-
-A Japanese Tokenizer for Business. Types of dictionaries.
-* Small: includes only the vocabulary of UniDic
-* Core: includes basic vocabulary (default)
-* Full: includes miscellaneous proper nouns
-`Java, 600+ commits` vs `Jumanpp C++, 1000+ commits`
-
 
 https://github.com/ku-nlp/jumanpp | [slides](files/jumanpp_slides.pdf)
 
