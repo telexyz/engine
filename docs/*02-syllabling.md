@@ -21,13 +21,13 @@ Trong các ngôn ngữ trên, phân tích hình vị tiếng Nhật được là
 
 Sử dụng chung một kiến trúc nền tảng như sau: coi text là chuỗi tín hiệu đầu vào (tokens), chuỗi đầu vào có thể bị lỗi (thiếu / thừa / sai thông tin), hệ thống sẽ căn cứ vào một baseline (thường là từ điển) để đoán xem điểm nào của chuỗi là bất thường ((nghi có lỗi sai/thiếu/thừa). Với một điểm bất thường sẽ có một danh sách các ứng cử viên (candidates) để chữa điểm bất thường đó; ứng viên rỗng sẽ xoá điểm bất thường đó (lỗi thừa tt). Bước cuối cùng là làm cách nào để chọn ra tập ứng viên tốt nhất cho toàn bộ chuỗi tín hiệu và giúp người dùng lựa chọn được ứng viên cuối cùng một cách hiệu quả nhất. Các bước thực hiện bao gồm:
 
-__Bước 1__: Tìm điểm bất thường (nghi có lỗi sai/thiếu/thừa). Cần cân bằng giữa số lượng điểm và  bỏ sót càng ít điểm nghi vấn càng tốt. Ví dụ: coi mọi token đều làm điểm nghi vấn thì sẽ không bỏ sót nhưng khiến số lượng tính toán / xử lý tăng lên rất nhiều.
+__Bước 1__: Tìm điểm bất thường (nghi có lỗi sai/thiếu/thừa). Cần cân bằng giữa số lượng điểm và bỏ sót càng ít điểm nghi vấn càng tốt. Ví dụ: coi mọi token đều làm điểm nghi vấn thì sẽ không bỏ sót nhưng khiến số lượng tính toán / xử lý tăng lên rất nhiều.
 
 __Bước 2__: Với mỗi điểm tìm được sinh ra danh sách ứng cử viên cân bằng giữa độ lớn danh sách và độ tốt của ứng cử viên. Ví dụ với mỗi token nghi sai chính tả, coi mọi từ có thể có trong từ điển là candiates sẽ không bỏ sót ứng cử viên tốt nhưng khiến số lượng tính toán tăng lên rất nhiều.
 
 __Bước 3__: Di chuyển từ đầu tới cuối chuỗi tín hiệu thì với mỗi điểm nghi vấn, mỗi candiate được coi là một nhánh trong không gian giải pháp. Không gian giải pháp này có thể được thể hiện dưới dạng hình cây (tree / branch / leaves), hoặc hình lưới (lattice). Cách thể hiện không gian tìm kiếm (data structure) cần đủ mềm dẻo để tích hợp được nhiều thông tin chung quanh điểm nghi vấn và các ứng viên để hỗ trợ việc tìm ra một/nhiều giải pháp tốt nhất và khiến việc tìm kiếm trở nên hiệu quả hơn.
 
-__Bước 4__: Tạo lập một hàm mục tiêu để trong không gian giải pháp đó, tìm ra được một/nhiều giải pháp tốt nhất. Bước này quy về bài toán tìm kiếm theo chiều rộng (beam search), theo chiều sâu (a-star search), hoặc xử lý từng điểm nghi vấn một cách độc lập (pointwise).
+__Bước 4__: Tạo lập một hàm mục tiêu để trong không gian giải pháp đó, tìm ra được một/nhiều giải pháp tốt nhất. Bước này quy về bài toán tìm kiếm theo chiều rộng (`beam search`), theo chiều sâu (`a-star search`), hoặc xử lý từng điểm nghi vấn một cách độc lập (`pointwise`).
 
 __Bước 5__: Sau khi có hàm mục tiêu và dữ liệu đã được gán nhãn có thể dùng máy học để huấn luyện các tham số của mô hình tạo dựng được ở bước 3 và 4.
 
