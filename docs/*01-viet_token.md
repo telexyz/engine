@@ -1,10 +1,7 @@
 # Bộ tách token và phân tích âm vị học tiếng Việt
 
-## Token repair
+## Token repair ideas
 
-Xem `_token_repair.md`
-
-### Ideas
 * Dùng `trans_offets` để transit token_info được tách `Sốngsansẻ` sang mảng `splitted_tokens_infos` (nội dung splitted_tokens được lưu tại `splitted_bytes`). Thêm `splitted` vào `token_info.category`
 
 * Dùng `transit sang splitted_tokens_infos` có điểm dở là chỉ đi tiến, ko đi lùi được nên khi matching với 1 đoạn token và cần matching theo cả 2 chiều thì dùng `TokensChunk = [64]*TokenInfo` để có để di chuyển tiến và lùi.
