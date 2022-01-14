@@ -31,21 +31,30 @@ Khi matching có thể có nhiều cách gộp syllables thành words, hay nói 
 
 Khi xét một `TokensChunk` có độ dài `n` để tìm ra cách nhóm `sylls2words` thì với mỗi cặp `token[i]` và `token[i+1]` cần xác định giữa chúng có phải là `word boundary` (a.k.a nhát cắt) hay không? Ta tính điểm cho từng nhát cắt:
 
-1/ Điểm ưu tiên độ dài từ `k_l` với điều kiện token[i-l]..token[i] là một từ.
+1/ Có thể tính điểm dài từ `k_l = bonus * (l-1)` để `k_l` luôn hơn `log10(count)`. Điểm này chỉ hợp lệ khi `token[i-l]..token[i]` là một từ. Với bonus = 100 ta có:
+* l = 1: k_1 =   0 (luôn luôn đúng, 0 điểm)
+* l = 2: k_2 = 100 với đk token[i-1]..token[i] là một từ
+* l = 3: k_3 = 200 với đk token[i-2]..token[i] là một từ
+* l = 4: k_4 = 300 với đk token[i-3]..token[i] là một từ
 
-2/ `log10(count(i-gram))` của từ đó, thể hiện giữa 2 từ dài bằng nhau ưu tiên từ có tần suất xuất hiện nhiều hơn. 
+2/ `log10(count(token[i-l+1]..token[i]))` của từ đó, thể hiện giữa 2 từ dài bằng nhau ưu tiên từ có tần suất xuất hiện nhiều hơn.
 
-Note: Một từ xuất hiện ko quá 1 tỉ (9 số không => log10 <= 9).
+_Note_: Một từ xuất hiện ko quá 1 tỉ (9 số không => log10 < 9).
 
-Công thức tính điểm ưu tiên độ dài từ `k_l = 100*(l-1)` để ưu tiên `k_l` hơn `log10(count)`
-* l = 1: k_1 = 0
-* l = 2: k_2 = 100
-* l = 3: k_3 = 300
-* l = 4: k_4 = 400
+3/ Thêm một ưu tiên nữa sẽ bị phạt (penanty's point) nếu bỏ rơi một token để tránh trường hợp chạy theo từ dài mà bỏ qua những từ ngắn hơn.
 
-=> Khi thêm một ưu tiên nữa số token bị bỏ rơi ít nhất có thể => Sử dụng lại hàm mục tiêu trên và nếu 1 token bị bỏ rơi ta -10_000 điểm. Thì cách ước lượng điểm còn lại trở nên dễ dàng hơn vì số token bị bỏ rơi có thể xác định được (đếm số token có `sum(flag_i)=0` là biết).
+```
+score(i) = score(i-l)
+	+ k_l(i)
+	+ log10(count(token[i-l+1]..token[i]))
+	- penanty * number_of_single_tokens_from(i-l+1..i)
+```
+
+Với cách tính điểm như trên có thể giải quyết bài toán bằng quy hoạch động (viberbi) hoặc tìm kiếm lưới (beam, a-star).
 
 - - -
+
+## Các thuật toán tìm kiếm lưới
 
 Beam (bread first) vs A* (depth first) Heuristic Search
 http://www.phontron.com/slides/nlp-programming-en-13-search.pdf
