@@ -1,19 +1,19 @@
-Hiện tại mọi syllables đều encode thành `u16` và còn dư `13_455 slots` để chứa OOS (out of syllables) nên mọi tokens đều có thể được encode thành `u16`. Điều này tối ưu cho việc lưu trữ và matching (sử dụng hashing hoặc trie).
+Hiện tại mọi syllables đều encode thành `u15` và còn dư khoảng `14k slots` để chứa OOS (out of syllables) nên mọi tokens đều có thể được encode thành `u15`.
 
 Note: hiện tại chú trọng vào âm tiết và sau này mở rộng ra tokens, ưu tiên các lưu các OOS nguyên bản trong dict trước, phần còn lại dùng BPE để handle OOV.
 
-Bộ từ điển tiếng Việt để tách từ sẽ gồm ít nhất 02 âm tiết nhiều nhất 04 âm tiết. Với các từ từ 05 âm tiết trở lên thường là từ kép sẽ tách được thành 2 từ đơn nhỏ hơn hoặc bằng 04 âm tiết.
+Bộ từ điển tiếng Việt để tách từ sẽ gồm ít nhất 02 âm tiết nhiều nhất 04 âm tiết. Với các từ từ 05 âm tiết trở lên thường là từ kép sẽ tách được thành 2 từ đơn nhỏ hơn.
 
 - - - 
 
 Một cách biểu diễn đơn giản coi từ điển là một tập `4-grams [s0, s1, s2, s3]`, từ có 2 âm tiết nghĩa là s3, s4 = 0, từ có 3 âm tiết thì s4 = 0. Setting như vậy khi matching từ trái qua phải thì luôn ưu tiên matching từ có nhiều âm tiết hơn trước.
 
-`4-grams = 64-bits (16 x 4)` sử dụng https://github.com/hexops/fastfilter để tăng tốc đối sánh mẫu, tổ hợp 4-grams nhiều hơn từ trong từ điển nhiều nên trường hợp không khớp có lẽ sẽ rơi vào khoảng 80%, `Xor8 has no more than a 0.3% false-positive`, như vậy nếu khớp `1000 cases` thì sẽ có `3 cases` là false-positive. Sai số chấp nhận được và khi scoring cuối cùng thì sẽ phải đối chiếu với n-grams thật để lấy count nên sẽ biết đâu là false-positive.
+`4-grams = 64-bits (16 x 4)` sử dụng https://github.com/hexops/fastfilter để tăng tốc đối sánh mẫu. `Xor8 has no more than a 0.3% false-positive`, như vậy nếu khớp `1000 cases` thì sẽ có `3 cases` là false-positive. Sai số chấp nhận được và khi scoring cuối cùng thì sẽ phải đối chiếu với n-grams thật để lấy count nên sẽ biết đâu là false-positive.
 
 
 __LABELING__
 
-Để đánh dấu một token là  token thứ mấy của một từ ta dùng 4 giá trị sau:
+Để đánh dấu một token là token thứ mấy của một từ ta dùng 4 giá trị sau:
 * 0 token đầu tiên của từ trong từ điển
 * 1 token thứ hai của từ trong từ điển
 * 2 token thứ ba của từ trong từ điển
@@ -29,7 +29,7 @@ Khi matching có thể có nhiều cách gộp syllables thành words, hay nói 
 
 - - -
 
-Khi xét một `TokensChunk` có độ dài `n` để tìm ra cách nhóm sylls2words tốt nhất thì giữa token[i] và token[i+1] có phải là `word boundary` đầu tiên không thì 1<= i <= 3 và token[0]..token[i] phải thuộc từ điển. Mỗi nhát cắt được tính điểm như sau:
+Khi xét một `TokensChunk` có độ dài `n` để tìm ra cách nhóm `sylls2words` tốt nhất thì giữa `token[i]` và `token[i+1]` có phải là `word boundary` đầu tiên không thì `1 <= i <= 3` và `token[0]..token[i]` phải thuộc từ điển. Mỗi nhát cắt được tính điểm như sau:
 1/ Điểm ưu tiên độ dài từ `k_i`
 2/ `log10(count(i-gram))` của từ đó, thể hiện giữa 2 từ dài bằng nhau ưu tiên từ có tần suất xuất hiện nhiều hơn.
 
