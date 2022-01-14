@@ -29,20 +29,21 @@ Khi matching có thể có nhiều cách gộp syllables thành words, hay nói 
 
 - - -
 
-Khi xét một `TokensChunk` có độ dài `n` để tìm ra cách nhóm `sylls2words` tốt nhất thì giữa `token[i]` và `token[i+1]` có phải là `word boundary` đầu tiên không thì `1 <= i <= 3` và `token[0]..token[i]` phải thuộc từ điển. Mỗi nhát cắt được tính điểm như sau:
-1/ Điểm ưu tiên độ dài từ `k_i`
-2/ `log10(count(i-gram))` của từ đó, thể hiện giữa 2 từ dài bằng nhau ưu tiên từ có tần suất xuất hiện nhiều hơn.
+Khi xét một `TokensChunk` có độ dài `n` để tìm ra cách nhóm `sylls2words` thì với mỗi cặp `token[i]` và `token[i+1]` cần xác định giữa chúng có phải là `word boundary` (a.k.a nhát cắt) hay không? Ta tính điểm cho từng nhát cắt:
 
-Một từ xuất hiện ko quá 1 tỉ (9 số không), và n =64 nên k=1000 là dư lớn để luôn ưu tiên từ dài.
+1/ Điểm ưu tiên độ dài từ `k_l` với điều kiện token[i-l]..token[i] là một từ.
 
-`ki = 2*(i-2)`
-* i = 2: k_2 = 0
-* i = 3: k_3 = 2
-* i = 4: k_4 = 4
+2/ `log10(count(i-gram))` của từ đó, thể hiện giữa 2 từ dài bằng nhau ưu tiên từ có tần suất xuất hiện nhiều hơn. 
 
-=> Dùng quy hoạch động là tìm được cách nhóm từ tối ưu dựa vào hàm mục tiêu. Với nhát cắt i, điểm tốt nhất cho phần còn lại (n-i) là `k4 * (n-i/4) + switch (@rem(n-i,4)) { 3 => k3, 2 => k3, else => 0 }` (một hàm heuristic để cut branch, dạng A-star search). Một hàm heristic như vậy là không thực tế vì điểm ước lượng quá cao, ko sát với thực tế.
+Note: Một từ xuất hiện ko quá 1 tỉ (9 số không => log10 <= 9).
 
-=> Khi thêm một ưu tiên nữa số token bị bỏ rơi ít nhất có thể => Sử dụng lại hàm mục tiêu trên thêm điểm trừ nếu 1 token bị bỏ rơi thì -10_000 điểm. Thì cách ước lượng điểm còn lại trở nên dễ dàng hơn vì số token bị bỏ rơi có thể xác định rõ ràng được (đếm số token có `sum(flag_i)=0` là biết)
+Công thức tính điểm ưu tiên độ dài từ `k_l = 100*(l-1)` để ưu tiên `k_l` hơn `log10(count)`
+* l = 1: k_1 = 0
+* l = 2: k_2 = 100
+* l = 3: k_3 = 300
+* l = 4: k_4 = 400
+
+=> Khi thêm một ưu tiên nữa số token bị bỏ rơi ít nhất có thể => Sử dụng lại hàm mục tiêu trên và nếu 1 token bị bỏ rơi ta -10_000 điểm. Thì cách ước lượng điểm còn lại trở nên dễ dàng hơn vì số token bị bỏ rơi có thể xác định được (đếm số token có `sum(flag_i)=0` là biết).
 
 - - -
 
