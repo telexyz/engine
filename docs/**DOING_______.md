@@ -11,8 +11,7 @@ Làm bộ gõ native, đa nền tảng => Tham khảo bộ gõ https://github.co
 * Dùng n-gram cho pointwise để re-ranking candidates
 * Kết hợp phát hiện, cảnh báo và gợi ý sửa lỗi chính tả
 
-## 2/ Áp dụng vào :Sửa lỗi, phân đoạn, tìm topics cho từng đoạn của 150 bài pháp
-
+## 2/ Áp dụng vào: (sửa lỗi, phân đoạn,) tìm topics cho từng đoạn của 150 bài pháp
 
 _NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần `dict_matching`, `word2vec` ...
 
