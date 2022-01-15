@@ -36,7 +36,9 @@ Làm bộ gõ native, đa nền tảng => Tham khảo bộ gõ https://github.co
 
 ## 2/ Áp dụng vào :Sửa lỗi, phân đoạn, tìm topics cho từng đoạn của 150 bài pháp
 
-* Phát hiện, cảnh báo và gợi ý sửa lỗi chính tả
+
+_NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần `dict_matching`, `word2vec` ...
+
 * Nhóm âm tiết thành từ
 * Loại bỏ stopwords
 * Áp dụng Hierarchical Topic Mining via Joint Spherical Tree and Text Embedding
