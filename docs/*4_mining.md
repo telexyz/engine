@@ -13,3 +13,6 @@ _NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần 
 ## Xem video https://www.youtube.com/watch?v=AIvtHkPiIpo
 
 ![](files/hierarchical-topic-modeling.png)
+
+![](files/hierarchical-topic-mining.png)
+
