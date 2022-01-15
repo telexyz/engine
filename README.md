@@ -1,3 +1,9 @@
+
+
+>> Đang làm topic modeling ở `*4-mining.md` <<
+
+- - -
+
 # stage-1 (90% done `docs/*1-viet_token.md`)
 
 # stage-2 (triển khai `docs/*2-syllabling.md`)
