@@ -13,20 +13,36 @@ Lặp đi lặp lại theo hình xoán ốc đi lên
 
 stage-02 đã lên được một KIẾN TRÚC NỀN TẢNG sử dụng chung cho nhiều modules.
 
-__Note__: Có 2 cách xây dựng LM: n-gram là đơn giản nhất, phức tạp với độ chính xác cao là DL cần phần cứng và mềm chuyên dụng. Chốt sử dụng n-gram trước để impl và triển khai đơn giản + đủ dùng. NNLM có thể khám phá sau từ thấp tới cao như RNN < LSTM < Transformer ... (VD: Jumanpp sử dụng RNN để reranking cho kết quả khá tốt)
+__Note__: Có 2 cách xây dựng LM: n-gram là đơn giản nhất. Ngược lại, phức tạp với độ chính xác cao là DL cần phần cứng và mềm chuyên dụng.
+
+=> Chốt sử dụng n-gram trước để impl và triển khai đơn giản + đủ dùng. NNLM có thể khám phá sau từ thấp tới cao như RNN < LSTM < Transformer ... (VD: Jumanpp sử dụng RNN để reranking cho kết quả khá tốt)
+
 
 - - -
+
 
 # Trong khi xây dựng engine, thử nghiệm trên 2 mảng ứng dụng:
 
 
 ## 1/ Bộ gõ telex cải tiến để gõ song ngữ dễ dàng hơn
 
-Làm bộ gõ native, đa nền tảng
-=> Tham khảo bộ gõ https://github.com/tuyenvm/OpenKey
+Làm bộ gõ native, đa nền tảng => Tham khảo bộ gõ https://github.com/tuyenvm/OpenKey
 
-## 2/ Sửa lỗi, phân đoạn, tìm topics cho từng đoạn của 150 bài pháp
+* Bỏ dấu `ôêâ` bằng `z` để thống nhất với cách bỏ dấu `w` + giảm thiểu nhầm lẫn
+* Bỏ dấu `wz` thanh `sfrxj` ở cuối âm tiết để giảm thiểu nhầm lẫn với từ tiếng Anh
+* Dùng từ điển song ngữ để gợi ý transform cuối cùng của chuỗi ký tự được gõ nên là tiếng Việt hay nguyên bản
+* Dùng n-gram cho pointwise để re-ranking candidates
+* Kết hợp phát hiện, cảnh báo và gợi ý sửa lỗi chính tả
 
+## 2/ Áp dụng vào :Sửa lỗi, phân đoạn, tìm topics cho từng đoạn của 150 bài pháp
+
+* Phát hiện, cảnh báo và gợi ý sửa lỗi chính tả
+* Nhóm âm tiết thành từ
+* Loại bỏ stopwords
+* Áp dụng Hierarchical Topic Mining via Joint Spherical Tree and Text Embedding
+  https://github.com/yumeng5/JoSH
+  https://www.youtube.com/watch?v=AIvtHkPiIpo
+  https://arxiv.org/pdf/2007.09536.pdf
 
 # YOU SHOULD REWRITE
 
