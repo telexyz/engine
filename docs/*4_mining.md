@@ -12,7 +12,7 @@ _NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần 
 
 ## Xem video https://www.youtube.com/watch?v=AIvtHkPiIpo
 
-![](files/hierarchical-topic-modeling.png)
+![](files/hierarchical-topic-modeling.png){width=800 height=320}
 
 ![](files/hierarchical-topic-mining.png)
 

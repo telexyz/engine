@@ -82,7 +82,7 @@ _Đối chiếu_
 1/ https://github.com/phuonglh/vn.vitk | https://github.com/phuonglh/jlp can tokenize a text of two million Vietnamese syllables in 20 seconds on a cluster of three computers (24 cores, 24 GB RAM), giving an accuracy of about 97%
 
 2/ https://github.com/vncorenlp/VnCoreNLP
-![](docs/files/vn_word_segmenters_speed.png)
+![](docs/files/vn_word_segmenters_speed.png){width=720 height=320}
 
 
 - - -
