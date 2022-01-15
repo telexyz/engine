@@ -1,28 +1,37 @@
 # Bộ tách token và phân tích âm vị học tiếng Việt
 
-## Token repair ideas
+## Module 1d/ Tách các âm tiết dính liền nhau (thiếu dấu cách)
+(xem `*token_repairs.md`)
+
+### Token repair ideas
 
 * Dùng `trans_offets` để transit token_info được tách `Sốngsansẻ` sang mảng `splitted_tokens_infos` (nội dung splitted_tokens được lưu tại `splitted_bytes`). Thêm `splitted` vào `token_info.category`
 
 * Dùng `transit sang splitted_tokens_infos` có điểm dở là chỉ đi tiến, ko đi lùi được nên khi matching với 1 đoạn token và cần matching theo cả 2 chiều thì dùng `TokensChunk = [64]*TokenInfo` để có để di chuyển tiến và lùi.
 
 
-## Treat OOV as first-class citizen
+## Module 1e/ OOS, OOV handling
+
+OVV gồm tiếng dân tộc thiểu số (như Đắk Lắk) và tiếng nước ngoài 
+
+* Treat OOV as first-class citizen
 
 * Những từ, cách viết tắt hay dùng như "Đắk Lắc", UBND, HĐND ... và các biến thể cần được map vào slot riêng trong `u15` (cùng phân khu với syllable_ids)
 
 * Dùng BPE để phân tách và chứa OOV
   
+  https://github.com/telexyz/fastBPE
+ 
   Xem https://everdark.github.io/k9/notebooks/ml/natural_language_understanding/subword_units/subword_units.nb.html
 
 * Dùng rule-based để tách ngày, tháng, số đếm, công thức ...
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-ABNORMAL DETECT
+## Module 1f/ ABNORMAL DETECT
 
 * Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
-  `docs/_similar_detect.md`
+  Xem `_similar_detect.md`
 
 [ >>> DONE <<< ]
 

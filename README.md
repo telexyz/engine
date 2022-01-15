@@ -1,12 +1,10 @@
-# STAGE-01 (90% done, xem `docs/.01-viet_token.md`)
+# stage-1 (90% done `docs/*1-viet_token.md`)
 
-# STAGE-02 (triển khai `docs/.02-syllabling.md`)
+# stage-2 (triển khai `docs/*2-syllabling.md`)
 
-## TODOs
+## Module 2b/ `syllables2words`: gộp âm tiết thành từ
 
-### Module 1/ `syllables2words`: gộp âm tiết thành từ
-
-1.1/ Naive Impl
+### 2b.1/ Naive Impl
 
 * Dùng từ điển liệt kê mọi khả năng tách từ
 
@@ -14,25 +12,21 @@
 
 * Scoring dựa trên syllable n-grams, giữ lại 5-best
 
-1.2/ Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
+### 2b.2/ Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
 
-1.3/ Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
-
-[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
+### 2b.3/ Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
 
 * Từ `dict/34k.xyz` và hàm `parseXyzToGetSyllable()` chuyển thành 4-grams (từ <= 4 âm tiết) và định danh bằng phần còn lại của `u16` (sau khi đã trừ đi syllable ids và OOV BPE).  Khởi tạo từ điển giống như hash_count của n-gram nhưng đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có lẽ chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứa `u16` word id.
 
-### Module 0/ n-gram nâng cao
+## Module 2a/ n-gram nâng cao
+
+[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
 * Cho 1 phrase (nhiều syllables), tính xác xuất dựa trên n-gram count
 
 * Làm mượt n-gram `data/2{n}-grams` bằng absoluted discount và stupid backoff
 
 [ >>> DONE <<< ]
-
-### Module 1/ `syllables2words`: gộp âm tiết thành từ
-
-### Module 0/ n-gram nâng cao
 
 * Tìm một cách đơn giản để làm mượt n-grams (xem `docs/n-gram_smoothing.md`)
 

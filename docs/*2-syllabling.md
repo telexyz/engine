@@ -39,14 +39,14 @@ __Bước 8__: Quay lại bước 1, dùng dữ liệu được chữa để nâ
 
 - - -
 
-### Module 0/ n-gram nâng cao
+### Module 2a/ n-gram nâng cao
 
 * Làm mượt n-gram `data/2{n}-grams.cdx`
 
 * Cho 1 câu bất kì, tính xác xuất dựa trên n-gram count
 
 
-### Module 1/ `syllables2words`: gộp âm tiết thành từ
+### Module 2b/ `syllables2words`: gộp âm tiết thành từ
 
 * Step 1: Dùng từ điển liệt kê mọi khả năng tách từ, 
           scoring dựa trên syllable n-grams, giữ lại 5-best
@@ -54,49 +54,13 @@ __Bước 8__: Quay lại bước 1, dùng dữ liệu được chữa để nâ
 * Step 2: Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
 
 
-### Module 2/ Tự động bỏ dấu và thanh tiếng Việt
+### Module 2c/ Tự động bỏ dấu và thanh tiếng Việt
 (xem `docs/_them_dau_thanh.md`)
 
 
-### Module 3/ Làm bộ chữa lỗi chính tả 
+### Module 2d/ Làm bộ chữa lỗi chính tả 
 (xem `doc/.loi_chinh_ta.md`)
 
 *  Sinh ra candidates từ edit-distances rồi áp dụng n-gram/nn + beam-search như thêm dấu+thanh
 
 *  Tìm hiểu các phương pháp khác ...
-
-
-### Module 4/ Tách các âm tiết dính liền nhau (thiếu dấu cách)
-(xem `doc/_token_repairs.md`)
-
-
-### Module 5/ Viết BPE để định danh OOV 
-OVV gồm tiếng dân tộc thiểu số (như Đắk Lắk) và tiếng nước ngoài 
-
-## Mở rộng
-
-Phần mở rộng kế thừa các `modules` trong phần nền tảng để xây dựng công cụ có thể tìm kiếm và xem dữ liệu trong corpus thật nhanh, phát hiện các trường hợp bất thuòng, gợi ý sửa lỗi, gợi ý bỏ đi những đoạn text kém chất lượng ... để làm dữ liệu thật tốt cho các tác vụ nâng cao.
-
-### Module a/ Làm search-engine dựa trên token_ids
-Xem `docs/+indexing.md`
-
-Định đanh được tới đâu thì search được tới đó, làm xong `module 1/` thì sẽ có syllable_ids và word_ids, có n-best word_ids thì index hết n-best. Làm xong `module 5/` thì phải hỗ trợ  positional indexing thì mới search được word dựa trên sub-word tokens. Điều này cũng không ảnh hưởng tới perf  nhiều vì OOV chiếm khoảng 25% tổng tokens và chỉ cần làm positional indexing cho sub-word tokens thôi (khoảng 2.8k)
-
-*  inverted index, compressed index, searching, scoring ...
-*  chỉ index và search syllables (có gộp syllables thành words) cho nhỏ và nhanh
-*  dùng n-gram/nn để auto suggest search terms
-*  áp dụng bộ sửa lỗi chính tả lên input search terms
-
-
-### Module b/ Làm word2vec
-
-Cách tiếp cận hệt như search-engine: Định đanh được tới đâu thì search được tới đó, làm xong `module 1/` thì sẽ có syllable_ids và word_ids, có n-best word_ids thì vectorlize hết n-best.
-
-Viết lại word2vec từ C sang Zig sẽ rất thú vị và hiểu thêm về NN. Làm tiền đề cho RNNLM.
-
-Tìm hiểu https://github.com/zhezhaoa/ngram2vec để nhúng được nhiều phương án (n-best) vào trong không gian vector
-
-
-### Module c/ Làm sent2vec
-
-Để tìm câu gần giống nhau về ngữ nghĩa.
