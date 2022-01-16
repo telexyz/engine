@@ -1,13 +1,15 @@
 const std = @import("std");
 const fmt = std.fmt;
-const parsers = @import("../../src/phoneme/syllable_parsers.zig");
+const parsers = @import("src/phoneme/syllable_parsers.zig");
 const parseAmTietToGetSyllable = parsers.parseAmTietToGetSyllable;
 
 // Flexible print function so it can print debug info to various
 // runtime environment (e.g: native, wasm ...), or just do nothing :^)
 fn print(comptime fmt_str: []const u8, args: anytype) void {
-    // std.debug.print(fmt_str, args);
-    // printAndLog(fmt_str, args);
+    if (false) {
+        // std.debug.print(fmt_str, args);
+        printAndLog(fmt_str, args);
+    }
 }
 
 // - - - - - - - - - - - -
