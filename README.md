@@ -4,40 +4,6 @@
 
 ## Module 2b/ `syllables2words`: gộp âm tiết thành từ
 
-### 2b.1/ Naive Impl
-
-* Dùng từ điển liệt kê mọi khả năng tách từ
-
-* Viết beam-search decoder để chọn +10 khả năng tách từ mà ít âm tiết `mồ côi` nhất
-
-* Scoring dựa trên syllable n-grams, giữ lại 5-best
-
-### 2b.2/ Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
-
-### 2b.3/ Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
-
-* Từ `dict/34k.xyz` và hàm `parseXyzToGetSyllable()` chuyển thành 4-grams (từ <= 4 âm tiết) và định danh bằng phần còn lại của `u16` (sau khi đã trừ đi syllable ids và OOV BPE).  Khởi tạo từ điển giống như hash_count của n-gram nhưng đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có lẽ chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứa `u16` word id.
-
-## Module 2a/ n-gram nâng cao
-
-[ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
-
-* Cho 1 phrase (nhiều syllables), tính xác xuất dựa trên n-gram count
-
-* Làm mượt n-gram `data/2{n}-grams` bằng absoluted discount và stupid backoff
-
-[ >>> DONE <<< ]
-
-* Tìm một cách đơn giản để làm mượt n-grams (xem `docs/n-gram_smoothing.md`)
-
-* Tìm cách tối ưu nhất, ít bộ nhớ nhất để load n-gram (xem `counting/language_model.zig`)
-
-* Từ `data/{21,..28}-n_grams.txt` tìm cách load và hashing về `u64` xem có bị va chạm không?
-
-* Tìm cách đếm, lưu n-gram (bao gồm từ điển) hiệu quả nhất `docs/n-gram_lookup_IFM_trie.md`
-
-* Tham khảo kiến trúc tích hợp Jumanpp
-
 - - -
 
 # STAGE-01: Nửa năm nhìn lại (06/2021-12/2021)

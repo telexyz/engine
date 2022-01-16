@@ -1,5 +1,5 @@
 # Machine Learning for Language Model
-https://www.marekrei.com/teaching/mllm
+https://www.marekrei.com/teaching/mllm => xem `files/ml4lm`
 
 * Implement a bigram (or higher) language model with “stupid” backoff.
   “Stupid” backoff is the easiest option that works well enough.
