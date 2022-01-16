@@ -5,12 +5,16 @@ __NOTE__: Bộ nhớ wasm nhỏ, nền web, data to load xuống local khó trô
 * Pointwise
 * NN
 
-### Module 3a/ Triển khai bộ viet_tknz to wasm
+### Module 3a/ Làm giao diện web để có đất thử nghiệm bộ gõ
+* Sử dụng simple.css
+* Tách phần code từ `stp/e` ra để có ngay một bộ gõ đơn giản, có các tính năng nâng cao đơn ở dạng prototye và cải tiến từ đấy
+
+### Module 3b/ Triển khai bộ viet_tknz to wasm
 * Gọi được hàm phân tích syllable từ js
 * Áp dụng triệt để trong bộ gõ telex cải tiến để gõ song ngữ Anh-Việt
 * Ghi nhớ các gõ của người dùng, lập thành pattern database để cải tiến cách gõ
 
-### Module 3b/ Dict/pattern matching
+### Module 3c/ Dict/pattern matching
 * Load từ điển đã được encoded bằng `4-syllable_ids` từ file ngoài trên server
 * Dùng từ điển để làm `syllables2words`
 * Dùng từ điển để gợi ý sửa lỗi chính tả
