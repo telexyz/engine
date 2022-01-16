@@ -6,11 +6,17 @@ _NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần 
 
 * Nhóm âm tiết thành từ
 * Loại bỏ stopwords
-* Áp dụng Hierarchical Topic Mining via Joint Spherical Tree and Text Embedding
+
+## Libs
+
+https://opensourcelibs.com/libs/topic-modeling
+
+## Hierarchical Topic Mining via Joint Spherical Tree and Text Embedding
   https://github.com/yumeng5/JoSH
+  https://yumeng5.github.io/files/JoSH.pdf
   https://arxiv.org/pdf/2007.09536.pdf
 
-## Xem video https://www.youtube.com/watch?v=AIvtHkPiIpo
+### Xem video https://www.youtube.com/watch?v=AIvtHkPiIpo
 
 ![](files/hierarchical-topic-modeling.png){width=800 height=320}
 
