@@ -47,5 +47,11 @@ Số lượng 3+ âm tiết chiếm 15.1% (5.1k / 33.6k)
 *  3_555   +5 âm tiết
 Số lượng 3+ âm tiết chiếm 27.7% (25k / 90k)
 
+Cần dùng 2 datastructures để lưu dict (100k từ):
+
+1/ BinaryFuse(u16) `238KB` để kiểm tra nhanh xem 1 chuỗi syllables có phải là 1 từ trong từ điển hay không?
+
+2/ `u16 trie` để auto-suggest âm tiết tiếp theo trong chuỗi âm tiết đang gõ
+
 
 ## Module 3d/ Sửa lỗi chính tả, lỗi cú pháp dùng rule-based
