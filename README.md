@@ -1,8 +1,6 @@
 # stage-1 (90% done `docs/*1-viet_token.md`)
 
-# stage-2 (triển khai `docs/*2-syllabling.md`)
-
-## Module 2b/ `syllables2words`: gộp âm tiết thành từ
+# stage-2 (40% done `docs/*2-syllabling.md`)
 
 - - -
 
