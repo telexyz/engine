@@ -1,7 +1,15 @@
-# Trong khi xây dựng engine, thử nghiệm trên 2 mảng ứng dụng:
+# Định hướng và tính ứng dụng
+
+**Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-centric-ai**
+
+**Làm tốt dần / mịn dần từng bước một, có sự tham gia của con người ...**
+
+**Lặp đi lặp lại theo hình xoán ốc đi lên.**
 
 
-## 1/ Bộ gõ telex cải tiến để gõ song ngữ dễ dàng hơn
+## Trong khi xây dựng engine, thử nghiệm trên 2 mảng ứng dụng:
+
+### 1/ Bộ gõ telex cải tiến để gõ song ngữ dễ dàng hơn
 
 Làm bộ gõ native, đa nền tảng => Tham khảo bộ gõ https://github.com/tuyenvm/OpenKey
 
@@ -11,27 +19,17 @@ Làm bộ gõ native, đa nền tảng => Tham khảo bộ gõ https://github.co
 * Dùng n-gram cho pointwise để re-ranking candidates
 * Kết hợp phát hiện, cảnh báo và gợi ý sửa lỗi chính tả
 
-## 2/ Áp dụng vào: (sửa lỗi, phân đoạn,) tìm topics cho từng đoạn của 150 bài pháp
+### 2/ Áp dụng vào: (sửa lỗi, phân đoạn,) tìm topics cho từng đoạn của 150 bài pháp
 
 _NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần `dict_matching`, `word2vec` ...
 
 * Nhóm âm tiết thành từ
 * Loại bỏ stopwords
 * Áp dụng Hierarchical Topic Mining via Joint Spherical Tree and Text Embedding
-  https://github.com/yumeng5/JoSH
-  https://www.youtube.com/watch?v=AIvtHkPiIpo
-  https://arxiv.org/pdf/2007.09536.pdf
 
 - - -
 
 # Các giai đoạn chiến lược để hoàn thiện engine
-
-Telexyz nên theo hướng data-centric https://github.com/HazyResearch/data-centric-ai
-
-Làm tốt dần / mịn dần từng bước một, có sự tham gia của con người ...
-
-Lặp đi lặp lại theo hình xoán ốc đi lên
-
 
 ## stage-1: Tokenizer cho TV đã gần xong (còn OOV)
 

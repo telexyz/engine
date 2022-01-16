@@ -1,1 +1,1 @@
-Các nghiên cứu đã xong chưa dùng tới hoặc đã được triển khaii
+Các bài toán đã tìm được giải pháp thỏa đáng
