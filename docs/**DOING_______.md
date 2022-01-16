@@ -4,7 +4,7 @@
 
 **Làm tốt dần / mịn dần từng bước một, có sự tham gia của con người ...**
 
-**Lặp đi lặp lại theo hình xoán ốc đi lên.**
+**Lặp đi lặp lại để tăng dần chất lượng**
 
 
 ## Trong khi xây dựng engine, thử nghiệm trên 2 mảng ứng dụng:
