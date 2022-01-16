@@ -5,7 +5,7 @@ Phần này kế thừa các `modules` trong phần nền tảng ở stage-2 đ�
 ### Module 3a/ Làm search-engine dựa trên token_ids
 Xem `docs/*indexing.md`
 
-Định đanh được tới đâu thì search được tới đó, làm xong `module 2b/` thì sẽ có syllable_ids và word_ids, có n-best word_ids thì index hết n-best. Làm xong `module 2f/` thì phải hỗ trợ  positional indexing thì mới search được word dựa trên sub-word tokens. Điều này cũng không ảnh hưởng tới perf nhiều vì OOV chiếm khoảng 25% tổng tokens và chỉ cần làm positional indexing cho sub-word tokens thôi (khoảng 2.8k)
+Định đanh được tới đâu thì search được tới đó, làm xong `module 2b/` thì sẽ có `syllable_ids` và `word_ids`, có `n-best word_ids` thì index hết `n-best`. Làm xong `module 2f/` thì phải hỗ trợ  `positional indexing` thì mới search được word dựa trên sub-word tokens. Điều này cũng không ảnh hưởng tới perf nhiều vì OOV chiếm khoảng 25% tổng tokens và chỉ cần làm `positional indexing` cho `sub-word tokens` thôi (khoảng 2.8k)
 
 *  inverted index, compressed index, searching, scoring ...
 *  chỉ index và search syllables (có gộp syllables thành words) cho nhỏ và nhanh
