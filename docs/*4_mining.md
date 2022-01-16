@@ -1,11 +1,23 @@
 ## module 4a/ Tìm topics cho từng đoạn của 150 bài pháp
 
-=> Khoảng 7500 đoạn (50 * 150)
+### INPUT:
+  - Khoảng 7500 đoạn văn bản ngắn
+  - Init categories dưới dạng cây mà người dùng quan tâm
 
-_NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần `dict_matching`, `word2vec` ...
+### OUPUT:
+  - Phát hiện thêm các topics (representative terms) để làm rõ hơn nội dung của các init categories
 
-* Nhóm âm tiết thành từ
-* Loại bỏ stopwords
+### REPEAT: 
+  - Dựa vào kết quả trên, điều chỉnh init categories và lại bắt đầu lại để đạt được cây categories người dùng thấy ưng.
+
+_NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words`
+mà cần `dict_matching`, `word2vec` ... Cụ thể như sau:
+
+* Nhóm âm tiết thành từ (dict matching)
+* Loại bỏ stopwords (dùng stopword dict)
+* Nhúng các cụm từ (1 câu có thể có nhiều matching) vào không gian vectors
+* Căn chỉnh vị trí vectors sao cho có độ tương đồng về khoảng cách với các terms trong cây categories
+* Clustering để tìm ra thêm các topics (representative terms)
 
 ## Libs
 
