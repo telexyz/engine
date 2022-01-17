@@ -34,21 +34,21 @@ pub fn NGram(for_real: bool) type {
     return struct {
 
         // Configs for ../data/combined.txt 944 MB
-        // c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
-        // c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
-        // c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
-        // c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        // c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        // c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
+        c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
+        c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
 
         // Configs for ../phaps/data/all.txt 8.6 MB
-        c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
-        c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 2_097_152) = undefined,
-        c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 4_194_304) = undefined,
-        c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 4_194_304) = undefined,
-        c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 8_388_608) = undefined,
-        c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 8_388_608) = undefined,
+        // c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
+        // c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 2_097_152) = undefined,
+        // c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        // c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 4_194_304) = undefined,
+        // c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 8_388_608) = undefined,
+        // c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 8_388_608) = undefined,
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
 
         syllable_ids: SyllableIdArray = undefined,
@@ -432,6 +432,12 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     var f2 = try std.fs.cwd().createFile(filename ++ ".two", .{});
     defer f2.close();
 
+    var f3 = try std.fs.cwd().createFile(filename ++ ".three", .{});
+    defer f3.close();
+
+    var f4 = try std.fs.cwd().createFile(filename ++ ".four", .{});
+    defer f4.close();
+
     var wrt = std.io.bufferedWriter(file.writer());
     var writer = wrt.writer();
 
@@ -441,9 +447,17 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     var f2_wrt = std.io.bufferedWriter(f2.writer());
     var f2_writer = f2_wrt.writer();
 
+    var f3_wrt = std.io.bufferedWriter(f3.writer());
+    var f3_writer = f3_wrt.writer();
+
+    var f4_wrt = std.io.bufferedWriter(f4.writer());
+    var f4_writer = f4_wrt.writer();
+
     var total: usize = 0;
     var t1: usize = 0;
     var t2: usize = 0;
+    var t3: usize = 0;
+    var t4: usize = 0;
     var max: u24 = 1;
     var count: u24 = undefined;
 
@@ -467,6 +481,22 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
                     _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
                 }
             },
+            3 => {
+                t3 += 1;
+                _ = try f3_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                if (n == 1) {
+                    _ = try writer.write(std.mem.asBytes(&count));
+                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                }
+            },
+            4 => {
+                t4 += 1;
+                _ = try f4_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                if (n == 1) {
+                    _ = try writer.write(std.mem.asBytes(&count));
+                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                }
+            },
             else => {
                 total += count;
                 if (count > max) max = count;
@@ -479,9 +509,11 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     try wrt.flush();
     try f1_wrt.flush();
     try f2_wrt.flush();
+    try f3_wrt.flush();
+    try f4_wrt.flush();
 
-    total += t1 + 2 * t2; // finalize total
-    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, grams.len - t1 - t2, total, max });
+    total += t1 + 2 * t2 + 3 * t3 + 4 * t4; // finalize total
+    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3: {}, U4: {}, U5+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, t3, t4, grams.len - t1 - t2 - t3 - t4, total, max });
 }
 
 test "ngram" {
