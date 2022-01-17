@@ -37,9 +37,9 @@ pub fn NGram(for_real: bool) type {
         c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
         c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
         c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
-        c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        c5_grams: HashCount456([5]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
-        c6_grams: HashCount456([6]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
+        c4_grams: HashCount456([4]Gram, if (for_real) 64 else 67_108_864) = undefined, //2^26
+        c5_grams: HashCount456([5]Gram, if (for_real) 64 else 67_108_864) = undefined, //2^26
+        c6_grams: HashCount456([6]Gram, if (for_real) 64 else 67_108_864) = undefined, //2^26
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
 
         // Configs for ../phaps/data/all.txt 8.6 MB
@@ -161,9 +161,9 @@ pub fn NGram(for_real: bool) type {
             try self.c1_grams.init(self.allocator);
             try self.c2_grams.init(self.allocator);
             try self.c3_grams.init(self.allocator);
-            try self.c4_grams.init(self.allocator);
-            try self.c5_grams.init(self.allocator);
-            try self.c6_grams.init(self.allocator);
+            // try self.c4_grams.init(self.allocator);
+            // try self.c5_grams.init(self.allocator);
+            // try self.c6_grams.init(self.allocator);
 
             var i: usize = 5;
             const syll_ids = self.syllable_ids.items;
@@ -204,38 +204,38 @@ pub fn NGram(for_real: bool) type {
                         fp = fvn1a32.hash_u16(fp, grams[2]);
                         _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
-                        if (grams[3] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[3]);
-                        _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
+                        // if (grams[3] == BLANK) continue;
+                        // fp = fvn1a32.hash_u16(fp, grams[3]);
+                        // _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
-                        if (grams[4] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[4]);
-                        _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
+                        // if (grams[4] == BLANK) continue;
+                        // fp = fvn1a32.hash_u16(fp, grams[4]);
+                        // _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
 
-                        if (grams[5] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[5]);
-                        _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
+                        // if (grams[5] == BLANK) continue;
+                        // fp = fvn1a32.hash_u16(fp, grams[5]);
+                        // _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
                         //
                     } else { // grams[0] != BLANK
                         //
                         fp = fvn1a32.hash_u16(fp, grams[1]);
                         _ = self.c2_grams.put_with_fp(grams[0..2].*, @truncate(u16, fp));
 
-                        if (grams[1] == BLANK) continue;
+                        if (grams[1] == BLANK or grams[2] == BLANK) continue;
                         fp = fvn1a32.hash_u16(fp, grams[2]);
                         _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
-                        if (grams[2] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[3]);
-                        _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
+                        // if (grams[2] == BLANK) continue;
+                        // fp = fvn1a32.hash_u16(fp, grams[3]);
+                        // _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
-                        if (grams[3] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[4]);
-                        _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
+                        // if (grams[3] == BLANK) continue;
+                        // fp = fvn1a32.hash_u16(fp, grams[4]);
+                        // _ = self.c5_grams.put_with_fp(grams[0..5].*, @truncate(u24, fp));
 
-                        if (grams[4] == BLANK) continue;
-                        fp = fvn1a32.hash_u16(fp, grams[5]);
-                        _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
+                        // if (grams[4] == BLANK) continue;
+                        // fp = fvn1a32.hash_u16(fp, grams[5]);
+                        // _ = self.c6_grams.put_with_fp(grams, @truncate(u24, fp));
                     }
                 } // for syll_id
             } // while
@@ -250,13 +250,13 @@ pub fn NGram(for_real: bool) type {
             self.c3_grams.deinit();
 
             try writeGramCounts(self.c4_grams, filename4, 4);
-            self.c4_grams.deinit();
+            // self.c4_grams.deinit();
 
             try writeGramCounts(self.c5_grams, filename5, 5);
-            self.c5_grams.deinit();
+            // self.c5_grams.deinit();
 
             try writeGramCounts(self.c6_grams, filename6, 6);
-            self.c6_grams.deinit();
+            // self.c6_grams.deinit();
         }
 
         const PAD = "\n                        ";
@@ -438,6 +438,9 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     var f4 = try std.fs.cwd().createFile(filename ++ ".four", .{});
     defer f4.close();
 
+    var f5 = try std.fs.cwd().createFile(filename ++ ".five", .{});
+    defer f5.close();
+
     var wrt = std.io.bufferedWriter(file.writer());
     var writer = wrt.writer();
 
@@ -453,11 +456,15 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     var f4_wrt = std.io.bufferedWriter(f4.writer());
     var f4_writer = f4_wrt.writer();
 
+    var f5_wrt = std.io.bufferedWriter(f5.writer());
+    var f5_writer = f5_wrt.writer();
+
     var total: usize = 0;
     var t1: usize = 0;
     var t2: usize = 0;
     var t3: usize = 0;
     var t4: usize = 0;
+    var t5: usize = 0;
     var max: u24 = 1;
     var count: u24 = undefined;
 
@@ -497,6 +504,14 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
                     _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
                 }
             },
+            5 => {
+                t5 += 1;
+                _ = try f5_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                if (n == 1) {
+                    _ = try writer.write(std.mem.asBytes(&count));
+                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                }
+            },
             else => {
                 total += count;
                 if (count > max) max = count;
@@ -511,9 +526,10 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     try f2_wrt.flush();
     try f3_wrt.flush();
     try f4_wrt.flush();
+    try f5_wrt.flush();
 
     total += t1 + 2 * t2 + 3 * t3 + 4 * t4; // finalize total
-    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3: {}, U4: {}, U5+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, t3, t4, grams.len - t1 - t2 - t3 - t4, total, max });
+    std.debug.print("\n{}-gram U: {}, U1: {}, U2: {}, U3: {}, U4: {}, U5: {}, U6+: {}, T: {}, M: {}", .{ n, grams.len, t1, t2, t3, t4, t5, grams.len - t1 - t2 - t3 - t4 - t5, total, max });
 }
 
 test "ngram" {
