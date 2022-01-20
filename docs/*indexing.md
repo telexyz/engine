@@ -39,6 +39,7 @@ ví dụ:
 với text "xanh lá, màu xanh" => màu-1,0,0,0 xanh-1,1,0,0 lá-0,1,0,0
 với input "xanh xanh" => xanh-1,1,0,0 thì sẽ khớp với text "xanh lá màu xanh" chưa ổn.
 
+
 ### PHƯƠNG ÁN 1: relative positional indexing (rel-pos)
 
 Bổ xung thông tin về vị trí tương đối, giả sử ta dùng 2-bit để biểu diễn vị trí tương đối của tok trong tex. với tex "xanh lá, màu xanh" => xanh/0 lá/0 màu/1 xanh/1.
@@ -62,20 +63,22 @@ tok_id:
   doc_id2(`u32`):word-pos-flags-0(`u4`)...word-pos-flags-k2(`u4`)
   ...
 
-Với k1, k2 ... kn <= L, L là trị số để giới hạn số lượng rel-pos. L càng nhỏ thì độ lớn index db càng nhỏ, L càng lớn thì độ chính xác của rel-pos càng cao. 
+Với k1, k2 ... kn <= L, L là trị số để giới hạn số lượng rel-pos. L càng nhỏ thì dung lượng index db càng nhỏ, L càng lớn thì độ chính xác của rel-pos càng cao. 
 
-__word-pos-flags-0(`u4`)...word-pos-flags-k1(`u4`)__ là spare data struct, chỗ nào k có k cần lưu :D
+_word-pos-flags-0(`u4`)...word-pos-flags-k1(`u4`)_ là spare data struct, chỗ nào ko có ko cần lưu!
 
-### PHƯƠNG ÁN 2
+=> !!! Nghệ thuật ở đây là ở chỗ phân tích 1 doc để phân chia rel-pos sao cho xác xuất trùng nhau ít nhất hoặc với 1 xác xuất cho trước số lượng rel-pos phải dùng là ít nhất !!!
+ 
+ * Tức là độ dài ngắn của phân đoạn rel-pos có thể khác nhau
+   (phụ thuộc vào độ trùng lặp của token trong đoạn đó)
+ 
+ * Các phân đoạn có thể trùm mí lên nhau để handle EDGE CASE
 
-Giả sử với mọi 4-syllable words trong từ điển ta liệt kê mọi bi-gram (2-syllables) và index hết các bi-grams đó thì sao?
+
+### PHƯƠNG ÁN 2 (không hấp dẫn)
+
+Giả sử với mọi `2..4-syllable words` trong từ điển ta liệt kê mọi bi-grams (2-syllables) và index hết các bi-grams đó thì sao?
 
 Với ví dụ trên thì bi-gram "xanh-xanh" ko có mặt trong text "xanh lá màu xanh" nên không match với input "xanh xanh".
 
-Chỉ giữ lại khoảng 32k bi-gram đại diện cho từ điển mà có tuần suất xuất hiện trong corpus là cao nhất để làm đại diện.
-
-Sau khi lọc bi-grams từ 34k và giữ lại 32k top, lọc uniq syllables được: 5427 uniq syllables.
-29_452_329 (5427^2) combinations =>
-3_681_542 bytes (3.6Mb) để làm bit_set
-
-https://randorithms.com/2019/09/12/MPH-functions.html
+Chỉ giữ lại khoảng 32k bi-gram đại diện cho từ điển mà có tuần suất xuất hiện trong corpus là cao nhất.
