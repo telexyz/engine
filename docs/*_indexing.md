@@ -90,6 +90,7 @@ _word-pos-flags-0(`u4`)...word-pos-flags-k1(`u4`)_ là spare data struct, chỗ 
 
 => Hoặc dễ hơn là phát hiện breaker mềm ví dụ như obvious word boundaries, khi dùng word boundaries nên kết hợp với phân đoạn trùm mí để handle edge cases.
 
+
 ### PHƯƠNG ÁN 2 (không hấp dẫn)
 
 Giả sử với mọi `2..4-syllable words` trong từ điển ta liệt kê mọi bi-grams (2-syllables) và index hết các bi-grams đó thì sao?
@@ -97,3 +98,23 @@ Giả sử với mọi `2..4-syllable words` trong từ điển ta liệt kê m�
 Với ví dụ trên thì bi-gram "xanh-xanh" ko có mặt trong text "xanh lá màu xanh" nên không match với input "xanh xanh".
 
 Chỉ giữ lại khoảng 32k bi-gram đại diện cho từ điển mà có tuần suất xuất hiện trong corpus là cao nhất.
+
+
+### Với lượng dữ liệu nhỏ như Phaps thì:
+
+7500 đoạn văn bản, mỗi đoạn dài 10 dòng, mỗi dòng khoảng 20 âm tiết.
+
+* doc_id: `u13`
+* token_id `u15`
+* word_pos_flag per token per doc_id: `u4`
+* số phân đoạn mỗi đoạn văn bản giả sử là 8
+* mỗi doc chứa khoảng 200 tokens và có 32 uniq tokens (2^5)
+
+=> Dung lượng inverted index chưa sử dụng các kỹ thuật nén bits là:
+
+`2^5 * 2^13 * 2^3 * 0.5-byte` =
+`2^20 bytes` = `2^10 kBs` = `1 mB`
+
+=> Quá OK để nhúng vào wasm !!!
+
+Lưu ý: con số trên chỉ là phỏng đoán chưa có căn cứ. Cần làm thật để có con số chính xác.
