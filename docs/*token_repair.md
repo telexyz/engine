@@ -15,3 +15,8 @@ Bài toán hẹp tknz âm tiết tiếng Việt, và tknz errors chỉ là lỗi
 Điểm mạnh của n-gram là xây dựng được từ chính tập dữ liệu đó, không cần định nghĩa trước ... Điểm yếu của n-gram là tốn bộ nhớ do độ rời rạc cao (vài Gb), ngữ cảnh hẹp ...
 
 Điểm mạnh của NN là cover được ngữ cảnh rộng, mà không tốn nhiều bộ nhớ như n-gram (vài trăm MB) mà chứa được nhiều thông tin hơn n-gram. Điểm yêu của NN là tốn resource để training (phải có GPU hoặc phần cứng chuyên dụng)
+
+## Tham khảo:
+
+Tokenization Repair in the Presence of Spelling Errors
+https://aclanthology.org/2021.conll-1.22.pdf
