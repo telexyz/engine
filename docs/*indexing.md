@@ -88,7 +88,7 @@ _word-pos-flags-0(`u4`)...word-pos-flags-k1(`u4`)_ là spare data struct, chỗ 
 
 => Với những doc thiếu obvious breakers nảy sinh bài toán bổ xung breakers (`, .`)
 
-=> Hoặc phát hiện breaker mềm ví dụ như obvious word boundaries, khi dùng word boundaries nên kết hợp với phân đoạn trùm mí để handle edge cases.
+=> Hoặc dễ hơn là phát hiện breaker mềm ví dụ như obvious word boundaries, khi dùng word boundaries nên kết hợp với phân đoạn trùm mí để handle edge cases.
 
 ### PHƯƠNG ÁN 2 (không hấp dẫn)
 
