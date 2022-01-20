@@ -69,11 +69,26 @@ _word-pos-flags-0(`u4`)...word-pos-flags-k1(`u4`)_ là spare data struct, chỗ 
 
 => !!! Nghệ thuật ở đây là ở chỗ phân tích 1 doc để phân chia rel-pos sao cho xác xuất trùng nhau ít nhất hoặc với 1 xác xuất cho trước số lượng rel-pos phải dùng là ít nhất !!!
  
- * Tức là độ dài ngắn của phân đoạn rel-pos có thể khác nhau
+* Tức là độ dài ngắn của phân đoạn rel-pos có thể khác nhau
    (phụ thuộc vào độ trùng lặp của token trong đoạn đó)
  
- * Các phân đoạn có thể trùm mí lên nhau để handle EDGE CASE
+* Các phân đoạn có thể trùm mí lên nhau để handle EDGE CASE
 
+
+#### Bài toán cho trước tần suất lặp lại token chấp nhận được, phân đoạn rel-pos
+
+* VD tần suất lặp không quá 2 token bị lặp trên 1 đoạn
+
+* Dùng obvious breakers (stop chars) để xác định ranh giới có thể phân đoạn như: `, ; : .`
+
+* Dùng quy hoạch động để tìm tập ranh giới tối ưu
+
+* Dùng heuristic để điều chỉnh ranh giới sao cho tối ưu hơn (optional)
+
+
+=> Với những doc thiếu obvious breakers nảy sinh bài toán bổ xung breakers (`, .`)
+
+=> Hoặc phát hiện breaker mềm ví dụ như obvious word boundaries, khi dùng word boundaries nên kết hợp với phân đoạn trùm mí để handle edge cases.
 
 ### PHƯƠNG ÁN 2 (không hấp dẫn)
 
