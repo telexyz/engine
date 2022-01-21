@@ -463,7 +463,7 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     var t3: usize = 0;
     var t4: usize = 0;
     var t5: usize = 0;
-    var max: u24 = 1;
+    var max: u24 = 0;
     var count: u24 = undefined;
 
     if (grams.len > 0) {
