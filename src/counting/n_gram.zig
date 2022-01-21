@@ -161,9 +161,9 @@ pub fn NGram(for_real: bool) type {
             try self.c1_grams.init(self.allocator);
             try self.c2_grams.init(self.allocator);
             try self.c3_grams.init(self.allocator);
-            // try self.c4_grams.init(self.allocator);
-            // try self.c5_grams.init(self.allocator);
-            // try self.c6_grams.init(self.allocator);
+            try self.c4_grams.init(self.allocator);
+            try self.c5_grams.init(self.allocator);
+            try self.c6_grams.init(self.allocator);
 
             var i: usize = 5;
             const syll_ids = self.syllable_ids.items;
@@ -250,13 +250,13 @@ pub fn NGram(for_real: bool) type {
             self.c3_grams.deinit();
 
             try writeGramCounts(self.c4_grams, filename4, 4);
-            // self.c4_grams.deinit();
+            self.c4_grams.deinit();
 
             try writeGramCounts(self.c5_grams, filename5, 5);
-            // self.c5_grams.deinit();
+            self.c5_grams.deinit();
 
             try writeGramCounts(self.c6_grams, filename6, 6);
-            // self.c6_grams.deinit();
+            self.c6_grams.deinit();
         }
 
         const PAD = "\n                        ";
@@ -421,8 +421,6 @@ fn orderFn(comptime T: type) type {
 }
 
 fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
-    var items = grams.slice();
-
     var file = try std.fs.cwd().createFile(filename ++ ".bin", .{});
     defer file.close();
 
@@ -468,56 +466,58 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     var max: u24 = 1;
     var count: u24 = undefined;
 
-    for (items) |item| {
-        count = item.count;
-        switch (count) {
-            0 => {}, // do nothing
-            1 => {
-                t1 += 1;
-                _ = try f1_writer.write(std.mem.asBytes(&item.keyRepresent()));
-                if (n == 1) {
+    if (grams.len > 0) {
+        for (grams.slice()) |item| {
+            count = item.count;
+            switch (count) {
+                0 => {}, // do nothing
+                1 => {
+                    t1 += 1;
+                    _ = try f1_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    if (n == 1) {
+                        _ = try writer.write(std.mem.asBytes(&count));
+                        _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    }
+                },
+                2 => {
+                    t2 += 1;
+                    _ = try f2_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    if (n == 1) {
+                        _ = try writer.write(std.mem.asBytes(&count));
+                        _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    }
+                },
+                3 => {
+                    t3 += 1;
+                    _ = try f3_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    if (n == 1) {
+                        _ = try writer.write(std.mem.asBytes(&count));
+                        _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    }
+                },
+                4 => {
+                    t4 += 1;
+                    _ = try f4_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    if (n == 1) {
+                        _ = try writer.write(std.mem.asBytes(&count));
+                        _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    }
+                },
+                5 => {
+                    t5 += 1;
+                    _ = try f5_writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    if (n == 1) {
+                        _ = try writer.write(std.mem.asBytes(&count));
+                        _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
+                    }
+                },
+                else => {
+                    total += count;
+                    if (count > max) max = count;
                     _ = try writer.write(std.mem.asBytes(&count));
                     _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
-                }
-            },
-            2 => {
-                t2 += 1;
-                _ = try f2_writer.write(std.mem.asBytes(&item.keyRepresent()));
-                if (n == 1) {
-                    _ = try writer.write(std.mem.asBytes(&count));
-                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
-                }
-            },
-            3 => {
-                t3 += 1;
-                _ = try f3_writer.write(std.mem.asBytes(&item.keyRepresent()));
-                if (n == 1) {
-                    _ = try writer.write(std.mem.asBytes(&count));
-                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
-                }
-            },
-            4 => {
-                t4 += 1;
-                _ = try f4_writer.write(std.mem.asBytes(&item.keyRepresent()));
-                if (n == 1) {
-                    _ = try writer.write(std.mem.asBytes(&count));
-                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
-                }
-            },
-            5 => {
-                t5 += 1;
-                _ = try f5_writer.write(std.mem.asBytes(&item.keyRepresent()));
-                if (n == 1) {
-                    _ = try writer.write(std.mem.asBytes(&count));
-                    _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
-                }
-            },
-            else => {
-                total += count;
-                if (count > max) max = count;
-                _ = try writer.write(std.mem.asBytes(&count));
-                _ = try writer.write(std.mem.asBytes(&item.keyRepresent()));
-            },
+                },
+            }
         }
     }
 
