@@ -1,7 +1,7 @@
 #!/bin/sh
 
 rm -rf ***/zig-cache ***/zig-out
-~/zz build -Drelease-fast=true # && cp ./zig-out/bin/telexify ~/bin
+~/z build -Dcpu=x86_64 -Drelease-fast=true # && cp ./zig-out/bin/telexify ~/bin
 
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
@@ -9,7 +9,7 @@ rm -rf ***/zig-cache ***/zig-out
 # zig run src/count_n_gram.zig -- data/sample_output.txt.cdx
 
 ./zig-out/bin/telexify ../data/combined.txt ../data/combined.xyz dense
-# ~/zz run src/count_n_gram.zig -O ReleaseFast -- ../data/combined.xyz.cdx
+# ~/z run src/count_n_gram.zig -O ReleaseFast -- ../data/combined.xyz.cdx
 
 # rm data/??-*
 # ~/z build
