@@ -37,7 +37,7 @@ pub fn NGram(for_real: bool) type {
         c1_grams: HashCount123([1]Gram, if (!for_real) 64 else 16_384) = undefined,
         c2_grams: HashCount123([2]Gram, if (!for_real) 64 else 4_194_304) = undefined,
         c3_grams: HashCount123([3]Gram, if (!for_real) 64 else 33_554_432) = undefined, //2^25
-        c4_grams: HashCount456([4]Gram, if (for_real) 64 else 67_108_864) = undefined, //2^26
+        c4_grams: HashCount456([4]Gram, if (!for_real) 64 else 67_108_864) = undefined, //2^26
         c5_grams: HashCount456([5]Gram, if (for_real) 64 else 67_108_864) = undefined, //2^26
         c6_grams: HashCount456([6]Gram, if (for_real) 64 else 67_108_864) = undefined, //2^26
         // Làm tròn thành powerOfTwo để đảm bảo thứ tự tăng dần của hash values
@@ -204,9 +204,9 @@ pub fn NGram(for_real: bool) type {
                         fp = fvn1a32.hash_u16(fp, grams[2]);
                         _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
-                        // if (grams[3] == BLANK) continue;
-                        // fp = fvn1a32.hash_u16(fp, grams[3]);
-                        // _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
+                        if (grams[3] == BLANK) continue;
+                        fp = fvn1a32.hash_u16(fp, grams[3]);
+                        _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
                         // if (grams[4] == BLANK) continue;
                         // fp = fvn1a32.hash_u16(fp, grams[4]);
@@ -225,9 +225,9 @@ pub fn NGram(for_real: bool) type {
                         fp = fvn1a32.hash_u16(fp, grams[2]);
                         _ = self.c3_grams.put_with_fp(grams[0..3].*, @truncate(u16, fp));
 
-                        // if (grams[2] == BLANK) continue;
-                        // fp = fvn1a32.hash_u16(fp, grams[3]);
-                        // _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
+                        if (grams[2] == BLANK) continue;
+                        fp = fvn1a32.hash_u16(fp, grams[3]);
+                        _ = self.c4_grams.put_with_fp(grams[0..4].*, @truncate(u24, fp));
 
                         // if (grams[3] == BLANK) continue;
                         // fp = fvn1a32.hash_u16(fp, grams[4]);
