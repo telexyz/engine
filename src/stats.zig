@@ -1,6 +1,6 @@
 const std = @import("std");
-const Syllable = @import("./src/phoneme/syllable_data_structs.zig").Syllable;
-const parsers = @import("./src/phoneme/syllable_parsers.zig");
+const Syllable = @import("./phoneme/syllable_data_structs.zig").Syllable;
+const parsers = @import("./phoneme/syllable_parsers.zig");
 
 pub fn main() !void {
     countInvalidSyllableIds(false);
@@ -12,8 +12,8 @@ fn printNothing(comptime fmt_str: []const u8, args: anytype) void {
 }
 
 fn countRarelyUsedSyllableIds(details: bool) !void {
-    // var file = try std.fs.cwd().openFile("data/08-syllower_freqs.txt", .{ .read = true });
-    var file = try std.fs.cwd().openFile("data/07-syllable_freqs.txt", .{ .read = true });
+    // var file = try std.fs.cwd().openFile("../data/08-syllower_freqs.txt", .{ .read = true });
+    var file = try std.fs.cwd().openFile("../data/07-syllable_freqs.txt", .{ .read = true });
     defer file.close();
 
     var input_bytes = try file.reader().readAllAlloc(
