@@ -20,3 +20,7 @@ test "counting" {
 test "hashing" {
     _ = @import("./hashing/fvn1a32.zig");
 }
+
+test "fastfilter" {
+    _ = @import("./fastfilter/binaryfusefilter.zig");
+}
