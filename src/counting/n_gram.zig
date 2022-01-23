@@ -248,7 +248,10 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
             // 1-gram
         } else { // 2,3,4-gram
             switch (count) {
-                1 => {}, // bỏ qua
+                1 => if (n == 2) {
+                    t2 += 1;
+                    try c2_keys.append(kv.key_ptr.*);
+                },
                 2 => {
                     t2 += 1;
                     try c2_keys.append(kv.key_ptr.*);
