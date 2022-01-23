@@ -5,6 +5,15 @@
 // 4-gram U: 38698245, U12: 33285765, U345: 3114767, U6+: 2297713, T: 116712862, M: 56755
 // (( STEP 3: Count and write n-gram done! Duration 1.39 mins ))
 
+// Apply fuse filters with u64 keys
+// 1-gram U: 11621, U12: 0, U345: 0, U6+: 11621, T: 175122458, M: 26847026
+// 2-gram U: 2665234, U12: 1444334, U345: 424429, U6+: 796471, T: 175122455, M: 414990
+// 3-gram U: 17299599, U12: 13300885, U345: 1995402, U6+: 2003312, T: 121428409, M: 128152
+// 4-gram U: 38698245, U12: 33285765, U345: 3114767, U6+: 2297713, T: 116712862, M: 56755
+// (( STEP 3: Count and write n-gram done! Duration 1.32 mins ))
+
+// TODO: use BitWriter to write fuse filter out
+
 const std = @import("std");
 const mem = std.mem;
 

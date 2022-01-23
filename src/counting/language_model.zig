@@ -33,6 +33,7 @@
 // d/ 8 điểm
 // ```
 // TODO: Làm https://github.com/hexops/fastfilter#serialization
+// use BitReader to read fuse filter in
 
 const BinaryFuse = @import("../fastfilter/binaryfusefilter.zig").BinaryFuse;
 var n2_c2_filter = try BinaryFuse(u8).init(std.heap.page_allocator, 1_500_000);
