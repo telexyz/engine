@@ -13,21 +13,14 @@ pub const BinaryFuse8 = BinaryFuse(u8);
 
 /// A binary fuse filter. This is an extension of fuse filters:
 ///
-/// Dietzfelbinger & Walzer's fuse filters, described in "Dense Peelable Random Uniform Hypergraphs",
+/// Dietzfelbinger & Walzer's fuse filters, as in "Dense Peelable Random Uniform Hypergraphs",
 /// https://arxiv.org/abs/1907.04749, can accomodate fill factors up to 87.9% full, rather than
-/// 1 / 1.23 = 81.3%. In the 8-bit case, this reduces the memory usage from 9.84 bits per entry to
-/// 9.1 bits.
+/// 1 / 1.23 = 81.3%. In the 8-bit case, this reduces the memory usage from 9.84 bits per
+/// entry to 9.1 bits.
 ///
-/// An issue with traditional fuse filters is that the algorithm requires a large number of unique
-/// keys in order for population to succeed, see [FastFilter/xor_singleheader#21](https://github.com/FastFilter/xor_singleheader/issues/21).
-/// If you have few (<~125k consecutive) keys, fuse filter creation would fail.
-///
-/// By contrast, binary fuse filters, a revision of fuse filters made by Thomas Mueller Graf &
-/// Daniel Lemire do not suffer from this issue. See https://github.com/FastFilter/xor_singleheader/issues/21
-///
-/// Note: We assume that you have a large set of 64-bit integers and you want a data structure to
-/// do membership tests using no more than ~8 or ~16 bits per key. If your initial set is made of
-/// strings or other types, you first need to hash them to a 64-bit integer.
+/// Note: We assume that you have a set of 64-bit integers and you want a data structure to
+/// do membership tests using no more than ~8 or ~16 bits per key. If your initial set is made 
+/// of strings or other types, you first need to hash them to a 64-bit integer.
 pub fn BinaryFuse(comptime T: type) type {
     return struct {
         allocator: Allocator,
@@ -43,8 +36,8 @@ pub fn BinaryFuse(comptime T: type) type {
 
         const Self = @This();
 
-        /// initializes a binary fuse filter with enough capacity for a set containing up to `size`
-        /// elements.
+        /// initializes a binary fuse filter with enough capacity for a set containing up to 
+        /// `size` elements.
         ///
         /// `deinit()` must be called by the caller to free the memory.
         pub fn init(allocator: Allocator, size: usize) !*Self {
@@ -94,23 +87,23 @@ pub fn BinaryFuse(comptime T: type) type {
         ///
         /// The caller is responsible for ensuring that there are no duplicated keys.
         ///
-        /// The inner loop will run up to max_iterations times (default 100) and will never fail,
-        /// except if there are duplicated keys.
+        /// The inner loop will run up to max_iterations times (default 100) and will never 
+        /// fail, except if there are duplicated keys.
         ///
-        /// The provided allocator will be used for creating temporary buffers that do not outlive the
-        /// function call.
+        /// The provided allocator will be used for creating temporary buffers that do not 
+        /// outlive the function call.
         pub fn populate(self: *Self, allocator: Allocator, keys: []u64) Error!void {
             const iter = try util.sliceIterator(u64).init(allocator, keys);
             defer iter.deinit();
             return self.populateIter(allocator, iter);
         }
 
-        /// Identical to populate, except it takes an iterator of keys so you need not store them
-        /// in-memory.
+        /// Identical to populate, except it takes an iterator of keys so you need not store 
+        /// them in-memory.
         ///
-        /// `keys.next()` must return `?u64`, the next key or none if the end of the list has been
-        /// reached. The iterator must reset after hitting the end of the list, such that the `next()`
-        /// call leads to the first element again.
+        /// `keys.next()` must return `?u64`, the next key or none if the end of the list has 
+        /// been reached. The iterator must reset after hitting the end of the list, such that 
+        /// the `next()` call leads to the first element again.
         ///
         /// `keys.len()` must return the `usize` length.
         pub fn populateIter(self: *Self, allocator: Allocator, keys: anytype) Error!void {

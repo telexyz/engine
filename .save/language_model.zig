@@ -53,5 +53,6 @@
 // TOTAL: 47MB
 // ```
 
+
 const BinaryFuse = @import("../lib/fastfilter/binaryfusefilter.zig").BinaryFuse;
 c1_filter = try BinaryFuse(u16).init(std.heap.page_allocator, size);
