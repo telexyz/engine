@@ -11,15 +11,26 @@ const Error = util.Error;
 /// See `BinaryFuse` for more details.
 pub const BinaryFuse8 = BinaryFuse(u8);
 
-/// Binary fuse filters, a revision of fuse filters made by Thomas Mueller Graf &
-/// Daniel Lemire https://github.com/FastFilter/xor_singleheader/issues/21
+/// A binary fuse filter. This is an extension of fuse filters:
 ///
-/// Note: We assume that you have a large set of 64-bit integers and you want a data structure
-/// to do membership tests using no more than ~8 or ~16 bits per key. If your initial set is
-/// made of strings or other types, you first need to hash them to a 64-bit integer.
+/// Dietzfelbinger & Walzer's fuse filters, described in "Dense Peelable Random Uniform Hypergraphs",
+/// https://arxiv.org/abs/1907.04749, can accomodate fill factors up to 87.9% full, rather than
+/// 1 / 1.23 = 81.3%. In the 8-bit case, this reduces the memory usage from 9.84 bits per entry to
+/// 9.1 bits.
+///
+/// An issue with traditional fuse filters is that the algorithm requires a large number of unique
+/// keys in order for population to succeed, see [FastFilter/xor_singleheader#21](https://github.com/FastFilter/xor_singleheader/issues/21).
+/// If you have few (<~125k consecutive) keys, fuse filter creation would fail.
+///
+/// By contrast, binary fuse filters, a revision of fuse filters made by Thomas Mueller Graf &
+/// Daniel Lemire do not suffer from this issue. See https://github.com/FastFilter/xor_singleheader/issues/21
+///
+/// Note: We assume that you have a large set of 64-bit integers and you want a data structure to
+/// do membership tests using no more than ~8 or ~16 bits per key. If your initial set is made of
+/// strings or other types, you first need to hash them to a 64-bit integer.
 pub fn BinaryFuse(comptime T: type) type {
     return struct {
-        allocator: *Allocator,
+        allocator: Allocator,
         seed: u64,
         segment_length: u32,
         segment_length_mask: u32,
@@ -27,21 +38,21 @@ pub fn BinaryFuse(comptime T: type) type {
         segment_count_length: u32,
         fingerprints: []T,
 
-        /// probabillity of success should always be > 0.5 so 100 iterations is highly unlikely
+        /// probability of success should always be > 0.5 so 100 iterations is highly unlikely
         max_iterations: usize = 100,
 
         const Self = @This();
 
-        /// initializes a binary fuse filter with enough capacity for a set containing
-        /// up to `size` elements.
+        /// initializes a binary fuse filter with enough capacity for a set containing up to `size`
+        /// elements.
         ///
         /// `deinit()` must be called by the caller to free the memory.
-        pub fn init(allocator: *Allocator, size: usize) !*Self {
+        pub fn init(allocator: Allocator, size: usize) !*Self {
             const arity: u32 = 3;
-            const max_seg_len: u32 = std.math.maxInt(u18); // = 2^16 x 4
             var segment_length = calculateSegmentLength(arity, size);
-            if (segment_length > max_seg_len) segment_length = max_seg_len;
-
+            if (segment_length > 262144) {
+                segment_length = 262144;
+            }
             const segment_length_mask = segment_length - 1;
             const size_factor: f64 = if (size == 0) 4 else calculateSizeFactor(arity, size);
             const capacity = if (size <= 1) 0 else @floatToInt(u32, math.round(@intToFloat(f64, size) * size_factor));
@@ -83,26 +94,26 @@ pub fn BinaryFuse(comptime T: type) type {
         ///
         /// The caller is responsible for ensuring that there are no duplicated keys.
         ///
-        /// The inner loop will run up to max_iterations times (default 100)
-        /// and will never fail, except if there are duplicated keys.
+        /// The inner loop will run up to max_iterations times (default 100) and will never fail,
+        /// except if there are duplicated keys.
         ///
-        /// The provided allocator will be used for creating temporary buffers that
-        /// do not outlive the function call.
-        pub fn populate(self: *Self, allocator: *Allocator, keys: []u64) Error!void {
+        /// The provided allocator will be used for creating temporary buffers that do not outlive the
+        /// function call.
+        pub fn populate(self: *Self, allocator: Allocator, keys: []u64) Error!void {
             const iter = try util.sliceIterator(u64).init(allocator, keys);
             defer iter.deinit();
             return self.populateIter(allocator, iter);
         }
 
-        /// Identical to populate, except it takes an iterator of keys so you need not 
-        /// store them in-memory.
+        /// Identical to populate, except it takes an iterator of keys so you need not store them
+        /// in-memory.
         ///
-        /// `keys.next()` must return `?u64`, the next key or none if the end of the list
-        /// has been reached. The iterator must reset after hitting the end of the list, 
-        /// such that the `next()` call leads to the first element again.
+        /// `keys.next()` must return `?u64`, the next key or none if the end of the list has been
+        /// reached. The iterator must reset after hitting the end of the list, such that the `next()`
+        /// call leads to the first element again.
         ///
         /// `keys.len()` must return the `usize` length.
-        pub fn populateIter(self: *Self, allocator: *Allocator, keys: anytype) Error!void {
+        pub fn populateIter(self: *Self, allocator: Allocator, keys: anytype) Error!void {
             if (keys.len() == 0) {
                 return;
             }
@@ -149,7 +160,8 @@ pub fn BinaryFuse(comptime T: type) type {
 
                 var i: u32 = 0;
                 while (i < block) : (i += 1) {
-                    // important : i * size would overflow as a 32-bit number in some cases.
+                    // important : i * size would overflow as a 32-bit number in some
+                    // cases.
                     start_pos[i] = @truncate(u32, (@intCast(u64, i) * size) >> block_bits);
                 }
 
@@ -280,8 +292,8 @@ pub fn BinaryFuse(comptime T: type) type {
             const hh: u64 = hash & ((@as(u64, 1) << 36) - 1);
             // index 0: right shift by 36; index 1: right shift by 18; index 2: no shift
             //
-            // NOTE(slimsag): using u64 here instead of size_it as in upstream C
-            // implementation; I think that size_t may be incorrect for 32-bit platforms?
+            // NOTE(slimsag): using u64 here instead of size_it as in upstream C implementation; I think
+            // that size_t may be incorrect for 32-bit platforms?
             const shift_count = (36 - 18 * index);
             if (shift_count >= 63) {
                 h ^= 0 & self.segment_length_mask;
@@ -304,8 +316,8 @@ const Hashes = struct {
 };
 
 inline fn calculateSegmentLength(arity: u32, size: usize) u32 {
-    // These parameters are very sensitive. Replacing `floor` by `round` can
-    // substantially affect the construction time.
+    // These parameters are very sensitive. Replacing `floor` by `round` can substantially affect
+    // the construction time.
     if (arity == 3) {
         const shift_count = @truncate(u32, relaxedFloatToInt(usize, math.floor(math.log(f64, math.e, @intToFloat(f64, size)) / math.log(f64, math.e, 3.33) + 2.25)));
         return if (shift_count >= 31) 0 else @as(u32, 1) << @truncate(u5, shift_count);
@@ -348,7 +360,9 @@ fn binaryFuseTest(T: anytype, size: usize, size_in_bytes: usize) !void {
 
     var keys = try allocator.alloc(u64, size);
     defer allocator.free(keys);
-    for (keys) |*key, i| key.* = i;
+    for (keys) |_, i| {
+        keys[i] = i;
+    }
 
     try filter.populate(allocator, keys[0..]);
 
@@ -373,9 +387,10 @@ fn binaryFuseTest(T: anytype, size: usize, size_in_bytes: usize) !void {
     var random_matches: u64 = 0;
     const trials = 10000000;
     var i: u64 = 0;
-    var default_prng = std.rand.DefaultPrng.init(0);
+    var rng = std.rand.DefaultPrng.init(0);
+    const random = rng.random();
     while (i < trials) : (i += 1) {
-        var random_key: u64 = default_prng.random.uintAtMost(u64, std.math.maxInt(u64));
+        var random_key: u64 = random.uintAtMost(u64, std.math.maxInt(u64));
         if (filter.contain(random_key)) {
             if (random_key >= keys.len) {
                 random_matches += 1;
@@ -383,54 +398,46 @@ fn binaryFuseTest(T: anytype, size: usize, size_in_bytes: usize) !void {
         }
     }
 
-    const fpp = @intToFloat(f64, random_matches) * 1.0 / trials;
-    std.debug.print("fpp {d:3.10} (estimated) \n", .{fpp});
-
-    const bpe = @intToFloat(f64, filter.sizeInBytes()) * 8.0 / @intToFloat(f64, size);
-    std.debug.print("bits per entry {d:3.1}\n", .{bpe});
+    std.debug.print("fpp {d:3.10} (estimated) \n", .{@intToFloat(f64, random_matches) * 1.0 / trials});
+    std.debug.print("bits per entry {d:3.1}\n", .{@intToFloat(f64, filter.sizeInBytes()) * 8.0 / @intToFloat(f64, size)});
 }
 
 test "binaryFuse8_small_input_edge_cases" {
     // See https://github.com/FastFilter/xor_singleheader/issues/26
-    try binaryFuseTest(u8, 0, 59);
-    try binaryFuseTest(u8, 1, 68);
-    try binaryFuseTest(u8, 2, 68);
-    try binaryFuseTest(u8, 3, 80);
+    try binaryFuseTest(u8, 0, 67);
+    try binaryFuseTest(u8, 1, 76);
+    try binaryFuseTest(u8, 2, 76);
+    try binaryFuseTest(u8, 3, 88);
 }
 
 test "binaryFuse8_zero" {
-    try binaryFuseTest(u8, 0, 59);
+    try binaryFuseTest(u8, 0, 67);
 }
 
 test "binaryFuse8_1" {
-    try binaryFuseTest(u8, 1, 68);
+    try binaryFuseTest(u8, 1, 76);
 }
 
 test "binaryFuse8_10" {
-    try binaryFuseTest(u8, 10, 104);
+    try binaryFuseTest(u8, 10, 112);
 }
 
 test "binaryFuse8" {
-    try binaryFuseTest(u8, 1_000_000, 1_130_552);
+    try binaryFuseTest(u8, 1_000_000, 1130560);
 }
 
 test "binaryFuse8_2m" {
-    try binaryFuseTest(u8, 2_000_000, 2_261_048);
+    try binaryFuseTest(u8, 2_000_000, 2261056);
 }
 
 test "binaryFuse8_5m" {
-    try binaryFuseTest(u8, 5_000_000, 5_636_152);
+    try binaryFuseTest(u8, 5_000_000, 5636160);
 }
 
 test "binaryFuse16" {
-    try binaryFuseTest(u16, 1_000_000, 2_261_048);
-    // try binaryFuseTest(u16, 111_000_000, 249_823_288);
-}
-
-test "binaryFuse24" {
-    try binaryFuseTest(u24, 1_000_000, 4_522_040);
+    try binaryFuseTest(u16, 1_000_000, 2261056);
 }
 
 test "binaryFuse32" {
-    try binaryFuseTest(u32, 1_000_000, 4_522_040);
+    try binaryFuseTest(u32, 1_000_000, 4522048);
 }
