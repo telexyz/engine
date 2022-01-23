@@ -1,7 +1,7 @@
-// 2 t2:  369091, t3_5:  424429, t6_11:  276007, t12_25: 199301, t26_80: 170952, remain: 150211
+// 2 t2: 1444334, t3_5:  424429, t6_11:  276007, t12_25: 199301, t26_80: 170952, remain: 150211
 // 3 t2: 2343228, t3_5: 1995402, t6_11:  955810, t12_25: 533752, t26_80: 339218, remain: 174532
 // 4 t2: 4407945, t3_5: 3114767, t6_11: 1252778, t12_25: 601206, t26_80: 322523, remain: 121206
-// (( STEP 3: Count and write n-gram done! Duration 1.11 mins ))
+// (( STEP 3: Count and write n-gram done! Duration 1.17 mins ))
 
 // TODO: use BitWriter to write fuse filter out
 // TODO: Dùng u4 array có độ dài 0..2^15 để lưu 1-gram
