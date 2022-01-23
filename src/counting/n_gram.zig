@@ -18,10 +18,10 @@ const SyllableIdArray = std.ArrayList(Syllable.UniqueId);
 
 pub fn NGram() type {
     return struct {
-        c1_grams: std.AutoHashMap([1]Gram, u32) = undefined,
-        c2_grams: std.AutoHashMap([2]Gram, u32) = undefined,
-        c3_grams: std.AutoHashMap([3]Gram, u32) = undefined,
-        c4_grams: std.AutoHashMap([4]Gram, u32) = undefined,
+        c1_grams: std.AutoHashMap(u64, u32) = undefined,
+        c2_grams: std.AutoHashMap(u64, u32) = undefined,
+        c3_grams: std.AutoHashMap(u64, u32) = undefined,
+        c4_grams: std.AutoHashMap(u64, u32) = undefined,
 
         syllable_ids: SyllableIdArray = undefined,
         allocator: std.mem.Allocator = undefined,
@@ -125,10 +125,10 @@ pub fn NGram() type {
             var percents_threshold = _percents_delta;
             var percents: u8 = 0;
 
-            self.c1_grams = std.AutoHashMap([1]Gram, u32).init(self.allocator);
-            self.c2_grams = std.AutoHashMap([2]Gram, u32).init(self.allocator);
-            self.c3_grams = std.AutoHashMap([3]Gram, u32).init(self.allocator);
-            self.c4_grams = std.AutoHashMap([4]Gram, u32).init(self.allocator);
+            self.c1_grams = std.AutoHashMap(u64, u32).init(self.allocator);
+            self.c2_grams = std.AutoHashMap(u64, u32).init(self.allocator);
+            self.c3_grams = std.AutoHashMap(u64, u32).init(self.allocator);
+            self.c4_grams = std.AutoHashMap(u64, u32).init(self.allocator);
 
             var i: usize = 5;
             const syll_ids = self.syllable_ids.items;
@@ -155,32 +155,41 @@ pub fn NGram() type {
                     grams[2] = grams[3];
                     grams[3] = syll_id;
 
-                    const gop1 = try self.c1_grams.getOrPutValue(.{grams[0]}, 0);
+                    var key: u64 = grams[0];
+                    const gop1 = try self.c1_grams.getOrPutValue(key, 0);
                     gop1.value_ptr.* += 1;
 
                     if (grams[0] == BLANK) {
+                        //
                         if (grams[1] == BLANK) continue;
-                        const gop2 = try self.c2_grams.getOrPutValue(grams[0..2].*, 0);
+                        key = (key << 16) + grams[1];
+                        const gop2 = try self.c2_grams.getOrPutValue(key, 0);
                         gop2.value_ptr.* += 1;
 
                         if (grams[2] == BLANK) continue;
-                        const gop3 = try self.c3_grams.getOrPutValue(grams[0..3].*, 0);
+                        key = (key << 16) + grams[2];
+                        const gop3 = try self.c3_grams.getOrPutValue(key, 0);
                         gop3.value_ptr.* += 1;
 
                         if (grams[3] == BLANK) continue;
-                        const gop4 = try self.c4_grams.getOrPutValue(grams[0..4].*, 0);
+                        key = (key << 16) + grams[3];
+                        const gop4 = try self.c4_grams.getOrPutValue(key, 0);
                         gop4.value_ptr.* += 1;
+                        //
                     } else { // grams[0] != BLANK
                         //
-                        const gop2 = try self.c2_grams.getOrPutValue(grams[0..2].*, 0);
+                        key = (key << 16) + grams[1];
+                        const gop2 = try self.c2_grams.getOrPutValue(key, 0);
                         gop2.value_ptr.* += 1;
 
                         if (grams[1] == BLANK or grams[2] == BLANK) continue;
-                        const gop3 = try self.c3_grams.getOrPutValue(grams[0..3].*, 0);
+                        key = (key << 16) + grams[2];
+                        const gop3 = try self.c3_grams.getOrPutValue(key, 0);
                         gop3.value_ptr.* += 1;
 
                         if (grams[2] == BLANK) continue;
-                        const gop4 = try self.c4_grams.getOrPutValue(grams[0..4].*, 0);
+                        key = (key << 16) + grams[3];
+                        const gop4 = try self.c4_grams.getOrPutValue(key, 0);
                         gop4.value_ptr.* += 1;
                     }
                 } // for syll_id
@@ -202,28 +211,64 @@ pub fn NGram() type {
 }
 
 fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
-    var c2_filter: *BinaryFuse(u8) = undefined;
-    var c4_filter: *BinaryFuse(u16) = undefined;
-    var c8_filter: *BinaryFuse(u16) = undefined;
+    var total: usize = 0;
+    var t12: usize = 0;
+    var t345: usize = 0;
+    var len: u32 = 0;
+    var max: u32 = 0;
+    var count: u32 = undefined;
 
-    switch (n) {
-        2 => {
-            c2_filter = try BinaryFuse(u8).init(std.heap.page_allocator, 1_500_000);
-            c4_filter = try BinaryFuse(u16).init(std.heap.page_allocator, 500_000);
-            c8_filter = try BinaryFuse(u16).init(std.heap.page_allocator, 800_000);
-        },
-        3 => {
-            c2_filter = try BinaryFuse(u8).init(std.heap.page_allocator, 13_500_000);
-            c4_filter = try BinaryFuse(u16).init(std.heap.page_allocator, 2_000_000);
-            c8_filter = try BinaryFuse(u16).init(std.heap.page_allocator, 2_100_000);
-        },
-        4 => {
-            c2_filter = try BinaryFuse(u8).init(std.heap.page_allocator, 33_500_000);
-            c4_filter = try BinaryFuse(u16).init(std.heap.page_allocator, 3_500_000);
-            c8_filter = try BinaryFuse(u16).init(std.heap.page_allocator, 5_500_000);
-        },
-        else => {},
+    const allocator = std.heap.page_allocator;
+
+    var c2_keys = std.ArrayList(u64).init(allocator);
+    defer c2_keys.deinit();
+
+    var c4_keys = std.ArrayList(u64).init(allocator);
+    defer c4_keys.deinit();
+
+    var c8_keys = std.ArrayList(u64).init(allocator);
+    defer c8_keys.deinit();
+
+    var it = grams.iterator();
+    while (it.next()) |kv| {
+        count = kv.value_ptr.*;
+        total += count;
+        len += 1;
+        if (count > max) max = count;
+
+        if (n == 1) { // 1-gram
+        } else { // 2,3,4-gram
+            switch (count) {
+                1, 2 => {
+                    t12 += 1;
+                    try c2_keys.append(kv.key_ptr.*);
+                },
+                3, 4, 5 => { // f4
+                    t345 += 1;
+                    try c4_keys.append(kv.key_ptr.*);
+                },
+                else => {
+                    try c8_keys.append(kv.key_ptr.*);
+                },
+            }
+        }
     }
+
+    std.debug.print("\n{}-gram U: {}, U12: {}, U345: {}, U6+: {}, T: {}, M: {}", .{ n, len, t12, t345, len - t12 - t345, total, max });
+
+    if (n == 1) return;
+
+    const c2_filter = try BinaryFuse(u8).init(allocator, c2_keys.items.len);
+    try c2_filter.populate(allocator, c2_keys.items);
+    defer c2_filter.deinit();
+
+    const c4_filter = try BinaryFuse(u16).init(allocator, c4_keys.items.len);
+    try c4_filter.populate(allocator, c4_keys.items);
+    defer c4_filter.deinit();
+
+    const c8_filter = try BinaryFuse(u16).init(allocator, c8_keys.items.len);
+    try c8_filter.populate(allocator, c8_keys.items);
+    defer c8_filter.deinit();
 
     var f2 = try std.fs.cwd().createFile(filename ++ "_filter.2", .{});
     defer f2.close();
@@ -236,41 +281,7 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
 
     // var f2_wrt = std.io.bufferedWriter(f2.writer());
     // var f2_writer = f2_wrt.writer();
-
-    var total: usize = 0;
-    var t12: usize = 0;
-    var t345: usize = 0;
-    var len: u32 = 0;
-    var max: u32 = 0;
-    var count: u32 = undefined;
-
-    var it = grams.iterator();
-    while (it.next()) |kv| {
-        count = kv.value_ptr.*;
-        total += count;
-        len += 1;
-        if (count > max) max = count;
-
-        if (n == 1) { // 1-gram
-        } else { // 2,3,4-gram
-            switch (count) {
-                1, 2 => { // f2
-                    t12 += 1;
-                    // &kv.key_ptr
-                },
-                3, 4, 5 => { // f4
-                    t345 += 1;
-                },
-                else => { // f8
-
-                },
-            }
-        }
-    }
-
     // try f2_wrt.flush();
-
-    std.debug.print("\n{}-gram U: {}, U12: {}, U345: {}, U6+: {}, T: {}, M: {}", .{ n, len, t12, t345, len - t12 - t345, total, max });
 }
 
 test "ngram" {
