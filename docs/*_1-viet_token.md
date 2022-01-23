@@ -1,7 +1,8 @@
 # Bộ tách token và phân tích âm vị học tiếng Việt
 
 ## Module 1d/ Tách các âm tiết dính liền nhau (thiếu dấu cách)
-(xem `*token_repairs.md`)
+
+Xem `*token_repairs.md`
 
 ### Token repair ideas
 
@@ -13,8 +14,7 @@
 ## Module 1e/ OOS, OOV handling
 
 OVV gồm tiếng dân tộc thiểu số (như Đắk Lắk) và tiếng nước ngoài 
-
-* Treat OOV as first-class citizen
+=> Treat OOV as first-class citizen
 
 * Những từ, cách viết tắt hay dùng như "Đắk Lắc", UBND, HĐND ... và các biến thể cần được map vào slot riêng trong `u15` (cùng phân khu với syllable_ids)
 
