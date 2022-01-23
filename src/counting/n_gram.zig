@@ -4,7 +4,6 @@
 // (( STEP 3: Count and write n-gram done! Duration 1.17 mins ))
 
 // TODO: use BitWriter to write fuse filter out
-// TODO: Dùng u4 array có độ dài 0..2^15 để lưu 1-gram
 
 const std = @import("std");
 const mem = std.mem;
