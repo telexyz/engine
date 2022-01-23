@@ -244,7 +244,8 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     while (it.next()) |kv| {
         count = kv.value_ptr.*;
 
-        if (n == 1) { // 1-gram
+        if (n == 1) {
+            // 1-gram
         } else { // 2,3,4-gram
             switch (count) {
                 1 => {}, // bỏ qua
