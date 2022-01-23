@@ -5,6 +5,8 @@
 // 4-gram U: 38698245, U12: 33285765, U345: 3114767, U6+: 2297713, T: 116712862, M: 56755
 // (( STEP 3: Count and write n-gram done! Duration 1.39 mins ))
 
+// TODO: Kết hợp với BinaryFuse để tăng tốc và giảm dung lượng lưu trũ
+
 const std = @import("std");
 const mem = std.mem;
 

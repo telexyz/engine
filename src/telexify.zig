@@ -155,7 +155,7 @@ fn tokenizeAndParse(step0_time: i64) !i64 {
 pub fn countNGram(step2_time: i64) !void {
     std.debug.print("\nSTEP 3: Count and write n-gram ...\n", .{});
 
-    const NGram = @import("./counting/n_gram.zig").NGram(true);
+    const NGram = @import("./counting/n_gram.zig").NGram();
     // Khởi tạo bộ đếm
     var gram: NGram = .{};
     gram.init(std.heap.page_allocator);
@@ -166,14 +166,14 @@ pub fn countNGram(step2_time: i64) !void {
 
     // Chạy song song để tăng tốc
     // var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
-    try gram.countAndWrite23("data/22-grams", "data/23-grams");
-    try gram.countAndWrite15("data/21-grams", "data/25-grams");
+    // try gram.countAndWrite23("data/22-grams", "data/23-grams");
+    // try gram.countAndWrite15("data/21-grams", "data/25-grams");
     // thread.join();
 
     // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
     // thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
-    try gram.countAndWrite04("data/24-grams");
-    try gram.countAndWrite06("data/26-grams");
+    // try gram.countAndWrite04("data/24-grams");
+    // try gram.countAndWrite06("data/26-grams");
     // thread.join();
 
     _ = showMeTimeLap(step2_time, "STEP 3: Count and write n-gram done!");
