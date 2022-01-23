@@ -1,28 +1,31 @@
 # Bộ tổng hợp âm tiết thành từ `syllables2words`
 
-## TODOs
+## Module 2c/ Tự động bỏ dấu và thanh tiếng Việt
+(xem `docs/_them_dau_thanh.md`)
 
-### 2b.1/ Naive Impl
+## Module 2b/ `syllables2words`: gộp âm tiết thành từ
 
-* Dùng từ điển liệt kê mọi khả năng tách từ
+### 2b.3 Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
 
-* Viết beam-search decoder để chọn +10 khả năng tách từ mà ít âm tiết `mồ côi` nhất
+### 2b.2 Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
+
+### 2b.1 Naive Impl
 
 * Scoring dựa trên syllable n-grams, giữ lại 5-best
 
-### 2b.2/ Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
+* Beam-search để chọn +10 khả năng tách từ mà ít âm tiết `mồ côi` nhất
 
-### 2b.3/ Thử áp `src/syllabling/ripple_down_rules.zig` xem có gì thú vị không?
+* Dùng từ điển liệt kê mọi khả năng tách từ
 
 * Từ `dict/34k.xyz` và hàm `parseXyzToGetSyllable()` chuyển thành 4-grams (từ <= 4 âm tiết) và định danh bằng phần còn lại của `u16` (sau khi đã trừ đi syllable ids và OOV BPE).  Khởi tạo từ điển giống như hash_count của n-gram nhưng đơn giản hơn vì chỉ cần chứa 32k items (2^15). Có lẽ chỉ cần `u24 hash` để map vào `2^16 slots`, mỗi slot chứa `u16` word id.
 
-## Module 2a/ n-gram nâng cao
+## Module 2a/ n-gram tinh gọn
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
 * Cho 1 phrase (nhiều syllables), tính xác xuất dựa trên n-gram count
 
-* Làm mượt n-gram `data/2{n}-grams` bằng absoluted discount và stupid backoff
+* `counting/language_model.zig` bản tinh gọn can load 18 filters from files
 
 [ >>> DONE <<< ]
 
@@ -75,22 +78,3 @@ __Bước 6__: Từ tham số mô hình (bước 3+5), cấu trúc không gian t
 __Bước 7__: Từ một/nhiều giải pháp tốt nhất đó tự động sửa lỗi / bổ xung thông tin hoặc gợi ý sửa lỗi / bổ xung thông tin (bán tự động).
 
 __Bước 8__: Quay lại bước 1, dùng dữ liệu được chữa để nâng cao độ chính xác của mô hình và lặp lại như thế cho tới khi toàn bộ corpus được xử lý sạch đẹp.
-
-- - -
-
-### Module 2a/ n-gram nâng cao
-
-* Làm mượt n-gram `data/2{n}-grams.cdx`
-
-* Cho 1 câu bất kì, tính xác xuất dựa trên n-gram count
-
-
-### Module 2b/ `syllables2words`: gộp âm tiết thành từ
-
-* Step 1: Dùng từ điển liệt kê mọi khả năng tách từ, 
-          scoring dựa trên syllable n-grams, giữ lại 5-best
-
-* Step 2: Huấn luyện được bộ tách từ. Tham khảo `docs/tach_tu_Nhat.md`
-
-### Module 2c/ Tự động bỏ dấu và thanh tiếng Việt
-(xem `docs/_them_dau_thanh.md`)
