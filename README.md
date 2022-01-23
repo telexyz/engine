@@ -1,12 +1,29 @@
-# stage-1 (90% done `docs/*1-viet_token.md`)
+# stage-1 (99% done `docs/*1-viet_token.md`)
 
-# stage-2 (40% done `docs/*2-syllabling.md`)
+# stage-2 (60% done `docs/*2-syllabling.md`)
+
+# stage-3 (10% done `https://github.com/telexyz/fivefingers`)
+
+# stage-4 (00% done `docs/*_4-index_control.md`)
+
+# stage-5 (00% done `docs/_5-text_mining.md`)
+
+
+stage-1 còn BPE và tạo danh sách các từ tiếng Việt hiếm/vay mượn không phải syllables. Hiện tại chỉ tập trung vào syllables nên phần này có thể gác qua một bên và coi như stage-1
+
+stage-2 hoàn thiện thật đơn giản, chỉ cần dict_matching ra mọi khả năng có thể gộp âm tiết thành từ là xong. Mô hình ngôn ngữ sử dụng n-gram tinh gọn để có thể nhúng vào wasm.
+
+stage-3 cần triển khai nhanh và đưa vào sử dụng thật để cải tiến liên tục và collect data từ người dùng.
+
+stage-4 rất thú vị, đã chốt được phương án làm inverted indexing hay !!!
+
+stage-5 cần token embedding cụ thể là word2vec !!!
 
 - - -
 
-# STAGE-01: Nửa năm nhìn lại (06/2021-12/2021)
+# Nửa năm nhìn lại (06/2021-12/2021)
 
-[ GOAL ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, LOẠI BỎ DỮ LIỆU TRÙNG LẶP, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
+[ MỤC TIÊU BAN ĐẦU ] PHÁT HIỆN, TRÌNH BÀY LẠI VÀ INDEX TOKENS SAO CHO CÓ THỂ XEM+XÉT CORPUS THẬT NHANH, LOẠI BỎ DỮ LIỆU TRÙNG LẶP, PHÁT HIỆN CÁC TRƯỜNG HỢP BẤT THUÒNG, TỰ ĐỘNG SỬA LỖI, BỎ ĐI NHỮNG ĐOẠN TEXT KÉM CHẤT LƯỢNG
 
 Dưới góc nhìn quản trị dữ liệu còn rất nhiều việc thú vị để làm như là phát hiện và loại bỏ trùng lặp, indexing để tìm kiếm và so sánh nhanh các câu trong corpus, phát hiện sự thiếu, thừa, sai / không hoàn chỉnh ... của dữ liệu.
 

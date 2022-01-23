@@ -28,11 +28,6 @@ OVV gồm tiếng dân tộc thiểu số (như Đắk Lắk) và tiếng nướ
 
 [ >>> HERE I SHOULD BE, DOWN THE RABBIT HOLE <<< ]
 
-## Module 1f/ ABNORMAL DETECT
-
-* Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
-  Xem `_similar_detect.md`
-
 [ >>> DONE <<< ]
 
 ## CHANGELOG

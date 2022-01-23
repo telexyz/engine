@@ -12,6 +12,11 @@ Xem `docs/*indexing.md`
 *  dùng n-gram/nn để auto suggest search terms
 *  áp dụng bộ sửa lỗi chính tả lên input search terms
 
+## Module 3b/ Kiểm soát chất lượng corpus
+
+* Loại bỏ nhanh những câu trùng lặp nhau (fb comments lặp nhiều)
+  Xem `_similar_detect.md`
+
 ### Module 3x/ Kiểm tra, kiểm soát chất lượng. Zoom-in, zoom-out copus cực nhanh
 
 Tích hợp thêm các UI hoặc commandline tools để quản trị data and meta-data trong copus

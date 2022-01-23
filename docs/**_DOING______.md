@@ -11,7 +11,9 @@
 
 ### 1/ Bộ gõ telex cải tiến để gõ song ngữ dễ dàng hơn
 
-Làm bộ gõ native, đa nền tảng => Tham khảo bộ gõ https://github.com/tuyenvm/OpenKey
+- Làm trên web + wasm để thi triển và trình diễn dễ dàng hơn
+
+- Làm bộ gõ native, đa nền tảng => Tham khảo bộ gõ https://github.com/tuyenvm/OpenKey
 
 * Bỏ dấu `ôêâ` bằng `z` để thống nhất với cách bỏ dấu `w` + giảm thiểu nhầm lẫn
 * Bỏ dấu `wz` thanh `sfrxj` ở cuối âm tiết để giảm thiểu nhầm lẫn với từ tiếng Anh
@@ -41,16 +43,8 @@ __Note__: Có 2 cách xây dựng LM: n-gram là đơn giản nhất. Ngược l
 
 => Chốt sử dụng n-gram trước để impl và triển khai đơn giản + đủ dùng. NNLM có thể khám phá sau từ thấp tới cao như RNN < LSTM < Transformer ... (VD: Jumanpp sử dụng RNN để reranking cho kết quả khá tốt)
 
-# YOU SHOULD REWRITE
+## stage-3: Deploy and optimize
 
-_Viết lại modules quan trọng từ C sang Zig để hiểu thuật toán và nhuần nhuyễn Zig_
+Triển khải trên wasm trước, cần những mô hình đơn giản đủ hiệu quả và tối thiểu hóa data, MEM và CPU cho phiên bản web.
 
-* _BPE sub-word_ https://github.com/telexyz/tools/tree/master/vocab/fastBPE/fastBPE
-
-BPE quan trọng trong việc chia nhỏ OOV và ánh xạ OOV về một tập tokens có số lượng định trước, nhờ đó kiểm soát tốt số lượng từ vựng, hợp với việc huấn luyện mô hình có tài nguyên hạn chế.
-
-* _Word2Vec_ https://github.com/zhezhaoa/ngram2vec/blob/master/word2vec/word2vec.c
-
-Một module quan trọng trong việc trình bày lại token dưới dạng vector trong không gian khoảng 300 chiều, quan trọng trong việc tìm kiếm token giống nhau, dùng để train NN/LM, re-ranking, re-scoring ...
-
-https://aegis4048.github.io/optimize_computational_efficiency_of_skip-gram_with_negative_sampling
+Phần này tập trung vào sự đơn giản của mô hình, nhất quán trong kỹ thuật triển khai (ví dụ n-gram count chỉ dùng FuseFilter chứ không dùng hash_count), ưu tiên vào việc tương tác với người dùng và sử dụng input từ người dùng (kể cả hỏi đáp, tự chọn từ những gợi ý ...) để nâng cao chất lượng bộ gõ ...
