@@ -14,13 +14,8 @@ test "textoken" {
 
 test "counting" {
     _ = @import("./counting/n_gram.zig");
-    _ = @import("./counting/hash_count.zig");
 }
 
-test "hashing" {
-    _ = @import("./hashing/fvn1a32.zig");
-}
-
-test "fastfilter" {
-    _ = @import("./fastfilter/binaryfusefilter.zig");
-}
+// test "fastfilter" {
+//     _ = @import("./fastfilter/binaryfusefilter.zig");
+// }
