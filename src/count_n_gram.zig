@@ -1,5 +1,5 @@
 const std = @import("std");
-const NGram = @import("./counting/n_gram.zig").NGram(true);
+const NGram = @import("./counting/n_gram.zig").NGram();
 
 var input_filename: []const u8 = undefined;
 
