@@ -292,13 +292,13 @@ fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     defer c3_5_filter.deinit();
 
     // BFF: Binary Fuse Filter
-    var p2 = try std.fs.cwd().createFile(filename ++ "_c02_p2.bff", .{});
+    var p2 = try std.fs.cwd().createFile(filename ++ "_c02_p02.bff", .{});
     defer p2.close();
 
-    var p4 = try std.fs.cwd().createFile(filename ++ "_c03_05_p4.bff", .{});
+    var p4 = try std.fs.cwd().createFile(filename ++ "_c03_05_p04.bff", .{});
     defer p4.close();
 
-    var p8 = try std.fs.cwd().createFile(filename ++ "_c6_11_p8.bff", .{});
+    var p8 = try std.fs.cwd().createFile(filename ++ "_c06_11_p08.bff", .{});
     defer p8.close();
 
     var p16 = try std.fs.cwd().createFile(filename ++ "_c12_25_p16.bff", .{});
