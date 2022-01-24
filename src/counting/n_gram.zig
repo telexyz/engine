@@ -1,8 +1,8 @@
-// 2 t2: 1444334, t3_5:  424429, t6_11:  276007, t12_25: 199301, t26_80: 170952, remain: 150211
-// 3 t2: 2343228, t3_5: 1995402, t6_11:  955810, t12_25: 533752, t26_80: 339218, remain: 174532
-// 4 t2: 4407945, t3_5: 3114767, t6_11: 1252778, t12_25: 601206, t26_80: 322523, remain: 121206
-// (( STEP 3: Count and write n-gram done! Duration 1.17 mins ))
-
+// n-gram/ a: 2,       b: 3..5,    c: 6..11,   d: 12..25, e: 26..80, f: remain
+// 2-gram/ a: 1444334, b: 424429,  c: 276007,  d: 199301, e: 170952, f: 150211
+// 3-gram/ a: 2343228, b: 1995402, c: 955810,  d: 533752, e: 339218, f: 174532
+// 4-gram/ a: 4407945, b: 3114767, c: 1252778, d: 601206, e: 322523, f: 121206
+// (( STEP 3: Count and write n-gram done! Duration 1.15 mins ))
 // TODO: use BitWriter to write fuse filter out
 
 const std = @import("std");
@@ -213,109 +213,104 @@ pub fn NGram() type {
 fn writeGramCounts(grams: anytype, comptime filename: []const u8, n: u8) !void {
     const allocator = std.heap.page_allocator;
 
-    var c2_keys = std.ArrayList(u64).init(allocator);
-    defer c2_keys.deinit();
+    var a_keys = std.ArrayList(u64).init(allocator);
+    var b_keys = std.ArrayList(u64).init(allocator);
+    var c_keys = std.ArrayList(u64).init(allocator);
+    var d_keys = std.ArrayList(u64).init(allocator);
+    var e_keys = std.ArrayList(u64).init(allocator);
+    var f_keys = std.ArrayList(u64).init(allocator);
 
-    var c3_5_keys = std.ArrayList(u64).init(allocator);
-    defer c3_5_keys.deinit();
+    defer a_keys.deinit();
+    defer b_keys.deinit();
+    defer c_keys.deinit();
+    defer d_keys.deinit();
+    defer e_keys.deinit();
+    defer f_keys.deinit();
 
-    var c6_11_keys = std.ArrayList(u64).init(allocator);
-    defer c6_11_keys.deinit();
-
-    var c12_25_keys = std.ArrayList(u64).init(allocator);
-    defer c12_25_keys.deinit();
-
-    var c26_80_keys = std.ArrayList(u64).init(allocator);
-    defer c26_80_keys.deinit();
-
-    var remain_keys = std.ArrayList(u64).init(allocator);
-    defer remain_keys.deinit();
-
-    var t2: u32 = 0;
-    var t3_5: u32 = 0;
-    var t6_11: u32 = 0;
-    var t12_25: u32 = 0;
-    var t26_80: u32 = 0;
-    var remain: u32 = 0;
-    var count: u32 = undefined;
+    var ta: u32 = 0;
+    var tb: u32 = 0;
+    var tc: u32 = 0;
+    var td: u32 = 0;
+    var te: u32 = 0;
+    var tf: u32 = 0;
 
     var it = grams.iterator();
     while (it.next()) |kv| {
-        count = kv.value_ptr.*;
-
         if (n == 1) {
             // 1-gram
+            // ......
+            //
         } else { // 2,3,4-gram
-            switch (count) {
+            switch (kv.value_ptr.*) { // count
                 1 => if (n == 2) {
-                    t2 += 1;
-                    try c2_keys.append(kv.key_ptr.*);
+                    ta += 1;
+                    try a_keys.append(kv.key_ptr.*);
                 },
                 2 => {
-                    t2 += 1;
-                    try c2_keys.append(kv.key_ptr.*);
+                    ta += 1;
+                    try a_keys.append(kv.key_ptr.*);
                 },
                 3...5 => {
-                    t3_5 += 1;
-                    try c3_5_keys.append(kv.key_ptr.*);
+                    tb += 1;
+                    try b_keys.append(kv.key_ptr.*);
                 },
                 6...11 => {
-                    t6_11 += 1;
-                    try c6_11_keys.append(kv.key_ptr.*);
+                    tc += 1;
+                    try c_keys.append(kv.key_ptr.*);
                 },
                 12...25 => {
-                    t12_25 += 1;
-                    try c12_25_keys.append(kv.key_ptr.*);
+                    td += 1;
+                    try d_keys.append(kv.key_ptr.*);
                 },
                 26...80 => {
-                    t26_80 += 1;
-                    try c26_80_keys.append(kv.key_ptr.*);
+                    te += 1;
+                    try e_keys.append(kv.key_ptr.*);
                 },
                 else => {
-                    remain += 1;
-                    try remain_keys.append(kv.key_ptr.*);
+                    tf += 1;
+                    try f_keys.append(kv.key_ptr.*);
                 },
             }
         }
     }
 
+    if (n == 1) {
+        std.debug.print("n-gram/ a: count=2, b: count=3..5, c: count=6..11, d: count=12..25, e: count=26..80, f: remain", .{});
+        return; // 1-gram don't use binary fuse
+    }
+
     std.debug.print(
-        "\n{}-gram t2: {}, t3_5: {}, t6_11: {}, t12_25: {}, t26_80: {}, remain: {}",
-        .{ n, t2, t3_5, t6_11, t12_25, t26_80, remain },
+        "\n{}-gram/ a: {}, b: {}, c: {}, d: {}, e: {}, f: {}",
+        .{ n, ta, tb, tc, td, te, tf },
     );
 
-    if (n == 1) return;
+    const a_filter = try BinaryFuse(u08).init(allocator, a_keys.items.len);
+    const b_filter = try BinaryFuse(u16).init(allocator, b_keys.items.len);
 
-    const c2_filter = try BinaryFuse(u8).init(allocator, c2_keys.items.len);
-    try c2_filter.populate(allocator, c2_keys.items);
-    defer c2_filter.deinit();
+    defer a_filter.deinit();
+    defer b_filter.deinit();
 
-    const c3_5_filter = try BinaryFuse(u16).init(allocator, c3_5_keys.items.len);
-    try c3_5_filter.populate(allocator, c3_5_keys.items);
-    defer c3_5_filter.deinit();
+    try a_filter.populate(allocator, a_keys.items);
+    try b_filter.populate(allocator, b_keys.items);
 
     // BFF: Binary Fuse Filter
-    var p2 = try std.fs.cwd().createFile(filename ++ "_c02_p02.bff", .{});
-    defer p2.close();
+    var fa = try std.fs.cwd().createFile(filename ++ "_a.bff", .{});
+    var fb = try std.fs.cwd().createFile(filename ++ "_b.bff", .{});
+    var fc = try std.fs.cwd().createFile(filename ++ "_c.bff", .{});
+    var fd = try std.fs.cwd().createFile(filename ++ "_d.bff", .{});
+    var fe = try std.fs.cwd().createFile(filename ++ "_e.bff", .{});
+    var ff = try std.fs.cwd().createFile(filename ++ "_f.bff", .{});
 
-    var p4 = try std.fs.cwd().createFile(filename ++ "_c03_05_p04.bff", .{});
-    defer p4.close();
+    defer fa.close();
+    defer fb.close();
+    defer fc.close();
+    defer fd.close();
+    defer fe.close();
+    defer ff.close();
 
-    var p8 = try std.fs.cwd().createFile(filename ++ "_c06_11_p08.bff", .{});
-    defer p8.close();
-
-    var p16 = try std.fs.cwd().createFile(filename ++ "_c12_25_p16.bff", .{});
-    defer p16.close();
-
-    var p32 = try std.fs.cwd().createFile(filename ++ "_c26_80_p32.bff", .{});
-    defer p32.close();
-
-    var p64 = try std.fs.cwd().createFile(filename ++ "_remain_p64.bff", .{});
-    defer p64.close();
-
-    // var p2_wrt = std.io.bufferedWriter(p2.writer());
-    // var p2_writer = p2_wrt.writer();
-    // try p2_wrt.flush();
+    // var fa_wrt = std.io.bufferedWriter(fa.writer());
+    // var fa_writer = fa_wrt.writer();
+    // try fa_wrt.flush();
 }
 
 test "ngram" {
