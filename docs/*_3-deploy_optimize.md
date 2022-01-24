@@ -37,6 +37,16 @@ Chạy nhanh gấp đôi bloom filter, dung lượng lưu trữ nhỏ và xác x
 
 * Bỏ các 3,4-gram có count == 1 để giảm dung lượng lưu trữ còn 1/2
 
+* Dùng `BinaryFuse(u8)` cho count = 1,2 để dung lượng lưu trữ giảm tiếp gần 1/3
+
+* Xé nhỏ từng x-gram (x=2,3,4) vào 6 filters a/ b/ c/ d/ e/ f/ theo thứ tự quan trọng tăng dần và dung lượng giảm dần.
+
+* Khi triển khai cho web thì Load n-gram load 2-gram trước rồi tới 3-gram, 4-gram
+
+* Khi load x-gram thì load filter quan trọng trước f/ /e rồi mới đén d/ c/ b/ a/
+
+* Chiến lược chia để trị như vậy giúp load data song song và đưa vào sử dụng nhanh hơn. Load được x-gram nào thì xài ngay x-gram đấy, load được filter nào thì xài ngay filter đấy!
+
 
 - - -
 
