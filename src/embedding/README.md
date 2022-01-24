@@ -2,7 +2,11 @@ Véc tơ hóa tokens, một bước rất quan trọng làm similary search, tì
 
 Có rất nhiều kỹ thuật từ đơn giản (word2vec) đến phức tạp như transformers ..
 
-=> Viết lại word2vec từ mã nguồn C để hiểu thuật toán !!!
+Bước đầu có thể dùng ngay thư viện C của word2vec nhúng vào trong zig để sử dụng ..
+
+Quan trọng là hiểu thuật toán !!!
+
+=> Có thể viết lại word2vec từ mã nguồn C để hiểu thuật toán !!!
 
 _Word2Vec_ https://github.com/zhezhaoa/ngram2vec/blob/master/word2vec/word2vec.c
 
