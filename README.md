@@ -1,25 +1,30 @@
-# stage-1 (99% done `docs/*1-viet_token.md`)
+# stage-1: 99% done `docs/*1-viet_token.md`
 
-# stage-2 (60% done `docs/*2-syllabling.md`)
+# stage-2: 60% done `docs/*2-syllabling.md`
 
-# stage-3 (10% done `https://github.com/telexyz/fivefingers`)
+# stage-3: 10% done `https://github.com/telexyz/fivefingers`
 
-# stage-4 (00% done `docs/*_4-index_control.md`)
+# stage-4: 00% done `docs/*_4-index_control.md`
 
-# stage-5 (00% done `docs/_5-text_mining.md`)
+# stage-5: 00% done `docs/_5-text_mining.md`
 
+# stage-6: 00% done UI / UX
 
-stage-1 còn BPE và tạo danh sách các từ tiếng Việt hiếm/vay mượn không phải syllables. Hiện tại chỉ tập trung vào syllables nên phần này có thể gác qua một bên và coi như stage-1
+stage-1/ còn BPE và tạo danh sách các từ tiếng Việt hiếm/vay mượn không phải syllables. Hiện tại chỉ tập trung vào syllables nên phần này có thể gác qua một bên và coi như xong!
 
-stage-2 hoàn thiện thật đơn giản, chỉ cần dict_matching ra mọi khả năng có thể gộp âm tiết thành từ là xong. Mô hình ngôn ngữ sử dụng n-gram tinh gọn để có thể nhúng vào wasm.
+stage-2/ hoàn thiện thật đơn giản, chỉ cần dict_matching ra mọi khả năng có thể gộp âm tiết thành từ là xong. Mô hình ngôn ngữ sử dụng n-gram tinh gọn để có thể nhúng vào wasm.
 
-stage-3 cần triển khai nhanh và đưa vào sử dụng thật để cải tiến liên tục và collect data từ người dùng.
+stage-3/ cần triển khai nhanh và đưa vào sử dụng thật để cải tiến liên tục và collect data từ người dùng.
 
-stage-4 rất thú vị, đã chốt được phương án làm inverted indexing hay !!!
+stage-4/ rất thú vị, đã chốt được phương án làm inverted indexing hay !!! Sau khi index có thể quản từng token một tới độ sâu ở mức văn bản, đoạn, câu, từ, dưới từ ... tùy thích. Chỉ cần biết token đang ở đâu ở mức đoạn, sau đó dùng bộ parse mạnh đã xây dựng ở stage-1 để bóc tách tiếp.
 
-stage-5 cần token embedding cụ thể là word2vec !!!
+stage-5/ chunking, tagging, NER ... và cần nhất là word2vec để mining sematic như topic modeling !!! Phần này sẽ bổ trợ cho stage-4 rất mạnh. 
+=> Cần một UI xịn để hiển thị các thông tin mining được từ text trong việc tìm kiếm và hiển thị kết quả tìm kiếm !!! => stage-6 !!!
+
 
 - - -
+
+# Nửa năm nhìn lại (01/2022-06/2021)
 
 # Nửa năm nhìn lại (06/2021-12/2021)
 
