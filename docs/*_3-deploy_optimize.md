@@ -5,9 +5,19 @@ https://github.com/telexyz/fivefingers
 # Optimizing
 
 
+RULE OF THUMBS
+
+Ở phần càng cơ bản càng tránh dùng Supervised Machine learning vì cần phải gán nhãn dữ liệu và bộ ML decoder chạy khá chậm.
+
+Áp dụng tối đa pattern matching, kết hợp với dynamic programming để ra kết quả tối ưu toàn cục.
+
+- - -
+
+NÊN DÙNG
+
 ## Dùng rule-based thay cho IMF Trie để dự đoán âm tiết đang gõ
 
-* Giảm dung lượng do không phải tích hợp trie lib
+* Giảm kích thước chương trình do không phải tích hợp trie lib
 
 * Tốc độ chạy cực nhanh do rules được hard-coded
 
