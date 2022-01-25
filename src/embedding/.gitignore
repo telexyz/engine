@@ -1,0 +1,4 @@
+word2vec
+*.pyc
+__pycache__
+data
