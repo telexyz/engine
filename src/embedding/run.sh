@@ -7,12 +7,13 @@
 # Edited from https://raw.githubusercontent.com/zhezhaoa/ngram2vec/master/ngram_example.sh
 memory_size=4
 cpus_num=1
-corpus=/Users/t/repos/telexyz/phaps/data/all.txt
+corpus=Phaps.xyz
 output_path=data
 
 mkdir -p ${output_path}
 
 python ngram2vec/corpus2vocab.py --corpus_file ${corpus} --vocab_file ${output_path}/vocab --memory_size ${memory_size} --feature ngram --order 2
+
 python ngram2vec/corpus2pairs.py --corpus_file ${corpus} --pairs_file ${output_path}/pairs --vocab_file ${output_path}/vocab --processes_num ${cpus_num} --cooccur ngram_ngram --input_order 1 --output_order 2
 
 # Concatenate pair files. 
