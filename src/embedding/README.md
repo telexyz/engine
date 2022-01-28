@@ -19,8 +19,8 @@ ngram2vec toolkit could be used for learning text embedding. Text embeddings tra
 
 * Đọc hiểu thuật toán SGNS (skip-gram negative sampling)
 
-  https://aegis4048.github.io/optimize_computational_efficiency_of_skip-gram_with_negative_sampling
-
+  http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
+  
   Vẫn chưa hiểu thì mua e-book về mà đọc https://www.chrismccormick.ai/word2vec-ebook
 
 
