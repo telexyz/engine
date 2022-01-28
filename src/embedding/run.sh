@@ -6,9 +6,9 @@
 
 mkdir -p data
 
-python ngram2vec/corpus2vocab.py --corpus_file Phaps.xyz --vocab_file data/vocab --memory_size 4 --feature ngram --order 2
+python ngram2vec/corpus2vocab.py --corpus_file Phrases.xyz --vocab_file data/vocab --memory_size 4 --feature ngram --order 2
 
-python ngram2vec/corpus2pairs.py --corpus_file Phaps.xyz --pairs_file data/pairs --vocab_file data/vocab --processes_num 2 --cooccur ngram_ngram --input_order 1 --output_order 2
+python ngram2vec/corpus2pairs.py --corpus_file Phrases.xyz --pairs_file data/pairs --vocab_file data/vocab --processes_num 2 --cooccur ngram_ngram --input_order 1 --output_order 2
 
 # Concatenate pair files. 
 if [ -f "data/pairs" ]; then
