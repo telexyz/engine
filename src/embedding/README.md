@@ -10,24 +10,14 @@ ngram2vec toolkit could be used for learning text embedding. Text embeddings tra
 [TODO]
 
 
-* Tìm hiểu về `word2phrase`
-
-  https://github.com/chrisjmccormick/word2vec_commented/blob/master/word2phrase.c
-
-	Each run of the word2phrase tool looks at combinations of two words (or tokens), so the first pass would turn "New York" into "New_York" and the second pass would turn "New_York City" into "New_York_City".
-
-
-[>> DOING <<]
-
 * Cài đặt lại lấy input là `u16` token_id 
   (18k syllable_id, 14k oos_id và 32k word_id chọn lọc trong corpus)
 
-  Không cần hash_table, nữa nên chỉ cần lưu 1 mảng 0..2^16
+  Không cần hash_table, nữa nên chỉ cần lưu 1 mảng 0..2^16-1
 
+[>> DOING <<]
 
 * Đọc hiểu thuật toán SGNS (skip-gram negative sampling)
-
-  https://www.cs.upc.edu/~padro/ahlt/2020/lectures/06-wordvectors.pdf
 
   https://aegis4048.github.io/optimize_computational_efficiency_of_skip-gram_with_negative_sampling
 
@@ -35,6 +25,13 @@ ngram2vec toolkit could be used for learning text embedding. Text embeddings tra
 
 
 [DONE]
+
+* Tìm hiểu về `word2phrase`
+
+  https://github.com/chrisjmccormick/word2vec_commented/blob/master/word2phrase.c
+
+  Each run of the word2phrase tool looks at combinations of two words (or tokens), so the first pass would turn "New York" into "New_York" and the second pass would turn "New_York City" into "New_York_City".
+
 
 * Gắp comments từ bản gốc sang `word2vec.c` để hiểu hơn về cách cài đặt thuật toán
 
