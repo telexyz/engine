@@ -1,4 +1,4 @@
-## ArchiText: Interactive Hierarchical Topic Modeling
+https://towardsdatascience.com/how-to-perform-topic-modeling-with-top2vec-1ae9bb4e89dc
 
 https://faculty.cc.gatech.edu/~aendert3/resources/Kim2020ArchiText.pdf
 
