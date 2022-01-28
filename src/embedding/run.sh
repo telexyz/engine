@@ -6,7 +6,7 @@
 
 # Edited from https://raw.githubusercontent.com/zhezhaoa/ngram2vec/master/ngram_example.sh
 memory_size=4
-cpus_num=1
+cpus_num=2
 corpus=Phaps.xyz
 output_path=data
 
