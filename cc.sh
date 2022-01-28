@@ -2,4 +2,4 @@
 scc --exclude-dir src/lib --exclude-dir .save -M \.txt --no-cocomo
 rm -rf **/zig-cache **/zig-out
 lsd -F --group-dirs=first src
-time ~/z build test
+z build test
