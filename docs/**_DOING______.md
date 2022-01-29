@@ -27,7 +27,7 @@ _NOTE_: Phần này ko cần `n-gram`, không cần `syllables2words` mà cần 
 
 * Nhóm âm tiết thành từ
 * Loại bỏ stopwords
-* Áp dụng Hierarchical Topic Mining via Joint Spherical Tree and Text Embedding
+* Áp dụng Hierarchical Topic Mining via Joint Spherical Tree and Text Embedding (xem https://github.com/telexyz/embedding)
 
 - - -
 

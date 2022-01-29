@@ -1,6 +1,0 @@
-word2phrase
-word2vec
-*.pyc
-__pycache__
-data
-*.xyz
