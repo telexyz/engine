@@ -235,7 +235,7 @@ pub fn write_transforms_to_file(
 
     while (i < text.tokens_num) : (i += 1) {
         if (text_utils.writeTokenInfo(text.tokens_infos.get(i), text)) {
-            if (text.line_bytes_len == 0) continue;
+            if (text.line_bytes_len == 1) continue;
 
             text.line_bytes[text.line_bytes_len] = '\n';
             text.code_bytes[text.code_bytes_len] = '\n';
