@@ -10,14 +10,14 @@ const Base64Encoder = std.base64.standard_no_pad.Encoder;
 
 pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     var ptr = tk_info.trans_ptr(text);
+    var byte: u8 = ptr[1];
 
-    if (ptr[1] == '\n') {
+    if (byte == '\n' or byte == '.') {
         return true; // end of line
     }
 
     const len = ptr[0];
     if (len == 0) { // handle token len > 255
-        var byte: u8 = undefined;
         while (true) {
             ptr += 1;
             byte = ptr[0];
