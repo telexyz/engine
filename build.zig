@@ -16,14 +16,11 @@ pub fn build(b: *std.build.Builder) void {
     exe.setBuildMode(mode);
     exe.install();
 
-    // Build count_n_gram
-    const count = b.addExecutable("telecount", "src/count_n_gram.zig");
-    count.setTarget(target);
-    count.setBuildMode(mode);
-    count.install();
-
-    const count_step = b.step("count", "Build count n-grams");
-    count_step.dependOn(&count.step);
+    // Build 1,2,3,4-gram models
+    const ngram = b.addExecutable("telegram", "src/telegram.zig");
+    ngram.setTarget(target);
+    ngram.setBuildMode(mode);
+    ngram.install();
 
     // Test all
     const all_tests = b.addTest("src/test.zig");
