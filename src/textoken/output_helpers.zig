@@ -97,6 +97,9 @@ pub fn write_mktn_vs_0m0t_types_to_files(
 
     // Sort by type length desc
     std.sort.sort(TokenInfo, tokens, {}, order_by_len_desc);
+
+    if (tokens.len == 0) return;
+
     const tokens_len_1 = tokens.len - 1;
     //
     for (tokens) |token, j| {
