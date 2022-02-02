@@ -6,12 +6,12 @@ cp ./zig-out/bin/* ~/bin
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense
-# zig run src/count_n_gram.zig -- data/sample_output.txt.cdx
+# zig run src/telegram.zig -- data/sample_output.txt.cdx
 
-# z run src/telexify.zig -O ReleaseFast -- ../data/combined.txt ../data/combined.xyz dense
-# z run src/make_n_gram.zig -O ReleaseFast -- ../data/combined.xyz.cdx
+# zig run src/telexify.zig -O ReleaseFast -- ../data/combined.txt ../data/combined.xyz dense
+# zig run src/make_n_gram.zig -O ReleaseFast -- ../data/combined.xyz.cdx
 
 # rm data/??-*
-# z build
+# zig build
 # ./zig-out/bin/telexify ../phaps/data/all.txt data/phaps.utf8 utf8
-# z run src/count_n_gram.zig -- data/phaps.utf8.cdx
+zig run src/telegram.zig -- data/phaps.utf8.cdx
