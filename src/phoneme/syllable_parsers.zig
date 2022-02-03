@@ -884,7 +884,7 @@ inline fn _amDau(str: []const u8) AmDau {
     };
 }
 
-fn canBeVietnamese(am_tiet: []const u8) bool {
+pub fn canBeVietnamese(am_tiet: []const u8) bool {
     // return parseAmTietToGetSyllable(false, std.debug.print, am_tiet).can_be_vietnamese;
     return parseAmTietToGetSyllable(false, printNothing, am_tiet).can_be_vietnamese;
 }

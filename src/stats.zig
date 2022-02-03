@@ -72,8 +72,14 @@ fn countInvalidSyllableIds(details: bool) void {
     var i: Syllable.UniqueId = 0;
     var n: Syllable.UniqueId = 0;
 
+    var buffer: [16]u8 = undefined;
+    const buff = buffer[0..];
+
     while (i < Syllable.MAXX_ID) : (i += 1) {
-        if (!parsers.validateSyllable(Syllable.newFromId(i))) {
+        // const invalid = !parsers.validateSyllable(Syllable.newFromId(i));
+        const utf8 = Syllable.newFromId(i).printBuffUtf8(buff);
+        const invalid = !parsers.canBeVietnamese(utf8);
+        if (invalid) {
             n += 1;
             if (details) {
                 std.debug.print("{d} ", .{i});
