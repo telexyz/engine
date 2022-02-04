@@ -52,7 +52,7 @@ pub fn NGram() type {
         }
 
         pub fn loadSyllableIdsCdxFile(self: *Self, filename: []const u8) !void {
-            var file = try std.fs.cwd().openFile(filename, .{ .read = true });
+            var file = try std.fs.cwd().openFile(filename, .{});
             defer file.close();
 
             const input_bytes = try file.reader().readAllAlloc(

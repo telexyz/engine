@@ -216,7 +216,7 @@ pub const Text = struct {
 
     pub fn initFromFile(self: *Text, input_filename: []const u8) !void {
         self.initAllocatorIfNeeded();
-        var input_file = try std.fs.cwd().openFile(input_filename, .{ .read = true });
+        var input_file = try std.fs.cwd().openFile(input_filename, .{});
         defer input_file.close();
         var input_bytes = try input_file.reader().readAllAlloc(self.init_allocator, MAX_INPUT_FILE_SIZE);
         self.can_free_input_bytes = true;
