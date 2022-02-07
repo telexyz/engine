@@ -16,9 +16,9 @@ stage-1/ còn BPE và tạo danh sách các từ tiếng Việt hiếm/vay mư�
 
 stage-2/ hoàn thiện thật đơn giản, chỉ cần dict_matching ra mọi khả năng có thể gộp âm tiết thành từ là xong. Mô hình ngôn ngữ sử dụng n-gram tinh gọn để có thể nhúng vào wasm.
 
-stage-3/ cần triển khai nhanh và đưa vào sử dụng thật để cải tiến liên tục và collect data từ người dùng.
+stage-3/ triển khai nhanh để liên tục thử nghiệm và cải tiến
 
-stage-4/ thú vị, đã chốt được phương án làm inverted indexing !!! Sau khi index có thể quản từng token một tới độ sâu ở mức văn bản, đoạn, câu, từ, dưới từ ... tùy thích. Chỉ cần biết token đang ở đâu ở mức đoạn, sau đó dùng bộ parse mạnh đã xây dựng ở stage-1 để bóc tách tiếp.
+stage-4/ thú vị, đã chốt được phương án làm inverted indexing !!! Sau khi index có thể quản từng token một tới độ sâu ở mức văn bản, đoạn, câu, từ, dưới từ ... tùy thích. Chỉ cần biết token đang ở đâu ở mức phân đoạn, sau đó dùng bộ parser mạnh đã xây dựng ở stage-1 để bóc tách tiếp.
 
 - - -
 
