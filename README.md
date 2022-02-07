@@ -1,19 +1,16 @@
 !!! LỖI: phát hiện nhiều cặp id cùng map về 1 text !!!!
+
 18522 = 17850, 18018 = 17946, 18534 = 18198, 18535 = 18199, 18536 = 18200, 18537 = 18201, 18538 = 18202, 18539 = 18203, 18540 = 18204, 18541 = 18205, 18542 = 18206, 18543 = 18207, 18544 = 18208, 18545 = 18209, 18546 = 18210, 18547 = 18211, 18548 = 18212, 18549 = 18213, 18550 = 18214, 18551 = 18215, 18560 = 18224, 18561 = 18225, 18562 = 18226, 18563 = 18227
 
 - - -
 
-# stage-1: 99% done `docs/*1-viet_token.md`
+### stage-1: 99% done `docs/*1-viet_token.md`
 
-# stage-2: 60% done `docs/*2-syllabling.md`
+### stage-2: 60% done `docs/*2-syllabling.md`
 
-# stage-3: 10% done `https://github.com/telexyz/fivefingers`
+### stage-3: 10% done `https://github.com/telexyz/fingers`
 
-# stage-4: 00% done `docs/*_4-index_control.md`
-
-# stage-5: 00% done `docs/_5-text_mining.md`
-
-# stage-6: 00% done UI / UX
+### stage-4: 00% done `docs/*_4-index_control.md`
 
 stage-1/ còn BPE và tạo danh sách các từ tiếng Việt hiếm/vay mượn không phải syllables. Hiện tại chỉ tập trung vào syllables nên phần này có thể gác qua một bên và coi như xong!
 
@@ -21,15 +18,12 @@ stage-2/ hoàn thiện thật đơn giản, chỉ cần dict_matching ra mọi k
 
 stage-3/ cần triển khai nhanh và đưa vào sử dụng thật để cải tiến liên tục và collect data từ người dùng.
 
-stage-4/ rất thú vị, đã chốt được phương án làm inverted indexing hay !!! Sau khi index có thể quản từng token một tới độ sâu ở mức văn bản, đoạn, câu, từ, dưới từ ... tùy thích. Chỉ cần biết token đang ở đâu ở mức đoạn, sau đó dùng bộ parse mạnh đã xây dựng ở stage-1 để bóc tách tiếp.
-
-stage-5/ chunking, tagging, NER ... và cần nhất là word2vec để mining sematic như topic modeling !!! Phần này sẽ bổ trợ cho stage-4 rất mạnh. 
-=> Cần một UI xịn để hiển thị các thông tin mining được từ text trong việc tìm kiếm và hiển thị kết quả tìm kiếm !!! => stage-6 !!!
-
+stage-4/ thú vị, đã chốt được phương án làm inverted indexing !!! Sau khi index có thể quản từng token một tới độ sâu ở mức văn bản, đoạn, câu, từ, dưới từ ... tùy thích. Chỉ cần biết token đang ở đâu ở mức đoạn, sau đó dùng bộ parse mạnh đã xây dựng ở stage-1 để bóc tách tiếp.
 
 - - -
 
 # Nửa năm nhìn lại (01/2022-06/2021)
+. . .
 
 # Nửa năm nhìn lại (06/2021-12/2021)
 
