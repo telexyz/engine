@@ -12,11 +12,12 @@
 
 ## stage-1: Tokenizer cho TV đã gần xong (còn OOV)
 
-## stage-2: Syllabling (cách nói chơi chữ) có nghĩa là tổng hợp các âm tiết thành từ.
+## stage-2: Syllabling tập trung v âm tiết TV bao gồm: 
 
-stage-2 đã lên được một kiến trúc có thể sử dụng chung cho nhiều modules.
+* gộp âm tiết thành từ
+* nhận ra lỗi chính tả / lỗi ngữ pháp và gợi ý sửa lỗi
 
-__Note__: Có 2 cách xây dựng LM: n-gram là đơn giản nhất. Ngược lại, phức tạp với độ chính xác cao là Deep Learning cần phần cứng và mềm chuyên dụng.
+__Note__: Phần này cần sử dụng LM. Có 2 cách xây dựng LM: n-gram là đơn giản nhất. Ngược lại, phức tạp với độ chính xác cao là Deep Learning cần phần cứng và mềm chuyên dụng.
 
 => Sử dụng n-gram trước để impl và triển khai đơn giản + đủ dùng (baseline). Tiếp theo khám phá NNLM từ thấp tới cao như RNN < LSTM < Transformer 
 
