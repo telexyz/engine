@@ -17,18 +17,18 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     }
 
     const len = ptr[0];
-    if (len == 0) { // handle token len > 255
-        while (true) {
-            ptr += 1;
-            byte = ptr[0];
-            if (byte == '\n') break;
-            text.line_bytes[text.line_bytes_len] = byte;
-            text.line_bytes_len += 1;
-        }
-        text.line_bytes[text.line_bytes_len] = ' ';
-        text.line_bytes_len += 1;
-        return false;
-    }
+    // if (len == 0) { // handle token len > 255
+    //     while (true) {
+    //         ptr += 1;
+    //         byte = ptr[0];
+    //         if (byte == '\n') break;
+    //         text.line_bytes[text.line_bytes_len] = byte;
+    //         text.line_bytes_len += 1;
+    //     }
+    //     text.line_bytes[text.line_bytes_len] = ' ';
+    //     text.line_bytes_len += 1;
+    //     return false;
+    // }
 
     if (tk_info.isSyllable() or (len <= 20 and tk_info.attrs.category == .alphmark)) {
         text.line_vi_tokens_len += len + 1; // len(token + space)
@@ -74,15 +74,17 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
 
     // LINE_BYTES
     // Write token to line_bytes
-    var i: usize = 1;
-    while (i <= len) : (i += 1) {
-        text.line_bytes[text.line_bytes_len] = ptr[i];
+
+    if (tk_info.isSyllable()) {
+        var i: usize = 1;
+        while (i <= len) : (i += 1) {
+            text.line_bytes[text.line_bytes_len] = ptr[i];
+            text.line_bytes_len += 1;
+        }
+        // Write space after
+        text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
     }
-    // Write space after
-    text.line_bytes[text.line_bytes_len] = ' ';
-    text.line_bytes_len += 1;
-
     return false;
 }
 
