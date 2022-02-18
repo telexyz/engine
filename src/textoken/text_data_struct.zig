@@ -82,10 +82,15 @@ pub const Text = struct {
     estimated_tokens_num: usize = undefined,
     tokens_infos: std.MultiArrayList(TokenInfo) = undefined,
 
+    line_tokens_count: usize = 0,
+    line_syllables_count: usize = 0,
+
     pub fn initNewLine(self: *Text) void {
         self.line_vi_tokens_len = 0;
         self.line_bytes_len = 0;
         self.code_bytes_len = 0;
+        self.line_tokens_count = 0;
+        self.line_syllables_count = 0;
     }
 
     // For 1Gb text input (1024*1024*1024 bytes)

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # rm -rf ***/zig-cache ***/zig-out
-zig build -Dcpu=x86_64 -Drelease-fast=true
+zig build -Drelease-fast=true
 cp ./zig-out/bin/* ~/bin
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts

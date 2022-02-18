@@ -12,23 +12,24 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     var ptr = tk_info.trans_ptr(text);
     var byte: u8 = ptr[1];
 
-    if (byte == '\n' or byte == '.') {
+    // if (byte == '\n' or byte == '.') {
+    if (byte == '\n') {
         return true; // end of line
     }
 
     const len = ptr[0];
-    // if (len == 0) { // handle token len > 255
-    //     while (true) {
-    //         ptr += 1;
-    //         byte = ptr[0];
-    //         if (byte == '\n') break;
-    //         text.line_bytes[text.line_bytes_len] = byte;
-    //         text.line_bytes_len += 1;
-    //     }
-    //     text.line_bytes[text.line_bytes_len] = ' ';
-    //     text.line_bytes_len += 1;
-    //     return false;
-    // }
+    if (len == 0) { // handle token len > 255
+        while (true) {
+            ptr += 1;
+            byte = ptr[0];
+            if (byte == '\n') break;
+            text.line_bytes[text.line_bytes_len] = byte;
+            text.line_bytes_len += 1;
+        }
+        text.line_bytes[text.line_bytes_len] = ' ';
+        text.line_bytes_len += 1;
+        return false;
+    }
 
     if (tk_info.isSyllable() or (len <= 20 and tk_info.attrs.category == .alphmark)) {
         text.line_vi_tokens_len += len + 1; // len(token + space)
@@ -65,7 +66,10 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
         text.code_bytes[text.code_bytes_len] = std.base64.standard_alphabet_chars[idx];
 
         text.code_bytes_len += 3;
+
+        text.line_syllables_count += 1;
     }
+    text.line_tokens_count += 1;
 
     // const is_true_joiners = switch (ptr[1]) {
     //     '_', '-' => tk_info.attrs.fenced_by_spaces == .none and len == 1,
@@ -74,7 +78,6 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
 
     // LINE_BYTES
     // Write token to line_bytes
-
     if (tk_info.isSyllable()) {
         var i: usize = 1;
         while (i <= len) : (i += 1) {
@@ -139,12 +142,12 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         offset_ptr += buff.len;
     } else if (text.convert_mode == 3) {
         // parts
-        if (char_stream.first_char_is_upper) {
-            offset_ptr.* = '^';
-            offset_ptr += 1;
-            offset_ptr.* = ' ';
-            offset_ptr += 1;
-        }
+        // if (char_stream.first_char_is_upper) {
+        //     offset_ptr.* = '^';
+        //     offset_ptr += 1;
+        //     offset_ptr.* = ' ';
+        //     offset_ptr += 1;
+        // }
         const buff = syllable.printBuffParts(offset_ptr[0..16]);
         offset_ptr += buff.len;
         //
