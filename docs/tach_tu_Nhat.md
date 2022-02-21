@@ -102,7 +102,7 @@ Tiếng Nhật không dùng dấu cách (space), vậy nên cần phải tách v
 
 Nhìn chung, hình vị và phân tích hình thái học tiếng Nhật có sự khác biệt với tiếng Âu - Mỹ, định nghĩa thế nào là từ cũng lỏng lẻo hơn (word is ill-defined). Từ giờ trở đi hình vị và từ được dùng thay thế lẫn nhau như là một đơn vị của quá trình phân tách.
 
-Tiếng Nhật có nhiều tiêu chuẩn hình thái học khác nhau như IPADic, Jumandic, UnniDic. Hầu hết mọi bộ phân tích tiếng Nhật đều dùng từ điển phân tách để định nghĩa cách tách từ của từng corpus một. Mục tiêu của từ điển phân tách là làm sao cho _MỘT CÂU CHỈ CÓ MỘT CÁCH PHÂN TÁCH DUY NHẤT_. Bộ từ điển như thế cần được cùng duy trì với một corpus được gán nhãn. Tiếng Trung không dùng từ điển phân tách. Từ điển được tạo nên bằng cách tập hợp tất cả các từ độc nhất có trong corpus. Tuy thế, hầu hết bộ phân tách để sử dụng nhiều trích chọn đặc trưng và các tài nguyên bổ xung được huấn luyện từ trước như n-gram ký tự, word embeddings, và làm tăng kích thước của mô hình.
+Tiếng Nhật có nhiều tiêu chuẩn hình thái học khác nhau như IPADic, Jumandic, UnniDic. Hầu hết mọi bộ phân tích tiếng Nhật đều dùng từ điển phân tách để định nghĩa cách tách từ của từng corpus một. Mục tiêu của từ điển phân tách là làm sao cho _MỘT CÂU CHỈ CÓ MỘT CÁCH PHÂN TÁCH DUY NHẤT_. Bộ từ điển như thế cần được cùng duy trì với một corpus được gán nhãn. Tiếng Trung không dùng từ điển phân tách. Từ điển được tạo nên bằng cách tập hợp tất cả các từ độc nhất có trong corpus. Tuy thế, hầu hết bộ phân tách đều sử dụng nhiều trích chọn đặc trưng và các tài nguyên bổ xung được huấn luyện từ trước như n-gram ký tự, word embeddings, và làm tăng kích thước của mô hình.
 
 Có hai hướng đi chính trong phân tách supervised là: _POINTWISE VÀ SEARCH-BASED_. Pointwise ra quyết định cho điểm giao của mỗi cặp ký tự dựa vào các thông tin chung quanh giao điểm đó (do tiếng Nhật không dùng dấu cách còn với tiếng Việt là điểm giao của mỗi cặp âm tiết); việc ra quyết định là độc lập ở mỗi điểm. Search-based tìm kiếm một giải pháp tối ưu (tối đa hoá một hàm mục tiêu / hàm tính điểm)
 
@@ -145,10 +145,3 @@ https://github.com/wanasit/kotori
 https://github.com/ku-nlp/jumanpp | [slides](files/jumanpp_slides.pdf)
 
 A dictionary independent thread-safe library for morphological analysis using LATTICE-BASED SEGMENTATION optimized for n-best output. It does not depend on Jumandic or Japanese Language (albeit there are some Japanese-specific functionality). See [this tutorial project](https://github.com/eiennohito/jumanpp-t9) which shows how to implement a something similar to a T9 text input for the case when there are no word boundaries in the input text.
-
-```sh
-# brew install protobuf
-mkdir -p build && cd build
-cmake .. -DCMAKE_CXX_FLAGS="-march=native" -DCMAKE_BUILD_TYPE=Release
-make # -j
-```
