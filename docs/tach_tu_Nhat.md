@@ -53,6 +53,7 @@ return lattice.findTheBestPath()
 ```
 ![findAllTermStartingAt](files/luoi_tu_tieng_nhat.png)
 ![lattice.add](files/luoi_tu_cost_and_connect.png)
+
 Mỗi đỉnh và mỗi kết nối của lưới đều có một trọng số định giá chi phí (được định nghĩa sẵn trong từ điển). Chi phí càng nhỏ khả năng được lựa chọn của đỉnh và khả năng được lựa chọn của kết nối càng cao.
 
 Kết quả cuối cùng quy về bài toán tìm kiếm đường đi cho chi phí tối thiểu.
