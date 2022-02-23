@@ -15,6 +15,9 @@ Mục tiêu cuối phân tách âm tiết utf-8 thành `âm đầu + âm giữa 
 - âm cuối `i`
 - thanh điệu `r` (hỏi)
 
+b1/ Âm tiết luôn có nguyên âm `a,e,i,o,u`
+
+Làm thế nào tìm ra được vị trí các ký tự này trong chuỗi bằng SIMD?
 
 - - -
 
@@ -23,6 +26,19 @@ Mục tiêu cuối phân tách âm tiết utf-8 thành `âm đầu + âm giữa 
 
 http://0x80.pl/articles/simd-byte-lookup.html
 
+The main ingredient of the techniques shown below is instruction `pshufb` (`_mm_shuffle_epi8`), which is present in SSE, AVX2 and also AVX512BW. The instruction does parallel byte lookup in a 16-byte register (or lane, in AVX2 and AVX512 variants) using 4-bit indices from another vector.
+
+`extern __m128i _mm_shuffle_epi8(__m128i a, __m128i b);`
+
+Shuffle bytes from `a` according to contents of `b`.
+Interpreting `a`, `b`, and `r` as arrays of `unsigned 8-bit` integers:
+
+```c like algo:
+for (i = 0; i < 16; i++) {
+ 	if (b[i] & 0x80) r[i] = 0;  // 0x1000_0000
+	else r[i] = a[b[i] & 0x0F]; // 0x0000_1111
+}
+```
 
 - - -
 
