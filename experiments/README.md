@@ -8,3 +8,9 @@ SSE = streaming SIMD extensions
 
 SSE2 data types: anything that fits into 16 bytes, e.g.,
 
+
+https://stackoverflow.blog/2020/07/08/improving-performance-with-simd-intrinsics-in-three-use-cases
+
+
+
+https://www.eidos.ic.i.u-tokyo.ac.jp/~tau/lecture/parallel_distributed/slides/pdf/simd2.pdf
