@@ -1,3 +1,26 @@
+# Dùng SIMD để phân tích âm vị học âm tiết tiếng Việt
+
+Mục tiêu cuối phân tách âm tiết utf-8 thành `âm đầu + âm giữa + âm cuối + thanh điệu`
+
+
+## Bài toán nhập môn: phân tách âm tiết ở dạng ascii-telex
+
+* Để làm quen với lập trình hệ thống và SIMD
+
+* Tập làm quen với phân tích ngữ âm
+
+`tuoizr` => `t` + `uoz` + `i` + `r`
+- âm đầu `t`
+- âm giữa `uoz` (`uô`)
+- âm cuối `i`
+- thanh điệu `r` (hỏi)
+
+
+- - -
+
+
+## Tài liệu SIMD
+
 https://sites.cs.ucsb.edu/~tyang/class/240a17/slides/SIMD.pdf
 
 Intel SSE / SSE2
