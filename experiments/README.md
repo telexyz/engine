@@ -61,6 +61,9 @@ The main problem with these standard algorithms is a silent assumption that comp
 - - -
 
 
+https://github.com/travisstaloch/simdjzon | nhiều code mẫu SIMD = Zig
+
+
 https://github.com/michal-z/zig-gamedev/tree/main/libs/zmath
 
 
