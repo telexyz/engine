@@ -64,7 +64,10 @@ The main problem with these standard algorithms is a silent assumption that comp
 https://github.com/travisstaloch/simdjzon | nhiều code mẫu SIMD = Zig
 
 
-https://github.com/michal-z/zig-gamedev/tree/main/libs/zmath
+https://www.eidos.ic.i.u-tokyo.ac.jp/~tau/lecture/parallel_distributed/slides/pdf/peak_cpu.pdf
+
+
+- - -
 
 
 https://sites.cs.ucsb.edu/~tyang/class/240a17/slides/SIMD.pdf
@@ -76,6 +79,3 @@ SSE = streaming SIMD extensions
 • AVX, new 256-bit registers [2011]
 
 SSE2 data types: anything that fits into 16 bytes, e.g.,
-
-
-https://www.eidos.ic.i.u-tokyo.ac.jp/~tau/lecture/parallel_distributed/slides/pdf/simd2.pdf
