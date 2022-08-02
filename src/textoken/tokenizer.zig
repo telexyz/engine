@@ -1,4 +1,5 @@
-// The lengthy version of tokenizer in-case we need a reference to the original version https://github.com/telexyz/telex-engine/blob/04f65c74ec3a0f0b8350fc518faddcf325665de4/src/tokenizer.zig
+// This is re-written of the original lengthy version
+// https://github.com/telexyz/engine/blob/04f65c74ec3a0f0b8350fc518faddcf325665de4/src/tokenizer.zig
 
 const std = @import("std");
 const print = std.debug.print;

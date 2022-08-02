@@ -1,3 +1,8 @@
+- Tìm hiểu thuật toán nén `integer` bằng SIMD
+  https://upscaledb.com/blog/0009-32bit-integer-compression-algorithms.html
+  https://upscaledb.com/blog/0012-32bit-integer-compression-algorithms-part2.html
+  https://upscaledb.com/blog/0013-32bit-integer-compression-algorithms-part3.html
+
 ## Đặt vấn đề
 
 `docs/syllable_n_token.id.md` chỉ ra rằng chỉ cần `u15` là dư sức để định danh mọi syllables tiếng Việt và OOV trong corpus. Để tiện cho máy tính xử lý theo byte ta dùng `u16` để định danh tokens nói chung nên sẽ dư ra ít nhất 32k slots để chứa từ quan trọng không phải là syllables (từ ghép, từ tiếng dân tộc thiểu số, từ vay mượn từ tiếng nước ngoài, từ lóng, từ viết tắt, các ký hiệu hay dùng ...) lọc ra bằng từ điển và thống kê.

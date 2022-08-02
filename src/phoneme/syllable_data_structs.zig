@@ -121,8 +121,8 @@ pub const AmGiua = enum {
 
     oa,
     oe,
-    ooo,
-    uy, // boong // 15th
+    ooo, // boong
+    uy, // 15th
 
     iez, // iê <= ie (tiên <= tien, tieen, tiezn)
     oaw, // oă (loắt choắt)
