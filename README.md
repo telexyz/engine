@@ -16,8 +16,15 @@ stage-4/ thú vị, đã chốt được phương án làm inverted indexing !!!
 
 - - -
 
-# Nửa năm nhìn lại (01/2022-06/2021)
-. . .
+# Nửa năm nhìn lại (01/2022-06/2022)
+
+Thời gian này tìm hiểu kỹ hơn về mô hình ngôn ngữ dùng deep learning, kiến trúc transformer, và đặc biệt các kiến trúc tinh gọn để giảm thời gian huấn luyện và kích thước mô hình mà ko làm giảm quá nhiều độ chính xác.
+
+Các mô hình ngôn ngữ lớn, liên quan tới deep learning thường đòi hỏi lượng tính toán lớn (chạy vài ngày thậm chí vài tuần trên 1 máy tính cực mạnh, 4 GPUs chẳng hạn), nên có sự hạn chế cho người mới bắt đầu. Họ thường thấy "ngợp" về số lượng dữ liệu cần thu thập, về cấu hình máy tính tối thiểu và "nản" khi phải chờ đợi lâu mới có kết quả.
+
+Phần này nếu sự dụng lại LLM (large language model) được huấn luyện bởi bên thú 3 hoặc kết hợp với đối tác để thử nghiệm và triển khai thì hợp lý hơn. Hoặc cần 1 nhân sự chuyên tâm khai thác mảng này.
+
+Có nhiều điều thú vị cần được kiểm chứng như các cách tokenize tiếng Việt sẽ ảnh hưởng tới độ chính xác của mô hình nhiều hay ít? Việc lọc dữ liệu hay lựa chọn dữ liệu cẩn thận cũng vậy. Rồi sau đó tới việc chọn mộ mô hình phù hợp với bộ dữ liệu đang có. Các cách tiếp cận khác ngoài deep learning ví dụ như online learning / active learning cho bộ gõ vì khi tương tác với người dùng ta liên tục nhận được những phản hồi và dữ liệu mới nhất, cập nhật nhất. Cần một cách tiếp cận để khai thác được lượng dữ liệu tươi mới này, và mô hình cũng cần phản hồi nhanh vì bộ gõ cần tương tác với độ trễ thấp nhất có thể để tạo ra cảm giác mượt mà khi sử dụng.
 
 # Nửa năm nhìn lại (06/2021-12/2021)
 
