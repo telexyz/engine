@@ -2,7 +2,7 @@
 
 ### stage-2: 60% done `docs/*2-syllabling.md`
 
-### stage-3: 10% done `https://github.com/telexyz/fingers`
+### stage-3: 10% done `https://github.com/telexyz/fingers-sublime`
 
 ### stage-4: 00% done `docs/*_4-index_control.md`
 
