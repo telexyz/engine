@@ -78,13 +78,21 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
 
     // LINE_BYTES
     // Write token to line_bytes
+    var i: usize = 1;
     if (tk_info.isSyllable()) {
-        var i: usize = 1;
-        while (i <= len) : (i += 1) {
-            text.line_bytes[text.line_bytes_len] = ptr[i];
-            text.line_bytes_len += 1;
-        }
-        // Write space after
+        text.line_bytes[text.line_bytes_len] = 16; // invisible char
+        text.line_bytes_len += 1;
+    }
+    while (i <= len) : (i += 1) {
+        text.line_bytes[text.line_bytes_len] = ptr[i];
+        text.line_bytes_len += 1;
+    }
+    if (tk_info.isSyllable()) {
+        text.line_bytes[text.line_bytes_len] = 16; // invisible char
+        text.line_bytes_len += 1;
+    }
+    // Write space after
+    if (tk_info.attrs.spaceAfter()) {
         text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
     }

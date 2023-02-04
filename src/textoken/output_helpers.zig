@@ -243,6 +243,8 @@ pub fn write_transforms_to_file(
             text.line_bytes[text.line_bytes_len] = '\n';
             text.code_bytes[text.code_bytes_len] = '\n';
 
+            _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+
             const no_vietnamese = text.line_vi_tokens_len == 0;
             const low_vietnamese = text.line_bytes_len > (text.line_vi_tokens_len + 1) * 2;
             const most_vietnamese = text.line_tokens_count > 0 and
@@ -258,7 +260,6 @@ pub fn write_transforms_to_file(
                 _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
             } else if (most_vietnamese) {
                 // Tiếng Việt chiếm đại đa số
-                _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
             } else {
                 // Tiếng Việt chiếm đa số
