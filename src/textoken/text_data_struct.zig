@@ -240,7 +240,7 @@ pub const Text = struct {
 
         self.input_bytes = input_bytes;
 
-        self.estimated_tokens_num = self.input_bytes.len / 5; // avg 5 bytes per token
+        self.estimated_tokens_num = self.input_bytes.len / 3; // avg bytes per token
 
         self.tokens_infos = std.MultiArrayList(TokenInfo){};
 
@@ -259,19 +259,19 @@ pub const Text = struct {
         self.syllovan_types = std.StringHashMap(u32).init(self.init_allocator);
 
         // Init bytes
-        self.alphabet_bytes = try self.init_allocator.alloc(u8, 16 * ONE_MB);
+        self.alphabet_bytes = try self.init_allocator.alloc(u8, 64 * ONE_MB);
         self.alphabet_bytes_len = 0;
 
-        self.nonalpha_bytes = try self.init_allocator.alloc(u8, 16 * ONE_MB);
+        self.nonalpha_bytes = try self.init_allocator.alloc(u8, 64 * ONE_MB);
         self.nonalpha_bytes_len = 0;
 
         self.syllable_bytes = try self.init_allocator.alloc(u8, ONE_MB);
         self.syllable_bytes_len = 0;
 
-        self.line_bytes = try self.init_allocator.alloc(u8, ONE_MB / 2);
+        self.line_bytes = try self.init_allocator.alloc(u8, 8 * ONE_MB);
         self.line_bytes_len = 0;
 
-        self.code_bytes = try self.init_allocator.alloc(u8, ONE_MB / 2);
+        self.code_bytes = try self.init_allocator.alloc(u8, 8 * ONE_MB);
         self.code_bytes_len = 0;
 
         // Start empty token list and empty transfomed bytes
