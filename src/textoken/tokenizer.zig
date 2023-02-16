@@ -116,7 +116,7 @@ pub const Tokenizer = struct {
                     //      → Used as a new line character in Unix/Mac OS X
                     // \r\n = CR + LF → Used as a new line character in Windows
                     switch (input_bytes[index + 1]) {
-                        'n', 'r' => {
+                        'n', 'r', 't' => {
                             // Handle "\n" in facebook comments
                             char_bytes_len = 2;
                             char_type = .space;

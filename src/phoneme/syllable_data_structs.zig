@@ -643,7 +643,7 @@ pub const Syllable = struct {
         return buff[0..n];
     }
 
-    pub fn printBuffParts(self: *Syllable, buff: []u8) []const u8 {
+    pub fn printBuffParts_(self: *Syllable, buff: []u8) []const u8 {
         const blank = "";
         // n(dau) = 22 (25 - 3 (_none, gi, qu))
         const dau = switch (self.am_dau) {
@@ -714,6 +714,81 @@ pub const Syllable = struct {
         if (self.tone != ._none) {
             buff[n] = 32;
             n += 1;
+            buff[n] = @tagName(self.tone)[0];
+            n += 1;
+        }
+        return buff[0..n];
+    }
+
+    pub fn printBuffParts(self: *Syllable, buff: []u8) []const u8 {
+        const blank = "";
+        // n(dau) = 22 (25 - 3 (_none, gi, qu))
+        const dau = switch (self.am_dau) {
+            ._none => blank,
+            .zd => "dd",
+            .gi => "d",
+            .qu => "cu", // ok: qua sẽ được convert thành coa
+            else => @tagName(self.am_dau),
+        };
+        // n(giua) = 22 (23 - 1)
+        const giua = switch (self.am_giua) {
+            .ooo => "oo",
+            .iez => "yez",
+            .i => "y",
+            // Xem rút gọn âm cuối docs/syllable_n_token_ids.md
+            .a => if (self.am_cuoi == .y or self.am_cuoi == .o) "aw" else "a",
+            .oa => if (self.am_cuoi == .y) "oaw" else "oa",
+            else => @tagName(self.am_giua),
+        };
+        // n(cuoi) = 10 (13 - 3 (_none, o, y))
+        const cuoi = switch (self.am_cuoi) {
+            .o => "u",
+            .y => "i",
+            ._none => blank,
+            else => @tagName(self.am_cuoi),
+        };
+
+        // => n(parts) = 58 (22 + 22 + (10-1) + 5 (tones)) => u6
+        // 10-1: trùng âm cuối `u` với âm giữa `u`
+        var n: usize = 0;
+
+        // dau
+        if (dau.len > 0) {
+            for (dau) |byte| {
+                buff[n] = byte;
+                n += 1;
+            }
+            buff[n] = '_';
+            n += 1;
+        }
+
+        // giua
+        if (giua.len > 0) {
+            if (n > 1 and buff[n - 2] == 'u') { // qu => q u
+                buff[n - 2] = '_';
+                buff[n - 1] = if (giua.len == 1 and
+                    (giua[0] == 'a' or giua[0] == 'e')) 'o' else 'u';
+            }
+            for (giua) |byte| {
+                buff[n] = byte;
+                n += 1;
+            }
+        }
+
+        // cuoi
+        if (cuoi.len > 0) {
+            buff[n] = '|';
+            n += 1;
+            for (cuoi) |byte| {
+                buff[n] = byte;
+                n += 1;
+            }
+        }
+
+        // tone
+        buff[n] = '_';
+        n += 1;
+        if (self.tone != ._none) {
             buff[n] = @tagName(self.tone)[0];
             n += 1;
         }
