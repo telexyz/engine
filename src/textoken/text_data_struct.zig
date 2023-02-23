@@ -136,7 +136,7 @@ pub const Text = struct {
         return n;
     }
 
-    pub const TransOffset = u24; //= 2^4 * 2^10 * 2^10 = 16 * 1024 * 1024 = 16Mb
+    pub const TransOffset = u32; //= 2^2 * (2^10)^3 = 4 * 1024^3 = 4GB
     pub const TypeInfo = struct { //                 Total 10-bytes (old struct 23-bytes)
         count: u32 = 0, //                                  4-bytes
         trans_offset: TransOffset = undefined, //           3-bytes

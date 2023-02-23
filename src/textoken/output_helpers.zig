@@ -251,15 +251,19 @@ pub fn write_transforms_to_file(
             if (no_vietnamese) {
                 // Không có tiếng Việt
                 _ = try nvi_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+                _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 //
             } else if (low_vietnamese) {
                 // Tiếng Việt chiếm thiểu số
                 _ = try low_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 // _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
+                _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+                //
             } else if (most_vietnamese) {
-                // Tiếng Việt chiếm đại đa số
+                // Tiếng Việt chiếm đại đa số (> 80%)
                 // _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
                 _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+                //
             } else {
                 // Tiếng Việt chiếm đa số
                 // _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
