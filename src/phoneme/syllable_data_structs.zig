@@ -625,7 +625,7 @@ pub const Syllable = struct {
             n += 1;
         }
         // ngăn cách với mark+tone
-        buff[n] = if (spare) ' ' else '_';
+        buff[n] = if (spare) ' ' else '|';
         n += 1;
         // mark
         if (mark != 0) {
