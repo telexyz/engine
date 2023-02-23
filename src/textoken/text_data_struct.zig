@@ -122,7 +122,8 @@ pub const Text = struct {
     };
 
     const ONE_MB = 1024 * 1024;
-    const MAX_INPUT_FILE_SIZE = 2048 * ONE_MB; // 1336 ~ 1.3Gb
+    const ONE_GB = ONE_MB * ONE_MB;
+    const MAX_INPUT_FILE_SIZE = 8 * ONE_GB;
     const BUFF_SIZE = 1024; // incase input is small, estimated not correct
 
     pub inline fn get_trans_len(ptr: [*]u8) usize {
@@ -259,13 +260,13 @@ pub const Text = struct {
         self.syllovan_types = std.StringHashMap(u32).init(self.init_allocator);
 
         // Init bytes
-        self.alphabet_bytes = try self.init_allocator.alloc(u8, 64 * ONE_MB);
+        self.alphabet_bytes = try self.init_allocator.alloc(u8, 1024 * ONE_MB);
         self.alphabet_bytes_len = 0;
 
-        self.nonalpha_bytes = try self.init_allocator.alloc(u8, 64 * ONE_MB);
+        self.nonalpha_bytes = try self.init_allocator.alloc(u8, 1024 * ONE_MB);
         self.nonalpha_bytes_len = 0;
 
-        self.syllable_bytes = try self.init_allocator.alloc(u8, ONE_MB);
+        self.syllable_bytes = try self.init_allocator.alloc(u8, 8 * ONE_MB);
         self.syllable_bytes_len = 0;
 
         self.line_bytes = try self.init_allocator.alloc(u8, 8 * ONE_MB);
