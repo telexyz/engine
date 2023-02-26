@@ -146,21 +146,30 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
 
     if (text.convert_mode == 4) {
         // utf-8, lowercase
+
+        if (char_stream.first_char_is_upper) {
+            // 1: Nước => ^nuoc, VIỆT => ^^viet
+            offset_ptr.* = '^';
+            offset_ptr += 1;
+            if (char_stream.isUpper()) {
+                offset_ptr.* = '^';
+                offset_ptr += 1;
+            }
+            // 2: Nước => ^ nuoc, VIỆT => ^^ viet
+            offset_ptr.* = 32;
+            offset_ptr += 1;
+        }
+
         const buff = syllable.printBuffUtf8(offset_ptr[0..16]);
         offset_ptr += buff.len;
+        // 
     } else if (text.convert_mode == 3) {
         // parts
-        // if (char_stream.first_char_is_upper) {
-        //     offset_ptr.* = '^';
-        //     offset_ptr += 1;
-        //     offset_ptr.* = ' ';
-        //     offset_ptr += 1;
-        // }
         const buff = syllable.printBuffParts(offset_ptr[0..16]);
         offset_ptr += buff.len;
         //
     } else {
-        //
+        // dense, ...
         const is_spare_mode = (text.convert_mode == 2);
 
         // 1: Nước => ^nuoc, VIỆT => ^^viet
