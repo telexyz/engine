@@ -42,7 +42,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
             text.line_bytes[text.line_bytes_len] = ptr[i];
             text.line_bytes_len += 1;
         }
-        if (tk_info.attrs.spaceAfter()) {
+        if (tk_info.isSyllable() or tk_info.attrs.spaceAfter()) {
             text.line_bytes[text.line_bytes_len] = ' ';
             text.line_bytes_len += 1;
         }
@@ -148,16 +148,13 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
         // utf-8, lowercase
 
         if (char_stream.first_char_is_upper) {
-            // 1: Nước => ^nuoc, VIỆT => ^^viet
+            // Nước => ^nuoc, VIỆT => ^^viet
             offset_ptr.* = '^';
             offset_ptr += 1;
             if (char_stream.isUpper()) {
                 offset_ptr.* = '^';
                 offset_ptr += 1;
             }
-            // 2: Nước => ^ nuoc, VIỆT => ^^ viet
-            offset_ptr.* = 32;
-            offset_ptr += 1;
         }
 
         const buff = syllable.printBuffUtf8(offset_ptr[0..16]);

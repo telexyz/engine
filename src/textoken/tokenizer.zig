@@ -116,8 +116,12 @@ pub const Tokenizer = struct {
                     //      → Used as a new line character in Unix/Mac OS X
                     // \r\n = CR + LF → Used as a new line character in Windows
                     switch (input_bytes[index + 1]) {
-                        'n', 'r', 't' => {
-                            // Handle "\n" in facebook comments
+                        'n' => {
+                            char_bytes_len = 2;
+                            char_type = .space;
+                            first_byte = 16;
+                        }
+                        'r', 't' => {
                             char_bytes_len = 2;
                             char_type = .space;
                             first_byte = ' '; // Convert to space
@@ -213,14 +217,17 @@ pub const Tokenizer = struct {
                     }
                 } // END if (in_nonspace_token_zone)
                 //
-                if (first_byte == '\n') {
+                if (first_byte == '\n' or first_byte == 16) { \\ 16 is "\n"
                     // Record newline to treat special token
                     // it's category is nonalpha but we can check it value
                     // to know if it's newline token later
-                    const token = input_bytes[index .. index + 1];
+                    var token = input_bytes[index .. index + 1];
+                    if (first_byte == 16) {
+                        token = input_bytes[index .. index + 2];
+                    }
                     const attrs = Text.TokenAttributes{
                         .category = .nonalpha,
-                        .fenced_by_spaces = .none,
+                        .fenced_by_spaces = .both,
                     };
                     try text.recordToken(token, attrs, then_parse_syllable);
                     //
