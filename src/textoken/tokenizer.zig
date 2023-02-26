@@ -119,9 +119,10 @@ pub const Tokenizer = struct {
                         'n' => {
                             char_bytes_len = 2;
                             char_type = .space;
-                            first_byte = 16;
-                        }
+                            first_byte = 16; // Convert to special char
+                        },
                         'r', 't' => {
+                            // Handle "\n" in facebook comments
                             char_bytes_len = 2;
                             char_type = .space;
                             first_byte = ' '; // Convert to space
@@ -217,14 +218,12 @@ pub const Tokenizer = struct {
                     }
                 } // END if (in_nonspace_token_zone)
                 //
-                if (first_byte == '\n' or first_byte == 16) { \\ 16 is "\n"
+                if (first_byte == '\n' or first_byte == 16) {
                     // Record newline to treat special token
                     // it's category is nonalpha but we can check it value
                     // to know if it's newline token later
-                    var token = input_bytes[index .. index + 1];
-                    if (first_byte == 16) {
-                        token = input_bytes[index .. index + 2];
-                    }
+                    var extra: u8 = 1; if (first_byte == 16) extra = 2;
+                    const token = input_bytes[index .. index + extra];
                     const attrs = Text.TokenAttributes{
                         .category = .nonalpha,
                         .fenced_by_spaces = .both,

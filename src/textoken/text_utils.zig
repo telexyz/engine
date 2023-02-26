@@ -42,7 +42,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
             text.line_bytes[text.line_bytes_len] = ptr[i];
             text.line_bytes_len += 1;
         }
-        if (tk_info.isSyllable() or tk_info.attrs.spaceAfter()) {
+        if (tk_info.attrs.spaceAfter()) {
             text.line_bytes[text.line_bytes_len] = ' ';
             text.line_bytes_len += 1;
         }
@@ -79,7 +79,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     // LINE_BYTES
     // Write token to line_bytes
     var i: usize = 1;
-    if (text.convert_mode ==1 and tk_info.isSyllable()) { // dense mode add
+    if (text.convert_mode == 1 and tk_info.isSyllable()) { // dense mode add
         text.line_bytes[text.line_bytes_len] = 16; // an invisible char
         text.line_bytes_len += 1;
     }
@@ -92,7 +92,7 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
         text.line_bytes_len += 1;
     }
     // Write space after
-    if (tk_info.attrs.spaceAfter()) {
+    if (tk_info.isSyllable() or tk_info.attrs.spaceAfter()) {
         text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
     }
