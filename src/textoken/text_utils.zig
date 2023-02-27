@@ -75,7 +75,8 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_sylla
     // Write token to line_bytes
     var i: usize = 1;
     // Write space before
-    if (!prev_is_syllable and tk_info.isSyllable()) {
+    _ = prev_is_syllable;
+    if (tk_info.isSyllable() and text.line_bytes[text.line_bytes_len - 1] != ' ') {
         text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
     }

@@ -205,6 +205,7 @@ pub fn write_transforms_to_file(
     no_vi_filename: []const u8,
     low_vi_filename: []const u8,
     most_vi_filename: []const u8,
+    short_vi_filename: []const u8,
 ) !void {
     //
     var buffer: [100]u8 = undefined;
@@ -216,12 +217,14 @@ pub fn write_transforms_to_file(
     var txt_file = try std.fs.cwd().createFile(txt_filename, .{});
     // var cdx_file = try std.fs.cwd().createFile(cdx_filename, .{});
     var low_file = try std.fs.cwd().createFile(low_vi_filename, .{});
+    var sho_file = try std.fs.cwd().createFile(short_vi_filename, .{});
     var mos_file = try std.fs.cwd().createFile(most_vi_filename, .{});
     var nvi_file = try std.fs.cwd().createFile(no_vi_filename, .{});
 
     defer txt_file.close();
     // defer cdx_file.close();
     defer low_file.close();
+    defer sho_file.close();
     defer mos_file.close();
     defer nvi_file.close();
 
@@ -233,6 +236,9 @@ pub fn write_transforms_to_file(
 
     var low_wrt = Text.BufferedWriter{ .unbuffered_writer = low_file.writer() };
     const low_writer = low_wrt.writer();
+
+    var sho_wrt = Text.BufferedWriter{ .unbuffered_writer = sho_file.writer() };
+    const sho_writer = sho_wrt.writer();
 
     var mos_wrt = Text.BufferedWriter{ .unbuffered_writer = mos_file.writer() };
     const mos_writer = mos_wrt.writer();
@@ -251,10 +257,11 @@ pub fn write_transforms_to_file(
             text.line_bytes[text.line_bytes_len] = '\n';
             text.code_bytes[text.code_bytes_len] = '\n';
 
+            const too_short = text.line_tokens_count < 800;
             const no_vietnamese = text.line_vi_tokens_len == 0;
             const low_vietnamese = text.line_bytes_len * 60 > text.line_vi_tokens_len * 100;
-            const most_vietnamese = text.line_bytes_len * 80 > text.line_vi_tokens_len * 100;
-
+            var almost_viet: bool = text.line_bytes_len * 80 > text.line_vi_tokens_len * 100;
+            almost_viet = almost_viet or (text.line_syllables_count * 65 > text.line_tokens_count * 100);
             if (no_vietnamese) {
                 // Không có tiếng Việt
                 _ = try nvi_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
@@ -264,7 +271,9 @@ pub fn write_transforms_to_file(
                 _ = try low_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 // _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
                 //
-            } else if (most_vietnamese) {
+            } else if (too_short) {
+                _ = try sho_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
+            } else if (almost_viet) {
                 // Tiếng Việt chiếm đa số
                 _ = try mos_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 // _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
@@ -282,6 +291,7 @@ pub fn write_transforms_to_file(
     try txt_wrt.flush();
     // try cdx_wrt.flush();
     try low_wrt.flush();
+    try sho_wrt.flush();
     try mos_wrt.flush();
     try nvi_wrt.flush();
 }
