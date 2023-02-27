@@ -15,9 +15,9 @@ pub const NGram = struct {
     c7_grams: std.AutoHashMap([7]Gram, u32) = undefined,
     c8_grams: std.AutoHashMap([8]Gram, u32) = undefined,
 
-    allocator: *std.mem.Allocator = undefined,
+    allocator: std.mem.Allocator = undefined,
 
-    pub fn init(self: *NGram, init_allocator: *std.mem.Allocator) void {
+    pub fn init(self: *NGram, init_allocator: std.mem.Allocator) void {
         self.allocator = init_allocator;
         self.c1_grams = std.AutoHashMap([2]Gram, u32).init(self.allocator);
         self.c2_grams = std.AutoHashMap([2]Gram, u32).init(self.allocator);

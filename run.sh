@@ -1,10 +1,11 @@
 #!/bin/sh
 
 # rm -rf ***/zig-cache ***/zig-out
-# zig build -Drelease-fast=true
+zig build -Drelease-fast=true
 # zig build -Drelease-safe=true
-zig build
+# zig build
 sudo cp ./zig-out/bin/* /usr/local/bin/
+./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt utf8 ngram
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt dense
