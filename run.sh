@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # rm -rf ***/zig-cache ***/zig-out
-zig build -Drelease-fast=true
+# zig build -Drelease-fast=true
 # zig build -Drelease-safe=true
 # zig build
 sudo cp ./zig-out/bin/* /usr/local/bin/
