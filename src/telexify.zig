@@ -198,11 +198,11 @@ pub fn main() anyerror!void {
         try write_results(step2_time);
     } else {
         // Nếu đếm n-gram thì có thể tiện viết kết quả trong lúc count
-        // const thread1 = try std.Thread.spawn(.{}, write_results, .{ step2_time });
-        // try countNGram(step2_time);
-        // thread1.join();
-        try write_results(step2_time);
+        const thread1 = try std.Thread.spawn(.{}, write_results, .{ step2_time });
         try countNGram(step2_time);
+        thread1.join();
+        // try write_results(step2_time);
+        // try countNGram(step2_time);
     }
 
     // Hoàn tất chương trình, hiện tổng thời gian chạy

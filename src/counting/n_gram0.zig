@@ -49,7 +49,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print(PAD ++ "Counting 2,3,6-gram {d}%\n", .{percents});
+                std.debug.print(PAD ++ "Counting 2,3-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -60,13 +60,13 @@ pub const NGram = struct {
             grams[4] = grams[5];
             grams[5] = syllable_ids[i];
 
-            if (!(grams[4] == BLANK and grams[5] == BLANK)) {
+            if (grams[4] != BLANK and grams[5] != BLANK) {
                 const gop2 = try self.c2_grams.getOrPutValue(grams[4..6].*, 0);
                 gop2.value_ptr.* += 1;
             }
 
-            if (!(grams[4] == BLANK) and
-                !(grams[3] == BLANK and grams[5] == BLANK))
+            if (grams[4] != BLANK and
+                grams[3] != BLANK and grams[5] != BLANK)
             {
                 const gop3 = try self.c3_grams.getOrPutValue(grams[3..6].*, 0);
                 gop3.value_ptr.* += 1;
@@ -105,7 +105,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print("Counting 1,5,7-gram {d}%\n", .{percents});
+                std.debug.print("Counting 1,5-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -163,7 +163,7 @@ pub const NGram = struct {
             // Show progress
             if (i >= percents_threshold) {
                 percents += 10;
-                std.debug.print(PAD ++ PAD ++ "Counting 4,8-gram {d}%\n", .{percents});
+                std.debug.print(PAD ++ PAD ++ "Counting 4-gram {d}%\n", .{percents});
                 percents_threshold += ten_percents;
             }
 
@@ -257,7 +257,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
         else
             try writer.print("{d} {s}", .{
                 item.count,
-                Syllable.newFromId(id).printBuff(buff, false),
+                Syllable.newFromId(id).printBuffUtf8(buff),
             });
 
         if (uniGram) {
@@ -271,7 +271,7 @@ pub fn writeGramCounts(grams: anytype, filename: []const u8, uniGram: bool) !voi
             if (id == BLANK)
                 _ = try writer.write(" #")
             else
-                try writer.print(" {s}", .{Syllable.newFromId(id).printBuff(buff, false)});
+                try writer.print(" {s}", .{Syllable.newFromId(id).printBuffUtf8(buff)});
         }
 
         _ = try writer.write("\n");
