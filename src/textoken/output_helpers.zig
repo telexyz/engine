@@ -244,9 +244,7 @@ pub fn write_transforms_to_file(
             text.code_bytes[text.code_bytes_len] = '\n';
 
             const no_vietnamese = text.line_vi_tokens_len == 0;
-            const low_vietnamese = text.line_bytes_len * 2 > text.line_vi_tokens_len * 3;
-            const most_vietnamese = text.line_tokens_count > 0 and
-                (text.line_syllables_count * 100 / text.line_tokens_count) >= 80;
+            const low_vietnamese = text.line_bytes_len * 3 > text.line_vi_tokens_len * 4;
 
             if (no_vietnamese) {
                 // Không có tiếng Việt
@@ -258,11 +256,6 @@ pub fn write_transforms_to_file(
                 _ = try low_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 // _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
                 // _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
-                //
-            } else if (most_vietnamese) {
-                // Tiếng Việt chiếm đại đa số (> 80%)
-                // _ = try cdx_writer.write(text.code_bytes[0 .. text.code_bytes_len + 1]);
-                _ = try txt_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
                 //
             } else {
                 // Tiếng Việt chiếm đa số
