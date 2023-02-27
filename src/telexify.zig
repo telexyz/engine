@@ -121,6 +121,7 @@ fn write_results(step2_time: i64) !void {
         output_filename,
         "data/31-no_vietnamese.txt",
         "data/32-low_vietnamese.txt",
+        "data/33-most_vietnamese.txt",
     );
     _ = showMeTimeLap(step2_time, "Writing tokenized results done!");
 }
