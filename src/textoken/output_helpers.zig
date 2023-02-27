@@ -234,7 +234,7 @@ pub fn write_transforms_to_file(
     var low_wrt = Text.BufferedWriter{ .unbuffered_writer = low_file.writer() };
     const low_writer = low_wrt.writer();
 
-    var mos_wrt = Text.BufferedWriter{ .unbuffered_writer = low_file.writer() };
+    var mos_wrt = Text.BufferedWriter{ .unbuffered_writer = mos_file.writer() };
     const mos_writer = mos_wrt.writer();
 
     var nvi_wrt = Text.BufferedWriter{ .unbuffered_writer = nvi_file.writer() };
