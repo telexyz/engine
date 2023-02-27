@@ -47,10 +47,3 @@ Through the lens of this language model I can search for the emotional residue o
 Language is humanity's longest running program, capturing, producing, mirroring, and explaining our thoughts, fears, hopes and warnings. Every phrase and every utterance, as long as it's echoed forward in time, helps build out that web. This has always been true throughout history but applies now more than ever.
 
 Half a century ago the indexes in books were manually written. A quarter of a century ago search engines began to automate this index. Today language models burn through sequences of abstract symbols and, thanks to all the links and anchors left by humans across such a haphazard sequence, are starting to assemble an index along dimensions we'd never have been able to elucidate or comprehend before.
-
-## SHA-RNN: Single Headed Attention RNN
-https://arxiv.org/abs/1911.11423
-
-The leading approaches in language modeling are all obsessed with TV shows of my youth - namely Transformers and Sesame Street. Transformers this, Transformers that, and over here a bonfire worth of GPU-TPU-neuromorphic wafer scale silicon. We opt for the lazy path of old and proven techniques with a fancy crypto inspired acronym: the Single Headed Attention RNN (SHA-RNN). The author's lone goal is to show that the entire field might have evolved a different direction if we had instead been obsessed with a slightly different acronym and slightly different result. We take a previously strong language model based only on boring LSTMs and get it to within a stone's throw of a stone's throw of state-of-the-art byte level language model results on enwik8. This work has undergone no intensive hyperparameter optimization and lived entirely on a commodity desktop machine that made the author's small studio apartment far too warm in the midst of a San Franciscan summer. The final results are achievable in plus or minus 24 hours on a single GPU as the author is impatient. The attention mechanism is also readily extended to large contexts with minimal computation. Take that Sesame Street.
-
-https://github.com/alisafaya/SHA-RNN.jl
