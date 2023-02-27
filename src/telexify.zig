@@ -155,21 +155,53 @@ fn tokenizeAndParse(step0_time: i64) !i64 {
 pub fn countNGram(step2_time: i64) !void {
     std.debug.print("\nSTEP 3: Count and write n-gram ...\n", .{});
 
-    const NGram = @import("./counting/n_gram.zig").NGram();
+    const NGram0 = @import("./counting/n_gram0.zig").NGram;
+    var gram: NGram0 = .{};
+   // Chạy hết trong 1 lượt
+    const thread1 = try std.Thread.spawn(.{}, NGram0.countAndWrite48, .{ &gram, text, "data/24-fourth_grams.txt", "data/28-eighth_grams.txt" });
+    const thread2 = try std.Thread.spawn(.{}, NGram0.countAndWrite157, .{ &gram, text, "data/21-uni_grams.txt", "data/25-fifth_grams.txt", "data/27-seventh_grams.txt" });
+    // Đếm lâu nhất cho chạy ở process chính
+    try gram.countAndWrite236(text, "data/22-bi_grams.txt", "data/23-tri_grams.txt", "data/26-sixth_grams.txt");
+    thread1.join();
+    thread2.join();
+
+    // const NGram = @import("./counting/n_gram.zig").NGram();
+    // const NGram = @import("./counting/n_gram_old.zig").NGram(true);
+    // const NGram = @import("./counting/n_gram_older.zig").NGram(true);
+
     // Khởi tạo bộ đếm
-    var gram: NGram = .{};
-    gram.init(std.heap.page_allocator);
-    defer gram.deinit();
+    // var gram: NGram = .{};
+    // gram.init(std.heap.page_allocator);
+    // defer gram.deinit();
 
-    try gram.loadSyllableIdsFromText(text);
-    text.deinit();
+    // try gram.loadSyllableIdsFromText(text);
+    // text.deinit();
 
+    // try gram.countAndWrite(
+    //     "data/21-grams",
+    //     "data/22-grams",
+    //     "data/23-grams",
+    //     "data/24-grams",
+    // );
+
+    // OLDER
+    // var thread = try spawn(.{}, NGram.countAndWrite23, .{ &gram, text, "data/22-grams.cdx", "data/23-grams.cdx" });
+    // try gram.countAndWrite15(text, "data/21-grams.cdx", "data/25-grams.cdx");
+    // thread.join();
+    // 
+    // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
+    // thread = try spawn(.{}, NGram.countAndWrite04, .{ &gram, text, "data/24-grams.cdx" });
+    // try gram.countAndWrite06(text, "data/26-grams.cdx");
+    // thread.join();
+
+    // OLD
+    // try gram.countAndWrite23("data/22-grams", "data/23-grams");
     // Chạy song song để tăng tốc
     // var thread = try std.Thread.spawn(.{}, NGram.countAndWrite23, .{ &gram, "data/22-grams", "data/23-grams" });
     // try gram.countAndWrite23("data/22-grams", "data/23-grams");
     // try gram.countAndWrite15("data/21-grams", "data/25-grams");
     // thread.join();
-
+    // 
     // Nhưng chia làm hai mẻ để không nóng máy và quá tải bộ nhớ
     // thread = try std.Thread.spawn(.{}, NGram.countAndWrite04, .{ &gram, "data/24-grams" });
     // try gram.countAndWrite04("data/24-grams");
