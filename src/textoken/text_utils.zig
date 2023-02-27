@@ -8,7 +8,7 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("text_data_struct.zig").Text;
 const Base64Encoder = std.base64.standard_no_pad.Encoder;
 
-pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
+pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_syllable: bool) bool {
     var ptr = tk_info.trans_ptr(text);
     var byte: u8 = ptr[1];
 
@@ -71,14 +71,14 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text) bool {
     }
     text.line_tokens_count += 1;
 
-    // const is_true_joiners = switch (ptr[1]) {
-    //     '_', '-' => tk_info.attrs.fenced_by_spaces == .none and len == 1,
-    //     else => false,
-    // };
-
     // LINE_BYTES
     // Write token to line_bytes
     var i: usize = 1;
+    // Write space before
+    if (!prev_is_syllable and tk_info.isSyllable()) {
+        text.line_bytes[text.line_bytes_len] = ' ';
+        text.line_bytes_len += 1;
+    }
     if (text.convert_mode == 1 and tk_info.isSyllable()) { // dense mode add
         text.line_bytes[text.line_bytes_len] = 16; // an invisible char
         text.line_bytes_len += 1;

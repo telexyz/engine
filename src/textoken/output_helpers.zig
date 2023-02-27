@@ -241,17 +241,19 @@ pub fn write_transforms_to_file(
     const nvi_writer = nvi_wrt.writer();
 
     var i: usize = 0;
+    var prev_is_syllable: bool = false;
 
     while (i < text.tokens_num) : (i += 1) {
-        if (text_utils.writeTokenInfo(text.tokens_infos.get(i), text)) {
+        var tk_info = text.tokens_infos.get(i);
+        if (text_utils.writeTokenInfo(tk_info, text, prev_is_syllable)) {
             if (text.line_bytes_len == 1) continue;
 
             text.line_bytes[text.line_bytes_len] = '\n';
             text.code_bytes[text.code_bytes_len] = '\n';
 
             const no_vietnamese = text.line_vi_tokens_len == 0;
-            const low_vietnamese = text.line_bytes_len * 75 > text.line_vi_tokens_len * 100;
-            const most_vietnamese = text.line_bytes_len * 85 > text.line_vi_tokens_len * 100;
+            const low_vietnamese = text.line_bytes_len * 60 > text.line_vi_tokens_len * 100;
+            const most_vietnamese = text.line_bytes_len * 80 > text.line_vi_tokens_len * 100;
 
             if (no_vietnamese) {
                 // Không có tiếng Việt
@@ -274,6 +276,7 @@ pub fn write_transforms_to_file(
             // Reset at last
             text.initNewLine();
         }
+        prev_is_syllable = tk_info.isSyllable();
     }
 
     try txt_wrt.flush();
