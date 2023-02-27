@@ -5,6 +5,7 @@ zig build -Drelease-fast=true
 # zig build -Drelease-safe=true
 # zig build
 sudo cp ./zig-out/bin/* /usr/local/bin/
+cp ./zig-out/bin/telexify ../vi
 ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt utf8 ngram
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt spare
 # ./zig-out/bin/telexify data/sample_input.txt data/sample_output.txt parts

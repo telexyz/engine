@@ -76,8 +76,8 @@ pub const NGram = struct {
             if (grams[3] == BLANK or grams[4] == BLANK) continue;
             if (grams[0] == BLANK and grams[5] == BLANK) continue;
 
-            const gop6 = try self.c6_grams.getOrPutValue(grams, 0);
-            gop6.value_ptr.* += 1;
+            // const gop6 = try self.c6_grams.getOrPutValue(grams, 0);
+            // gop6.value_ptr.* += 1;
         } // while
 
         try writeGramCounts(self.c2_grams, filename2, false);
@@ -86,8 +86,9 @@ pub const NGram = struct {
         try writeGramCounts(self.c3_grams, filename3, false);
         self.c3_grams.deinit();
 
-        try writeGramCounts(self.c6_grams, filename6, false);
-        self.c6_grams.deinit();
+        _ = filename6;
+        // try writeGramCounts(self.c6_grams, filename6, false);
+        // self.c6_grams.deinit();
     }
 
     pub fn countAndWrite157(self: *NGram, text: Text, filename1: []const u8, filename5: []const u8, filename7: []const u8) !void {
@@ -143,8 +144,9 @@ pub const NGram = struct {
         try writeGramCounts(self.c5_grams, filename5, false);
         self.c5_grams.deinit();
 
-        try writeGramCounts(self.c7_grams, filename7, false);
-        self.c7_grams.deinit();
+        _ = filename7;
+        // try writeGramCounts(self.c7_grams, filename7, false);
+        // self.c7_grams.deinit();
     }
 
     pub fn countAndWrite48(self: *NGram, text: Text, filename4: []const u8, filename8: []const u8) !void {
@@ -192,8 +194,9 @@ pub const NGram = struct {
         try writeGramCounts(self.c4_grams, filename4, false);
         self.c4_grams.deinit();
 
-        try writeGramCounts(self.c8_grams, filename8, false);
-        self.c8_grams.deinit();
+        _ = filename8;
+        // try writeGramCounts(self.c8_grams, filename8, false);
+        // self.c8_grams.deinit();
     }
 };
 
