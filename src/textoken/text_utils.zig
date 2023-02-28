@@ -204,7 +204,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
 // Low use / keep for references
 
 const PAD = "                 ";
-const WAIT_NANOSECS: u64 = 800_000_000; // nanoseconds
+const WAIT_NANOSECS: u64 = 3_000_000_000; // nanoseconds
 
 pub fn parseTokens(text: *Text) void {
     // @setRuntimeSafety(false); // !!! DANGER: PLAY WITH FIRE !!!
