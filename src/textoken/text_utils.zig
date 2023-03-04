@@ -74,9 +74,10 @@ pub fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_syllable: bo
     // LINE_BYTES
     // Write token to line_bytes
     var i: usize = 1;
+    const is_syll_utf8_mode = (tk_info.isSyllable() and text.convert_mode != 1);
     // Write space before
     _ = prev_is_syllable;
-    if (tk_info.isSyllable() and text.line_bytes[text.line_bytes_len - 1] != ' ') {
+    if (is_syll_utf8_mode and text.line_bytes[text.line_bytes_len - 1] != ' ') {
         // thread 4385 panic: integer overflow
         // textoken/text_utils.zig:79:70: 0x35fb23 in textoken.output_helpers.write_transforms_to_file (telexify)
         // telexify.zig:119:48: 0x34faf5 in write_results (telexify)
@@ -98,7 +99,6 @@ pub fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_syllable: bo
         text.line_bytes_len += 1;
     }
     // Write space after
-    const is_syll_utf8_mode = (tk_info.isSyllable() and text.convert_mode != 1);
     if (is_syll_utf8_mode or tk_info.attrs.spaceAfter()) {
         text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
