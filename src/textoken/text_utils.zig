@@ -8,7 +8,7 @@ const U2ACharStream = telex_char_stream.Utf8ToAsciiTelexCharStream;
 const Text = @import("text_data_struct.zig").Text;
 const Base64Encoder = std.base64.standard_no_pad.Encoder;
 
-pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_syllable: bool) bool {
+pub fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_syllable: bool) bool {
     var ptr = tk_info.trans_ptr(text);
     var byte: u8 = ptr[1];
 
@@ -77,6 +77,11 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_sylla
     // Write space before
     _ = prev_is_syllable;
     if (tk_info.isSyllable() and text.line_bytes[text.line_bytes_len - 1] != ' ') {
+        // thread 4385 panic: integer overflow
+        // textoken/text_utils.zig:79:70: 0x35fb23 in textoken.output_helpers.write_transforms_to_file (telexify)
+        // telexify.zig:119:48: 0x34faf5 in write_results (telexify)
+        // telexify.zig:200:26: 0x347ed5 in main (telexify)
+
         text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
     }
@@ -93,7 +98,8 @@ pub inline fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_sylla
         text.line_bytes_len += 1;
     }
     // Write space after
-    if (tk_info.isSyllable() or tk_info.attrs.spaceAfter()) {
+    const is_syll_utf8_mode = (tk_info.isSyllable() and text.convert_mode != 1);
+    if (is_syll_utf8_mode or tk_info.attrs.spaceAfter()) {
         text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
     }
