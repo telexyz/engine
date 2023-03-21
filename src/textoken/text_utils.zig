@@ -74,18 +74,8 @@ pub fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_syllable: bo
     // LINE_BYTES
     // Write token to line_bytes
     var i: usize = 1;
-    const is_syll_utf8_mode = (tk_info.isSyllable() and text.convert_mode != 1);
-    // Write space before
-    _ = prev_is_syllable;
-    if (is_syll_utf8_mode and text.line_bytes[text.line_bytes_len - 1] != ' ') {
-        // thread 4385 panic: integer overflow
-        // textoken/text_utils.zig:79:70: 0x35fb23 in textoken.output_helpers.write_transforms_to_file (telexify)
-        // telexify.zig:119:48: 0x34faf5 in write_results (telexify)
-        // telexify.zig:200:26: 0x347ed5 in main (telexify)
-
-        text.line_bytes[text.line_bytes_len] = ' ';
-        text.line_bytes_len += 1;
-    }
+    // const is_syll_utf8_mode = (tk_info.isSyllable() and text.convert_mode != 1);
+    _ = prev_is_syllable; // won't use for now
     if (text.convert_mode == 1 and tk_info.isSyllable()) { // dense mode add
         text.line_bytes[text.line_bytes_len] = 16; // an invisible char
         text.line_bytes_len += 1;
@@ -99,7 +89,7 @@ pub fn writeTokenInfo(tk_info: Text.TokenInfo, text: *Text, prev_is_syllable: bo
         text.line_bytes_len += 1;
     }
     // Write space after
-    if (is_syll_utf8_mode or tk_info.attrs.spaceAfter()) {
+    if (tk_info.attrs.spaceAfter()) {
         text.line_bytes[text.line_bytes_len] = ' ';
         text.line_bytes_len += 1;
     }
@@ -154,7 +144,7 @@ pub inline fn saveAsciiTransform(text: *Text, char_stream: U2ACharStream, syllab
     if (text.convert_mode == 4) {
         // utf-8, lowercase
 
-        if (char_stream.first_char_is_upper) {
+        if (false and char_stream.first_char_is_upper) {
             // Nước => ^nuoc, VIỆT => ^^viet
             offset_ptr.* = '^';
             offset_ptr += 1;

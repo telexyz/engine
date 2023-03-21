@@ -258,12 +258,10 @@ pub fn write_transforms_to_file(
             text.line_bytes[text.line_bytes_len] = '\n';
             text.code_bytes[text.code_bytes_len] = '\n';
 
-            const too_short = text.line_tokens_count < 1024;
-            // const no_vietnamese = text.line_vi_tokens_len == 0;
+            const too_short = false; // text.line_tokens_count < 1024;
             const no_vietnamese = text.line_bytes_len * 20 > text.line_vi_tokens_len * 100;
-            const low_vietnamese = text.line_bytes_len * 60 > text.line_vi_tokens_len * 100;
-            var almost_viet: bool = text.line_bytes_len * 70 > text.line_vi_tokens_len * 100;
-            // almost_viet = almost_viet or (text.line_syllables_count * 65 > text.line_tokens_count * 100);
+            const low_vietnamese = text.line_bytes_len * 50 > text.line_vi_tokens_len * 100;
+            var almost_viet = false; // text.line_bytes_len * 40 > text.line_vi_tokens_len * 100;
             if (no_vietnamese) {
                 // Không hoặc rất ít tiếng Việt
                 _ = try nvi_writer.write(text.line_bytes[0 .. text.line_bytes_len + 1]);
